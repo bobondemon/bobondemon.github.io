@@ -5,32 +5,29 @@
 <p>Some might wonder that speed, throttle, and brake are features that are useful too.<br>Also, driving images are time correlated, not just a given static image.<br>With ignoring so much useful information, does the goal still reasonable?</p>
 <p><a href="https://images.nvidia.com/content/tegra/automotive/images/2016/solutions/pdf/end-to-end-dl-using-px.pdf" target="_blank" rel="external">Nvidia</a> just showed it works! and works pretty well!<br>So our first step is to collect the data, and fortunately, Udacity provides data for us and I used it for training.</p>
 <h3 id="Training-Data-Analysis"><a href="#Training-Data-Analysis" class="headerlink" title="Training Data Analysis"></a>Training Data Analysis</h3><p>8036 data are provided. Each data has <strong>3</strong> positions of images (left, center, right) with <strong>1</strong> corresponding steering angle.<br>Most of angles are 0, and I found that randomly ignoring half of 0-angle data is fine and can speed up. Moreover, I duplicated some samples that has angles within the range +-[0.2, 1] in order to balance the data.<br>Histograms of before/after data selection are shown below:</p>
-<p><img src="/2017/02/05/Driving-by-Learning-Your-Style/steer_hist_before_after_selected_0.2_1.png" alt="histogram of steering angle before/after selection" height="80%" width="80%"></p>
+<div align="center"><img src="/2017/02/05/Driving-by-Learning-Your-Style/steer_hist_before_after_selected_0.2_1.png" alt="histogram of steering angle before/after selection" height="80%" width="80%"></div>
+
 <h3 id="Data-Augmentation"><a href="#Data-Augmentation" class="headerlink" title="Data Augmentation"></a>Data Augmentation</h3><p>Data augmentation is a practical way to avoid overfit and generalized the model. I used 5 types of augmentations:</p>
 <ol>
 <li><p><strong>Flipping</strong> – Flipping is a useful way to <em>balance both turns</em> of data. For each data, a 1/2 probability is used to decide wheter to flip. Also, steering angle is multiplied by -1.</p>
 </li>
 <li><p><strong>Horizontal shift</strong> – [-20,+20] pixels are randomly selected as the shift value. By doing so, it can help to recover the vehicle when it goes outside the lane.<br>By referencing this <a href="https://chatbotslife.com/using-augmentation-to-mimic-human-driving-496b569760a9#.zem65mq24" target="_blank" rel="external">article</a>, I added 0.004 steering angle units per pixel shift to the right, and subtracted 0.004 steering angle units per pixel shift to the left.<br>Results in [-0.8~+0.8] steering values adjustment which corresponding to [-2~+2] degrees (steering value * 25 = degree)</p>
+<div align="center"><img src="/2017/02/05/Driving-by-Learning-Your-Style/hshift.png" alt="horizontal shift" height="50%" width="50%"></div>
 </li>
-</ol>
-<p><img src="/2017/02/05/Driving-by-Learning-Your-Style/hshift.png" alt="horizontal shift" height="50%" width="50%"></p>
-<ol>
-<li><strong>Brightness</strong> – Brightness is done in the “HSV” domain. I found that with a ratio of [0.5~1.1] for “V” domain works fine.</li>
-</ol>
-<p><img src="/2017/02/05/Driving-by-Learning-Your-Style/brightness.png" alt="brightness" height="50%" width="50%"></p>
-<ol>
-<li><strong>Blurring</strong> – A Gaussian blur with kernel size 3 is applied. Not sure how useful of this method helps for robustness.</li>
-</ol>
-<p><img src="/2017/02/05/Driving-by-Learning-Your-Style/blur.png" alt="blur" height="50%" width="50%"><br><!--5. **Shadowing** -- A random shadowing function is adopted which is referenced from [this work](https://github.com/windowsub0406/SelfDrivingCarND/blob/master/SDC_project_3/model.ipynb).
-<img src="shadow.png" alt="shadow" height="50%" width="50%">--></p>
-<ol>
+<li><p><strong>Brightness</strong> – Brightness is done in the “HSV” domain. I found that with a ratio of [0.5~1.1] for “V” domain works fine.</p>
+<div align="center"><img src="/2017/02/05/Driving-by-Learning-Your-Style/brightness.png" alt="brightness" height="50%" width="50%"></div>
+</li>
+<li><p><strong>Blurring</strong> – A Gaussian blur with kernel size 3 is applied. Not sure how useful of this method helps for robustness.<br><div align="center"><img src="/2017/02/05/Driving-by-Learning-Your-Style/blur.png" alt="blur" height="50%" width="50%"></div></p>
+<!--5. **Shadowing** -- A random shadowing function is adopted which is referenced from [this work](https://github.com/windowsub0406/SelfDrivingCarND/blob/master/SDC_project_3/model.ipynb).
+<div align=center><img src="shadow.png" alt="shadow" height="50%" width="50%"></div>--></li>
 <li><strong>Left/Right camera images</strong> – These left/right images are very useful for data augmentation and also help for recovering off-lane driving.<blockquote>
 <p><strong>Udacity</strong>: You also might wonder why there are three cameras on the car: center, left, and right. That’s because of the issue of recovering from being off-center.<br>In the simulator, you can weave all over the road and turn recording on and off. In a real car, however, that’s not really possible. At least not legally.<br>So in a real car, we’ll have multiple cameras on the vehicle, and we’ll map recovery paths from each camera. </p>
 </blockquote>
 </li>
 </ol>
 <p>I adjusted the steering angles for left/right images with a naive method. Following figure shows how I correct the angle of right image:</p>
-<p><img src="/2017/02/05/Driving-by-Learning-Your-Style/left_right_angle_correction.png" alt="left_right_angle_correction" height="70%" width="70%"></p>
+<div align="center"><img src="/2017/02/05/Driving-by-Learning-Your-Style/left_right_angle_correction.png" alt="left_right_angle_correction" height="70%" width="70%"></div>
+
 <p>I found that setting offset = 6 or 5 is good enough. For large value, the car starts zig-zagging. An example of correction shows below, where the steering angles are indicated by red lines:</p>
 <p><img src="/2017/02/05/Driving-by-Learning-Your-Style/steer_correction.png" alt="steer_correction"></p>
 <h3 id="Data-Normalization"><a href="#Data-Normalization" class="headerlink" title="Data Normalization"></a>Data Normalization</h3><ul>
@@ -39,8 +36,10 @@
 <li>Resizing – resized to 66 x 200, same as NVIDIA CNN.</li>
 </ul>
 <h3 id="Model-Architecture"><a href="#Model-Architecture" class="headerlink" title="Model Architecture"></a>Model Architecture</h3><p>I adopted NVIDIA CNN with dropout layers:</p>
-<p><img src="/2017/02/05/Driving-by-Learning-Your-Style/cnn_architecture.png" alt="cnn_architecture" height="70%" width="70%"></p>
-<p><img src="/2017/02/05/Driving-by-Learning-Your-Style/cnn_architecture2.png" alt="cnn_architecture2" height="70%" width="70%"></p>
+<div align="center"><img src="/2017/02/05/Driving-by-Learning-Your-Style/cnn_architecture.png" alt="cnn_architecture" height="70%" width="70%"></div>
+
+<div align="center"><img src="/2017/02/05/Driving-by-Learning-Your-Style/cnn_architecture2.png" alt="cnn_architecture2" height="70%" width="70%"></div>
+
 <!--
 | Layer (type) | Output Shape | Param |
 | ------------ |--------------| ------|
