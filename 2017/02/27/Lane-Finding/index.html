@@ -1,0 +1,129 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>Lane-Finding | CS Blog</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"><link rel="stylesheet" type="text/css" href="/css/highlight.css"><link rel="stylesheet" type="text/css" href="/css/very-simple.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"></head><body><!-- include the sidebar--><!-- include ./includes/sidebar.jade--><!-- Blog title and subtitle--><header><div class="container header"><a id="logo" href="/." class="title">CS Blog</a><span class="subtitle">AI ML 自耕農</span><label id="toggle-menu" for="menu" onclick><i class="fa fa-bars"></i></label></div></header><!-- use checkbox hack for toggle nav-bar on small screens--><input id="menu" type="checkbox"><!-- Navigation Links--><nav id="nav"><div class="container"><a href="/" class="sidebar-nav-item active">Home</a><a href="/archives" class="sidebar-nav-item">Archives</a></div></nav><div id="header-margin-bar"></div><!-- gallery that comes before the header--><div class="wrapper"><div class="container post-header"><h1>Lane-Finding</h1></div></div><div class="wrapper"><div class="container meta"><div class="post-time">2017-02-27</div><div class="post-categories"><a class="post-category-link" href="/categories/CV/">CV</a></div><div class="post-tags"><a class="post-tag-link" href="/tags/CV/">CV</a>/<a class="post-tag-link" href="/tags/Udacity/">Udacity</a></div></div></div><article><div class="container post"><p>The goals / steps of this project are the following:</p>
+<ol>
+<li>Compute the camera calibration matrix and distortion coefficients given a set of chessboard images. (<code>1_calibration_camera_chessboard.jpg</code>)</li>
+<li>Apply a distortion correction to raw images. (<code>2_undist.jpg</code>)</li>
+<li>Use color transforms, gradients, etc., to create a thresholded binary image. (<code>3_masking.jpg</code>)</li>
+<li>Apply a perspective transform to rectify binary image (“birds-eye view”). (<code>4_warp.jpg</code>)</li>
+<li>Detect lane pixels and fit to find the lane boundary. (<code>5_lane_pixel_fit.jpg</code>)</li>
+<li>Determine the curvature of the lane and vehicle position with respect to center. (<code>6_curvature.jpg</code>)</li>
+<li>Warp the detected lane boundaries back onto the original image. (<code>7_warp_back.jpg</code>)</li>
+<li>Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.</li>
+</ol>
+<p>Each step has its corresponding output image (<code>*.jpg</code>) stored in directory ``</p>
+<hr>
+<h3 id="Rubric-Points"><a href="#Rubric-Points" class="headerlink" title="Rubric Points"></a><a href="https://review.udacity.com/#!/rubrics/571/view" target="_blank" rel="external">Rubric</a> Points</h3><h4 id="1-Camera-calibration"><a href="#1-Camera-calibration" class="headerlink" title="1. Camera calibration"></a>1. Camera calibration</h4><p>The images for calculating the distortion and 3-D to 2-D mapping matrix are stored in <code>./camera_cal/calibration*.jpg</code>.<br>Firstly, I used <code>cv2.findChessboardCorners</code> to find out all those corner points (<code>corners</code>) in the images.<br>Then I used <code>cv2.calibrateCamera</code> to calculate the distortion (<code>dist</code>) and mapping matrix (<code>mtx</code>) given the <code>corners</code> pts and their corresponding predifined 3-D pts <code>objp</code></p>
+<p><img src="/2017/02/27/Lane-Finding/./1_calibration_camera_chessboard.jpg" alt="chessboard" height="100%" width="100%"></p>
+<h4 id="2-Provide-an-example-of-a-distortion-corrected-image"><a href="#2-Provide-an-example-of-a-distortion-corrected-image" class="headerlink" title="2. Provide an example of a distortion-corrected image"></a>2. Provide an example of a distortion-corrected image</h4><p>Here is an example of distortion-corrected image:</p>
+<p><img src="/2017/02/27/Lane-Finding/./2_undist.jpg" alt="camera calibration" height="100%" width="100%"></p>
+<h4 id="3-Create-a-thresholded-binary-image-and-provide-example"><a href="#3-Create-a-thresholded-binary-image-and-provide-example" class="headerlink" title="3. Create a thresholded binary image and provide example"></a>3. Create a thresholded binary image and provide example</h4><p>I used magnitude of gradients, direction of gradients, and L and S in HLS color space.<br>A combined rule is used:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">combined[((mag_binary == <span class="number">1</span>) &amp; (dir_binary == <span class="number">1</span>)) |\</div><div class="line">         ((hls_binary == <span class="number">1</span>) &amp; (dir_binary == <span class="number">1</span>) &amp; (bright_binary == <span class="number">1</span>))] = <span class="number">1</span></div></pre></td></tr></table></figure>
+<p>Example masking image is showed:</p>
+<p><img src="/2017/02/27/Lane-Finding/./3_masking.jpg" alt="binary masking" height="100%" width="100%"></p>
+<p>Moreover, I used widgets to help tunning the parameters of those masking functions. It can provide instantaneous binary result that really help for accelarating this step. The widgets codes are list here:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">interactive_mask</span><span class="params">(ksize, mag_low, mag_high, dir_low, dir_high, hls_low, hls_high, bright_low, bright_high)</span>:</span></div><div class="line">    combined = combined_binary_mask(image,ksize, mag_low, mag_high, dir_low, dir_high,\</div><div class="line">                                    hls_low, hls_high, bright_low, bright_high)</div><div class="line">    plt.figure(figsize=(<span class="number">10</span>,<span class="number">10</span>))</div><div class="line">    plt.imshow(combined,cmap=<span class="string">'gray'</span>)</div><div class="line">    </div><div class="line">interact(interactive_mask, ksize=(<span class="number">1</span>,<span class="number">31</span>,<span class="number">2</span>), mag_low=(<span class="number">0</span>,<span class="number">255</span>), mag_high=(<span class="number">0</span>,<span class="number">255</span>),\</div><div class="line">         dir_low=(<span class="number">0</span>, np.pi/<span class="number">2</span>), dir_high=(<span class="number">0</span>, np.pi/<span class="number">2</span>), hls_low=(<span class="number">0</span>,<span class="number">255</span>),\</div><div class="line">         hls_high=(<span class="number">0</span>,<span class="number">255</span>), bright_low=(<span class="number">0</span>,<span class="number">255</span>), bright_high=(<span class="number">0</span>,<span class="number">255</span>))</div></pre></td></tr></table></figure>
+<p><img src="/2017/02/27/Lane-Finding/./widgets.png" alt="widgets" height="50%" width="50%"></p>
+<h4 id="4-Perspective-transform"><a href="#4-Perspective-transform" class="headerlink" title="4. Perspective transform"></a>4. Perspective transform</h4><p>First, I defined the source and destination of perspective points as follows:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Source</th>
+<th style="text-align:center">Destination</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">585, 460</td>
+<td style="text-align:center">320, 0</td>
+</tr>
+<tr>
+<td style="text-align:center">203, 720</td>
+<td style="text-align:center">320, 720</td>
+</tr>
+<tr>
+<td style="text-align:center">1127, 720</td>
+<td style="text-align:center">960, 720</td>
+</tr>
+<tr>
+<td style="text-align:center">695, 460</td>
+<td style="text-align:center">960, 0</td>
+</tr>
+</tbody>
+</table>
+<p>Then the <code>perspective_warper</code> function is defined which returns perspective image and the matrix <code>warpM</code> as well.<br><code>warM</code> is needed for the later step which does the <em>inverse perspective</em> back to the original image.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">perspective_img, warpM = perspective_warper(undist,src,dst)</div></pre></td></tr></table></figure>
+<p>An example is showed here:</p>
+<p><img src="/2017/02/27/Lane-Finding/./4_warp.jpg" alt="perspective" height="100%" width="100%"></p>
+<h4 id="5-Lane-line-pixel-and-polynomial-fitting"><a href="#5-Lane-line-pixel-and-polynomial-fitting" class="headerlink" title="5. Lane line pixel and polynomial fitting"></a>5. Lane line pixel and polynomial fitting</h4><p>I applied a windowing approach to identify the lane pixels</p>
+<p><img src="/2017/02/27/Lane-Finding/./lane_pixel_windows.png" alt="camera calibration" height="100%" width="100%"></p>
+<p>In this example, I used 9 windows for both lane lines. The window is processed in an order from the buttom to the top.</p>
+<p>Pixels are detected by the following function</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">identify_lane_pixel</span><span class="params">(img, lcenter_in, rcenter_in, win_num=<span class="number">9</span>, win_half_width=<span class="number">150</span>, start_from_button=False)</span>:</span></div></pre></td></tr></table></figure>
+<ul>
+<li><p><code>lcenter_in</code> and <code>rcenter_in</code>are the centers (in horizontal coordinate) of windows.</p>
+</li>
+<li><p><code>win_num</code> defines how many windows are used. In this example, 9.</p>
+</li>
+<li><p><code>win_half_width</code> refers to the half length of window width</p>
+</li>
+<li><p><code>start_from_button</code> indicates how the initial centers of windows are set. Specifically, Let the current window as j and current frame index as i. If <code>start_from_button=True</code>, the center of window j will be initally set as window <strong>j-1</strong>. Otherwise, it will be initally set as window <strong>j</strong> in frame <strong>i-1</strong>. Then, by using the initial position just set, the lane pixels are identified if the histogram of that window is high enough. Finally, based on those identified pixels, update the center position of current widnow j.</p>
+</li>
+</ul>
+<p>Next, a simple second order polynomial fitting is applied to both identified pixels</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Fit a second order polynomial to each</span></div><div class="line">left_fit = np.polyfit(lpixely, lpixelx, <span class="number">2</span>)</div><div class="line">right_fit = np.polyfit(rpixely, rpixelx, <span class="number">2</span>)</div></pre></td></tr></table></figure>
+<p><img src="/2017/02/27/Lane-Finding/./5_lane_pixel_fit.jpg" alt="lane pixel and fit" height="100%" width="100%"></p>
+<p>But wait! Since we are assuming “birds-eye view”, both lanes should be parallel!</p>
+<p>So I first tried a method that <strong>ties the polynomial coefficients except the shifting ones!</strong></p>
+<p><img src="/2017/02/27/Lane-Finding/./shared_poly_fit.png" alt="method of shared polyfit" height="80%" width="80%"></p>
+<p>this method results in the following example</p>
+<p><img src="/2017/02/27/Lane-Finding/./example_with_shared_poly_fit.png" alt="example of shared polyfit" height="60%" width="60%"></p>
+<p>As can be seen in the figure, curves are indeed parallel. However, when I applied this method to the final video, I found that it <strong>wobbling</strong> a lot! (see “8. Video” below)</p>
+<p>After some investigation, I wonder that this problem is caused by the fixed source points of perspective.</p>
+<p>Since the pre-defined source points are always at the center of the camera while the lane curves are usually not, the result perspective curves is <strong>intrinsically not parellel!</strong></p>
+<p>Hence, I applied a dynamic source point correction. Idea of method is showed in the follows:</p>
+<p><img src="/2017/02/27/Lane-Finding/./dynamic_src_pts.png" alt="dynamic_src_pts" height="80%" width="80%"></p>
+<p>mapping inversely from coordinates in perspective images to original images can use the following formula:</p>
+<p><img src="/2017/02/27/Lane-Finding/./perspective_formula.png" alt="dynamic_src_pts" height="50%" width="50%"></p>
+<p>and results in the following example</p>
+<p><img src="/2017/02/27/Lane-Finding/./dynamic_perspective_src.png" alt="example of dynamic src pts" height="60%" width="60%"></p>
+<p>It works great! Unfortunately, <strong>if the lane curves are not stable, the resulting new source points may fail</strong>. This is the major difficulty of this method! (see “8. Video” below)</p>
+<h4 id="6-Radius-of-curvature-of-the-lane-and-the-position-of-the-vehicle"><a href="#6-Radius-of-curvature-of-the-lane-and-the-position-of-the-vehicle" class="headerlink" title="6. Radius of curvature of the lane and the position of the vehicle"></a>6. Radius of curvature of the lane and the position of the vehicle</h4><p>The curvature is calculated based on the following formula. Udacity provides a very good tutorial <a href="http://www.intmath.com/applications-differentiation/8-radius-curvature.php" target="_blank" rel="external">here</a> !</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">a1, b1, c1 = left_fit_coefficients</div><div class="line">a2, b2, c2 = right_fit_coefficients</div><div class="line">r1 = ((<span class="number">1</span>+(<span class="number">2</span>*a1*height*ym_per_pix+b1)**<span class="number">2</span>)**<span class="number">1.5</span>)/(<span class="number">2</span>*np.abs(a1))</div><div class="line">r2 = ((<span class="number">1</span>+(<span class="number">2</span>*a2*height*ym_per_pix+b2)**<span class="number">2</span>)**<span class="number">1.5</span>)/(<span class="number">2</span>*np.abs(a2))</div></pre></td></tr></table></figure>
+<blockquote>
+<p>There’s no need to worry about absolute accuracy in this case, but your results should be “order of magnitude” correct.</p>
+</blockquote>
+<p>So I divide my result by 10 to make it seems more reasonable. And of course, the “order of magnitude” remains intact.</p>
+<p><img src="/2017/02/27/Lane-Finding/./6_curvature.jpg" alt="curvature_position" height="60%" width="60%"></p>
+<h4 id="7-Warp-the-detected-lane-boundaries-back-onto-the-original-image"><a href="#7-Warp-the-detected-lane-boundaries-back-onto-the-original-image" class="headerlink" title="7. Warp the detected lane boundaries back onto the original image"></a>7. Warp the detected lane boundaries back onto the original image</h4><p>In order to warp back onto the original image, we need to calculate the inverse of perspective transform matrix <code>warpM</code><br>just apply <code>Minv = inv(warpM)</code> which is <code>from numpy.linalg import inv</code></p>
+<p>Then, simply apply <code>cv2.warpPerspective</code> with <code>Minv</code> as input.</p>
+<p>Note: use <code>cv2.putText</code> to print the curvature and position onto images</p>
+<p><img src="/2017/02/27/Lane-Finding/./7_warp_back.jpg" alt="warp_back" height="60%" width="60%"></p>
+<h4 id="8-Video"><a href="#8-Video" class="headerlink" title="8. Video"></a>8. Video</h4><p><img src="/2017/02/27/Lane-Finding/video.png" alt="video"></p>
+<ul>
+<li><a href="https://youtu.be/KSX17t5EfAY" target="_blank" rel="external">Simple poly-fit</a> (<strong>Most stable!</strong> Simple is better ?!)</li>
+</ul>
+<a href="!--[![video](video.png)](https://youtu.be/KSX17t5EfAY)--">!--[![video](video.png)](https://youtu.be/KSX17t5EfAY)--</a>
+<ul>
+<li><a href="https://youtu.be/lz70ohOOut8" target="_blank" rel="external">Shared coefficients of poly-fit</a> (<strong>Wobbling problem</strong>)</li>
+</ul>
+<a href="!--[![video](video.png)](https://youtu.be/lz70ohOOut8)--">!--[![video](video.png)](https://youtu.be/lz70ohOOut8)--</a>
+<ul>
+<li><a href="https://youtu.be/6WchWl8Ah5U" target="_blank" rel="external">Dynamic source points of perspective</a> (<strong>Unstable, crash sometimes.</strong> If the lane curves are not stable, the resulting new source points may fail)</li>
+</ul>
+<a href="!--[![video](video.png)](https://youtu.be/6WchWl8Ah5U)--">!--[![video](video.png)](https://youtu.be/6WchWl8Ah5U)--</a>
+<hr>
+<h3 id="Discussion"><a href="#Discussion" class="headerlink" title="Discussion"></a>Discussion</h3><p>Basically, I applied those techniques suggested by Udacity.</p>
+<p>I did some efforts trying to parallize both curves in the perspective “bird eye view”. Two methods are applied</p>
+<ol>
+<li>Shared coefficients of polynomial fitting</li>
+<li>Dynamic source points of perspetive</li>
+</ol>
+<p>Each has its own issue. For (1.), wobbling, and for (2.) unstable.</p>
+<p>Future works will focus on solving the (2.) unstable issue. Maybe a smoothing method is a good idea.</p>
+<p>Moreover, for more difficult videos, pixels may not be detected which makes the pipeline crash.</p>
+<p>One way to overcome this problem is when this issue happens, the lane curve is set to be the same as previous frame.</p>
+<p>Generelizing this idea, a confidence measure of lane pixels is worth to apply. If the confidence is low, then set the lane curve as the same as previous frame might be a good way to better estimate result.</p>
+<p>Finally, finding a robust combination of masking rule and tweaking those parameters precisely might help too.</p>
+</div><!-- comment system--><div class="container"><hr></div></article><footer id="footer"><div class="container"><div class="bar"><div class="social"><a href="/atom.xml" target="_blank"><i class="fa fa-rss"></i></a></div><div class="footer">© 2017 <a href="/" rel="nofollow">Bobon</a>. Powered by <a rel="nofollow" target="_blank" href="https://hexo.io">Hexo</a>. Theme <a target="_blank" href="https://github.com/lotabout/very-simple">very-simple</a>.</div></div></div></footer><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
+    $(".fancybox").fancybox();
+});
+</script></body></html>
