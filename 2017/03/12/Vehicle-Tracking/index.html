@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>Vehicle-Tracking | CS Blog</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"><link rel="stylesheet" type="text/css" href="/css/highlight.css"><link rel="stylesheet" type="text/css" href="/css/very-simple.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"></head><body><!-- include the sidebar--><!-- include ./includes/sidebar.jade--><!-- Blog title and subtitle--><header><div class="container header"><a id="logo" href="/." class="title">CS Blog</a><span class="subtitle">AI ML 自耕農</span><label id="toggle-menu" for="menu" onclick><i class="fa fa-bars"></i></label></div></header><!-- use checkbox hack for toggle nav-bar on small screens--><input id="menu" type="checkbox"><!-- Navigation Links--><nav id="nav"><div class="container"><a href="/" class="sidebar-nav-item active">Home</a><a href="/archives" class="sidebar-nav-item">Archives</a></div></nav><div id="header-margin-bar"></div><!-- gallery that comes before the header--><div class="wrapper"><div class="container post-header"><h1>Vehicle-Tracking</h1></div></div><div class="wrapper"><div class="container meta"><div class="post-time">2017-03-12</div><div class="post-categories"><a class="post-category-link" href="/categories/CV/">CV</a></div><div class="post-tags"><a class="post-tag-link" href="/tags/CV/">CV</a>/<a class="post-tag-link" href="/tags/Udacity/">Udacity</a></div></div></div><article><div class="container post"><div align="center"><img src="/2017/03/12/Vehicle-Tracking/cover.png" alt="cover" height="50%" width="50%"></div>
+
+<p>這個 Porject 目的是要偵測畫面中所有的車子, 大致上的流程是先訓練好 car/non-car 的 classifer, 然後用 sliding window 搭配不同的 window size 去偵測, 最後再把 bounding boxes 做一些後處理, 例如 merge boxes, 和對時間序列的處理<br>以下為 git hub 的 REAMDE.md</p>
+<p>The goals / steps of this project are the following:</p>
+<ol>
+<li>Perform a Histogram of Oriented Gradients (HOG) feature extraction<br> I implement HOG feature extraction and using a subset of training data to search a good settings of parameters. Images are stored in <code>output_images/HOG_with_YCrCb.jpg</code> and <code>output_images/grid_search.jpg</code></li>
+<li>Train Classifier<br> I trained a Linear SVM classifier with HOG + color_hist + bin_spatial which achieved 98% accuracy on test set.</li>
+<li>Sliding Window Search<br> I implemented a sliding window search method with two scales of window. HOG features are extracted once for an given image.</li>
+<li>Showing Examples so far<br> I showed 4 examples with the pipeline so far. Image is stored in <code>output_images/example_before_post_processing.jpg</code></li>
+<li>Video Implementation<br> I showed the results with a short video clip (test_video.mp4) as well as the <a href="https://youtu.be/f4AJoeI5_3c" target="_blank" rel="external">final result</a> that adopted post-processing below.</li>
+<li>Further Post-processing<br> A buffer for heat-maps is used for keeping a 6 consecutive heat-maps in frames. This will filtered out some false accepts.</li>
+<li>Discussion<br> A short discussion is made.</li>
+</ol>
+<p>–</p>
+<h2 id="Rubric-Points"><a href="#Rubric-Points" class="headerlink" title="Rubric Points"></a><a href="https://review.udacity.com/#!/rubrics/513/view" target="_blank" rel="external">Rubric</a> Points</h2><hr>
+<h3 id="1-Histogram-of-Oriented-Gradients-HOG"><a href="#1-Histogram-of-Oriented-Gradients-HOG" class="headerlink" title="1. Histogram of Oriented Gradients (HOG)"></a>1. Histogram of Oriented Gradients (HOG)</h3><blockquote>
+<p>Explain how (and identify where in your code) you extracted HOG features from the training images. Explain how you settled on your final choice of HOG parameters.</p>
+</blockquote>
+<p>I randomly selected examples of <code>car</code> and <code>notcar</code> and showed their HOG results in each channel of HLS space:</p>
+<div align="center"><img src="/2017/03/12/Vehicle-Tracking/HOG_with_YCrCb.jpg" alt="HOG_with_YCrCb" height="70%" width="70%"></div>
+
+<p>In order to get a good enough setting for those parameters (<code>orientations</code>, <code>pixels_per_cell</code> and <code>cells_per_block</code>), I applied a <strong>grid searching method</strong> with a linear SVM on a <strong>small subset</strong> of training data. Grid searching space is defined as follows (24 combinations):</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">orient_set = range(<span class="number">9</span>,<span class="number">19</span>,<span class="number">3</span>)</div><div class="line">pix_per_cell_set = [<span class="number">4</span>,<span class="number">8</span>,<span class="number">16</span>]</div><div class="line">cell_per_block_set = [<span class="number">1</span>,<span class="number">2</span>]</div></pre></td></tr></table></figure>
+<div align="center"><img src="/2017/03/12/Vehicle-Tracking/grid_search.jpg" alt="grid_search" height="70%" width="70%"></div>
+
+<p>The purpose of this stage is not finding the optimal, but rather, a good enough setting. So I choose <strong><code>orient=15, pix_per_cell=8, cell_per_block=2, cspace=&#39;RGB2YCrCb&#39;</code></strong></p>
+<hr>
+<h3 id="2-Train-Classifier"><a href="#2-Train-Classifier" class="headerlink" title="2. Train Classifier"></a>2. Train Classifier</h3><blockquote>
+<p>Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).</p>
+</blockquote>
+<p>Before training the classifier, dataset should be processed first.<br>Since the <code>vehicles/GTI*/*.png</code>  contains <strong>time-series data</strong>, I <strong>manually selected</strong> images to avoid train and test sets having identical images. In addition, <strong>20%</strong> images in each training folder are treated as test images. The same partition method applied to non-vehicles images too.</p>
+<p>Then I trianed a Linear SVM model with HOG + color_hist + bin_spatial features which has performance:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">inside-acc=<span class="number">1.0</span>, outside-acc=<span class="number">0.9802036199095022</span></div></pre></td></tr></table></figure>
+<hr>
+<h3 id="3-Sliding-Window-Search"><a href="#3-Sliding-Window-Search" class="headerlink" title="3. Sliding Window Search"></a>3. Sliding Window Search</h3><blockquote>
+<p>Describe how (and identify where in your code) you implemented a sliding window search. How did you decide what scales to search and how much to overlap windows?</p>
+</blockquote>
+<p>The course provided a very useful code snippet that can extract HOG features once no matter how much windows are. So I reuse it as the feature extraction function!<br>I used two types of scales, 1.5 and 1.2, which deal with large and small window respectively (car with near and far positions from camera). Also, I found that the overlaping of cells_per_step = 1 (more dense windows) has better results in my implementation.</p>
+<p>Before going through, it is worth checking the image values. Since feature extraction pipeline processed <code>.png</code> files with <code>mpimg.imread</code>, it reads images with values [0,1].</p>
+<p>However, mpimg.imread reads the .jpg file with values within [0,255]. So it is necessary to divide 255 before calling the feature extraction pipeline while reading .jpg images with mpimg.imread.</p>
+<blockquote>
+<p><strong>Make sure your images are scaled correctly</strong></p>
+<p>The training dataset provided for this project ( vehicle and non-vehicle images) are in the .png format. Somewhat confusingly, matplotlib image will read these in on a scale of 0 to 1, but cv2.imread() will scale them from 0 to 255. Be sure if you are switching between cv2.imread() and matplotlib image for reading images that you scale them appropriately! Otherwise your feature vectors can get screwed up.</p>
+<p>To add to the confusion, matplotlib image will read .jpg images in on a scale of 0 to 255 so if you are testing your pipeline on .jpg images remember to scale them accordingly. And if you take an image that is scaled from 0 to 1 and change color spaces using cv2.cvtColor() you’ll get back an image scaled from 0 to 255. So just be sure to be consistent between your training data features and inference features!</p>
+</blockquote>
+<hr>
+<h3 id="4-Showing-Examples"><a href="#4-Showing-Examples" class="headerlink" title="4. Showing Examples"></a>4. Showing Examples</h3><blockquote>
+<p>Show some examples of test images to demonstrate how your pipeline is working. How did you optimize the performance of your classifier?</p>
+</blockquote>
+<p>The followings are some examples. As you can see in the example 2, there exists a <strong>false accept</strong>. This will be filtered out in the <strong>post-processing</strong> part.</p>
+<div align="center"><img src="/2017/03/12/Vehicle-Tracking/example_before_post_processing.jpg" alt="example_before_post_processing" height="70%" width="70%"></div>
+
+<hr>
+<h3 id="5-Video-Implementation"><a href="#5-Video-Implementation" class="headerlink" title="5. Video Implementation"></a>5. Video Implementation</h3><blockquote>
+<p>Provide a link to your final video output. Your pipeline should perform reasonably well on the entire project video (somewhat wobbly or unstable bounding boxes are ok as long as you are identifying the vehicles most of the time with minimal false positives.)</p>
+</blockquote>
+<p>Following is the final result (combined with post-processing as described below)<br><a href="https://youtu.be/f4AJoeI5_3c" target="_blank" rel="external"><img src="/2017/03/12/Vehicle-Tracking/video-pic.png" alt="link"></a></p>
+<hr>
+<h3 id="6-Further-Post-processing"><a href="#6-Further-Post-processing" class="headerlink" title="6. Further Post-processing"></a>6. Further Post-processing</h3><blockquote>
+<p>Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.</p>
+</blockquote>
+<p>A heat-map to further filtered out some false positives. Moreover, I used a buffer to keep the 6 consecutive frames of heat-maps, and then accumulated those heat-maps in buffer. The accumulated heat-map then thresholded and produced the final results.</p>
+<hr>
+<h3 id="7-Discussion"><a href="#7-Discussion" class="headerlink" title="7. Discussion"></a>7. Discussion</h3><blockquote>
+<p>Briefly discuss any problems / issues you faced in your implementation of this project. Where will your pipeline likely fail? What could you do to make it more robust?</p>
+</blockquote>
+<p>There still have too much parameters that effect the robustness, like <code>ystart</code>, <code>ystop</code>, <code>scale factors</code>, <code>thresholds</code> for heat-maps, and etc. Moreover, with more challanging conditions, those settings might work in one condition but fail in others.</p>
+<p>I think the most important part in those pipelines is the classifier itself. The linear SVM I used in this project is not good enough as you can see in the video that still has few false accepts. So a deep-learning based classifier might achieve better results and actually helpful to the following pipelines. This would be my future work.</p>
+</div><!-- comment system--><div class="container"><hr></div></article><footer id="footer"><div class="container"><div class="bar"><div class="social"><a href="/atom.xml" target="_blank"><i class="fa fa-rss"></i></a></div><div class="footer">© 2017 <a href="/" rel="nofollow">Bobon</a>. Powered by <a rel="nofollow" target="_blank" href="https://hexo.io">Hexo</a>. Theme <a target="_blank" href="https://github.com/lotabout/very-simple">very-simple</a>.</div></div></div></footer><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
+    $(".fancybox").fancybox();
+});
+</script></body></html>
