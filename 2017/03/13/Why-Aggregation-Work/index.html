@@ -1,0 +1,40 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>Why-Aggregation-Work | CS Blog</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"><link rel="stylesheet" type="text/css" href="/css/highlight.css"><link rel="stylesheet" type="text/css" href="/css/very-simple.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"></head><body><!-- include the sidebar--><!-- include ./includes/sidebar.jade--><!-- Blog title and subtitle--><header><div class="container header"><a id="logo" href="/." class="title">CS Blog</a><span class="subtitle">AI ML 自耕農</span><label id="toggle-menu" for="menu" onclick><i class="fa fa-bars"></i></label></div></header><!-- use checkbox hack for toggle nav-bar on small screens--><input id="menu" type="checkbox"><!-- Navigation Links--><nav id="nav"><div class="container"><a href="/" class="sidebar-nav-item active">Home</a><a href="/archives" class="sidebar-nav-item">Archives</a></div></nav><div id="header-margin-bar"></div><!-- gallery that comes before the header--><div class="wrapper"><div class="container post-header"><h1>Why-Aggregation-Work</h1></div></div><div class="wrapper"><div class="container meta"><div class="post-time">2017-03-13</div><div class="post-categories"><a class="post-category-link" href="/categories/ML/">ML</a></div><div class="post-tags"><a class="post-tag-link" href="/tags/ML/">ML</a>/<a class="post-tag-link" href="/tags/adaboost/">adaboost</a>/<a class="post-tag-link" href="/tags/aggregation/">aggregation</a>/<a class="post-tag-link" href="/tags/bootstrap/">bootstrap</a>/<a class="post-tag-link" href="/tags/uniform-blending/">uniform blending</a></div></div></div><article><div class="container post"><h3 id="為何三個臭皮匠會勝過一個諸葛亮"><a href="#為何三個臭皮匠會勝過一個諸葛亮" class="headerlink" title="為何三個臭皮匠會勝過一個諸葛亮?"></a>為何三個臭皮匠會勝過一個諸葛亮?</h3><p><img src="/2017/03/13/Why-Aggregation-Work/cover.jpg" width="50%" height="50%"><br>在 ML 中有一類的演算法稱為 <strong>Aggregation Methods</strong>，這方法的運作方式其實我們可能從小就接觸到了。有沒有遇過一種情況就是，當一群人遇到一個不知道最好答案的時候，最直接的方式就是大家的答案取平均。<br>聽起來很直覺，但心裡老覺得怪怪的，因為根本不知道到底可不可靠。<br>Aggregation methods 就是這樣的運作模式，這邊就給個結論，<strong>它很可靠</strong>!</p>
+<p>以下的推導出自於<a href="https://www.youtube.com/watch?v=nQvpFSMPhr0&amp;list=PLXVfgk9fNX2I7tB6oIINGBmW50rrmFTqf" target="_blank" rel="external">林軒田</a>教授的講義，這裡用自己的理解方式重新表達，主要作筆記用</p>
+<p>開頭還是給先定義清楚一些 terms，對於理解式子才不會混淆</p>
+<hr>
+<h3 id="定義在先"><a href="#定義在先" class="headerlink" title="定義在先"></a>定義在先</h3><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+
+<p><img src="/2017/03/13/Why-Aggregation-Work/definition.png" width="70%" height="70%"></p>
+<p>這邊要特別說的是衡量一個 <em>方法 g 的錯誤率</em>，它是針對所有的 input x，也就是<strong>針對 X domain 來算期望平方誤差</strong></p>
+<hr>
+<h3 id="運算簡單但有點神奇的推導"><a href="#運算簡單但有點神奇的推導" class="headerlink" title="運算簡單但有點神奇的推導"></a>運算簡單但有點神奇的推導</h3><ol>
+<li><p>我們先針對 <strong>一個固定的 x</strong>，來看看臭皮匠們統合的意見是否真的會得到較好的結果，由於input已經固定，所以下面會忽略 x 的 term<br>首先是 <strong>“臭皮匠們各自的平方錯誤率” 的平均值</strong><br>$$avg_t((g_t-f)^2)$$<br>將平方拆開後得<br>$$=avg_t(g_t^2-2g_tf+f^2)$$<br>將 <em>avg</em> 移入並用 <em>G=avg(gt)</em> 定義得到<br>$$=avg_t(g_t^2)-2Gf+f^2$$<br>再做如下的簡單代數運算<br>$$=avg_t(g_t^2)-G^2+(G-f)^2 \\<br>=avg_t(g_t^2)-2G^2+G^2+(G-f)^2 \\<br>=avg_t(g_t^2-2g_tG+G^2)+(G-f)^2 \\<br>=avg_t((g_t-G)^2)+(G-f)^2$$</p>
+</li>
+<li><p>目前為止是針對 <strong>一個特定的輸入 x</strong>，而我們需要知道的是對 <strong>整個 domain X</strong> 的錯誤率<br>因此真正要計算的是這個目標錯誤率<br>$$avg_t(Error(g_t))=avg_t(E_x[(g_t(x)-f(x))^2])$$<br>將 <em>Expection for all x</em> 代入進去剛剛上面針對一個 <em>x</em> 的結果，得到如下式子<br>\begin{eqnarray}=avg_t(E_x[(g_t(x)-G(x))^2])+E_x[(G(x)-f(x))^2] \\<br>=avg_t(E_x[(g_t(x)-G(x))^2])+Error(G) \\<br>\geq Error(G) \end{eqnarray}</p>
+</li>
+</ol>
+<hr>
+<h3 id="怎麼解釋"><a href="#怎麼解釋" class="headerlink" title="怎麼解釋?"></a>怎麼解釋?</h3><p>重複一下最後的重要式子:</p>
+<p>$$avg_t(Error(g_t)) = avg_t(E_x[(g_t(x)-G(x))^2])+Error(G) \\<br>\geq Error(G)$$</p>
+<ol>
+<li><p>最直接的結論就是: <strong>“統合出來的結果”的錯誤率 會比 “各自決定”的平均錯誤率 還要低</strong></p>
+</li>
+<li><p>可以看到針對 <strong>一組固定</strong> 的臭皮匠們 <em>{gt}</em>，不等式左邊 <em>“avg(Error(gt))”</em> 是固定值，因此若要找一個統合大家意見的方法 <em>G</em>，而該方法有最小的錯誤率 (最小化 <em>Error(G)</em>)，很明顯就是要最大化 <em>avg(E(gt-G)^2)</em>，而此最大化的結果 <strong>就是 <em>G</em> 是 <em>{gt}</em> 的平均值(uniform blending)</strong>，<strong>符合我們一開始說的最直覺的策略!</strong></p>
+</li>
+<li><p>另一方面，如果我們選到兩組 set <em>{gt}</em> and <em>{ht}</em> 他們的 Error 相同: avg(Error(gt))= avg(Error(ht)) ，那我們當然是要選擇<strong>意見最不同的那一組臭皮匠們</strong>，這是因為意見愈不同代表 <em>avg(E(gt-G)^2)</em> 愈大，因而導致 Error(G) 會愈小。</p>
+</li>
+</ol>
+<hr>
+<h3 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h3><ul>
+<li><p>剛剛上面這個結論就很有趣，意見遇不同的話，統合起來的效果愈好，也就是你我之間的意見有很大的分歧時，這代表是好事!</p>
+</li>
+<li><p>事實上 Adaboost 就是採取這麼一個策略，每一次的 iteration 會選擇跟上次統合完的結果意見差最多那一位臭皮匠進來，有機會再補上 Adaboost，這是我很喜歡的一種 ML 演算法。</p>
+</li>
+<li><p>而這邊還可以引出一個方法, Bootstrap. Bootstrap aggregation方法很簡單。<br>對我們的dataset每一次重新resampling (e.g. 取N’筆，每次取的data都再放回去，因此data可以重複。可重複這點造成dataset的point具有weight的性質，這在adaboost每一次iteration的re-weighting有同樣意思) 這個叫做bootstrap，針對該次的data算出我們的weak learner gt，iterate很多次後，把每一次的gt做uniform blending。</p>
+</li>
+</ul>
+<p>我認為 aggregation methods 就算放到現在的 Deep Learning 火熱的時代還是相當有用的，除了本身這些方法如 adaboost 好用之外，其概念也相當有用，例如 Deep Learning 的 <strong>dropout</strong> 事實上可以用 bootstrap 來解釋 (有機會再補上資料)</p>
+</div><!-- comment system--><div class="container"><hr></div></article><footer id="footer"><div class="container"><div class="bar"><div class="social"><a href="/atom.xml" target="_blank"><i class="fa fa-rss"></i></a></div><div class="footer">© 2017 <a href="/" rel="nofollow">Bobon</a>. Powered by <a rel="nofollow" target="_blank" href="https://hexo.io">Hexo</a>. Theme <a target="_blank" href="https://github.com/lotabout/very-simple">very-simple</a>.</div></div></div></footer><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
+    $(".fancybox").fancybox();
+});
+</script></body></html>
