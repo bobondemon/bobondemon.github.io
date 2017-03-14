@@ -20,9 +20,9 @@
 <ol>
 <li><p>最直接的結論就是: <strong>“統合出來的結果”的錯誤率 會比 “各自決定”的平均錯誤率 還要低</strong></p>
 </li>
-<li><p>可以看到針對 <strong>一組固定</strong> 的臭皮匠們 <em>{gt}</em>，不等式左邊 <em>“avg(Error(gt))”</em> 是固定值，因此若要找一個統合大家意見的方法 <em>G</em>，而該方法有最小的錯誤率 (最小化 <em>Error(G)</em>)，很明顯就是要最大化 <em>avg(E(gt-G)^2)</em>，而此最大化的結果 <strong>就是 <em>G</em> 是 <em>{gt}</em> 的平均值(uniform blending)</strong>，<strong>符合我們一開始說的最直覺的策略!</strong></p>
+<li><p>可以看到針對 <strong>一組固定</strong> 的臭皮匠們 \({g_t}\)，不等式左邊 \(avg_t(Error(g_t))\) 是固定值，因此若要找一個統合大家意見的方法 \(G\)，而該方法有最小的錯誤率 (最小化 \(Error(G)\) )，很明顯就是要最大化 \(avg_t(E_x(g_t-G)^2)\)，而此最大化的結果 <strong>就是 \(G\) 是 \({g_t}\) 的平均值(uniform blending)</strong>，<strong>符合我們一開始說的最直覺的策略!</strong></p>
 </li>
-<li><p>另一方面，如果我們選到兩組 set <em>{gt}</em> and <em>{ht}</em> 他們的 Error 相同: avg(Error(gt))= avg(Error(ht)) ，那我們當然是要選擇<strong>意見最不同的那一組臭皮匠們</strong>，這是因為意見愈不同代表 <em>avg(E(gt-G)^2)</em> 愈大，因而導致 Error(G) 會愈小。</p>
+<li><p>另一方面，如果我們選到兩組 set \({g_t}\) and \({h_t}\) 他們的 Error 相同: \(avg_t(Error(g_t))= avg_t(Error(h_t))\) ，那我們當然是要選擇<strong>意見最不同的那一組臭皮匠們</strong>，這是因為意見愈不同代表 \(avg_t(E_x(g_t-G)^2)\) 愈大，因而導致 \(Error(G)\) 會愈小。</p>
 </li>
 </ol>
 <hr>
