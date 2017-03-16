@@ -15,8 +15,7 @@
 <meta property="og:site_name" content="CS Blog">
 <meta property="og:description" content="為何三個臭皮匠會勝過一個諸葛亮?在 ML 中有一類的演算法稱為 Aggregation Methods，這方法的運作方式其實我們可能從小就接觸到了。有沒有遇過一種情況就是，當一群人遇到一個不知道最好答案的時候，最直接的方式就是大家的答案取平均。聽起來很直覺，但心裡老覺得怪怪的，因為根本不知道到底可不可靠。Aggregation methods 就是這樣的運作模式，這邊就給個結論，它很可靠!">
 <meta property="og:image" content="http://yoursite.com/2017/03/13/Why-Aggregation-Work/cover.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/03/13/Why-Aggregation-Work/definition.png">
-<meta property="og:updated_time" content="2017-03-15T15:59:05.044Z">
+<meta property="og:updated_time" content="2017-03-16T13:14:04.971Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Why-Aggregation-Work">
 <meta name="twitter:description" content="為何三個臭皮匠會勝過一個諸葛亮?在 ML 中有一類的演算法稱為 Aggregation Methods，這方法的運作方式其實我們可能從小就接觸到了。有沒有遇過一種情況就是，當一群人遇到一個不知道最好答案的時候，最直接的方式就是大家的答案取平均。聽起來很直覺，但心裡老覺得怪怪的，因為根本不知道到底可不可靠。Aggregation methods 就是這樣的運作模式，這邊就給個結論，它很可靠!">
@@ -188,8 +187,14 @@
 <h3 id="定義在先"><a href="#定義在先" class="headerlink" title="定義在先"></a>定義在先</h3><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
 
-<p><img src="/2017/03/13/Why-Aggregation-Work/definition.png" width="70%" height="70%"></p>
-<p>這邊要特別說的是衡量一個 <em>方法 g 的錯誤率</em>，它是針對所有的 input x，也就是<strong>針對 X domain 來算期望平方誤差</strong></p>
+<ul>
+<li>Input: \(x \in X\)</li>
+<li>正確答案: \(f(x)\)</li>
+<li>臭皮匠: \(g_t(x),t=1,2,…\)</li>
+<li>臭皮匠們的決策結果: \(G(x)=avg_t(g_t(x))\)</li>
+<li>衡量方法 \(g\) 的錯誤率: \( Error(g)=E_x[(g(x)-f(x))^2]\)</li>
+</ul>
+<p>這邊要特別說的是衡量一個方法 \(g\) 的錯誤率，是針對所有的 input \(x\)，也就是<strong>針對 \(X\) domain 來算期望平方誤差</strong></p>
 <hr>
 <h3 id="運算簡單但有點神奇的推導"><a href="#運算簡單但有點神奇的推導" class="headerlink" title="運算簡單但有點神奇的推導"></a>運算簡單但有點神奇的推導</h3><ol>
 <li><p>我們先針對 <strong>一個固定的 x</strong>，來看看臭皮匠們統合的意見是否真的會得到較好的結果，由於input已經固定，所以下面會忽略 x 的 term<br>首先是 <strong>“臭皮匠們各自的平方錯誤率” 的平均值</strong><br>$$avg_t((g_t-f)^2)$$<br>將平方拆開後得<br>$$=avg_t(g_t^2-2g_tf+f^2)$$<br>將 <em>avg</em> 移入並用 <em>G=avg(gt)</em> 定義得到<br>$$=avg_t(g_t^2)-2Gf+f^2$$<br>再做如下的簡單代數運算<br>$$=avg_t(g_t^2)-G^2+(G-f)^2 \\<br>=avg_t(g_t^2)-2G^2+G^2+(G-f)^2 \\<br>=avg_t(g_t^2-2g_tG+G^2)+(G-f)^2 \\<br>=avg_t((g_t-G)^2)+(G-f)^2$$</p>
@@ -483,11 +488,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">CV</a>
+                <a href="javascript:void(0)" class="js-tag color4">Art</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Art</a>
+                <a href="javascript:void(0)" class="js-tag color3">CV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -507,15 +512,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">aws</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">markdown</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">hexo</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">aws</a>
               </li>
             
             <div class="clearfix"></div>
