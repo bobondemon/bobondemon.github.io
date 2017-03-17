@@ -6,14 +6,27 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Archives | CS Blog</title>
+  <title>WGAN Part 1: 先用 GAN 鋪梗 | CS Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="CS Blog">
-<meta property="og:url" content="http://yoursite.com/archives/index.html">
+  <meta name="description" content="筆者才疏學淺，如有錯誤，還請指正
+Generative Adversarial Nets 提出了一個 NN 的 generative modeling 方法，在這之前，NN 要成為 p.d.f. 必須依賴於 sigmoid activation 的 Restricted Boltzmann Machines (RBM) 結構。例如 Deep Belief Net，整個 network 才會是">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WGAN Part 1: 先用 GAN 鋪梗">
+<meta property="og:url" content="http://yoursite.com/2017/03/16/WGAN-Part-1/index.html">
 <meta property="og:site_name" content="CS Blog">
+<meta property="og:description" content="筆者才疏學淺，如有錯誤，還請指正
+Generative Adversarial Nets 提出了一個 NN 的 generative modeling 方法，在這之前，NN 要成為 p.d.f. 必須依賴於 sigmoid activation 的 Restricted Boltzmann Machines (RBM) 結構。例如 Deep Belief Net，整個 network 才會是">
+<meta property="og:image" content="http://yoursite.com/2017/03/16/WGAN-Part-1/GAN_algo.png">
+<meta property="og:image" content="http://yoursite.com/2017/03/16/WGAN-Part-1/GAN_A.png">
+<meta property="og:image" content="http://yoursite.com/2017/03/16/WGAN-Part-1/GAN_B.png">
+<meta property="og:image" content="http://yoursite.com/2017/03/16/WGAN-Part-1/swissroll.jpg">
+<meta property="og:image" content="http://yoursite.com/2017/03/16/WGAN-Part-1/JSD.png">
+<meta property="og:updated_time" content="2017-03-17T16:51:50.187Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="CS Blog">
+<meta name="twitter:title" content="WGAN Part 1: 先用 GAN 鋪梗">
+<meta name="twitter:description" content="筆者才疏學淺，如有錯誤，還請指正
+Generative Adversarial Nets 提出了一個 NN 的 generative modeling 方法，在這之前，NN 要成為 p.d.f. 必須依賴於 sigmoid activation 的 Restricted Boltzmann Machines (RBM) 結構。例如 Deep Belief Net，整個 network 才會是">
+<meta name="twitter:image" content="http://yoursite.com/2017/03/16/WGAN-Part-1/GAN_algo.png">
   
     <link rel="alternative" href="/atom.xml" title="CS Blog" type="application/atom+xml">
   
@@ -153,36 +166,122 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-WGAN-Part-1" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2017" class="archive-year">2017</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2017/03/16/WGAN-Part-1/" class="archive-article-date">
-  	<time datetime="2017-03-16T13:25:12.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-03-16</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/03/16/WGAN-Part-1/">WGAN Part 1: 先用 GAN 鋪梗</a>
+    <h1 class="article-title" itemprop="name">
+      WGAN Part 1: 先用 GAN 鋪梗
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
+        
+        <a href="/2017/03/16/WGAN-Part-1/" class="archive-article-date">
+  	<time datetime="2017-03-16T13:25:12.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-03-16</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<p><strong>筆者才疏學淺，如有錯誤，還請指正</strong></p>
+<p>Generative Adversarial Nets 提出了一個 NN 的 generative modeling 方法，在這之前，NN 要成為 p.d.f. 必須依賴於 sigmoid activation 的 Restricted Boltzmann Machines (RBM) 結構。<br>例如 Deep Belief Net，整個 network 才會是一個 p.d.f.。然而學習這樣的一個 p.d.f. 必須使用 Contrastive Divergence 的 MCMC 方法， model 訓練完後要產生 sample 時也還是必須依賴 MCMC。<br>另外在實用上，偏偏 sigmoid 很多時候效果不如 ReLu, maxout 等，例如 sigmoid 有嚴重的 gradient vanish problem。<br>這使得 NN 在 generative modeling 又或是 unsupervised learning 上一直困難重重。</p>
+<p>GAN 一出立即打破這個難堪的限制 ! 怎麼說呢? GAN 捨棄能夠明確表達出 p.d.f.的作法，寫不出明確的 p.d.f. 一點也沒關係，只要能生成 <strong>夠真的sample點</strong>，並且<strong>sample的機率跟training data一樣</strong>就好</p>
+<a id="more"></a>
+<p>然而 GAN 在實作上卻會遇上一些困難，例如生成的 samples <strong>多樣性不足</strong>，<strong>訓練流程/架構 和 hyper-parameters 需要小心選擇</strong>，<strong>無法明確知道訓練的收斂狀況</strong>，這些問題等下會說明。</p>
+<p>本篇的主角 (事實上下一篇才會登場) <strong>Wasserstein GAN (WGAN)</strong>，從本質上探討 GAN 目標函式中使用的 distance measure，進而根本地解決上述三個問題，這大大降低了 generative modeling 訓練難度 !</p>
+<p>我們還是來談談 GAN 怎麼一回事先吧。</p>
+<hr>
+<h3 id="Generative-Adversarial-Nets"><a href="#Generative-Adversarial-Nets" class="headerlink" title="Generative Adversarial Nets"></a>Generative Adversarial Nets</h3><p>GAN 使用一個 two-player minimax gaming 策略。先用直觀說，我們有一個 <strong>生成器</strong> \(G\)，用來生成夠真的 sample，另外還有一個 <strong>鑑別器</strong> \(D\)，用來分辨 sample 究竟是真實資料 (training data) 來的呢，還是假的 (\(G\)產生的)。<br>當這兩個模型互相競爭到一個平衡點的時候，也就是 \(G\) 能夠產生到 \(D\) 分辨不出真假的 sample，我們的生成器 \(G\) 就鍊成了。<br>而 GAN 作者厲害的地方就在於</p>
+<p>一: 將這兩個model的競爭規則轉換成一個最佳化問題<br>二: 並且證明，當達到賽局的平衡點時(達到最佳解)，生成器就鍊成 (可以完美表示 training data 的 pdf，並且可sampling)</p>
+<p>我們還是必須把上述策略嚴謹的表達出來 (寫成最佳化問題)，並證明當達到最佳化問題的最佳解時，就剛好完成生成器的鍊成。</p>
+<h5 id="Two-player-Minimax-Game"><a href="#Two-player-Minimax-Game" class="headerlink" title="* Two-player Minimax Game"></a>* Two-player Minimax Game</h5><p>原則上我們希望鑑別器 \(D\) 能分辨出真假 sample，因此 \(D(x)\) 很自然地可以表示為 sample \(x\) 為真的機率<br>另外生成器 \(G\) 則是負責產生假 sample，也可以很自然地表達為 \(G(z)\)，其中 \(z\) 為 latent variables，且我們可以假設該 latent variables \(z\) follow 一個 prior distribution \(p_z(z)\)。</p>
+<p>我們希望 \(D(x)\) 對來自於真實資料的 samples 能夠盡量大，而對來自於 \(G\) 產生的要盡量小，因此對於鑑別器來說，它的目標函式可定義為如下:</p>
+<span>$$\begin{align} 
+Maximize: E_{x \sim p_{data}(x)} [\log D(x)]  + E_{z \sim p_z(z)}[\log (1-D(G(z)))]
+\end{align}$$</span><!-- Has MathJax -->
+<p>另一方面，我們希望 \(G\) 能夠強到讓 \(D\) 無法分辨真偽，因此生成器的目標函式為:</p>
+<span>$$\begin{align} 
+Minimize: E_{z \sim p_z(z)}[\log (1-D(G(z)))]
+\end{align}$$</span><!-- Has MathJax -->
+<p>結合上述兩個目標函式就是如下的 minmax problem了</p>
+<span>$$\begin{align}
+\min_G{ \max_D{V(D,G)} } = E_{x \sim p_{data}(x)} [\log D(x)]  + E_{z \sim p_z(z)}[\log (1-D(G(z)))]
+\end{align}$$</span><!-- Has MathJax -->
+<p>這邊作者很漂亮地給出了上述問題的理論證明。證明了兩件事情:</p>
+<blockquote>
+<ol>
+<li><p>上述最佳化問題 (式(3)) 達到 global optimum 時, \( p_g = p_d \)。 (生成器產生出來的 pdf 會等於真實資料的 pdf，因此生成器鍊成!)</p>
+</li>
+<li><p>使用如下的演算法可以找到 global optimum</p>
+</li>
+</ol>
+<p><img src="/2017/03/16/WGAN-Part-1/GAN_algo.png" width="70%" height="70%"></p>
+</blockquote>
+<p>接下來我們只討論第一個事情的證明，因為這關係到 GAN 的弱點，也就是 WGAN 要解決的問題根源!</p>
+<h5 id="證明-Global-optimum-發生時，鍊成生成器"><a href="#證明-Global-optimum-發生時，鍊成生成器" class="headerlink" title="* 證明 Global optimum 發生時，鍊成生成器"></a>* 證明 Global optimum 發生時，鍊成生成器</h5><p>大方向是這樣的</p>
+<p>A. 假如給定 \(G\)，我們都可以找到一個相對應的 \(D_G^*\) 最佳化鑑別器的目標函式 (1)。<br>B. 改寫原來的目標函式 \(V(G,D)\)，改寫後只跟 \(G\) 有關，我們定義為 <strong>\(C(G)\)</strong>，這是因為對於每一個 \(G\) 我們已經配給它相對應的 \(D_G^*\) 了，接著證明最佳解只發生在 \( p_g = p_d \) 的情況。</p>
+<blockquote>
+<ul>
+<li><p><em>步驟 A:</em><br><img src="/2017/03/16/WGAN-Part-1/GAN_A.png" width="70%" height="70%"><br>而一個 function \(f(x)=a\log (y)+b\log (1-y)\) 的最佳解為 \(y=\frac{a}{a+b}\)<br>因此我們得到 \( D_G^*(x) = \frac{p_d(x)}{p_d(x)+p_g(x)} \)</p>
+</li>
+<li><p><em>步驟 B:</em><br><img src="/2017/03/16/WGAN-Part-1/GAN_B.png" width="70%" height="70%"><br>然後我們特別觀察如果 \(p_g = p_d\)，上式會</p>
+<span>$$\begin{align} 
+=E_{x \sim p_d}[-\log 2]+E_{x \sim p_g}[-\log 2]=-\log4
+\end{align}$$</span><!-- Has MathJax -->
+<p>重新改寫一下 \(C(G)\) 如下</p>
+<span>$$\begin{align} 
+C(G)=-\log4+KL(p_d\vert\frac{p_d+p_g}{2})+KL(p_g\vert\frac{p_d+p_g}{2})
+=-\log4+2JSD(p_d \vert p_g)
+\end{align}$$</span><!-- Has MathJax -->
+<p>馬上觀察到 \(JSD\geq0\) 和 \(JSD=0 \Leftrightarrow p_g = p_d \)<br>這表示 \(C(G)\) 最佳值為 \(-\log4\)，且我們已知當 \(p_g = p_d\) 時達到最佳值 (式(4))，因此為最佳解</p>
+</li>
+</ul>
+</blockquote>
+<p>結論整個 GAN 的流程:<br>我們基於一個生成器 \(G\) 去最佳化 \(D\) 得到 \(D_G^*\)，接著要繼續最佳化生成器的時候，問題從目標函式 (3) 變成<strong>等價於要最佳化一個 JSD 的問題</strong> (式(5))。<br>藉由最佳化 JSD 問題，得到新的 \(G\)，然後重複上面步驟，最後達到式(3)的最佳解，而我們可以保證此時生成器鍊成， \(p_g = p_d\)。</p>
+<p>問題出在哪? 問題就出在<strong>最佳化一個 JSD 的問題</strong>上面 !</p>
+<h5 id="JSD-有什麼問題"><a href="#JSD-有什麼問題" class="headerlink" title="* JSD 有什麼問題?"></a>* JSD 有什麼問題?</h5><p>我們通過最佳化 JSD，而將 \(p_g\) 逐漸拉向 \(p_d\)。但是 JSD 有兩個主要的問題:</p>
+<p>A. 在 <em>實際狀況</em> 下，無法給初連續的距離值，導致 gradient 大部分都是 0，因而非常難以訓練<br>B. 產生的樣本多樣性不足，collapse mode。</p>
+<p>這邊要解釋一下 <em>實際狀況</em> 是什麼意思。一般來說，真實資料我們都會用非常高的維度去表示，然而資料的變化通常只被少數幾種變因所控制，也就是只存在高維空間中的 local manifold。<br>例如一個 swiss roll 雖然是在 3 維空間中，但它是在一個 2 維的 manifold 空間裡。<br><img src="/2017/03/16/WGAN-Part-1/swissroll.jpg" width="25%" height="25%"></p>
+<p>這樣會造成一個問題就是， \(p_d\) 和 \(p_g\)，不會有交集，又或者交集處的集合測度為0!<br>這樣的情況在JSD衡量兩個機率分布的時候會悲劇。作者給出了下面一個簡單易懂的例子:</p>
+<p><img src="/2017/03/16/WGAN-Part-1/JSD.png" width="50%" height="50%"></p>
+<p>兩個機率分布都是在一個 1 維的 manifold 直線上，x 軸的距離維 \(\theta\)，此時的 JSD 值為右圖所示，全部都是 \(\log2\)，除了在 \(\theta\) 那點的值是 0 (pdf完全重疊)。<br>這樣計算出的 Gradients 幾乎都是 0，這也就是為什麼 GAN 很難訓練的原因。</p>
+<p>這問題在 WGAN 之前還是有人提出解決的方法，不過就很偏工程思考: 加入 noise 使得兩個機率分部有不可忽略的重疊。因此讓 GAN 先動起來，動起來之後，再慢慢地把 noise 程度下降。<br>這是聰明工程師的厲害辦法! 但終歸來說還是治標。真正的治本方法，必須要替換掉 JSD 這樣的量測函式才可以。</p>
+<p>本篇鋪梗結束 (這梗也太長了)。下篇終於輪到主角登場， <strong>WGAN 的 W !</strong></p>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -202,7 +301,7 @@
 		</ul>
 	</div>
 
-          
+      
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
 		<ul class="article-tag-list">
@@ -215,530 +314,86 @@
 	</div>
 
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://yoursite.com/2017/03/16/WGAN-Part-1/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2017/03/13/Why-Aggregation-Work/" class="archive-article-date">
-  	<time datetime="2017-03-13T13:29:47.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-03-13</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/03/13/Why-Aggregation-Work/">Why-Aggregation-Work</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">ML</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">uniform blending</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">aggregation</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">adaboost</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">bootstrap</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/ML/" class="article-tag-list-link color3">ML</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2017/03/12/Vehicle-Tracking/" class="archive-article-date">
-  	<time datetime="2017-03-12T14:27:13.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-03-12</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/03/12/Vehicle-Tracking/">Vehicle-Tracking</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Udacity</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">CV</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/CV/" class="article-tag-list-link color3">CV</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2017/02/27/Lane-Finding/" class="archive-article-date">
-  	<time datetime="2017-02-27T02:12:28.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-02-27</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/02/27/Lane-Finding/">Lane-Finding</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Udacity</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">CV</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/CV/" class="article-tag-list-link color3">CV</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2017/02/13/Neural-Art/" class="archive-article-date">
-  	<time datetime="2017-02-13T14:04:36.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-02-13</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/02/13/Neural-Art/">Neural Art</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">Deep Learning</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">Art</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/ML/" class="article-tag-list-link color3">ML</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2017/02/12/GTX-1070/" class="archive-article-date">
-  	<time datetime="2017-02-12T13:44:40.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-02-12</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/02/12/GTX-1070/">GTX 1070</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">Deep Learning</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">NVIDIA</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">cuDNN</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">CUDA</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/ML/" class="article-tag-list-link color3">ML</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2017/02/05/Driving-by-Learning-Your-Style/" class="archive-article-date">
-  	<time datetime="2017-02-05T13:58:07.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-02-05</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/02/05/Driving-by-Learning-Your-Style/">Driving by Learning Your Style</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">ML</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">CNN</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">Deep Learning</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Udacity</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/ML/" class="article-tag-list-link color3">ML</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2017/01/18/traffic-sign-detection/" class="archive-article-date">
-  	<time datetime="2017-01-18T14:35:21.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-01-18</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/01/18/traffic-sign-detection/">traffic-sign-detection</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">ML</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">CNN</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">Deep Learning</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Udacity</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/ML/" class="article-tag-list-link color3">ML</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2017/01/16/aws-procedure/" class="archive-article-date">
-  	<time datetime="2017-01-16T13:47:43.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-01-16</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/01/16/aws-procedure/">使用AWS訓練DNN步驟</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">aws</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/雜/" class="article-tag-list-link color2">雜</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2017/01/08/chinese-encoding/" class="archive-article-date">
-  	<time datetime="2017-01-08T13:47:43.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-01-08</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/01/08/chinese-encoding/">Hexo 中文顯示 and Markdown 測試</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">markdown</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">hexo</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/雜/" class="article-tag-list-link color2">雜</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
+<nav id="article-nav">
   
   
-    </div></section>
+    <a href="/2017/03/13/Why-Aggregation-Work/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Why-Aggregation-Work</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+
+
+
+
+  
+    <div class="duoshuo"></div>
   
 
-    
-    <nav id="page-nav">
-      <span class="page-number current">1</span><a class="page-number" href="/archives/page/2/">2</a><a class="extend next" rel="next" href="/archives/page/2/">Next &raquo;</a>
-    </nav>
-  
+
 
 
           </div>
@@ -761,8 +416,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
