@@ -6,14 +6,23 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Category: ML | CS Blog</title>
+  <title>WGAN Part 2: 主角 W 登場 | CS Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="CS Blog">
-<meta property="og:url" content="http://yoursite.com/categories/ML/index.html">
+  <meta name="description" content="前情提要GAN 作者設計出一個 Minimax game，讓兩個 players: 生成器 G 和 鑑別器 D 去彼此競爭，並且達到平衡點時，此問題達到最佳解且生成器 G 鍊成。大致上訓練流程為先 optimize 鑑別器 D for some iterations，然後換 optimize 生成器 G (在 optimize G 時，此問題等價於最佳化 JSD 距離)，重複上述 loop">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WGAN Part 2: 主角 W 登場">
+<meta property="og:url" content="http://yoursite.com/2017/03/16/WGAN-Part-2/index.html">
 <meta property="og:site_name" content="CS Blog">
+<meta property="og:description" content="前情提要GAN 作者設計出一個 Minimax game，讓兩個 players: 生成器 G 和 鑑別器 D 去彼此競爭，並且達到平衡點時，此問題達到最佳解且生成器 G 鍊成。大致上訓練流程為先 optimize 鑑別器 D for some iterations，然後換 optimize 生成器 G (在 optimize G 時，此問題等價於最佳化 JSD 距離)，重複上述 loop">
+<meta property="og:image" content="http://yoursite.com/2017/03/16/WGAN-Part-2/EM_exp_data.png">
+<meta property="og:image" content="http://yoursite.com/2017/03/16/WGAN-Part-2/EM_exp.png">
+<meta property="og:image" content="http://yoursite.com/2017/03/16/WGAN-Part-2/WGAN_algo.png">
+<meta property="og:image" content="http://yoursite.com/2017/03/16/WGAN-Part-2/WGAN_exp.png">
+<meta property="og:updated_time" content="2017-03-20T14:20:28.109Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="CS Blog">
+<meta name="twitter:title" content="WGAN Part 2: 主角 W 登場">
+<meta name="twitter:description" content="前情提要GAN 作者設計出一個 Minimax game，讓兩個 players: 生成器 G 和 鑑別器 D 去彼此競爭，並且達到平衡點時，此問題達到最佳解且生成器 G 鍊成。大致上訓練流程為先 optimize 鑑別器 D for some iterations，然後換 optimize 生成器 G (在 optimize G 時，此問題等價於最佳化 JSD 距離)，重複上述 loop">
+<meta name="twitter:image" content="http://yoursite.com/2017/03/16/WGAN-Part-2/EM_exp_data.png">
   
     <link rel="alternative" href="/atom.xml" title="CS Blog" type="application/atom+xml">
   
@@ -153,36 +162,118 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-WGAN-Part-2" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2017" class="archive-year">2017</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2017/03/16/WGAN-Part-2/" class="archive-article-date">
-  	<time datetime="2017-03-16T13:25:12.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-03-16</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/03/16/WGAN-Part-2/">WGAN Part 2: 主角 W 登場</a>
+    <h1 class="article-title" itemprop="name">
+      WGAN Part 2: 主角 W 登場
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
+        
+        <a href="/2017/03/16/WGAN-Part-2/" class="archive-article-date">
+  	<time datetime="2017-03-16T13:25:12.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-03-16</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<h3 id="前情提要"><a href="#前情提要" class="headerlink" title="前情提要"></a>前情提要</h3><p>GAN 作者設計出一個 Minimax game，讓兩個 players: 生成器 G 和 鑑別器 D 去彼此競爭，並且達到平衡點時，此問題達到最佳解且生成器 G 鍊成。大致上訓練流程為先 optimize 鑑別器 D for some iterations，然後換 optimize 生成器 G (在 optimize G 時，此問題等價於最佳化 JSD 距離)，重複上述 loop 直到達到最佳解。<br>但是仔細看看原來的最佳化問題之設計，我們知道在最佳化 G 的時候，等價於最佳化一個 JSD 距離，而 JSD 在遇到真實資料的時會很悲劇。<br>怎麼悲劇呢? 原因是真實資料都存在 local manifold 中，造成 training data 的 p.d.f. 和 生成器的 p.d.f. 彼此之間無交集 (或交集的測度為0)，在這種狀況 JSD = log2 (constant) almost every where。也因此造成 gradients = 0。<br>這是 GAN 很難訓練的一個主因。</p>
+<p>也因此 WGAN 的主要治本方式就是換掉 JSD，改用 <strong>Wasserstein (Earth-Mover) distance</strong>，而修改過後的演算法也是簡單得驚人!</p>
+<a id="more"></a>
+<hr>
+<h3 id="Wasserstein-Earth-Mover-distance"><a href="#Wasserstein-Earth-Mover-distance" class="headerlink" title="Wasserstein (Earth-Mover) distance"></a>Wasserstein (Earth-Mover) distance</h3><p>我們先給定義後，再用作者論文上的範例解釋<br>定義如下:<br><span>$$\begin{align} 
+W(\mathbb{P}_r,\mathbb{P}_g)=\inf_{\gamma\in\prod(\mathbb{P}_r,\mathbb{P}_g)}E_{(x,y)\sim \gamma}[\Vert x-y \Vert]
+\end{align}$$</span><!-- Has MathJax --><br>\(\gamma\)指的是 real data and fake data 的 <strong>joint distribution</strong>，其中 marginal 為各自兩個 distributions。先別被這些符號嚇到，直觀的解釋為: <strong>EM 距離可以理解為將某個機率分佈搬到另一個機率分佈，所要花的最小力氣</strong>。</p>
+<p>我們用下面這個例子明確舉例，假設我們有兩個機率分佈 f1 and f2:<br><span>$$\begin{align*} 
+f_1(a)=f_1(b)=f_1(c)=1/3 \\\\
+f_1(A)=f_1(B)=f_1(C)=1/3
+\end{align*}$$</span><!-- Has MathJax --><br>這兩個機率分佈在一個 2 維平面，如下:<br><img src="/2017/03/16/WGAN-Part-2/EM_exp_data.png" width="20%" height="20%"><br>而兩個 \(\gamma\) 對應到兩種 <strong>搬運配對法</strong><br><span>$$\begin{align*} 
+\gamma_1(a,A)=\gamma_1(b,B)=\gamma_1(c,C)=1/3 \\\\
+\gamma_2(a,B)=\gamma_2(b,C)=\gamma_2(c,A)=1/3
+\end{align*}$$</span><!-- Has MathJax --><br>可以很容易知道它們的 marginal distributions 正好符合 f1 and f2 的機率分佈。<br>則這兩種搬運法造成的 EM distance 分別如下:<br><span>$$\begin{align*} 
+EM_{\gamma_1}=\gamma_1(a,A)*\Vert a-A \Vert + \gamma_1(b,B)*\Vert b-B \Vert + \gamma_1(c,C)*\Vert c-C \Vert \\\\
+EM_{\gamma_2}=\gamma_2(a,B)*\Vert a-B \Vert + \gamma_2(b,C)*\Vert b-C \Vert + \gamma_2(c,A)*\Vert c-A \Vert
+\end{align*}$$</span><!-- Has MathJax --><br>明顯知道 <span>$\theta=EM_{\gamma_1}&lt;EM_{\gamma_2}$</span><!-- Has MathJax --><br>而 EM distance 就是在算所有搬運法中，最小的那個，並將那最小的 cost 定義為此兩機率分佈的距離。<br>這個距離如果是兩條平行 1 維的直線 pdf (上面的例子是直線上只有三個離散資料點)，會有如下的 cost:</p>
+<p><img src="/2017/03/16/WGAN-Part-2/EM_exp.png" width="30%" height="30%"></p>
+<p>對比此圖和上一篇的 JSD 的結果，EM 能夠正確估算兩個沒有交集的機率分佈的距離，直接的結果就是 <strong>gradient 連續且可微 !</strong> 使得 WGAN 訓練上穩定非常多。</p>
+<hr>
+<h3 id="一個關鍵的好性質-Wasserstein-Earth-Mover-distance-處處連續可微"><a href="#一個關鍵的好性質-Wasserstein-Earth-Mover-distance-處處連續可微" class="headerlink" title="一個關鍵的好性質: Wasserstein (Earth-Mover) distance 處處連續可微"></a>一個關鍵的好性質: Wasserstein (Earth-Mover) distance 處處連續可微</h3><p>原始 EM distance 的定義 (式(1)) 是 intractable<br>一個神奇的數學公式 (Kantorovich-Rubinstein duality) 將 EM distance 轉換如下:<br><span>$$\begin{align} 
+W(\mathbb{P}_r,\mathbb{P}_\theta)=\sup_{\Vert f \Vert _L \leq 1}{ E_{x \sim \mathbb{P}_r}[f(x)] - E_{x \sim \mathbb{P}_\theta}[f(x)] }
+\end{align}$$</span><!-- Has MathJax --><br>注意到 sup 是針對所有滿足 1-Lipschitz 的 functions f，如果改成滿足 K-Lipschitz 的 functions，則值會相差一個 scale K。<br>但是在實作上我們都使用一個 family of functions，例如使用所有二次式的 functions，或是 Mixture of Gaussians，等等。<br>而經過近幾年深度學習的發展後，我們可以相信，使用 DNN 當作 family of functions 是很洽當的選擇，因此假定我們的 NN 所有參數為 \(W\)，則上式可以表達成:<br><span>$$\begin{align} 
+W(\mathbb{P}_r,\mathbb{P}_\theta)\approx\max_{w\in W}{ E_{x \sim \mathbb{P}_r}[f_w(x)] - E_{z \sim p(z)}[f_w(g_{\theta}(z))] }
+\end{align}$$</span><!-- Has MathJax --><br>這裡不再是等式，而是逼近，不過 Deep Learning 優異的 Regression 能力是可以很好地逼近的。</p>
+<p>我們還是需要保證整個 EM distance 保持處處連續可微分，否則就面臨跟 JSD 一樣的窘境，針對這點，WGAN 作者很強大地證明完了，得到結論如下:</p>
+<ul>
+<li><p>針對生成器 \(g_\theta\)<br>任何 feed-forward NN 皆可</p>
+</li>
+<li><p>針對鑑別器 \(f_w\)<br>當 \(W\) 是 compact set 時，該 family of functions \(\{f_w\}\) 滿足 K-Lipschitz for some K。<br>具體實現很容易，因為在 \(R^d\) space，compact set 等價於 closed and bounded，因此只需要針對<strong>所有的參數取 bounding box即可!</strong><br>論文裡使用了 [-0.01,0.01] 這個範圍做 clipping。</p>
+</li>
+</ul>
+<blockquote>
+<p>與 GAN 第一個不同點為: 鑑別器參數取 clipping。</p>
+</blockquote>
+<hr>
+<h3 id="EM-distance-為目標函式所造成的不同"><a href="#EM-distance-為目標函式所造成的不同" class="headerlink" title="EM distance 為目標函式所造成的不同"></a>EM distance 為目標函式所造成的不同</h3><p>我們將兩者的目標函式列出來做個比較<br><span>$$\begin{align} 
+GAN: E_{x \sim \mathbb{P}_r} [\log f_w(x)] + E_{z \sim p(z)}[\log (1-f_w(g_{\theta}(z)))] \\
+WGAN: E_{x \sim \mathbb{P}_r}[f_w(x)] - E_{z \sim p(z)}[f_w(g_{\theta}(z))]
+\end{align}$$</span><!-- Has MathJax --><br>發現到 WGAN 不取 log，同時對生成器的目標函式也做了修改</p>
+<blockquote>
+<p>與 GAN 第二個不同點為: WGAN 的目標函式不取 log，同時對生成器的目標函式也做了修改。</p>
+</blockquote>
+<p>第三個不同點是作者實驗的發現</p>
+<blockquote>
+<p>與 GAN 第三個不同點為: 使用 Momentum 類的演算法，如 Adam，會不穩定，因此使用 SGD or RMSProp。</p>
+</blockquote>
+<hr>
+<h3 id="WGAN-演算法"><a href="#WGAN-演算法" class="headerlink" title="WGAN 演算法"></a>WGAN 演算法</h3><p>總結一下與 GAN 的修改處</p>
+<p>A. 鑑別器參數取 clipping。<br>B. WGAN 的目標函式不取 log，同時對生成器的目標函式也做了修改。<br>C. 使用 SGD or RMSProp。</p>
+<p><img src="/2017/03/16/WGAN-Part-2/WGAN_algo.png" width="75%" height="75%"></p>
+<hr>
+<h3 id="WGAN-的優點"><a href="#WGAN-的優點" class="headerlink" title="WGAN 的優點"></a>WGAN 的優點</h3><p>一: 目標函式與訓練品質高度相關<br>原始的 GAN 沒有這樣的評量指標，因此會在訓練中途用人眼去檢查訓練是否整個壞掉了。 WGAN 解決了這個麻煩。作者的範例如下，可以發現WGAN的目標函式 Loss 愈低，sampling出來的品質愈高。</p>
+<p><img src="/2017/03/16/WGAN-Part-2/WGAN_exp.png" width="75%" height="75%"></p>
+<p>二: 鑑別器可以直接訓練到最好<br>原始的 GAN 需要小心訓練，不能一下子把鑑別器訓練太強導致導函數壞掉</p>
+<p>三: 不需要特別設計 NN 的架構<br>GNN 使用 MLP (Fully connected layers) 難以訓練，較成功的都是 CNN 架構，並搭配 batch normalization。而在 WGAN 演算法下， MLP架構可能穩定訓練 (雖然品質有下降)</p>
+<p>四: 沒有 collapse mode (保持生成多樣性)<br>作者自己說在多次實驗的過程都沒有發現這種現象</p>
+<hr>
+<h3 id="Tensorflow-範例測試"><a href="#Tensorflow-範例測試" class="headerlink" title="Tensorflow 範例測試"></a>Tensorflow 範例測試</h3><p>… TODO</p>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -202,7 +293,7 @@
 		</ul>
 	</div>
 
-          
+      
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
 		<ul class="article-tag-list">
@@ -215,375 +306,95 @@
 	</div>
 
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://yoursite.com/2017/03/16/WGAN-Part-2/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2017/03/16/WGAN-Part-1/" class="archive-article-date">
-  	<time datetime="2017-03-16T13:25:12.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-03-16</time>
-</a>
-        </div>
-    	 
+<nav id="article-nav">
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/03/16/WGAN-Part-1/">WGAN Part 1: 先用 GAN 鋪梗</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">ML</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">Deep Learning</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">generative model</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/ML/" class="article-tag-list-link color3">ML</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2017/03/13/Why-Aggregation-Work/" class="archive-article-date">
-  	<time datetime="2017-03-13T13:29:47.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-03-13</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/03/13/Why-Aggregation-Work/">Why-Aggregation-Work</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">ML</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">uniform blending</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">aggregation</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">adaboost</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">bootstrap</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/ML/" class="article-tag-list-link color3">ML</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2017/02/13/Neural-Art/" class="archive-article-date">
-  	<time datetime="2017-02-13T14:04:36.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-02-13</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/02/13/Neural-Art/">Neural Art</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">Deep Learning</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">Art</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/ML/" class="article-tag-list-link color3">ML</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2017/02/12/GTX-1070/" class="archive-article-date">
-  	<time datetime="2017-02-12T13:44:40.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-02-12</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/02/12/GTX-1070/">GTX 1070</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">Deep Learning</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">NVIDIA</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">cuDNN</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">CUDA</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/ML/" class="article-tag-list-link color3">ML</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2017/02/05/Driving-by-Learning-Your-Style/" class="archive-article-date">
-  	<time datetime="2017-02-05T13:58:07.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-02-05</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/02/05/Driving-by-Learning-Your-Style/">Driving by Learning Your Style</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">ML</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">CNN</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">Deep Learning</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Udacity</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/ML/" class="article-tag-list-link color3">ML</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2017/01/18/traffic-sign-detection/" class="archive-article-date">
-  	<time datetime="2017-01-18T14:35:21.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-01-18</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/01/18/traffic-sign-detection/">traffic-sign-detection</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">ML</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">CNN</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">Deep Learning</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Udacity</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/ML/" class="article-tag-list-link color3">ML</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
+    <a href="/2017/03/16/WGAN-Part-1/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          WGAN Part 1: 先用 GAN 鋪梗
+        
+      </div>
+    </a>
   
   
-    </div></section>
+    <a href="/2017/03/13/Why-Aggregation-Work/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Why-Aggregation-Work</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+
+
+
+
+  
+    <div class="duoshuo"></div>
   
 
-    
+
 
 
           </div>
@@ -606,10 +417,10 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
 		isTag: false,
-		isCategory: true,
+		isCategory: false,
 		open_in_new: false,
 		root: "/",
 		innerArchive: true,

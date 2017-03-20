@@ -19,7 +19,7 @@ Generative Adversarial Nets 提出了一個 NN 的 generative modeling 方法，
 <meta property="og:image" content="http://yoursite.com/2017/03/16/WGAN-Part-1/GAN_algo.png">
 <meta property="og:image" content="http://yoursite.com/2017/03/16/WGAN-Part-1/swissroll.jpg">
 <meta property="og:image" content="http://yoursite.com/2017/03/16/WGAN-Part-1/JSD.png">
-<meta property="og:updated_time" content="2017-03-20T11:44:09.131Z">
+<meta property="og:updated_time" content="2017-03-20T14:21:25.622Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="WGAN Part 1: 先用 GAN 鋪梗">
 <meta name="twitter:description" content="筆者才疏學淺，如有錯誤，還請指正
@@ -244,7 +244,7 @@ Minimize: E_{z \sim p_z(z)}[\log (1-D(G(z)))]
 \end{align}$$</span><!-- Has MathJax -->
 <p>重新改寫一下 \(C(G)\) 如下</p>
 <span>$$\begin{align} 
-C(G)=-\log4+KL(p_d\vert\frac{p_d+p_g}{2})+KL(p_g\vert\frac{p_d+p_g}{2})
+C(G)=-\log4+KL(p_d\vert\frac{p_d+p_g}{2})+KL(p_g\vert\frac{p_d+p_g}{2}) \\
 =-\log4+2JSD(p_d \vert p_g)
 \end{align}$$</span><!-- Has MathJax -->
 <p>馬上觀察到 \(JSD\geq0\) 和 \(JSD=0 \Leftrightarrow p_g = p_d \)<br>這表示 \(C(G)\) 最佳值為 \(-\log4\)，且我們已知當 \(p_g = p_d\) 時達到最佳值 (式(4))，因此為最佳解</p>
@@ -385,8 +385,8 @@ C(G)=-\log4+KL(p_d\vert\frac{p_d+p_g}{2})+KL(p_g\vert\frac{p_d+p_g}{2})
 <nav id="article-nav">
   
   
-    <a href="/2017/03/13/Why-Aggregation-Work/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Why-Aggregation-Work</div>
+    <a href="/2017/03/16/WGAN-Part-2/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">WGAN Part 2: 主角 W 登場</div>
       <i class="icon-circle-right"></i>
     </a>
   
@@ -510,6 +510,10 @@ C(G)=-\log4+KL(p_d\vert\frac{p_d+p_g}{2})+KL(p_g\vert\frac{p_d+p_g}{2})
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Art</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">NVIDIA</a>
               </li>
              
@@ -519,10 +523,6 @@ C(G)=-\log4+KL(p_d\vert\frac{p_d+p_g}{2})+KL(p_g\vert\frac{p_d+p_g}{2})
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">CUDA</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Art</a>
               </li>
              
               <li class="article-tag-list-item">
