@@ -17,11 +17,9 @@ Generative Adversarial Nets 提出了一個 NN 的 generative modeling 方法，
 <meta property="og:description" content="筆者才疏學淺，如有錯誤，還請指正
 Generative Adversarial Nets 提出了一個 NN 的 generative modeling 方法，在這之前，NN 要成為 p.d.f. 必須依賴於 sigmoid activation 的 Restricted Boltzmann Machines (RBM) 結構。例如 Deep Belief Net，整個 network 才會是">
 <meta property="og:image" content="http://yoursite.com/2017/03/16/WGAN-Part-1/GAN_algo.png">
-<meta property="og:image" content="http://yoursite.com/2017/03/16/WGAN-Part-1/GAN_A.png">
-<meta property="og:image" content="http://yoursite.com/2017/03/16/WGAN-Part-1/GAN_B.png">
 <meta property="og:image" content="http://yoursite.com/2017/03/16/WGAN-Part-1/swissroll.jpg">
 <meta property="og:image" content="http://yoursite.com/2017/03/16/WGAN-Part-1/JSD.png">
-<meta property="og:updated_time" content="2017-03-17T16:51:50.187Z">
+<meta property="og:updated_time" content="2017-03-20T11:44:09.131Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="WGAN Part 1: 先用 GAN 鋪梗">
 <meta name="twitter:description" content="筆者才疏學淺，如有錯誤，還請指正
@@ -211,7 +209,7 @@ Minimize: E_{z \sim p_z(z)}[\log (1-D(G(z)))]
 \end{align}$$</span><!-- Has MathJax -->
 <p>結合上述兩個目標函式就是如下的 minmax problem了</p>
 <span>$$\begin{align}
-\min_G{ \max_D{V(D,G)} } = E_{x \sim p_{data}(x)} [\log D(x)]  + E_{z \sim p_z(z)}[\log (1-D(G(z)))]
+\min_G{ \max_D{V(D,G)} } = E_{x \sim p_{data}(x)} [\log D(x)] + E_{z \sim p_z(z)}[\log (1-D(G(z)))]
 \end{align}$$</span><!-- Has MathJax -->
 <p>這邊作者很漂亮地給出了上述問題的理論證明。證明了兩件事情:</p>
 <blockquote>
@@ -228,9 +226,19 @@ Minimize: E_{z \sim p_z(z)}[\log (1-D(G(z)))]
 <p>A. 假如給定 \(G\)，我們都可以找到一個相對應的 \(D_G^*\) 最佳化鑑別器的目標函式 (1)。<br>B. 改寫原來的目標函式 \(V(G,D)\)，改寫後只跟 \(G\) 有關，我們定義為 <strong>\(C(G)\)</strong>，這是因為對於每一個 \(G\) 我們已經配給它相對應的 \(D_G^*\) 了，接著證明最佳解只發生在 \( p_g = p_d \) 的情況。</p>
 <blockquote>
 <ul>
-<li><p><em>步驟 A:</em><br><img src="/2017/03/16/WGAN-Part-1/GAN_A.png" width="70%" height="70%"><br>而一個 function \(f(x)=a\log (y)+b\log (1-y)\) 的最佳解為 \(y=\frac{a}{a+b}\)<br>因此我們得到 \( D_G^*(x) = \frac{p_d(x)}{p_d(x)+p_g(x)} \)</p>
+<li><p><em>步驟 A:</em></p>
+<span>$$V(G,D)=\int_{x}{p_d(x)\log(D(x))dx}+\int_{z}{p_z(z)\log(1-D(g(z)))dz} \\
+=\int_x[p_d(x)\log(D(x))+p_g(x)\log(1-D(x))]dx$$</span><!-- Has MathJax -->
+<p>而一個 function \(f(x)=a\log (y)+b\log (1-y)\) 的最佳解為 \(y=\frac{a}{a+b}\)<br>因此我們得到 \( D_G^*(x) = \frac{p_d(x)}{p_d(x)+p_g(x)} \)</p>
 </li>
-<li><p><em>步驟 B:</em><br><img src="/2017/03/16/WGAN-Part-1/GAN_B.png" width="70%" height="70%"><br>然後我們特別觀察如果 \(p_g = p_d\)，上式會</p>
+<li><p><em>步驟 B:</em></p>
+<span>$$\begin{align*}
+&amp; C(G)=\max_{D}V(G,D) \\
+&amp; =E_{x \sim p_d}[\log D_G^*(x)]+E_{z \sim p_z}[\log(1-D_G^*(G(z)))] \\
+&amp; =E_{x \sim p_d}[\log D_G^*(x)]+E_{x \sim p_g}[\log(1-D_G^*(x))] \\
+&amp; =E_{x \sim p_d}[\log{\frac{p_d(x)}{p_d(x)+p_g(x)}}]+E_{x \sim p_g}[\log{\frac{p_g(x)}{p_d(x)+p_g(x)}}]
+\end{align*}$$</span><!-- Has MathJax -->
+<p>然後我們特別觀察如果 \(p_g = p_d\)，上式會</p>
 <span>$$\begin{align} 
 =E_{x \sim p_d}[-\log 2]+E_{x \sim p_g}[-\log 2]=-\log4
 \end{align}$$</span><!-- Has MathJax -->
@@ -498,6 +506,10 @@ C(G)=-\log4+KL(p_d\vert\frac{p_d+p_g}{2})+KL(p_g\vert\frac{p_d+p_g}{2})
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">CV</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">NVIDIA</a>
               </li>
              
@@ -507,10 +519,6 @@ C(G)=-\log4+KL(p_d\vert\frac{p_d+p_g}{2})+KL(p_g\vert\frac{p_d+p_g}{2})
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">CUDA</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">CV</a>
               </li>
              
               <li class="article-tag-list-item">
