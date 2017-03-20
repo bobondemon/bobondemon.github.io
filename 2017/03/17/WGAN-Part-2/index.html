@@ -11,18 +11,18 @@
   <meta name="description" content="前情提要GAN 作者設計出一個 Minimax game，讓兩個 players: 生成器 G 和 鑑別器 D 去彼此競爭，並且達到平衡點時，此問題達到最佳解且生成器 G 鍊成。大致上訓練流程為先 optimize 鑑別器 D for some iterations，然後換 optimize 生成器 G (在 optimize G 時，此問題等價於最佳化 JSD 距離)，重複上述 loop">
 <meta property="og:type" content="article">
 <meta property="og:title" content="WGAN Part 2: 主角 W 登場">
-<meta property="og:url" content="http://yoursite.com/2017/03/16/WGAN-Part-2/index.html">
+<meta property="og:url" content="http://yoursite.com/2017/03/17/WGAN-Part-2/index.html">
 <meta property="og:site_name" content="CS Blog">
 <meta property="og:description" content="前情提要GAN 作者設計出一個 Minimax game，讓兩個 players: 生成器 G 和 鑑別器 D 去彼此競爭，並且達到平衡點時，此問題達到最佳解且生成器 G 鍊成。大致上訓練流程為先 optimize 鑑別器 D for some iterations，然後換 optimize 生成器 G (在 optimize G 時，此問題等價於最佳化 JSD 距離)，重複上述 loop">
-<meta property="og:image" content="http://yoursite.com/2017/03/16/WGAN-Part-2/EM_exp_data.png">
-<meta property="og:image" content="http://yoursite.com/2017/03/16/WGAN-Part-2/EM_exp.png">
-<meta property="og:image" content="http://yoursite.com/2017/03/16/WGAN-Part-2/WGAN_algo.png">
-<meta property="og:image" content="http://yoursite.com/2017/03/16/WGAN-Part-2/WGAN_exp.png">
-<meta property="og:updated_time" content="2017-03-20T14:20:28.109Z">
+<meta property="og:image" content="http://yoursite.com/2017/03/17/WGAN-Part-2/EM_exp_data.png">
+<meta property="og:image" content="http://yoursite.com/2017/03/17/WGAN-Part-2/EM_exp.png">
+<meta property="og:image" content="http://yoursite.com/2017/03/17/WGAN-Part-2/WGAN_algo.png">
+<meta property="og:image" content="http://yoursite.com/2017/03/17/WGAN-Part-2/WGAN_exp.png">
+<meta property="og:updated_time" content="2017-03-20T14:31:30.821Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="WGAN Part 2: 主角 W 登場">
 <meta name="twitter:description" content="前情提要GAN 作者設計出一個 Minimax game，讓兩個 players: 生成器 G 和 鑑別器 D 去彼此競爭，並且達到平衡點時，此問題達到最佳解且生成器 G 鍊成。大致上訓練流程為先 optimize 鑑別器 D for some iterations，然後換 optimize 生成器 G (在 optimize G 時，此問題等價於最佳化 JSD 距離)，重複上述 loop">
-<meta name="twitter:image" content="http://yoursite.com/2017/03/16/WGAN-Part-2/EM_exp_data.png">
+<meta name="twitter:image" content="http://yoursite.com/2017/03/17/WGAN-Part-2/EM_exp_data.png">
   
     <link rel="alternative" href="/atom.xml" title="CS Blog" type="application/atom+xml">
   
@@ -174,8 +174,8 @@
   
 
         
-        <a href="/2017/03/16/WGAN-Part-2/" class="archive-article-date">
-  	<time datetime="2017-03-16T13:25:12.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-03-16</time>
+        <a href="/2017/03/17/WGAN-Part-2/" class="archive-article-date">
+  	<time datetime="2017-03-17T13:25:12.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-03-17</time>
 </a>
         
       </header>
@@ -196,14 +196,14 @@ W(\mathbb{P}_r,\mathbb{P}_g)=\inf_{\gamma\in\prod(\mathbb{P}_r,\mathbb{P}_g)}E_{
 <p>我們用下面這個例子明確舉例，假設我們有兩個機率分佈 f1 and f2:<br><span>$$\begin{align*} 
 f_1(a)=f_1(b)=f_1(c)=1/3 \\\\
 f_1(A)=f_1(B)=f_1(C)=1/3
-\end{align*}$$</span><!-- Has MathJax --><br>這兩個機率分佈在一個 2 維平面，如下:<br><img src="/2017/03/16/WGAN-Part-2/EM_exp_data.png" width="20%" height="20%"><br>而兩個 \(\gamma\) 對應到兩種 <strong>搬運配對法</strong><br><span>$$\begin{align*} 
+\end{align*}$$</span><!-- Has MathJax --><br>這兩個機率分佈在一個 2 維平面，如下:<br><img src="/2017/03/17/WGAN-Part-2/EM_exp_data.png" width="20%" height="20%"><br>而兩個 \(\gamma\) 對應到兩種 <strong>搬運配對法</strong><br><span>$$\begin{align*} 
 \gamma_1(a,A)=\gamma_1(b,B)=\gamma_1(c,C)=1/3 \\\\
 \gamma_2(a,B)=\gamma_2(b,C)=\gamma_2(c,A)=1/3
 \end{align*}$$</span><!-- Has MathJax --><br>可以很容易知道它們的 marginal distributions 正好符合 f1 and f2 的機率分佈。<br>則這兩種搬運法造成的 EM distance 分別如下:<br><span>$$\begin{align*} 
 EM_{\gamma_1}=\gamma_1(a,A)*\Vert a-A \Vert + \gamma_1(b,B)*\Vert b-B \Vert + \gamma_1(c,C)*\Vert c-C \Vert \\\\
 EM_{\gamma_2}=\gamma_2(a,B)*\Vert a-B \Vert + \gamma_2(b,C)*\Vert b-C \Vert + \gamma_2(c,A)*\Vert c-A \Vert
 \end{align*}$$</span><!-- Has MathJax --><br>明顯知道 <span>$\theta=EM_{\gamma_1}&lt;EM_{\gamma_2}$</span><!-- Has MathJax --><br>而 EM distance 就是在算所有搬運法中，最小的那個，並將那最小的 cost 定義為此兩機率分佈的距離。<br>這個距離如果是兩條平行 1 維的直線 pdf (上面的例子是直線上只有三個離散資料點)，會有如下的 cost:</p>
-<p><img src="/2017/03/16/WGAN-Part-2/EM_exp.png" width="30%" height="30%"></p>
+<p><img src="/2017/03/17/WGAN-Part-2/EM_exp.png" width="30%" height="30%"></p>
 <p>對比此圖和上一篇的 JSD 的結果，EM 能夠正確估算兩個沒有交集的機率分佈的距離，直接的結果就是 <strong>gradient 連續且可微 !</strong> 使得 WGAN 訓練上穩定非常多。</p>
 <hr>
 <h3 id="一個關鍵的好性質-Wasserstein-Earth-Mover-distance-處處連續可微"><a href="#一個關鍵的好性質-Wasserstein-Earth-Mover-distance-處處連續可微" class="headerlink" title="一個關鍵的好性質: Wasserstein (Earth-Mover) distance 處處連續可微"></a>一個關鍵的好性質: Wasserstein (Earth-Mover) distance 處處連續可微</h3><p>原始 EM distance 的定義 (式(1)) 是 intractable<br>一個神奇的數學公式 (Kantorovich-Rubinstein duality) 將 EM distance 轉換如下:<br><span>$$\begin{align} 
@@ -236,10 +236,10 @@ WGAN: E_{x \sim \mathbb{P}_r}[f_w(x)] - E_{z \sim p(z)}[f_w(g_{\theta}(z))]
 <hr>
 <h3 id="WGAN-演算法"><a href="#WGAN-演算法" class="headerlink" title="WGAN 演算法"></a>WGAN 演算法</h3><p>總結一下與 GAN 的修改處</p>
 <p>A. 鑑別器參數取 clipping。<br>B. WGAN 的目標函式不取 log，同時對生成器的目標函式也做了修改。<br>C. 使用 SGD or RMSProp。</p>
-<p><img src="/2017/03/16/WGAN-Part-2/WGAN_algo.png" width="75%" height="75%"></p>
+<p><img src="/2017/03/17/WGAN-Part-2/WGAN_algo.png" width="75%" height="75%"></p>
 <hr>
 <h3 id="WGAN-的優點"><a href="#WGAN-的優點" class="headerlink" title="WGAN 的優點"></a>WGAN 的優點</h3><p>一: 目標函式與訓練品質高度相關<br>原始的 GAN 沒有這樣的評量指標，因此會在訓練中途用人眼去檢查訓練是否整個壞掉了。 WGAN 解決了這個麻煩。作者的範例如下，可以發現WGAN的目標函式 Loss 愈低，sampling出來的品質愈高。</p>
-<p><img src="/2017/03/16/WGAN-Part-2/WGAN_exp.png" width="75%" height="75%"></p>
+<p><img src="/2017/03/17/WGAN-Part-2/WGAN_exp.png" width="75%" height="75%"></p>
 <p>二: 鑑別器可以直接訓練到最好<br>原始的 GAN 需要小心訓練，不能一下子把鑑別器訓練太強導致導函數壞掉</p>
 <p>三: 不需要特別設計 NN 的架構<br>GNN 使用 MLP (Fully connected layers) 難以訓練，較成功的都是 CNN 架構，並搭配 batch normalization。而在 WGAN 演算法下， MLP架構可能穩定訓練 (雖然品質有下降)</p>
 <p>四: 沒有 collapse mode (保持生成多樣性)<br>作者自己說在多次實驗的過程都沒有發現這種現象</p>
@@ -354,7 +354,7 @@ WGAN: E_{x \sim \mathbb{P}_r}[f_w(x)] - E_{z \sim p(z)}[f_w(g_{\theta}(z))]
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="http://s.jiathis.com/qrcode.php?url=http://yoursite.com/2017/03/16/WGAN-Part-2/" alt="微信分享二维码">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://yoursite.com/2017/03/17/WGAN-Part-2/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -368,18 +368,9 @@ WGAN: E_{x \sim \mathbb{P}_r}[f_w(x)] - E_{z \sim p(z)}[f_w(g_{\theta}(z))]
   
 <nav id="article-nav">
   
-    <a href="/2017/03/16/WGAN-Part-1/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          WGAN Part 1: 先用 GAN 鋪梗
-        
-      </div>
-    </a>
   
-  
-    <a href="/2017/03/13/Why-Aggregation-Work/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Why-Aggregation-Work</div>
+    <a href="/2017/03/16/WGAN-Part-1/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">WGAN Part 1: 先用 GAN 鋪梗</div>
       <i class="icon-circle-right"></i>
     </a>
   
@@ -499,14 +490,6 @@ WGAN: E_{x \sim \mathbb{P}_r}[f_w(x)] - E_{z \sim p(z)}[f_w(g_{\theta}(z))]
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">CV</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Art</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">NVIDIA</a>
               </li>
              
@@ -516,6 +499,14 @@ WGAN: E_{x \sim \mathbb{P}_r}[f_w(x)] - E_{z \sim p(z)}[f_w(g_{\theta}(z))]
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">CUDA</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">CV</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Art</a>
               </li>
              
               <li class="article-tag-list-item">
