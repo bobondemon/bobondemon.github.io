@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next muse use-motion" lang="zh-tw">
+<html class="theme-next pisces use-motion" lang="zh-tw">
 <head>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -97,7 +97,7 @@
 <meta property="og:image" content="http://yoursite.com/2017/03/17/WGAN-Part-2/EM_exp.png">
 <meta property="og:image" content="http://yoursite.com/2017/03/17/WGAN-Part-2/WGAN_algo.png">
 <meta property="og:image" content="http://yoursite.com/2017/03/17/WGAN-Part-2/WGAN_exp.png">
-<meta property="og:updated_time" content="2017-03-20T16:01:47.374Z">
+<meta property="og:updated_time" content="2017-03-22T14:58:59.050Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="WGAN Part 2: 主角 W 登場">
 <meta name="twitter:description" content="前情提要GAN 作者設計出一個 Minimax game，讓兩個 players: 生成器 G 和 鑑別器 D 去彼此競爭，並且達到平衡點時，此問題達到最佳解且生成器 G 鍊成。大致上訓練流程為先 optimize 鑑別器 D for some iterations，然後換 optimize 生成器 G (在 optimize G 時，此問題等價於最佳化 JSD 距離)，重複上述 loop">
@@ -109,7 +109,7 @@
   var NexT = window.NexT || {};
   var CONFIG = {
     root: '/',
-    scheme: 'Muse',
+    scheme: 'Pisces',
     sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
     fancybox: true,
     motion: true,
@@ -176,7 +176,7 @@
       </a>
     </div>
       
-        <p class="site-subtitle">AI ML 自耕農</p>
+        <p class="site-subtitle">讓學習變成一種習慣</p>
       
   </div>
 
@@ -207,7 +207,7 @@
       
         
         <li class="menu-item menu-item-about">
-          <a href="/about" rel="section">
+          <a href="/about/" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
             
@@ -267,9 +267,9 @@
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/03/17/WGAN-Part-2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Bobon">
+      <meta itemprop="name" content="Chih-Sheng Chen">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/uploads/avatar.png">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -387,7 +387,7 @@ W(\mathbb{P}_r,\mathbb{P}_\theta)=\sup_{\Vert f \Vert _L \leq 1}{ E_{x \sim \mat
 \end{align}$$</span><!-- Has MathJax --><br>注意到 sup 是針對所有滿足 1-Lipschitz 的 functions f，如果改成滿足 K-Lipschitz 的 functions，則值會相差一個 scale K。<br>但是在實作上我們都使用一個 family of functions，例如使用所有二次式的 functions，或是 Mixture of Gaussians，等等。<br>而經過近幾年深度學習的發展後，我們可以相信，使用 DNN 當作 family of functions 是很洽當的選擇，因此假定我們的 NN 所有參數為 \(W\)，則上式可以表達成:<br><span>$$\begin{align} 
 W(\mathbb{P}_r,\mathbb{P}_\theta)\approx\max_{w\in W}{ E_{x \sim \mathbb{P}_r}[f_w(x)] - E_{z \sim p(z)}[f_w(g_{\theta}(z))] }
 \end{align}$$</span><!-- Has MathJax --><br>這裡不再是等式，而是逼近，不過 Deep Learning 優異的 Regression 能力是可以很好地逼近的。</p>
-<p>我們還是需要保證整個 EM distance 保持處處連續可微分，否則就面臨跟 JSD 一樣的窘境，針對這點，WGAN 作者很強大地證明完了，得到結論如下:</p>
+<p>我們還是需要保證整個 EM distance 保持處處連續可微分，這樣可以確保我們做 gradient-based 最佳化可以順利，針對這點，WGAN 作者很強大地證明完了，得到結論如下:</p>
 <ul>
 <li><p>針對生成器 \(g_\theta\)<br>任何 feed-forward NN 皆可</p>
 </li>
@@ -419,6 +419,9 @@ WGAN: E_{x \sim \mathbb{P}_r}[f_w(x)] - E_{z \sim p(z)}[f_w(g_{\theta}(z))]
 <p>二: 鑑別器可以直接訓練到最好<br>原始的 GAN 需要小心訓練，不能一下子把鑑別器訓練太強導致導函數壞掉</p>
 <p>三: 不需要特別設計 NN 的架構<br>GNN 使用 MLP (Fully connected layers) 難以訓練，較成功的都是 CNN 架構，並搭配 batch normalization。而在 WGAN 演算法下， MLP架構可能穩定訓練 (雖然品質有下降)</p>
 <p>四: 沒有 collapse mode (保持生成多樣性)<br>作者自己說在多次實驗的過程都沒有發現這種現象</p>
+<blockquote>
+<p>原先 GAN 會有 collapse mode 看到有人討論是因為 KL divergence 不對稱的關係導致對於 “生成器生出錯誤的 sample” 比 “生成器沒生出所有該對的sample” 逞罰要大很多，不過這邊自己還是有疑問，因為 JSD 已經是對稱的 KL 了，還會有逞罰不同導致 collapse mode 的問題嗎? 需要再多看一下 paper　了解。</p>
+</blockquote>
 <hr>
 <h3 id="Tensorflow-範例測試"><a href="#Tensorflow-範例測試" class="headerlink" title="Tensorflow 範例測試"></a>Tensorflow 範例測試</h3><p>… TODO</p>
 
@@ -535,9 +538,9 @@ WGAN: E_{x \sim \mathbb{P}_r}[f_w(x)] - E_{z \sim p(z)}[f_w(g_{\theta}(z))]
       <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
-               src="/images/avatar.gif"
-               alt="Bobon" />
-          <p class="site-author-name" itemprop="name">Bobon</p>
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
            
               <p class="site-description motion-element" itemprop="description"></p>
           
@@ -631,7 +634,7 @@ WGAN: E_{x \sim \mathbb{P}_r}[f_w(x)] - E_{z \sim p(z)}[f_w(g_{\theta}(z))]
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">Bobon</span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
 </div>
 
 
@@ -642,7 +645,7 @@ WGAN: E_{x \sim \mathbb{P}_r}[f_w(x)] - E_{z \sim p(z)}[f_w(g_{\theta}(z))]
 <div class="theme-info">
   主題 -
   <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Muse
+    NexT.Pisces
   </a>
 </div>
 
@@ -713,6 +716,13 @@ WGAN: E_{x \sim \mathbb{P}_r}[f_w(x)] - E_{z \sim p(z)}[f_w(g_{\theta}(z))]
 
   
   
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
 
   
   <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>

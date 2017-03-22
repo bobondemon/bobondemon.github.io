@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next muse use-motion" lang="zh-tw">
+<html class="theme-next pisces use-motion" lang="zh-tw">
 <head>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -87,23 +87,27 @@
 
 
 
-<meta name="description" content="筆者才疏學淺，如有錯誤，還請指正
-Generative Adversarial Nets 提出了一個 NN 的 generative modeling 方法，在這之前，NN 要成為 p.d.f. 必須依賴於 sigmoid activation 的 Restricted Boltzmann Machines (RBM) 結構。例如 Deep Belief Net，整個 network 才會是">
+<meta name="description" content="Open.ai 這張表達 generative modeling 的意思很清楚，忍不住就借用了。
+筆者才疏學淺，如有錯誤，還請指正
+Generative Adversarial Nets 提出了一個 NN 的 generative modeling 方法，在這之前，NN 要成為 p.d.f. 必須依賴於 sigmoid activation 的 Restricted Boltzmann Ma">
 <meta property="og:type" content="article">
 <meta property="og:title" content="WGAN Part 1: 先用 GAN 鋪梗">
 <meta property="og:url" content="http://yoursite.com/2017/03/16/WGAN-Part-1/index.html">
 <meta property="og:site_name" content="CS Blog">
-<meta property="og:description" content="筆者才疏學淺，如有錯誤，還請指正
-Generative Adversarial Nets 提出了一個 NN 的 generative modeling 方法，在這之前，NN 要成為 p.d.f. 必須依賴於 sigmoid activation 的 Restricted Boltzmann Machines (RBM) 結構。例如 Deep Belief Net，整個 network 才會是">
+<meta property="og:description" content="Open.ai 這張表達 generative modeling 的意思很清楚，忍不住就借用了。
+筆者才疏學淺，如有錯誤，還請指正
+Generative Adversarial Nets 提出了一個 NN 的 generative modeling 方法，在這之前，NN 要成為 p.d.f. 必須依賴於 sigmoid activation 的 Restricted Boltzmann Ma">
+<meta property="og:image" content="http://yoursite.com/2017/03/16/WGAN-Part-1/cover.png">
 <meta property="og:image" content="http://yoursite.com/2017/03/16/WGAN-Part-1/GAN_algo.png">
 <meta property="og:image" content="http://yoursite.com/2017/03/16/WGAN-Part-1/swissroll.jpg">
 <meta property="og:image" content="http://yoursite.com/2017/03/16/WGAN-Part-1/JSD.png">
-<meta property="og:updated_time" content="2017-03-20T16:04:02.067Z">
+<meta property="og:updated_time" content="2017-03-22T14:53:04.468Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="WGAN Part 1: 先用 GAN 鋪梗">
-<meta name="twitter:description" content="筆者才疏學淺，如有錯誤，還請指正
-Generative Adversarial Nets 提出了一個 NN 的 generative modeling 方法，在這之前，NN 要成為 p.d.f. 必須依賴於 sigmoid activation 的 Restricted Boltzmann Machines (RBM) 結構。例如 Deep Belief Net，整個 network 才會是">
-<meta name="twitter:image" content="http://yoursite.com/2017/03/16/WGAN-Part-1/GAN_algo.png">
+<meta name="twitter:description" content="Open.ai 這張表達 generative modeling 的意思很清楚，忍不住就借用了。
+筆者才疏學淺，如有錯誤，還請指正
+Generative Adversarial Nets 提出了一個 NN 的 generative modeling 方法，在這之前，NN 要成為 p.d.f. 必須依賴於 sigmoid activation 的 Restricted Boltzmann Ma">
+<meta name="twitter:image" content="http://yoursite.com/2017/03/16/WGAN-Part-1/cover.png">
 
 
 
@@ -111,7 +115,7 @@ Generative Adversarial Nets 提出了一個 NN 的 generative modeling 方法，
   var NexT = window.NexT || {};
   var CONFIG = {
     root: '/',
-    scheme: 'Muse',
+    scheme: 'Pisces',
     sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
     fancybox: true,
     motion: true,
@@ -178,7 +182,7 @@ Generative Adversarial Nets 提出了一個 NN 的 generative modeling 方法，
       </a>
     </div>
       
-        <p class="site-subtitle">AI ML 自耕農</p>
+        <p class="site-subtitle">讓學習變成一種習慣</p>
       
   </div>
 
@@ -209,7 +213,7 @@ Generative Adversarial Nets 提出了一個 NN 的 generative modeling 方法，
       
         
         <li class="menu-item menu-item-about">
-          <a href="/about" rel="section">
+          <a href="/about/" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
             
@@ -269,9 +273,9 @@ Generative Adversarial Nets 提出了一個 NN 的 generative modeling 方法，
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/03/16/WGAN-Part-1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Bobon">
+      <meta itemprop="name" content="Chih-Sheng Chen">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/uploads/avatar.png">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -363,8 +367,9 @@ Generative Adversarial Nets 提出了一個 NN 的 generative modeling 方法，
         <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
 
+<p><a href="https://openai.com/blog/generative-models/" target="_blank" rel="external">Open.ai</a> 這張表達 generative modeling 的意思很清楚，忍不住就借用了。<br><img src="/2017/03/16/WGAN-Part-1/cover.png" width="50%" height="50%"></p>
 <p><strong>筆者才疏學淺，如有錯誤，還請指正</strong></p>
-<p>Generative Adversarial Nets 提出了一個 NN 的 generative modeling 方法，在這之前，NN 要成為 p.d.f. 必須依賴於 sigmoid activation 的 Restricted Boltzmann Machines (RBM) 結構。<br>例如 Deep Belief Net，整個 network 才會是一個 p.d.f.。然而學習這樣的一個 p.d.f. 必須使用 Contrastive Divergence 的 MCMC 方法， model 訓練完後要產生 sample 時也還是必須依賴 MCMC。<br>另外在實用上，偏偏 sigmoid 很多時候效果不如 ReLu, maxout 等，例如 sigmoid 有嚴重的 gradient vanish problem。<br>這使得 NN 在 generative modeling 又或是 unsupervised learning 上一直困難重重。</p>
+<p>Generative Adversarial Nets 提出了一個 NN 的 generative modeling 方法，在這之前，NN 要成為 p.d.f. 必須依賴於 sigmoid activation 的 Restricted Boltzmann Machines (RBM) 結構。例如 Deep Belief Net，整個 network 才會是一個 p.d.f.。然而學習這樣的一個 p.d.f. 必須使用 Contrastive Divergence 的 MCMC 方法， model 訓練完後要產生 sample 時也還是必須依賴 MCMC。加上在實用上，偏偏 sigmoid 很多時候效果不如 ReLu, maxout 等，例如 sigmoid 有嚴重的 gradient vanish problem。這使得 NN 在 generative modeling 又或是 unsupervised learning 上一直困難重重。</p>
 <p>GAN 一出立即打破這個難堪的限制 ! 怎麼說呢? GAN 捨棄能夠明確表達出 p.d.f.的作法，寫不出明確的 p.d.f. 一點也沒關係，只要能生成 <strong>夠真的sample點</strong>，並且<strong>sample的機率跟training data一樣</strong>就好</p>
 <a id="more"></a>
 <p>然而 GAN 在實作上卻會遇上一些困難，例如生成的 samples <strong>多樣性不足</strong>，<strong>訓練流程/架構 和 hyper-parameters 需要小心選擇</strong>，<strong>無法明確知道訓練的收斂狀況</strong>，這些問題等下會說明。</p>
@@ -558,9 +563,9 @@ C(G)=-\log4+KL(p_d\vert\frac{p_d+p_g}{2})+KL(p_g\vert\frac{p_d+p_g}{2}) \\
       <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
-               src="/images/avatar.gif"
-               alt="Bobon" />
-          <p class="site-author-name" itemprop="name">Bobon</p>
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
            
               <p class="site-description motion-element" itemprop="description"></p>
           
@@ -654,7 +659,7 @@ C(G)=-\log4+KL(p_d\vert\frac{p_d+p_g}{2})+KL(p_g\vert\frac{p_d+p_g}{2}) \\
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">Bobon</span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
 </div>
 
 
@@ -665,7 +670,7 @@ C(G)=-\log4+KL(p_d\vert\frac{p_d+p_g}{2})+KL(p_g\vert\frac{p_d+p_g}{2}) \\
 <div class="theme-info">
   主題 -
   <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Muse
+    NexT.Pisces
   </a>
 </div>
 
@@ -736,6 +741,13 @@ C(G)=-\log4+KL(p_d\vert\frac{p_d+p_g}{2})+KL(p_g\vert\frac{p_d+p_g}{2}) \\
 
   
   
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
 
   
   <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>

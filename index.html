@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next muse use-motion" lang="zh-tw">
+<html class="theme-next pisces use-motion" lang="zh-tw">
 <head>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -100,7 +100,7 @@
   var NexT = window.NexT || {};
   var CONFIG = {
     root: '/',
-    scheme: 'Muse',
+    scheme: 'Pisces',
     sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
     fancybox: true,
     motion: true,
@@ -169,7 +169,7 @@
       </a>
     </div>
       
-        <p class="site-subtitle">AI ML 自耕農</p>
+        <p class="site-subtitle">讓學習變成一種習慣</p>
       
   </div>
 
@@ -200,7 +200,7 @@
       
         
         <li class="menu-item menu-item-about">
-          <a href="/about" rel="section">
+          <a href="/about/" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
             
@@ -260,9 +260,9 @@
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/03/17/WGAN-Part-2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Bobon">
+      <meta itemprop="name" content="Chih-Sheng Chen">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/uploads/avatar.png">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -412,9 +412,9 @@
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/03/16/WGAN-Part-1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Bobon">
+      <meta itemprop="name" content="Chih-Sheng Chen">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/uploads/avatar.png">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -510,8 +510,9 @@
           <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
 
+<p><a href="https://openai.com/blog/generative-models/">Open.ai</a> 這張表達 generative modeling 的意思很清楚，忍不住就借用了。<br><img src="/2017/03/16/WGAN-Part-1/cover.png" width="50%" height="50%"></p>
 <p><strong>筆者才疏學淺，如有錯誤，還請指正</strong></p>
-<p>Generative Adversarial Nets 提出了一個 NN 的 generative modeling 方法，在這之前，NN 要成為 p.d.f. 必須依賴於 sigmoid activation 的 Restricted Boltzmann Machines (RBM) 結構。<br>例如 Deep Belief Net，整個 network 才會是一個 p.d.f.。然而學習這樣的一個 p.d.f. 必須使用 Contrastive Divergence 的 MCMC 方法， model 訓練完後要產生 sample 時也還是必須依賴 MCMC。<br>另外在實用上，偏偏 sigmoid 很多時候效果不如 ReLu, maxout 等，例如 sigmoid 有嚴重的 gradient vanish problem。<br>這使得 NN 在 generative modeling 又或是 unsupervised learning 上一直困難重重。</p>
+<p>Generative Adversarial Nets 提出了一個 NN 的 generative modeling 方法，在這之前，NN 要成為 p.d.f. 必須依賴於 sigmoid activation 的 Restricted Boltzmann Machines (RBM) 結構。例如 Deep Belief Net，整個 network 才會是一個 p.d.f.。然而學習這樣的一個 p.d.f. 必須使用 Contrastive Divergence 的 MCMC 方法， model 訓練完後要產生 sample 時也還是必須依賴 MCMC。加上在實用上，偏偏 sigmoid 很多時候效果不如 ReLu, maxout 等，例如 sigmoid 有嚴重的 gradient vanish problem。這使得 NN 在 generative modeling 又或是 unsupervised learning 上一直困難重重。</p>
 <p>GAN 一出立即打破這個難堪的限制 ! 怎麼說呢? GAN 捨棄能夠明確表達出 p.d.f.的作法，寫不出明確的 p.d.f. 一點也沒關係，只要能生成 <strong>夠真的sample點</strong>，並且<strong>sample的機率跟training data一樣</strong>就好</p>
           <!--noindex-->
           <div class="post-button text-center">
@@ -564,9 +565,9 @@
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/03/13/Why-Aggregation-Work/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Bobon">
+      <meta itemprop="name" content="Chih-Sheng Chen">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/uploads/avatar.png">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -711,9 +712,9 @@
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/03/12/Vehicle-Tracking/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Bobon">
+      <meta itemprop="name" content="Chih-Sheng Chen">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/uploads/avatar.png">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -860,9 +861,9 @@
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/27/Lane-Finding/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Bobon">
+      <meta itemprop="name" content="Chih-Sheng Chen">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/uploads/avatar.png">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -1007,9 +1008,9 @@
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/13/Neural-Art/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Bobon">
+      <meta itemprop="name" content="Chih-Sheng Chen">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/uploads/avatar.png">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -1154,9 +1155,9 @@
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/12/GTX-1070/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Bobon">
+      <meta itemprop="name" content="Chih-Sheng Chen">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/uploads/avatar.png">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -1301,9 +1302,9 @@
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/05/Driving-by-Learning-Your-Style/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Bobon">
+      <meta itemprop="name" content="Chih-Sheng Chen">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/uploads/avatar.png">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -1448,9 +1449,9 @@
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/01/18/traffic-sign-detection/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Bobon">
+      <meta itemprop="name" content="Chih-Sheng Chen">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/uploads/avatar.png">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -1595,9 +1596,9 @@
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/01/16/aws-procedure/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Bobon">
+      <meta itemprop="name" content="Chih-Sheng Chen">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/uploads/avatar.png">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -1767,9 +1768,9 @@
       <section class="site-overview sidebar-panel sidebar-panel-active">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
-               src="/images/avatar.gif"
-               alt="Bobon" />
-          <p class="site-author-name" itemprop="name">Bobon</p>
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
            
               <p class="site-description motion-element" itemprop="description"></p>
           
@@ -1847,7 +1848,7 @@
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">Bobon</span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
 </div>
 
 
@@ -1858,7 +1859,7 @@
 <div class="theme-info">
   主題 -
   <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Muse
+    NexT.Pisces
   </a>
 </div>
 
@@ -1929,6 +1930,13 @@
 
   
   
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
 
   
 
