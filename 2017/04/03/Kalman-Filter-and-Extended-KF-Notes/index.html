@@ -108,7 +108,7 @@
 <meta property="og:image" content="http://yoursite.com/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/F.png">
 <meta property="og:image" content="http://yoursite.com/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Q.png">
 <meta property="og:image" content="http://yoursite.com/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Jaccobian.png">
-<meta property="og:updated_time" content="2017-04-03T12:54:30.512Z">
+<meta property="og:updated_time" content="2017-04-03T15:16:52.181Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Notes for Kalman Filter and Extended KF">
 <meta name="twitter:description" content="Udacity term2 (Sensor Fusion, Localization, and Control) 的第一個 Project 就是用 KF and EKF 將 Lidar and Radar 的資訊做 fusion 並且可以 tracking。由於 KF/EKF 的數學符號很多，因此想筆記一下方便日後回想，所以主要以我自己看的角度，可能有些地方會沒有明確說明。本篇的筆記來源是">
@@ -428,7 +428,7 @@ K=P_kH_k^T(H_kP_kH_k^T+R_k)^{-1}
 <h3 id="Lidar-Radar-的一些設定"><a href="#Lidar-Radar-的一些設定" class="headerlink" title="Lidar/Radar 的一些設定"></a>Lidar/Radar 的一些設定</h3><p>state 定義為 \(x=(p_x,p_y,v_x,v_y)\) 分別是 (x 的位置, y 的位置, x 的速度, y 的速度)。</p>
 <ul>
 <li>\(F_k\) 會根據兩次 sensor data 之間的時間間隔 \(\vartriangle t\) 來表示:<br><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/F.png" width="30%" height="30%"></li>
-<li>另外我們將 <strong>加速度考慮為一個 mean = 0, covariance matrix = Q 的一個 random noise</strong> 的話，式 (1) and (3) 必須做修改。<br><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/acc1.png" width="80%" height="80%"><br><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/acc2.png" width="80%" height="80%"><br>其中 \(Q_v\) 使用者自己設定調整，所以 state noise 的 covariance matrix 為<br><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Q.png" width="50%" height="50%"></li>
+<li>另外我們將 <strong>加速度考慮為一個 mean = 0, covariance matrix = Q 的一個 random noise</strong> 的話，式 (1) and (4) 必須做修改。<br><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/acc1.png" width="80%" height="80%"><br><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/acc2.png" width="80%" height="80%"><br>其中 \(Q_v\) 使用者自己設定調整，所以 state noise 的 covariance matrix 為<br><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Q.png" width="50%" height="50%"></li>
 <li>Lidar 只會觀察到位置，因此 Lidar 的 \(H\) 為:<span>$$H_{lidar}=
 \left(
 \begin{array}{clr}
@@ -463,7 +463,7 @@ S=H_kP_kH_k^T+R_k \\
 \hat{x}_k&apos;=\hat{x}_k+Ky \\
 P_k&apos;=P_k-KH_kP_k \\
 K=P_kH_k^TS^{-1}
-\end{align}$$</span><!-- Has MathJax --><br>在 EKF 中，由於我們使用 Taylor 展開式去逼近 \(h\)，因此上述的 \(H_k\) 必須使用如下式子計算:<br><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Jaccobian.png" width="80%" height="80%"><br>但是，這邊還有一個 tricky 的地方! 就是 <strong>式(18)直接使用式(17) \(h\) 的 non-linear function 計算!</strong><br>回想一下我們將 \(h\) 做 linearlization 的目的，是因為如果 Gaussian pdf 經過 nonlinear 轉換後會變成 “非Gaussian”，就是式(5),(6)下的那張圖的轉換。<br>既然轉換的 pdf 都已經是逼近了，不如就將 mean 使用最精確的值，因此 \(y\) 就直接使用式(17)計算。所以式(18)要改成:<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --><br>在 EKF 中，由於我們使用 Taylor 展開式去逼近 \(h\)，因此上述的 \(H_k\) 必須使用如下式子計算:<br><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Jaccobian.png" width="80%" height="80%"><br>但是，這邊還有一個 tricky 的地方! 就是 <strong>式(18)直接使用式(17) \(h\) 的 non-linear function 計算!</strong><br>回想一下我們將 \(h\) 做 linearlization 的目的: 就是式(5),(6)下的那張圖的轉換。如果 Gaussian pdf 經過 nonlinear 轉換後會變成 “非Gaussian”，因此只好做線性逼近。<br>既然線性轉換的 pdf 都已經是逼近了，不如就將 mean 使用最精確的值，因此 \(y\) 就直接使用式(17)計算。所以式(18)要改成:<br><span>$$\begin{align}
 y=(\vec{z}_k-h(\hat{x}_k))
 \end{align}$$</span><!-- Has MathJax --></p>
 <hr>
