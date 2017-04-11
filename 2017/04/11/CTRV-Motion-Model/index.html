@@ -125,7 +125,8 @@ F=
 \l">
 <meta property="og:image" content="http://yoursite.com/2017/04/11/CTRV-Motion-Model/CTRV_state_vector.png">
 <meta property="og:image" content="http://yoursite.com/2017/04/11/CTRV-Motion-Model/NoiseTermPosition.png">
-<meta property="og:updated_time" content="2017-04-11T14:38:44.743Z">
+<meta property="og:image" content="http://yoursite.com/2017/04/11/CTRV-Motion-Model/UKF_idea.png">
+<meta property="og:updated_time" content="2017-04-11T15:42:58.927Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="CTRV Motion Model">
 <meta name="twitter:description" content="Motion Models在上一篇 EKF 中，我們其實假設的是 constant velocity model (CV)，也就是如下的關係式$$\begin{align}
@@ -535,7 +536,7 @@ x_{k+1}=x_k+Deterministic_k+Stochastic_k
 
 \end{align}$$</span><!-- Has MathJax --><br>第三項是速度 $v$ 會被加速度 $v_{a,k}$ 這種 noise 怎麼影響，所以很明顯是線性增加，同理第四和第五項也很容易得到。第一和第二項，$x$ and $y$ 的位置這裡就比較麻煩，因此採用的是一個近似而已。<br>這邊假設 yaw rate 沒有太高的情況下，下圖的兩個紅色圈圈位置應該是很接近，因此我們可以考慮走直線的紅色圈圈位置，也就得到了(11)第一二項的近似值。<br><img src="/2017/04/11/CTRV-Motion-Model/NoiseTermPosition.png" width="80%" height="80%"></p>
 <hr>
-<h3 id="Summary-All"><a href="#Summary-All" class="headerlink" title="Summary All"></a>Summary All</h3><p>省略解釋，寫出 state recursion 的計算。<br><span>$$x=
+<h3 id="Summary-All-CTRV"><a href="#Summary-All-CTRV" class="headerlink" title="Summary All CTRV"></a>Summary All CTRV</h3><p>省略解釋，寫出 state recursion 的計算。<br><span>$$x=
 \left(
 \begin{array}{clr}
 p_x \\
@@ -573,7 +574,8 @@ v_ksin(\psi_k)\Delta{t} \\
 0
 \end{array}
 \right]$$</span><!-- Has MathJax --></p>
-<p>由於這系統整個是非線性的，會破壞 State-space model 的線性假設，不過我們知道 EKF 可以利用 Jaccobian matrix 做線性逼近計算，所以我們同樣可以計算。<br>但要計算上述非線性系統的 Jaccobian matrix 實在顯得有點複雜，好在 <strong>Unscented KF</strong> 可以完全避開這個麻煩。它利用選擇幾個代表的 candidates vectors，叫做 <strong>Sigma Points</strong>，去計算經過非線性轉換後的值，然後就可以得到 output domain 的 mean 和 covariance matrix。<br>這邊要注意的是，output domain 的分佈不是高斯分布，但我們仍然將它當成是高斯分布去計算 mean 和 covariance matrix，因為這樣才能繼續套用 Kalman filter 的方法。說到這可知道 UKF 仍然只是逼近，不過根據 Udacity 的說法，實際應用上 <strong>UKF 是很快 (不用計算 Jaccobian) 且實際上效果很好!</strong><br>看看 UKF Projcet 做出來的效果如何吧!</p>
+<hr>
+<h3 id="UKF"><a href="#UKF" class="headerlink" title="UKF"></a>UKF</h3><p>由於 CTRV 是非線性的，會破壞 State-space model 的線性假設，例如下圖中原先<strong>紅色</strong>的高斯分布經過非線性轉換後分布為<strong>黃色</strong>。不過我們知道 EKF 可以利用 Jaccobian matrix 做線性逼近計算，所以我們同樣可以計算。<br><img src="/2017/04/11/CTRV-Motion-Model/UKF_idea.png" width="80%" height="80%"><br>但要計算上述非線性系統的 Jaccobian matrix 實在顯得有點複雜，好在 <strong>Unscented KF</strong> 可以完全避開這個麻煩。它利用選擇幾個代表的 candidates vectors，叫做 <strong>Sigma Points</strong>，去計算經過非線性轉換後的值，然後就可以得到 output domain 的 mean 和 covariance matrix，也就是上圖的<strong>綠色</strong>高斯分布。<br>這邊要注意的是，output domain 的真實分佈不是高斯分布(<strong>黃色</strong>)，但我們仍然將它當成是高斯分布(<strong>綠色</strong>)去計算 mean 和 covariance matrix，因為這樣才能繼續套用 Kalman filter 的方法。說到這可知道 UKF 仍然只是逼近，不過根據 Udacity 的說法，實際應用上 <strong>UKF 是很快 (不用計算 Jaccobian) 且實際上效果很好!</strong><br>看看 UKF Projcet 做出來的效果如何吧!</p>
 
       
     </div>
@@ -757,7 +759,7 @@ v_ksin(\psi_k)\Delta{t} \\
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Motion-Models"><span class="nav-number">1.</span> <span class="nav-text">Motion Models</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CTRV-State-Vector-Recursion"><span class="nav-number">2.</span> <span class="nav-text">CTRV State Vector Recursion</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Recursion-With-Noise-Term"><span class="nav-number">3.</span> <span class="nav-text">Recursion With Noise Term</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Summary-All"><span class="nav-number">4.</span> <span class="nav-text">Summary All</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Motion-Models"><span class="nav-number">1.</span> <span class="nav-text">Motion Models</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CTRV-State-Vector-Recursion"><span class="nav-number">2.</span> <span class="nav-text">CTRV State Vector Recursion</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Recursion-With-Noise-Term"><span class="nav-number">3.</span> <span class="nav-text">Recursion With Noise Term</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Summary-All-CTRV"><span class="nav-number">4.</span> <span class="nav-text">Summary All CTRV</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UKF"><span class="nav-number">5.</span> <span class="nav-text">UKF</span></a></li></ol></div>
             
 
           </div>
