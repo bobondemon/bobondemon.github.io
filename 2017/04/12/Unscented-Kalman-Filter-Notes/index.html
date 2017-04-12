@@ -1,0 +1,847 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Udacity,Unscented Kalman Filter," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="資料為 Udacity 課程內容。事實上 UKF 挺囉嗦的，單純看本文應該無法理解，必須搭配前兩篇 KF and EKF 和 CTRV。主要是筆記用，讓自己可以根據文章完整實做出來。
+
+
+一切的一切都來自於 Kalman Filter 的 State-Space model 假設，我們來稍微回顧一下。
+$$\begin{align} 
+x_k = F_kx_{k-1}+\nu_k \\">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Unscented Kalman Filter Notes">
+<meta property="og:url" content="http://yoursite.com/2017/04/12/Unscented-Kalman-Filter-Notes/index.html">
+<meta property="og:site_name" content="CS Blog">
+<meta property="og:description" content="資料為 Udacity 課程內容。事實上 UKF 挺囉嗦的，單純看本文應該無法理解，必須搭配前兩篇 KF and EKF 和 CTRV。主要是筆記用，讓自己可以根據文章完整實做出來。
+
+
+一切的一切都來自於 Kalman Filter 的 State-Space model 假設，我們來稍微回顧一下。
+$$\begin{align} 
+x_k = F_kx_{k-1}+\nu_k \\">
+<meta property="og:image" content="http://yoursite.com/2017/04/12/Unscented-Kalman-Filter-Notes/cover.png">
+<meta property="og:image" content="http://yoursite.com/2017/04/12/Unscented-Kalman-Filter-Notes/sigma_points.png">
+<meta property="og:image" content="http://yoursite.com/2017/04/12/Unscented-Kalman-Filter-Notes/sigma_points2.png">
+<meta property="og:image" content="http://yoursite.com/2017/04/12/Unscented-Kalman-Filter-Notes/sigma_points_aug.png">
+<meta property="og:image" content="http://yoursite.com/2017/04/12/Unscented-Kalman-Filter-Notes/state_prediction.png">
+<meta property="og:image" content="http://yoursite.com/2017/04/12/Unscented-Kalman-Filter-Notes/mean_cov.png">
+<meta property="og:image" content="http://yoursite.com/2017/04/12/Unscented-Kalman-Filter-Notes/measurement_prediction.png">
+<meta property="og:image" content="http://yoursite.com/2017/04/12/Unscented-Kalman-Filter-Notes/measurement_prediction2.png">
+<meta property="og:image" content="http://yoursite.com/2017/04/12/Unscented-Kalman-Filter-Notes/mean_cov2.png">
+<meta property="og:image" content="http://yoursite.com/2017/04/12/Unscented-Kalman-Filter-Notes/update.png">
+<meta property="og:updated_time" content="2017-04-12T15:47:51.706Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Unscented Kalman Filter Notes">
+<meta name="twitter:description" content="資料為 Udacity 課程內容。事實上 UKF 挺囉嗦的，單純看本文應該無法理解，必須搭配前兩篇 KF and EKF 和 CTRV。主要是筆記用，讓自己可以根據文章完整實做出來。
+
+
+一切的一切都來自於 Kalman Filter 的 State-Space model 假設，我們來稍微回顧一下。
+$$\begin{align} 
+x_k = F_kx_{k-1}+\nu_k \\">
+<meta name="twitter:image" content="http://yoursite.com/2017/04/12/Unscented-Kalman-Filter-Notes/cover.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/04/12/Unscented-Kalman-Filter-Notes/"/>
+
+
+
+
+
+  <title> Unscented Kalman Filter Notes | CS Blog </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">CS Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/12/Unscented-Kalman-Filter-Notes/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="CS Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Unscented Kalman Filter Notes
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2017-04-12T20:50:16+08:00">
+                2017-04-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SP/" itemprop="url" rel="index">
+                    <span itemprop="name">SP</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<blockquote>
+<p>資料為 Udacity 課程內容。事實上 UKF 挺囉嗦的，單純看本文應該無法理解，必須搭配前兩篇 <a href="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/" target="_blank" rel="external">KF and EKF</a> 和 <a href="https://bobondemon.github.io/2017/04/11/CTRV-Motion-Model/" target="_blank" rel="external">CTRV</a>。主要是筆記用，讓自己可以根據文章完整實做出來。</p>
+</blockquote>
+<p><img src="/2017/04/12/Unscented-Kalman-Filter-Notes/cover.png" width="100%" height="100%"></p>
+<p>一切的一切都來自於 Kalman Filter 的 State-Space model 假設，我們來稍微回顧一下。</p>
+<span>$$\begin{align} 
+x_k = F_kx_{k-1}+\nu_k \\
+z_k = H_kx_k+\omega_k&Tab;\\
+\end{align}$$</span><!-- Has MathJax -->
+<a id="more"></a>
+<p>式(1)表示狀態值 $x$ 滿足<strong>線性的遞迴關係式</strong>，而式(2)表示觀測值 $z$ 是當下狀態值的<strong>線性關係式</strong>。這個線性的關係式是為了使得我們的高斯分布在轉換後仍然滿足高斯分布所做的假設。但實際上常常不滿足線性的關係，例如假設我們的 $x$ 包含了 Cartesian coordinate 的座標位置和速度的資訊，但是 RADAR 的觀測值 $z$ 卻是用 Polar coordinate 來表示，就會有一個非線性的座標轉換。另一個會造成非線性的情況是發生在式(1)，也就是我們如果使用更精確的 motion model，如 <a href="http://localhost:4000/2017/04/11/CTRV-Motion-Model/" target="_blank" rel="external">CTRV</a>。<br>EKF 解決的方法是用 Jacobian 做線性的逼近，但是非線性的關係式如果一複雜，算 Jacobian 就會太複雜且造成運算速度變慢。因此，本篇要介紹的 Unscented KF 有相對簡單的辦法，並且運算速度快，且實際效果好。<br>UKF 概念上怎麼做呢? 我們看上圖就可了解，首先原始的高斯分布(上面的紅色橢圓)，經由非線性轉換後得到的實際分佈為下面的黃色曲線，而實際分布的 mean 和 covariance matrix 的高斯分布為下面的紅色橢圓，但是我們不容易得到!那麼怎麼逼近下面的紅色橢圓呢? UKF 做法就是在上圖選擇一些代表的點，稱為 Sigma Points，經過線性轉換後，可以得到下面的星星，然後根據這些資料去計算他們的 mean 和 covariance matrix，而得到藍色的橢圓。那麼我們馬上開始說明如何設定 Sigma Points 吧。</p>
+<hr>
+<h3 id="Sigma-Points-選擇"><a href="#Sigma-Points-選擇" class="headerlink" title="Sigma Points 選擇"></a>Sigma Points 選擇</h3><p>假設 state dimension 為 $n_x$，Sigma Points 就選擇 $2n_x+1$ 個點。我們以 $n_x=2$ 來舉例說明會比較清楚，擴展到更高的維度也就非常 trivial 了。</p>
+<p><img src="/2017/04/12/Unscented-Kalman-Filter-Notes/sigma_points.png" width="100%" height="100%"></p>
+<p>可以知道我們需選擇5個點($2n_x+1$)，第一個點是 mean vector，接著針對每一個 dimension 都<strong>根據 mean vector 向該 dimension 去做正負方向的 perturb</strong>，而 $\lambda$ 表示要 perturb 多遠(使用者給定的值)。但是要特別注意的是，這裡的 perturb dimension 必須是<strong>正規化後的方向</strong> (<a href="https://en.wikipedia.org/wiki/Whitening_transformation" target="_blank" rel="external">Whitening</a>)，否則若原來的高斯分布某一個方向特別大(想像一個很扁的橢圓)，使用原來的 covariance matrix 就會被該方向 dominate 了。上例的 sigma points 如下:</p>
+<p><img src="/2017/04/12/Unscented-Kalman-Filter-Notes/sigma_points2.png" width="80%" height="80%"></p>
+<hr>
+<h3 id="CTRV-Sigma-Points"><a href="#CTRV-Sigma-Points" class="headerlink" title="CTRV Sigma Points"></a>CTRV Sigma Points</h3><p>我們來看 CTRV model 下的 sigma points 選擇，其中 state vector and noise term 分別定義如下</p>
+<span>$$\begin{align}
+x=
+\left(
+\begin{array}{clr}
+p_x \\
+p_y \\
+v \\
+\psi \\
+\dot{\psi}
+\end{array}
+\right)
+\end{align}$$</span><!-- Has MathJax -->
+<span>$$\begin{align}
+v_k=
+\left[
+\begin{array}{center}
+v_{a,k} \\
+v_{\ddot{\psi},k}
+\end{array}
+\right]\\
+v_{a,k}\sim N(0,\sigma_a^2),v_{a,k}\sim N(0,\sigma_{\ddot{\psi}}^2) \\
+Q=E[v_k,v_k^T]=
+\left[
+\begin{array}{clr}
+\sigma_a^2 &amp; 0 \\
+0 &amp; \sigma_{\ddot{\psi}}^2 \\
+\end{array}
+\right]
+\end{align}$$</span><!-- Has MathJax -->
+<p>$v_k$ 的第一個 term 是加速度的 noise，而第二個表示 yaw rate 的變化率。由於原始的 state recursion 還參雜了 $Stochastic_k$ 這樣的 vector (參考下面的式子)，因此要計算他們的 covariance matrix 會太難搞! (因為我們需要知道 covariance matrix 才能對每個 whitening 後的維度去 perturb 取點)</p>
+<blockquote>
+<span>$$\begin{align}
+x_{k+1}=x_k+Deterministic_k+
+
+\left[
+\begin{array}{center}
+\frac{1}{2}(\Delta{t})^2cos(\psi_k)\cdot v_{a,k} \\
+\frac{1}{2}(\Delta{t})^2sin(\psi_k)\cdot v_{a,k} \\
+\Delta{t}\cdot v_{a,k} \\
+\frac{1}{2}(\Delta{t})^2\cdot v_{\ddot{\psi},k} \\
+\Delta{t}\cdot v_{\ddot{\psi},k}
+\end{array}
+\right]\\
+x_{k+1}=x_k+Deterministic_k+Stochastic_k
+\end{align}$$</span><!-- Has MathJax -->
+</blockquote>
+<p>比較簡單的作法是<strong>將 noise term (式(4)) 當成 state vector 的另外的維度</strong>，主要的好處是 covariance matrix 就變得很容易計算了。然後一樣用上述的方式產生 Sigma Points。因此整個流程如下圖:</p>
+<p><img src="/2017/04/12/Unscented-Kalman-Filter-Notes/sigma_points_aug.png" width="100%" height="100%"></p>
+<p>可以看到原本維度從5變成7，因此要產生15點的 sigma points，而 augmentated state vector 的 covariance matrix 變得很容易定義。</p>
+<hr>
+<h3 id="Sigma-Points-Prediction"><a href="#Sigma-Points-Prediction" class="headerlink" title="Sigma Points Prediction"></a>Sigma Points Prediction</h3><p>產生了這些 sigma points 之後，我們就可以透過式(7)，做 nonlinear recursion 到下一個時間點的 state vector 了 (注意到 noise term 也被 sigma points 取樣了，所以可以帶入式(7)中)!</p>
+<p><img src="/2017/04/12/Unscented-Kalman-Filter-Notes/state_prediction.png" width="80%" height="80%"></p>
+<hr>
+<h3 id="Mean-and-Covariance-of-Sigma-Points"><a href="#Mean-and-Covariance-of-Sigma-Points" class="headerlink" title="Mean and Covariance of Sigma Points"></a>Mean and Covariance of Sigma Points</h3><p>還記得嗎? 將 sigma point transform 後，我們下一步就是要估計出 mean 和 covariance，忘記的同鞋們可以看一下本文最開始的圖 (藍色的高斯分布)。<br>基本上有一些 data points 要算它們的高斯分布非常簡單，但是由於我們當初取的 sigma points 的點它們之間本來的機率就不同，因此在計算轉換後的高斯分布必須要考慮每個點的權重。權重的設定有不同方法，課程直接建議下面的設定，所以沒特別要說明的，就照公式計算而已:</p>
+<p><img src="/2017/04/12/Unscented-Kalman-Filter-Notes/mean_cov.png" width="100%" height="100%"></p>
+<hr>
+<h3 id="Measurement-Prediction"><a href="#Measurement-Prediction" class="headerlink" title="Measurement Prediction"></a>Measurement Prediction</h3><p>對於 RADAR 來說式(2)也是一個非線性的關係，因此也可以用 sigma points 的方法來逼近。原本我們需要對上圖藍色的高斯分布取 sigma points，然後經過非線性轉換後在計算 mean 和 covariance，但其實我們不需要再取一次 sigma points 了，可以直接使用最原始的 sigma points。因此我們只需要再做一次非線性轉換，然後一樣用上面的公式算一下 measurement space 的高斯分布即可。</p>
+<p><img src="/2017/04/12/Unscented-Kalman-Filter-Notes/measurement_prediction.png" width="100%" height="100%"><br><img src="/2017/04/12/Unscented-Kalman-Filter-Notes/measurement_prediction2.png" width="100%" height="100%"></p>
+<p>稍微要注意的是，計算 covariance 時須考慮 noise 的 covariance，這跟 state prediction 的高斯計算不同。這也很容易理解，因為兩個 independent 的高斯分布相加，covariance 就是相加而已。<br><img src="/2017/04/12/Unscented-Kalman-Filter-Notes/mean_cov2.png" width="100%" height="100%"></p>
+<p>另外對於 LIDAR 來說 measurement 的轉換是線性關係，所以不使用 sigma point 的方法，因此在處理兩種 sensor data 時，記得區分一下 case。</p>
+<hr>
+<h3 id="Measurement-Update"><a href="#Measurement-Update" class="headerlink" title="Measurement Update"></a>Measurement Update</h3><p>終於來到最後的步驟了。我們費盡千辛萬苦根據時間點 $k$ 的 state vector 估計出了時間點 $k+1$ 的 measurement 值，而此時我們在時間點 $k+1$ 也收到了真正的 sensor data measurement。因此同樣可以使用 KF 的流程去計算所有的 update! 原因是我們其實全部都高斯化了 (透過 sigma points 方法)。</p>
+<p><img src="/2017/04/12/Unscented-Kalman-Filter-Notes/update.png" width="100%" height="100%"></p>
+<p>紅色框起來處為跟以前不同的地方，變成要計算 cross-correlation of “Measurement Prediction 那個 section 的第二章圖那兩排的 vector”</p>
+<hr>
+<h3 id="心得"><a href="#心得" class="headerlink" title="心得"></a>心得</h3><p>其實概念並不困難，但是頗多計算流程和符號，同時也必須先了解 Kalman Filter 和 CTRV motion model，下一步就實作 Project 吧!</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Udacity/" rel="tag"># Udacity</a>
+          
+            <a href="/tags/Unscented-Kalman-Filter/" rel="tag"># Unscented Kalman Filter</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/11/CTRV-Motion-Model/" rel="next" title="CTRV Motion Model">
+                <i class="fa fa-chevron-left"></i> CTRV Motion Model
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">分類</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Sigma-Points-選擇"><span class="nav-number">1.</span> <span class="nav-text">Sigma Points 選擇</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CTRV-Sigma-Points"><span class="nav-number">2.</span> <span class="nav-text">CTRV Sigma Points</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sigma-Points-Prediction"><span class="nav-number">3.</span> <span class="nav-text">Sigma Points Prediction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mean-and-Covariance-of-Sigma-Points"><span class="nav-number">4.</span> <span class="nav-text">Mean and Covariance of Sigma Points</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Measurement-Prediction"><span class="nav-number">5.</span> <span class="nav-text">Measurement Prediction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Measurement-Update"><span class="nav-number">6.</span> <span class="nav-text">Measurement Update</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#心得"><span class="nav-number">7.</span> <span class="nav-text">心得</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
