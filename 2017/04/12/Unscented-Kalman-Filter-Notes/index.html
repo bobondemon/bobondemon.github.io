@@ -113,7 +113,7 @@ x_k = F_kx_{k-1}+\nu_k \\">
 <meta property="og:image" content="http://yoursite.com/2017/04/12/Unscented-Kalman-Filter-Notes/measurement_prediction2.png">
 <meta property="og:image" content="http://yoursite.com/2017/04/12/Unscented-Kalman-Filter-Notes/mean_cov2.png">
 <meta property="og:image" content="http://yoursite.com/2017/04/12/Unscented-Kalman-Filter-Notes/update.png">
-<meta property="og:updated_time" content="2017-04-12T16:51:33.092Z">
+<meta property="og:updated_time" content="2017-04-14T15:39:09.887Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Notes for Unscented Kalman Filter">
 <meta name="twitter:description" content="資料為 Udacity 課程內容。事實上 UKF 挺囉嗦的，單純看本文應該無法理解，必須搭配前兩篇 KF and EKF 和 CTRV。主要是筆記用，讓自己可以根據文章完整實做出來。
@@ -393,7 +393,7 @@ x_k = F_kx_{k-1}+\nu_k \\
 z_k = H_kx_k+\omega_k&Tab;\\
 \end{align}$$</span><!-- Has MathJax -->
 <a id="more"></a>
-<p>式(1)表示狀態值 $x$ 滿足<strong>線性的遞迴關係式</strong>，而式(2)表示觀測值 $z$ 是當下狀態值的<strong>線性關係式</strong>。這個線性的關係式是為了使得我們的高斯分布在轉換後仍然滿足高斯分布所做的假設。但實際上常常不滿足線性的關係，例如假設我們的 $x$ 包含了 Cartesian coordinate 的座標位置和速度的資訊，但是 RADAR 的觀測值 $z$ 卻是用 Polar coordinate 來表示，就會有一個非線性的座標轉換。另一個會造成非線性的情況是發生在式(1)，也就是我們如果使用更精確的 motion model，如 <a href="http://localhost:4000/2017/04/11/CTRV-Motion-Model/" target="_blank" rel="external">CTRV</a>。<br>EKF 解決的方法是用 Jacobian 做線性的逼近，但是非線性的關係式如果一複雜，算 Jacobian 就會太複雜且造成運算速度變慢。因此，本篇要介紹的 Unscented KF 有相對簡單的辦法，並且運算速度快，且實際效果好。<br>UKF 概念上怎麼做呢? 我們看上圖就可了解，首先原始的高斯分布(上面的紅色橢圓)，經由非線性轉換後得到的實際分佈為下面的黃色曲線，而實際分布的 mean 和 covariance matrix 的高斯分布為下面的紅色橢圓，但是我們不容易得到!那麼怎麼逼近下面的紅色橢圓呢? UKF 做法就是在上圖選擇一些代表的點，稱為 Sigma Points，經過線性轉換後，可以得到下面的星星，然後根據這些資料去計算他們的 mean 和 covariance matrix，而得到藍色的橢圓。那麼我們馬上開始說明如何設定 Sigma Points 吧。</p>
+<p>式(1)表示狀態值 $x$ 滿足<strong>線性的遞迴關係式</strong>，而式(2)表示觀測值 $z$ 是當下狀態值的<strong>線性關係式</strong>。這個線性的關係式是為了使得我們的高斯分布在轉換後仍然滿足高斯分布所做的假設。但實際上常常不滿足線性的關係，例如假設我們的 $x$ 包含了 Cartesian coordinate 的座標位置和速度的資訊，但是 RADAR 的觀測值 $z$ 卻是用 Polar coordinate 來表示，就會有一個非線性的座標轉換。另一個會造成非線性的情況是發生在式(1)，也就是我們如果使用更精確的 motion model，如 <a href="http://localhost:4000/2017/04/11/CTRV-Motion-Model/" target="_blank" rel="external">CTRV</a>。<br>EKF 解決的方法是用 Jacobian 做線性的逼近，但是非線性的關係式如果一複雜，算 Jacobian 就會太複雜且造成運算速度變慢。因此，本篇要介紹的 Unscented KF 有相對簡單的辦法，並且運算速度快，且實際效果好。<br>UKF 概念上怎麼做呢? 我們看上圖就可了解，首先原始的高斯分布(上面的紅色橢圓)，經由非線性轉換 $f$ 後得到的 “實際分佈” 為下面的黃色曲線，而該實際分布的 mean 和 covariance matrix 所形成的的高斯分布為下面的紅色橢圓，但是我們不容易得到! 那麼怎麼逼近下面的紅色橢圓呢? UKF 做法就是在上圖選擇一些代表的點，稱為 Sigma Points，經過 $f$ 轉換後，可以得到下面的星星，然後就可以根據這些轉換後的星星去計算他們的 mean 和 covariance matrix，而得到藍色的橢圓。那麼我們馬上開始說明如何設定 Sigma Points 吧。</p>
 <hr>
 <h3 id="Sigma-Points-選擇"><a href="#Sigma-Points-選擇" class="headerlink" title="Sigma Points 選擇"></a>Sigma Points 選擇</h3><p>假設 state dimension 為 $n_x$，Sigma Points 就選擇 $2n_x+1$ 個點。我們以 $n_x=2$ 來舉例說明會比較清楚，而擴展到更高的維度也就非常 trivial 了。</p>
 <p><img src="/2017/04/12/Unscented-Kalman-Filter-Notes/sigma_points.png" width="100%" height="100%"></p>
@@ -430,7 +430,7 @@ Q=E[v_k,v_k^T]=
 \end{array}
 \right]
 \end{align}$$</span><!-- Has MathJax -->
-<p>$v_k$ 的第一個 term 是加速度的 noise，而第二個表示 yaw rate 的變化率。由於原始的 state recursion 還參雜了 $Stochastic_k$ 這樣的 vector (參考下面的式子)，因此要計算他們的 covariance matrix 會太難搞! (因為我們需要知道 covariance matrix 才能對每個 whitening 後的維度去 perturb 取點)</p>
+<p>$v_k$ 的第一個 term 是加速度的 noise，而第二個表示 yaw rate 的變化率。由於原始的 state recursion 還參雜了 $Stochastic_k$ 這樣的 vector (參考式(7)and(8))，因此要計算他們的 covariance matrix 會太難搞! (因為我們需要知道 covariance matrix 才能對每個 whitening 後的維度去 perturb 取點)</p>
 <blockquote>
 <span>$$\begin{align}
 x_{k+1}=x_k+Deterministic_k+
@@ -454,17 +454,35 @@ x_{k+1}=x_k+Deterministic_k+Stochastic_k
 <h3 id="Sigma-Points-Prediction"><a href="#Sigma-Points-Prediction" class="headerlink" title="Sigma Points Prediction"></a>Sigma Points Prediction</h3><p>產生了這些 sigma points 之後，我們就可以透過式(7)，做 nonlinear recursion 到下一個時間點的 state vector (注意到 noise term 也被 sigma points 取樣了，所以可以帶入式(7)中)!</p>
 <p><img src="/2017/04/12/Unscented-Kalman-Filter-Notes/state_prediction.png" width="80%" height="80%"></p>
 <hr>
-<h3 id="Mean-and-Covariance-of-Sigma-Points"><a href="#Mean-and-Covariance-of-Sigma-Points" class="headerlink" title="Mean and Covariance of Sigma Points"></a>Mean and Covariance of Sigma Points</h3><p>還記得嗎? 將 sigma point transform 後，我們下一步就是要估計出 mean 和 covariance，忘記的同鞋們可以看一下本文最開始的圖 (藍色的高斯分布)。<br>基本上有一些 data points 要算它們的高斯分布非常簡單，但是由於我們當初取的 sigma points 的點它們之間本來的機率就不同，因此在計算轉換後的高斯分布必須要考慮每個點的權重。權重的設定有不同方法，課程直接建議下面的設定，所以沒特別要說明的，就照公式計算而已:</p>
+<h3 id="Mean-and-Covariance-of-Sigma-Points"><a href="#Mean-and-Covariance-of-Sigma-Points" class="headerlink" title="Mean and Covariance of Sigma Points"></a>Mean and Covariance of Sigma Points</h3><p>還記得嗎? 將 sigma point transform 後，我們下一步就是要估計出 mean 和 covariance，忘記的同鞋們可以看一下本文最開始的圖 (藍色的高斯分布)。<br>基本上根據一些 data points 算它們的高斯分布非常簡單，但是由於我們當初取的 sigma points 它們之間本來的機率就不同，因此在計算轉換後的高斯分布必須要考慮每個點的權重。權重的設定有不同方法，課程直接建議下面的設定，所以沒特別要說明的，就照公式計算而已:</p>
 <p><img src="/2017/04/12/Unscented-Kalman-Filter-Notes/mean_cov.png" width="100%" height="100%"></p>
 <hr>
-<h3 id="Measurement-Prediction"><a href="#Measurement-Prediction" class="headerlink" title="Measurement Prediction"></a>Measurement Prediction</h3><p>對於 RADAR 來說式(2)也是一個非線性的關係，因此也可以用 sigma points 的方法來逼近。原本我們需要對上圖藍色的高斯分布取 sigma points，然後經過非線性轉換後在計算 mean 和 covariance，但其實我們不需要再取一次 sigma points 了，可以直接使用最原始的 sigma points。因此我們只需要再做一次非線性轉換 $h()$ 到 measurement space，然後一樣用上面的公式算一下 measurement space 的高斯分布即可。忘記 RADAR 的 $h()$ 了嗎? 請參考 <a href="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/" target="_blank" rel="external">KF and EKF</a> 式(17)。</p>
+<h3 id="Measurement-Prediction"><a href="#Measurement-Prediction" class="headerlink" title="Measurement Prediction"></a>Measurement Prediction</h3><p>對於 RADAR 來說式(2)也是一個非線性的關係，因此也可以用 sigma points 的方法來逼近。假設我們在時間點 $k$ 取的 sigma points 為 $x$，經過非線性 state recursion 後得到時間點 $k+1$ 的 sigma points 為 $x’$，我們可以直接將 $x’$ 當作新取的 sigma points，拿來做 measurement 非線性轉換 $z’=h(x’)+w$，然後一樣用上面的公式算一下 measurement space 的高斯分布即可。RADAR 的 $h()$ 定義如下:</p>
+<span>$$\begin{align}
+z=h(x)=
+\left(
+\begin{array}{clr}
+\rho \\
+\phi \\
+\dot{\rho}
+\end{array}
+\right)
+=
+\left(
+\begin{array}{clr}
+\sqrt{p_x^2+p_y^2} \\
+\arctan(p_y/p_x) \\
+\frac{p_xcos(\psi)v+p_ysin(\psi)v}{\sqrt{p_x^2+p_y^2}}
+\end{array}
+\right)
+\end{align}$$</span><!-- Has MathJax -->
 <p><img src="/2017/04/12/Unscented-Kalman-Filter-Notes/measurement_prediction.png" width="100%" height="100%"><br><img src="/2017/04/12/Unscented-Kalman-Filter-Notes/measurement_prediction2.png" width="100%" height="100%"></p>
-<p>稍微要注意的是，計算 covariance 時須考慮 noise 的 covariance (下圖紅色框起來的地方)，這跟 state prediction 的高斯計算不同。這也很容易理解，因為兩個 independent 的高斯分布相加，covariance 就是相加而已。<br><img src="/2017/04/12/Unscented-Kalman-Filter-Notes/mean_cov2.png" width="100%" height="100%"></p>
+<p>稍微要注意的是，計算 covariance 時須考慮 noise 的 covariance (下圖紅色框起來的地方)，這跟計算 state space 中的高斯分布不同。這是因為在 measurement space 是兩個 independent 的高斯分布相加 (一個是 sigma point 估出來的，另一個是 noise 的高斯)，covariance 就是相加而已。<br><img src="/2017/04/12/Unscented-Kalman-Filter-Notes/mean_cov2.png" width="100%" height="100%"></p>
 <p>另外對於 LIDAR 來說 measurement 的轉換是線性關係，所以不使用 sigma point 的方法，因此在處理兩種 sensor data 時，記得區分一下 case。</p>
 <hr>
 <h3 id="Measurement-Update"><a href="#Measurement-Update" class="headerlink" title="Measurement Update"></a>Measurement Update</h3><p>終於來到最後的步驟了。我們費盡千辛萬苦根據時間點 $k$ 的 state vector 估計出了時間點 $k+1$ 的 measurement 值，而此時我們在時間點 $k+1$ 也收到了真正的 sensor data measurement。因此同樣可以使用 KF 的流程去計算所有的 update! 原因是我們其實全部都高斯化了 (透過 sigma points 方法)。</p>
 <p><img src="/2017/04/12/Unscented-Kalman-Filter-Notes/update.png" width="100%" height="100%"></p>
-<p>紅色框起來處為跟以前不同的地方，變成要計算 cross-correlation of “Measurement Prediction 那個 section 的第二章圖那兩排的 vector”</p>
+<p>紅色框起來處為跟以前不同的地方，變成要計算 cross-correlation of “Measurement Prediction 那個 section 的第二張圖那兩排的 vectors”</p>
 <hr>
 <h3 id="心得"><a href="#心得" class="headerlink" title="心得"></a>心得</h3><p>其實概念並不困難，但是頗多計算流程和符號，同時也必須先了解 Kalman Filter 和 CTRV motion model，下一步就實作 Project 吧!</p>
 
