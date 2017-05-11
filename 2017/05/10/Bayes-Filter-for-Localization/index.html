@@ -1,0 +1,794 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Udacity,Bayes Filter,Localization,Markov Localization," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Bayes Filter Introduction前幾篇討論了很多 Kalman Filter 以及它相關的變形，如: EKF and UKF。這些方法我們都可以放在 Bayes Filter 的框架下來看，這麼做的話，KF 就只是其中一個特例了 (都是高斯分布的情形)。而如果我們只考慮幾個離散點的機率，並用蒙地卡羅法來模擬取樣的話，這種實作方式就會是 Particle Filter 。所">
+<meta property="og:type" content="article">
+<meta property="og:title" content="統一的框架 Bayes Filter">
+<meta property="og:url" content="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/index.html">
+<meta property="og:site_name" content="CS Blog">
+<meta property="og:description" content="Bayes Filter Introduction前幾篇討論了很多 Kalman Filter 以及它相關的變形，如: EKF and UKF。這些方法我們都可以放在 Bayes Filter 的框架下來看，這麼做的話，KF 就只是其中一個特例了 (都是高斯分布的情形)。而如果我們只考慮幾個離散點的機率，並用蒙地卡羅法來模擬取樣的話，這種實作方式就會是 Particle Filter 。所">
+<meta property="og:image" content="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/cover.png">
+<meta property="og:image" content="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/BayesFilterIntro.png">
+<meta property="og:image" content="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/variables.png">
+<meta property="og:image" content="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/1d-feature-map.png">
+<meta property="og:image" content="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/observation-vector.png">
+<meta property="og:image" content="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/believe.png">
+<meta property="og:image" content="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/localization-bayes-rule.png">
+<meta property="og:image" content="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/MotionModelRecursion.png">
+<meta property="og:image" content="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/ObservationModelSimplified.png">
+<meta property="og:image" content="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/BayesFilterSummary.png">
+<meta property="og:image" content="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/ParticleFilter.png">
+<meta property="og:updated_time" content="2017-05-11T15:31:37.473Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="統一的框架 Bayes Filter">
+<meta name="twitter:description" content="Bayes Filter Introduction前幾篇討論了很多 Kalman Filter 以及它相關的變形，如: EKF and UKF。這些方法我們都可以放在 Bayes Filter 的框架下來看，這麼做的話，KF 就只是其中一個特例了 (都是高斯分布的情形)。而如果我們只考慮幾個離散點的機率，並用蒙地卡羅法來模擬取樣的話，這種實作方式就會是 Particle Filter 。所">
+<meta name="twitter:image" content="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/cover.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/"/>
+
+
+
+
+
+  <title> 統一的框架 Bayes Filter | CS Blog </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">CS Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="CS Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                統一的框架 Bayes Filter
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2017-05-10T22:15:16+08:00">
+                2017-05-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SP/" itemprop="url" rel="index">
+                    <span itemprop="name">SP</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<h3 id="Bayes-Filter-Introduction"><a href="#Bayes-Filter-Introduction" class="headerlink" title="Bayes Filter Introduction"></a>Bayes Filter Introduction</h3><p>前幾篇討論了很多 Kalman Filter 以及它相關的變形，如: <a href="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/" target="_blank" rel="external">EKF</a> and <a href="https://bobondemon.github.io/2017/04/12/Unscented-Kalman-Filter-Notes/" target="_blank" rel="external">UKF</a>。這些方法我們都可以放在 Bayes Filter 的框架下來看，這麼做的話，KF 就只是其中一個特例了 (都是高斯分布的情形)。而如果我們只考慮幾個離散點的機率，並用蒙地卡羅法來模擬取樣的話，這種實作方式就會是 Particle Filter 。所以掌握了 Bayes Filter 背後的運作方式對於理解這些方法是很有幫助的。<br>一些變數的意義仍然跟前幾篇一樣:</p>
+<ul>
+<li>z: measurement，也就是我們實際上經由 sensor 得到的測量值 (會有noise)</li>
+<li>x: state，我們希望估計出來的值，在 Localization 一般就是座標值</li>
+</ul>
+<p><img src="/2017/05/10/Bayes-Filter-for-Localization/cover.png" width="100%" height="100%"></p>
+<a id="more"></a>
+<p>發現了嗎? 在上圖右 KF 的兩個步驟: Measurement Update 和 State Prediction 實際上就是上圖左邊的兩個數學式關係。搭配下圖文字一起看，Measurement Update 理解為得到一個觀察值 $z$ 後，我們用 <strong>Bayes Rule</strong> 可以估測出 state $x$ 的<strong>事後機率</strong> $P(x|z)$，而該事後機率經由 motion model (eg. <a href="https://bobondemon.github.io/2017/04/11/CTRV-Motion-Model/" target="_blank" rel="external">CTRV</a>) 可以估測出下一個時間點的 x 機率分佈 $P(x’)$ (此步驟為 State Prediction)。得到新的 $P(x’)$ 就可以當成<strong>下一個時間點的事前機率</strong>，所以 Bayes rule 就可以接著下去重複此 loop。<br><img src="/2017/05/10/Bayes-Filter-for-Localization/BayesFilterIntro.png" width="80%" height="80%"></p>
+<h4 id="與-Maximum-a-Posteriori-MAP-Adaptation-的關係"><a href="#與-Maximum-a-Posteriori-MAP-Adaptation-的關係" class="headerlink" title="與 Maximum a Posteriori (MAP) Adaptation 的關係"></a>與 Maximum a Posteriori (MAP) Adaptation 的關係</h4><p>事實上，這樣的框架也跟 MAP Adaptation 息息相關! 例如當事前機率是某些特別的機率分佈 (exponential family)，經由 Bayes rule 得到的事後機率，它的機率分佈會跟事前機率是同一類型的，(例如都是 Gaussian)。而這樣的選擇我們稱為 <a href="https://en.wikipedia.org/wiki/Conjugate_prior" target="_blank" rel="external">conjugate prior</a>。<strong>由於 “事後” 與 “事前” 機率是同一種類型的機率分佈，因此把 “事後機率” 在當成下一次資料來臨時的 “事前機率” 也就很自然了!</strong> 這就是 MAP Adaptation 的核心概念，與 Bayes filter 一模一樣阿!</p>
+<hr>
+<h3 id="Localization-詳細定義"><a href="#Localization-詳細定義" class="headerlink" title="Localization 詳細定義"></a>Localization 詳細定義</h3><p>好的，我們來針對 Localization 詳細解釋吧，名詞定義如下:</p>
+<p><img src="/2017/05/10/Bayes-Filter-for-Localization/variables.png" width="70%" height="70%"></p>
+<p>觀測值 (time 1~t)、控制 (time 1~t)、和地圖 $m$ 都是假設已知，我們所不知的(要估測的)是目前 time t 的狀態值 $x$。<br>舉例來說，一個一維的地圖如下:<br><img src="/2017/05/10/Bayes-Filter-for-Localization/1d-feature-map.png" width="50%" height="50%"><br>而觀測值 $z_{1:t}$ 如下:<br><img src="/2017/05/10/Bayes-Filter-for-Localization/observation-vector.png" width="50%" height="50%"><br>可以知道每一個時間點的觀測值是一個 dimension 為 k 的向量。</p>
+<p>整個 Localization 的目的就是要計算對於位置 $x$ 我們有多少信心度，嚴謹地說，我們就是要計算如下:<br><span>$$\begin{align} 
+bel(x_t)=p(x_t|z_{1:t},u_{1:t},m)
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>意思是在已知目前所有的觀測值、控制、和地圖的情況下，位置 $x_t$ 的機率是多少，看數學式子的話，這不就正好就是 <strong>事後機率</strong> 嗎? 所以上面的 Bayes filter 架構就有發揮的空間了。另外一提的是，如果將地圖 $m$ 也當成未知的話，就是 <a href="https://en.wikipedia.org/wiki/Simultaneous_localization_and_mapping" target="_blank" rel="external">SLAM</a> 演算法了。(還沒有機會去讀這個演算法)<br>下圖是一個一維的示意圖:<br><img src="/2017/05/10/Bayes-Filter-for-Localization/believe.png" width="50%" height="50%"><br>但是要計算這樣的事後機率，必須要考慮從一開始到目前時間點的所有觀測值和控制，這樣的資料量實在太大，計算會非常沒有效率。因此，如果能只考慮目前的觀測值和控制，並用上一個時間的的事後機率就能推算出來的話，勢必會非常有效率。簡單來講，我們希望用遞迴的方式: 考慮 $bel(x_{t-1})$ 和目前的觀測值 $z_t$ 和控制 $u_t$ 就能推算 $bel(x)$。<br>這就必須要簡化上面 $bel(x_t)$ 原始的定義了，要如何達到呢? 需借助 First-order Markov Assumption 。</p>
+<hr>
+<h3 id="First-order-Markov-Assumption-簡化-believe"><a href="#First-order-Markov-Assumption-簡化-believe" class="headerlink" title="First-order Markov Assumption 簡化 believe"></a>First-order Markov Assumption 簡化 believe</h3><p><img src="/2017/05/10/Bayes-Filter-for-Localization/localization-bayes-rule.png" width="100%" height="100%"></p>
+<p>假設目前的時間點為 $t$，我們知道要計算的 believe $bel(x_t)$ 代表事後機率，再套用 Bayes rule 之後，可以得到上面的表示。</p>
+<ul>
+<li>事後機率 (Believe): 特別把時間點 t 的觀測值從原先定義拉出來，這是要強調我們在得到最新的觀測值 $z_t$ 後，希望去計算最新的 believe</li>
+<li>事前機率 (Motion Model): 稱為 Motion Model 是因為假設我們目前在時間點 $t-1$，接著拿到下一次的控制 $u_t$ 後，我們希望估測出下一次的狀態值 $x_t$ 是什麼。有看過前幾篇的讀者應該馬上就能想到，可以利用 <a href="https://bobondemon.github.io/2017/04/11/CTRV-Motion-Model/" target="_blank" rel="external">CTRV</a> 之類的 motion model 去計算。</li>
+<li>觀測值機率 (Observation Model): 這個是要計算當下的觀測值的機率分佈，這部分通常就是經由 sensor data 得到後，我們假設是高斯分布來計算。</li>
+</ul>
+<h4 id="Motion-Model-遞迴"><a href="#Motion-Model-遞迴" class="headerlink" title="Motion Model 遞迴"></a>Motion Model 遞迴</h4><p><img src="/2017/05/10/Bayes-Filter-for-Localization/MotionModelRecursion.png" width="100%" height="100%"></p>
+<p>我們發現到，最後一行的結果，對照本文第一張圖的 State Prediction 式子是一樣的意思，差別只在一個是連續一個是離散。另一個差別是，此式子明顯寫出<strong>可以用上一次的事後機率做遞迴</strong>，所以第一張圖的 Measurement Update 藍色箭頭就這麼來的。</p>
+<h4 id="Observation-Model-簡化"><a href="#Observation-Model-簡化" class="headerlink" title="Observation Model 簡化"></a>Observation Model 簡化</h4><p><img src="/2017/05/10/Bayes-Filter-for-Localization/ObservationModelSimplified.png" width="100%" height="100%"></p>
+<hr>
+<h3 id="Bayes-Filter-Summary"><a href="#Bayes-Filter-Summary" class="headerlink" title="Bayes Filter Summary"></a>Bayes Filter Summary</h3><p>重新整理一下經由 “Motion Model 遞迴” 和 “Observation Model 簡化” 過後的事後機率 $bel(x_t)$，結果如下圖左。 (下圖右只是列出本文最開始的 Bayes Filter 式子來做對照)。結論是我們花了那麼大的力氣，用上了 1st Markov Assumption 去處理 Localization 的遞迴式子和簡化，結果不意外地就如同開始的 Bayes Filter 一樣。</p>
+<p><img src="/2017/05/10/Bayes-Filter-for-Localization/BayesFilterSummary.png" width="100%" height="100%"></p>
+<p>另外，實作上如果所有的 pdf 都是高斯分布的話，結果就是 Kalman Filter。而如果透過 sampling 離散的狀態位置的話，結果就會是 Particle Filter。這部分就先不多說明了。(附上課程一張截圖)</p>
+<p><img src="/2017/05/10/Bayes-Filter-for-Localization/ParticleFilter.png" width="50%" height="50%"></p>
+<blockquote>
+<p>有關 Particle Filter 的實作，在 Udacity Term2 Project3 中我們實作一個二維地圖的 localization。相關 Codes 可在筆者 <a href="https://github.com/bobondemon/Localization-Particle-Filter" target="_blank" rel="external">github</a> 中找到。</p>
+</blockquote>
+<hr>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ul>
+<li>Udacity 上課內容</li>
+<li>MAP Adaptaion 部分詳細可參考: <a href="http://ieeexplore.ieee.org/document/279278/" target="_blank" rel="external">Maximum a posteriori estimation for multivariate Gaussian mixture observations of Markov chains</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Udacity/" rel="tag"># Udacity</a>
+          
+            <a href="/tags/Bayes-Filter/" rel="tag"># Bayes Filter</a>
+          
+            <a href="/tags/Localization/" rel="tag"># Localization</a>
+          
+            <a href="/tags/Markov-Localization/" rel="tag"># Markov Localization</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/12/Unscented-Kalman-Filter-Notes/" rel="next" title="Notes for Unscented Kalman Filter">
+                <i class="fa fa-chevron-left"></i> Notes for Unscented Kalman Filter
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">分類</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">24</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Bayes-Filter-Introduction"><span class="nav-number">1.</span> <span class="nav-text">Bayes Filter Introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#與-Maximum-a-Posteriori-MAP-Adaptation-的關係"><span class="nav-number">1.1.</span> <span class="nav-text">與 Maximum a Posteriori (MAP) Adaptation 的關係</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Localization-詳細定義"><span class="nav-number">2.</span> <span class="nav-text">Localization 詳細定義</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#First-order-Markov-Assumption-簡化-believe"><span class="nav-number">3.</span> <span class="nav-text">First-order Markov Assumption 簡化 believe</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Motion-Model-遞迴"><span class="nav-number">3.1.</span> <span class="nav-text">Motion Model 遞迴</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Observation-Model-簡化"><span class="nav-number">3.2.</span> <span class="nav-text">Observation Model 簡化</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bayes-Filter-Summary"><span class="nav-number">4.</span> <span class="nav-text">Bayes Filter Summary</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">5.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
