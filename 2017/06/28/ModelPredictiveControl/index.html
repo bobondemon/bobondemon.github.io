@@ -101,7 +101,7 @@
 <meta property="og:image" content="http://yoursite.com/2017/06/28/ModelPredictiveControl/70mph_without_latency.png">
 <meta property="og:image" content="http://yoursite.com/2017/06/28/ModelPredictiveControl/term1_complete.png">
 <meta property="og:image" content="http://yoursite.com/2017/06/28/ModelPredictiveControl/term2_complete.png">
-<meta property="og:updated_time" content="2017-06-28T13:39:18.741Z">
+<meta property="og:updated_time" content="2017-06-28T14:32:21.281Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Notes for Model Predictive Control">
 <meta name="twitter:description" content="從一開始決定上課後，經過了半年終於來到 Udacity Term2 最後一個 Project 了。只能說盡量讓自己把每一個做的 project 都寫一篇 blog 記錄，但這陣子時間真的不夠用，所以這篇就從 high level 的角度瀏覽一下內容。">
@@ -381,6 +381,7 @@
 <li><a href="https://projects.coin-or.org/Ipopt" target="_blank" rel="external">Ipopt</a><br>Interior Point OPTimization，用來解 nonlinear constraint opt 問題。</li>
 <li><a href="https://www.coin-or.org/CppAD/" target="_blank" rel="external">CppAD</a><br>在使用 Ipopt 的時候，需要計算 function 的 gradients，而 CppAD 可以幫我們自動計算。</li>
 </ol>
+<p>一個很棒的使用兩個 tools 解 opt 問題的範例: <a href="https://www.coin-or.org/CppAD/Doc/ipopt_solve_get_started.cpp.htm" target="_blank" rel="external">link</a></p>
 <hr>
 <h3 id="Consider-with-Latency"><a href="#Consider-with-Latency" class="headerlink" title="Consider with Latency"></a>Consider with Latency</h3><p>通常下了一道 actuator 命令 (例如加速度要多少、輪子角度要多少)，到實際上車子運作會有一個 delay，而 Udacity simulator 設定這個 latency 是 0.1 second。</p>
 <p>這個 latency 在車子速度較快的時候，影響會很大，導致車子無法正確開完。一個簡單的解法就是我們利用 motion model 去<strong>預測經過 latency 後的車子 states</strong>，然後後面所有流程都一模一樣即可。</p>
