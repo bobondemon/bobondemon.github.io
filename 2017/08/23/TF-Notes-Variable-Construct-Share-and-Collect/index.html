@@ -1,0 +1,813 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="TensorFlow," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="隔了好久沒有用 tensorflow，老實說已經忘得差不多了，加上之前其實沒有仔細了解 tf.Variable() 的 class 和 variable scope 的意思。因此就趁這個機會了解一番，順便當成使用 tf 的熱身囉!
+這是 TensorFlow 筆記系列的第一篇文，之後遇到什麼自己不懂的，就會再筆記下去。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TF Notes (1), Variable Construct Share and Collect">
+<meta property="og:url" content="http://yoursite.com/2017/08/23/TF-Notes-Variable-Construct-Share-and-Collect/index.html">
+<meta property="og:site_name" content="CS Blog">
+<meta property="og:description" content="隔了好久沒有用 tensorflow，老實說已經忘得差不多了，加上之前其實沒有仔細了解 tf.Variable() 的 class 和 variable scope 的意思。因此就趁這個機會了解一番，順便當成使用 tf 的熱身囉!
+這是 TensorFlow 筆記系列的第一篇文，之後遇到什麼自己不懂的，就會再筆記下去。">
+<meta property="og:image" content="http://yoursite.com/2017/08/23/TF-Notes-Variable-Construct-Share-and-Collect/cover.png">
+<meta property="og:updated_time" content="2017-08-23T12:33:05.228Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="TF Notes (1), Variable Construct Share and Collect">
+<meta name="twitter:description" content="隔了好久沒有用 tensorflow，老實說已經忘得差不多了，加上之前其實沒有仔細了解 tf.Variable() 的 class 和 variable scope 的意思。因此就趁這個機會了解一番，順便當成使用 tf 的熱身囉!
+這是 TensorFlow 筆記系列的第一篇文，之後遇到什麼自己不懂的，就會再筆記下去。">
+<meta name="twitter:image" content="http://yoursite.com/2017/08/23/TF-Notes-Variable-Construct-Share-and-Collect/cover.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/08/23/TF-Notes-Variable-Construct-Share-and-Collect/"/>
+
+
+
+
+
+  <title> TF Notes (1), Variable Construct Share and Collect | CS Blog </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">CS Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/08/23/TF-Notes-Variable-Construct-Share-and-Collect/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="CS Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                TF Notes (1), Variable Construct Share and Collect
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2017-08-23T18:46:48+08:00">
+                2017-08-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>隔了好久沒有用 tensorflow，老實說已經忘得差不多了，加上之前其實沒有仔細了解 tf.Variable() 的 class 和 variable scope 的意思。因此就趁這個機會了解一番，順便當成使用 tf 的熱身囉!</p>
+<p>這是 TensorFlow 筆記系列的第一篇文，之後遇到什麼自己不懂的，就會再筆記下去。</p>
+<p><img src="/2017/08/23/TF-Notes-Variable-Construct-Share-and-Collect/cover.png" width="40%" height="40%"></p>
+<a id="more"></a>
+<hr>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h3 id="什麼是-Scope"><a href="#什麼是-Scope" class="headerlink" title="什麼是 Scope ?"></a>什麼是 Scope ?</h3><p>簡單來說 Tensorflow 為每一個 object (含 variable) 都指定一個 <strong>獨一無二的 ID</strong>, 這個 ID 可以是使用 scope 來達成的<br>舉例來說<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">with</span> tf.variable_scope(<span class="string">"foo"</span>):</div><div class="line">    <span class="keyword">with</span> tf.variable_scope(<span class="string">"bar"</span>):</div><div class="line">        v = tf.get_variable(<span class="string">"v"</span>, [<span class="number">1</span>])</div><div class="line"><span class="keyword">assert</span> v.name == <span class="string">"foo/bar/v:0"</span></div></pre></td></tr></table></figure></p>
+<p>可以看到變數 <code>v</code> 的 ID (<code>v.name</code>) 為 <code>&quot;foo/bar/v:0&quot;</code></p>
+<p>有這樣獨一無二的 ID 後，對於所有的變數就非常好管理了!</p>
+<h3 id="變數的建立、分享和蒐集"><a href="#變數的建立、分享和蒐集" class="headerlink" title="變數的建立、分享和蒐集"></a>變數的建立、分享和蒐集</h3><p>注意到建立和取得變數都使用 <code>tf.get_variable()</code>，而 <code>tf.get_variable()</code> 只有在第一次呼叫該 <strong>ID</strong> 的變數時才會建立，<br>其它次呼叫如果沒有將 <strong>ID</strong> 的 reuse 設定為 true 則會報錯 (認為已經有變數存在了)，因此如果 reuse 設定為 true，<code>tf.get_variable()</code> 就會拿到之前建立好的變數，達到 share 變數的效果。</p>
+<p>tf 針對變數提供了 <code>tf.get_variable()</code> 和 <code>tf.variable_scope()</code> 機制來管理變數 (<a href="https://www.tensorflow.org/versions/r1.2/programmers_guide/variable_scope" target="_blank" rel="external">link</a>)，</p>
+<blockquote>
+<p>tf.get_variable(name, shape, initializer): Creates or returns a variable with a given name.<br>tf.variable_scope(scope_name): Manages namespaces for names passed to tf.get_variable().</p>
+</blockquote>
+<p>並提供了 <code>tf.get_collection()</code> 來取得一個變數的 list，這樣的好處是有時候我們只希望 update 某些變數 (例如 GAN training), 因此就需要將這些變數加到一個 collection 中，或是使用 scope 命名來篩選 collection。</p>
+<blockquote>
+<p>tf.get_collection(key, scope=None): Returns a list of object with the key of collection and scope name.</p>
+</blockquote>
+<h3 id="此筆記會學到"><a href="#此筆記會學到" class="headerlink" title="此筆記會學到:"></a>此筆記會學到:</h3><ol>
+<li>使用 tf.get_variable() 建立變數</li>
+<li>Share Variables</li>
+<li>Variable Scope 規則</li>
+<li>Variable Collections</li>
+</ol>
+<hr>
+<h2 id="使用-tf-get-variable-建立變數"><a href="#使用-tf-get-variable-建立變數" class="headerlink" title="使用 tf.get_variable() 建立變數"></a>使用 tf.get_variable() 建立變數</h2><blockquote>
+<p>tf.get_variable(name, shape, initializer): Creates or returns a variable with a given name.</p>
+</blockquote>
+<p>常用的 <code>initializer</code> 可有</p>
+<blockquote>
+<p>tf.constant_initializer(value): initializes everything to the provided value,<br>tf.random_uniform_initializer(a, b): initializes uniformly from [a, b],<br>tf.random_normal_initializer(mean, stddev): initializes from the normal distribution with the given mean and standard deviation.</p>
+</blockquote>
+<p><strong>Code1</strong><br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">var1 = tf.get_variable(<span class="string">'name1'</span>,[<span class="number">2</span>,<span class="number">1</span>],initializer=tf.zeros_initializer)</div><div class="line">print(<span class="string">'Construct a variable with name "var1" with shape &#123;&#125;'</span>.format(var1.shape))</div><div class="line">print(var1)</div></pre></td></tr></table></figure></p>
+<p>output 為<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Construct a variable with name &quot;var1&quot; with shape (2, 1)</div><div class="line">&lt;tf.Variable &apos;name1:0&apos; shape=(2, 1) dtype=float32_ref&gt;</div></pre></td></tr></table></figure></p>
+<hr>
+<h2 id="Share-Variables"><a href="#Share-Variables" class="headerlink" title="Share Variables"></a>Share Variables</h2><p>延續 <strong>Code1</strong> 繼續執行下去 (以下每個Code片段都是<strong>依次序執行</strong>下去的結果)<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">var1_cpy = tf.get_variable(<span class="string">'name1'</span>)</div></pre></td></tr></table></figure></p>
+<p>會報錯，因為 <code>&#39;name1&#39;</code> 的變數已經存在，因此需要將目前 scope 下的 ID 都指定為 reuse 才能 share <code>&#39;name1&#39;</code> 的變數，目前的 scope 是空字串 (‘’)</p>
+<p><strong>Code2</strong><br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">with</span> tf.variable_scope(<span class="string">''</span>,reuse=<span class="keyword">True</span>):</div><div class="line">    var1_cpy = tf.get_variable(<span class="string">'name1'</span>)</div><div class="line">print(var1_cpy)</div><div class="line"></div><div class="line"><span class="comment"># another way to specify reusing variables under the current scope</span></div><div class="line"><span class="keyword">with</span> tf.variable_scope(<span class="string">''</span>):</div><div class="line">    tf.get_variable_scope().reuse_variables()</div><div class="line">    var1_cpy = tf.get_variable(<span class="string">'name1'</span>)</div><div class="line">print(var1_cpy)</div></pre></td></tr></table></figure></p>
+<p>output 為<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">&lt;tf.Variable &apos;name1:0&apos; shape=(2, 1) dtype=float32_ref&gt;</div><div class="line">&lt;tf.Variable &apos;name1:0&apos; shape=(2, 1) dtype=float32_ref&gt;</div></pre></td></tr></table></figure></p>
+<hr>
+<h2 id="Variable-Scope-規則"><a href="#Variable-Scope-規則" class="headerlink" title="Variable Scope 規則"></a>Variable Scope 規則</h2><p>Scope 如果指定為 reuse, 則底下的 sub-scope 為自動繼承</p>
+<p>範例來自 tf 官網 (<a href="https://www.tensorflow.org/versions/r1.2/programmers_guide/variable_scope" target="_blank" rel="external">link</a>)</p>
+<p><strong>Code3</strong><br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">with</span> tf.variable_scope(<span class="string">"root"</span>):</div><div class="line">    <span class="comment"># At start, the scope is not reusing.</span></div><div class="line">    <span class="keyword">assert</span> tf.get_variable_scope().reuse == <span class="keyword">False</span></div><div class="line">    <span class="keyword">with</span> tf.variable_scope(<span class="string">"foo"</span>):</div><div class="line">        <span class="comment"># Opened a sub-scope, still not reusing.</span></div><div class="line">        <span class="keyword">assert</span> tf.get_variable_scope().reuse == <span class="keyword">False</span></div><div class="line">    <span class="keyword">with</span> tf.variable_scope(<span class="string">"foo"</span>, reuse=<span class="keyword">True</span>):</div><div class="line">        <span class="comment"># Explicitly opened a reusing scope.</span></div><div class="line">        <span class="keyword">assert</span> tf.get_variable_scope().reuse == <span class="keyword">True</span></div><div class="line">        <span class="keyword">with</span> tf.variable_scope(<span class="string">"bar"</span>):</div><div class="line">            <span class="comment"># Now sub-scope inherits the reuse flag.</span></div><div class="line">            <span class="keyword">assert</span> tf.get_variable_scope().reuse == <span class="keyword">True</span></div><div class="line">    <span class="comment"># Exited the reusing scope, back to a non-reusing one.</span></div><div class="line">    <span class="keyword">assert</span> tf.get_variable_scope().reuse == <span class="keyword">False</span></div></pre></td></tr></table></figure></p>
+<p>或者將 scope 存起來，直接 pass 給其他 <code>tf.variable_scope</code> 使用</p>
+<p><strong>Code4</strong><br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">with</span> tf.variable_scope(<span class="string">"foo"</span>) <span class="keyword">as</span> foo_scope:</div><div class="line">    v = tf.get_variable(<span class="string">"v"</span>, [<span class="number">1</span>])</div><div class="line"><span class="keyword">with</span> tf.variable_scope(foo_scope):</div><div class="line">    w = tf.get_variable(<span class="string">"w"</span>, [<span class="number">1</span>])</div><div class="line"><span class="keyword">with</span> tf.variable_scope(foo_scope, reuse=<span class="keyword">True</span>):</div><div class="line">    v1 = tf.get_variable(<span class="string">"v"</span>, [<span class="number">1</span>])</div><div class="line">    w1 = tf.get_variable(<span class="string">"w"</span>, [<span class="number">1</span>])</div><div class="line"><span class="keyword">assert</span> v1 <span class="keyword">is</span> v</div><div class="line"><span class="keyword">assert</span> w1 <span class="keyword">is</span> w</div><div class="line">print(v1)</div><div class="line">print(w1)</div></pre></td></tr></table></figure></p>
+<p>output 為</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">&lt;tf.Variable &apos;foo/v:0&apos; shape=(1,) dtype=float32_ref&gt;</div><div class="line">&lt;tf.Variable &apos;foo/w:0&apos; shape=(1,) dtype=float32_ref&gt;</div></pre></td></tr></table></figure>
+<p>注意到如果之前有存起來一個 scope, e.g. <code>scope_pre.name == &#39;cope1/scope2&#39;</code><br>, 然後假設目前在的 scope 為 ‘scopeA/scopeB/scopeC/scopeD’<br>則 <code>tf.variable_scope(scope_pre)</code> 一定會跳到 ‘scope1/scope2’ 不管現在在哪</p>
+<p>When opening a variable scope using a previously existing scope we jump out of the current variable scope prefix to an entirely different one. This is fully independent of where we do it.</p>
+<p><strong>Code5</strong><br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">with</span> tf.variable_scope(<span class="string">"foo"</span>) <span class="keyword">as</span> foo_scope:</div><div class="line">    <span class="keyword">assert</span> foo_scope.name == <span class="string">"foo"</span></div><div class="line"><span class="keyword">with</span> tf.variable_scope(<span class="string">"bar"</span>):</div><div class="line">    <span class="keyword">with</span> tf.variable_scope(<span class="string">"baz"</span>) <span class="keyword">as</span> other_scope:</div><div class="line">        <span class="keyword">assert</span> other_scope.name == <span class="string">"bar/baz"</span></div><div class="line">        <span class="keyword">with</span> tf.variable_scope(foo_scope) <span class="keyword">as</span> foo_scope2:</div><div class="line">            <span class="keyword">assert</span> foo_scope2.name == <span class="string">"foo"</span>  <span class="comment"># Not changed.</span></div></pre></td></tr></table></figure></p>
+<hr>
+<h2 id="Variable-Collections"><a href="#Variable-Collections" class="headerlink" title="Variable Collections"></a>Variable Collections</h2><h3 id="得到-Collections"><a href="#得到-Collections" class="headerlink" title="得到 Collections"></a>得到 Collections</h3><p>Collection 顧名思義就是將許多 objects (如 Variables, Tensors, Ops …) 都蒐集成一個 list，預設情況下每一個 <code>tf.Variable</code> 都會被放到如下兩個 collections (<a href="https://www.tensorflow.org/programmers_guide/variables" target="_blank" rel="external">link</a>):</p>
+<ul>
+<li>tf.GraphKeys.GLOBAL_VARIABLES — variables that can be shared across multiple devices,</li>
+<li>tf.GraphKeys.TRAINABLE_VARIABLES— variables for which TensorFlow will calculate gradients.</li>
+</ul>
+<p>抓取這些 Collection，可使用 <code>tf.get_collection(collection_name)</code>, 並將 collection 的名字傳入</p>
+<p>注意到範例中將變數 ‘b’ 的 <code>trainable</code> 屬性設定為 <code>False</code>，因此沒有被放進 ‘tf.GraphKeys.TRAINABLE_VARIABLES’ 此 collection 中。</p>
+<p><strong>Code6</strong><br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">with</span> tf.variable_scope(<span class="string">'rootScope'</span>) <span class="keyword">as</span> scope:</div><div class="line">    a = tf.get_variable(<span class="string">'a'</span>,[<span class="number">2</span>,<span class="number">3</span>])</div><div class="line">b = tf.get_variable(<span class="string">'b'</span>,[<span class="number">3</span>,<span class="number">2</span>], trainable=<span class="keyword">False</span>)</div><div class="line">trainable_collections = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)</div><div class="line">global_collections = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES)</div><div class="line">print(<span class="string">'Collection with name "TRAINABLE_VARIABLES"=\n&#123;&#125;'</span>.format(trainable_collections))</div><div class="line">print(<span class="string">'Collection with name "GLOBAL_VARIABLES"=\n&#123;&#125;'</span>.format(global_collections))</div></pre></td></tr></table></figure></p>
+<p>output 為<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Collection with name &quot;TRAINABLE_VARIABLES&quot;=</div><div class="line">[&lt;tf.Variable &apos;name1:0&apos; shape=(2, 1) dtype=float32_ref&gt;, &lt;tf.Variable &apos;foo/v:0&apos; shape=(1,) dtype=float32_ref&gt;, &lt;tf.Variable &apos;foo/w:0&apos; shape=(1,) dtype=float32_ref&gt;, &lt;tf.Variable &apos;rootScope/a:0&apos; shape=(2, 3) dtype=float32_ref&gt;]</div><div class="line">Collection with name &quot;GLOBAL_VARIABLES&quot;=</div><div class="line">[&lt;tf.Variable &apos;name1:0&apos; shape=(2, 1) dtype=float32_ref&gt;, &lt;tf.Variable &apos;foo/v:0&apos; shape=(1,) dtype=float32_ref&gt;, &lt;tf.Variable &apos;foo/w:0&apos; shape=(1,) dtype=float32_ref&gt;, &lt;tf.Variable &apos;rootScope/a:0&apos; shape=(2, 3) dtype=float32_ref&gt;, &lt;tf.Variable &apos;b:0&apos; shape=(3, 2) dtype=float32_ref&gt;]</div></pre></td></tr></table></figure></p>
+<h3 id="利用-Scope-進一步篩選-Collections"><a href="#利用-Scope-進一步篩選-Collections" class="headerlink" title="利用 Scope 進一步篩選 Collections"></a>利用 Scope 進一步篩選 Collections</h3><p>利用 <code>tf.get_collection(key, scope)</code> 得到 object list, <strong>其中 scope 會再進一步篩選!</strong>利用 <code>tf.get_collection(key, scope)</code> 得到 object list, <strong>其中 scope 會再進一步篩選!</strong></p>
+<p><strong>Code7</strong><br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">with</span> tf.variable_scope(<span class="string">'Hello'</span>) <span class="keyword">as</span> HelloScope:</div><div class="line">    hello = tf.get_variable(<span class="string">'helloName'</span>,shape=())</div><div class="line">    <span class="keyword">with</span> tf.variable_scope(<span class="string">'World'</span>) <span class="keyword">as</span> WorldScope:</div><div class="line">        world = tf.get_variable(<span class="string">'worldName'</span>,shape=())</div><div class="line">print(tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,scope=HelloScope.name))</div><div class="line">print(tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,scope=WorldScope.name))</div></pre></td></tr></table></figure></p>
+<p>output 為<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[&lt;tf.Variable &apos;Hello/helloName:0&apos; shape=() dtype=float32_ref&gt;, &lt;tf.Variable &apos;Hello/World/worldName:0&apos; shape=() dtype=float32_ref&gt;]</div><div class="line">[&lt;tf.Variable &apos;Hello/World/worldName:0&apos; shape=() dtype=float32_ref&gt;]</div></pre></td></tr></table></figure></p>
+<h3 id="建立自己的-collection"><a href="#建立自己的-collection" class="headerlink" title="建立自己的 collection"></a>建立自己的 collection</h3><p>可以使用 <code>tf.add_to_collection(&#39;my_collection_name&#39;,obj)</code></p>
+<p><strong>Code8</strong><br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">c = hello</div><div class="line">tf.add_to_collection(<span class="string">'demo_used'</span>,c)</div><div class="line">d = tf.constant(np.random.randint(<span class="number">0</span>,<span class="number">10</span>,(<span class="number">5</span>,<span class="number">2</span>)),name=<span class="string">'d'</span>,dtype=<span class="string">'int32'</span>)</div><div class="line">tf.add_to_collection(<span class="string">'demo_used'</span>,d)</div><div class="line">my_collection = tf.get_collection(<span class="string">'demo_used'</span>)</div><div class="line">print(<span class="string">'Collection with name "demo_used"=&#123;&#125;'</span>.format(my_collection))</div></pre></td></tr></table></figure></p>
+<p>output 為<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Collection with name &quot;demo_used&quot;=[&lt;tf.Variable &apos;Hello/helloName:0&apos; shape=() dtype=float32_ref&gt;, &lt;tf.Tensor &apos;d:0&apos; shape=(5, 2) dtype=int32&gt;]</div></pre></td></tr></table></figure></p>
+<h3 id="將篩選或自建的-Collections-傳給-Optimizer"><a href="#將篩選或自建的-Collections-傳給-Optimizer" class="headerlink" title="將篩選或自建的 Collections 傳給 Optimizer"></a>將篩選或自建的 Collections 傳給 Optimizer</h3><p>我們可以將指定的 collection 傳給 optimizer 的 minimize() 函式, 通過這種方式, 可以<strong>明確指定只 update 那些變數</strong>，範例如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">op1 = tf.train.RMSPropOptimizer().minimize(g_loss, var_list=my_collection1)</div><div class="line">op2 = tf.train.AdamOptimizer().minimize(g_loss,var_list=my_collection2)</div></pre></td></tr></table></figure>
+<p>Note that ‘var_list’: Optional list or tuple of <code>Variable</code> objects to update to minimize <code>loss</code>.  Defaults to the list of variables collected in the graph under the key <code>GraphKeys.TRAINABLE_VARIABLES</code>.</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ol>
+<li><a href="https://www.tensorflow.org/versions/r1.2/programmers_guide/variable_scope" target="_blank" rel="external">https://www.tensorflow.org/programmers_guide/variables</a></li>
+<li><a href="https://www.tensorflow.org/versions/r1.2/programmers_guide/variable_scope" target="_blank" rel="external">https://www.tensorflow.org/versions/r1.2/programmers_guide/variable_scope</a></li>
+<li><a href="https://www.tensorflow.org/api_docs/" target="_blank" rel="external">API doc</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/TensorFlow/" rel="tag"># TensorFlow</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/06/28/ModelPredictiveControl/" rel="next" title="Notes for Model Predictive Control">
+                <i class="fa fa-chevron-left"></i> Notes for Model Predictive Control
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">分類</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">30</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#什麼是-Scope"><span class="nav-number">1.1.</span> <span class="nav-text">什麼是 Scope ?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#變數的建立、分享和蒐集"><span class="nav-number">1.2.</span> <span class="nav-text">變數的建立、分享和蒐集</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#此筆記會學到"><span class="nav-number">1.3.</span> <span class="nav-text">此筆記會學到:</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用-tf-get-variable-建立變數"><span class="nav-number">2.</span> <span class="nav-text">使用 tf.get_variable() 建立變數</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Share-Variables"><span class="nav-number">3.</span> <span class="nav-text">Share Variables</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Variable-Scope-規則"><span class="nav-number">4.</span> <span class="nav-text">Variable Scope 規則</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Variable-Collections"><span class="nav-number">5.</span> <span class="nav-text">Variable Collections</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#得到-Collections"><span class="nav-number">5.1.</span> <span class="nav-text">得到 Collections</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#利用-Scope-進一步篩選-Collections"><span class="nav-number">5.2.</span> <span class="nav-text">利用 Scope 進一步篩選 Collections</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#建立自己的-collection"><span class="nav-number">5.3.</span> <span class="nav-text">建立自己的 collection</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#將篩選或自建的-Collections-傳給-Optimizer"><span class="nav-number">5.4.</span> <span class="nav-text">將篩選或自建的 Collections 傳給 Optimizer</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">6.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
