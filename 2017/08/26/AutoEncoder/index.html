@@ -1,0 +1,800 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="ML,Deep Learning,auto-encoder," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="使用 MNIST and notMNIST 做了一個 AutoEncoder with Fully Connected DNN 的實驗。
+依序將實驗結果根據如下步驟顯示出來，程式碼可以參考 [github]">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AutoEncoder">
+<meta property="og:url" content="http://yoursite.com/2017/08/26/AutoEncoder/index.html">
+<meta property="og:site_name" content="CS Blog">
+<meta property="og:description" content="使用 MNIST and notMNIST 做了一個 AutoEncoder with Fully Connected DNN 的實驗。
+依序將實驗結果根據如下步驟顯示出來，程式碼可以參考 [github]">
+<meta property="og:image" content="http://yoursite.com/2017/08/26/AutoEncoder/cover.png">
+<meta property="og:image" content="http://yoursite.com/2017/08/26/AutoEncoder/MNIST_data_loading.png">
+<meta property="og:image" content="http://yoursite.com/2017/08/26/AutoEncoder/notMNIST_data_loading.png">
+<meta property="og:image" content="http://yoursite.com/2017/08/26/AutoEncoder/Structure.png">
+<meta property="og:image" content="http://yoursite.com/2017/08/26/AutoEncoder/runSession.png">
+<meta property="og:image" content="http://yoursite.com/2017/08/26/AutoEncoder/MNIST_recon.png">
+<meta property="og:image" content="http://yoursite.com/2017/08/26/AutoEncoder/notMNIST_recon.png">
+<meta property="og:image" content="http://yoursite.com/2017/08/26/AutoEncoder/MNIST_embeddings.png">
+<meta property="og:image" content="http://yoursite.com/2017/08/26/AutoEncoder/notMNIST_embeddings.png">
+<meta property="og:image" content="http://yoursite.com/2017/08/26/AutoEncoder/MNIST_tSNE.png">
+<meta property="og:image" content="http://yoursite.com/2017/08/26/AutoEncoder/MNIST_decode.png">
+<meta property="og:image" content="http://yoursite.com/2017/08/26/AutoEncoder/notMNIST_decode.png">
+<meta property="og:updated_time" content="2017-08-26T10:18:10.553Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AutoEncoder">
+<meta name="twitter:description" content="使用 MNIST and notMNIST 做了一個 AutoEncoder with Fully Connected DNN 的實驗。
+依序將實驗結果根據如下步驟顯示出來，程式碼可以參考 [github]">
+<meta name="twitter:image" content="http://yoursite.com/2017/08/26/AutoEncoder/cover.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/08/26/AutoEncoder/"/>
+
+
+
+
+
+  <title> AutoEncoder | CS Blog </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">CS Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/08/26/AutoEncoder/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="CS Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                AutoEncoder
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2017-08-26T16:38:22+08:00">
+                2017-08-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p><img src="/2017/08/26/AutoEncoder/cover.png" width="60%" height="60%"></p>
+<p>使用 <a href="http://yann.lecun.com/exdb/mnist/" target="_blank" rel="external">MNIST</a> and <a href="http://yaroslavvb.blogspot.com/2011/09/notmnist-dataset.html" target="_blank" rel="external">notMNIST</a> 做了一個 AutoEncoder with Fully Connected DNN 的實驗。</p>
+<p>依序將實驗結果根據如下步驟顯示出來，程式碼可以參考 [<a href="https://github.com/bobondemon/AutoEncoder" target="_blank" rel="external">github</a>]</p>
+<a id="more"></a>
+<ol>
+<li>Data Loading and Plotting</li>
+<li>AutoEncoder Graph Construction<br>a. Define the input output tensors<br>b. Define the graph and construct it<br>c. Define loss and optimizer</li>
+<li>Run Session</li>
+<li>Show some reconstructed images</li>
+<li>Plot Embeddings</li>
+<li>Do Image Generation by Decoder</li>
+</ol>
+<hr>
+<h3 id="Data-Loading-and-Plotting"><a href="#Data-Loading-and-Plotting" class="headerlink" title="Data Loading and Plotting"></a>Data Loading and Plotting</h3><p>MNIST training data 有 55000 筆資料，是一個 28x28 的 image，值的範圍是 [0~1]，因此會對 input 都減去 0.5 正規化。<br><img src="/2017/08/26/AutoEncoder/MNIST_data_loading.png" width="60%" height="60%"></p>
+<p>而 notMNIST 整理過後有 200000 筆，同樣也是 28x28 的 image，但值的範圍已經是 [-0.5~0.5]。值得一提的是，此資料還<strong>參雜著一些錯誤</strong>，如下圖就可發現，第二列的第二個應為 J，但是標記是 A。因此 notMNIST 相對來說很挑戰，但我們一樣可以看到 AutoEncoder 也會做出一些合理的壓縮。<br><img src="/2017/08/26/AutoEncoder/notMNIST_data_loading.png" width="60%" height="60%"></p>
+<hr>
+<h3 id="AutoEncoder-Graph-Construction"><a href="#AutoEncoder-Graph-Construction" class="headerlink" title="AutoEncoder Graph Construction"></a>AutoEncoder Graph Construction</h3><h4 id="Define-the-input-output-tensors"><a href="#Define-the-input-output-tensors" class="headerlink" title="Define the input output tensors"></a>Define the input output tensors</h4><p>Input <code>x</code> 與 Output <code>y</code> 都是一樣 (沒有要做 Denoise AutoEncoder)，其中 <code>code</code> 是建立 Decoder 時的 input tensor。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">x = tf.placeholder(tf.float32, (<span class="keyword">None</span>, img_dim))</div><div class="line">y = tf.placeholder(tf.float32, (<span class="keyword">None</span>, img_dim))</div><div class="line">embedding_dim = <span class="number">2</span></div><div class="line">code = tf.placeholder(tf.float32, (<span class="keyword">None</span>, embedding_dim))</div></pre></td></tr></table></figure>
+<h4 id="Define-the-graph-and-construct-it"><a href="#Define-the-graph-and-construct-it" class="headerlink" title="Define the graph and construct it"></a>Define the graph and construct it</h4><p>針對 Encoder 和 Decoder 都<strong>使用同一組參數</strong>，這樣的好處是參數量直接少約一半，同時減少 overfitting 的機會。當然我們沒有理由一定要將參數綁再一起，可以各自用自己的方法 (參數、模型結構) 去 Encode 和 Decocde。<br>結構如下:</p>
+<p><img src="/2017/08/26/AutoEncoder/Structure.png" width="60%" height="60%"></p>
+<h4 id="Define-loss-and-optimizer"><a href="#Define-loss-and-optimizer" class="headerlink" title="Define loss and optimizer"></a>Define loss and optimizer</h4><p>注意到 loss 的定義除了原來的影像重建誤差之外，還多了一個 embeddings 的 l2-norm。這是為了希望在 embedding space 上 encode 之後都接近 0，減少那種很大的 outliers 出現。參考<a href="https://www.youtube.com/watch?v=Tk5B4seA-AU" target="_blank" rel="external">李宏毅 Deep AutoEncoder</a></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">loss_op = tf.reduce_sum(tf.pow(tf.subtract(reconstruct_auto, y), <span class="number">2.0</span>)) + l2_weight* tf.reduce_sum(tf.pow(embedded_auto, <span class="number">2.0</span>))</div><div class="line">optimizer = tf.train.AdamOptimizer(learning_rate = rate)</div><div class="line">training_op = optimizer.minimize(loss_op)</div></pre></td></tr></table></figure>
+<hr>
+<h3 id="Run-Session"><a href="#Run-Session" class="headerlink" title="Run Session"></a>Run Session</h3><p>Adam optimizer 跑了 100 個 epochs<br><img src="/2017/08/26/AutoEncoder/runSession.png" width="60%" height="60%"></p>
+<hr>
+<h3 id="Show-some-reconstructed-images"><a href="#Show-some-reconstructed-images" class="headerlink" title="Show some reconstructed images"></a>Show some reconstructed images</h3><p>隨機選幾個 MNSIT 的重建圖:<br><img src="/2017/08/26/AutoEncoder/MNIST_recon.png" width="60%" height="60%"></p>
+<p>隨機選幾個 notMNSIT 的重建圖:<br><img src="/2017/08/26/AutoEncoder/notMNIST_recon.png" width="60%" height="60%"></p>
+<p>可以看到 notMNIST 果然難多了。</p>
+<hr>
+<h3 id="Plot-Embeddings"><a href="#Plot-Embeddings" class="headerlink" title="Plot Embeddings"></a>Plot Embeddings</h3><p>MNIST 針對所有 training data 求得的 2-d embeddings 如下:<br><img src="/2017/08/26/AutoEncoder/MNIST_embeddings.png" width="60%" height="60%"></p>
+<p>notMNIST 針對所有 training data 求得的 2-d embeddings 如下:<br><img src="/2017/08/26/AutoEncoder/notMNIST_embeddings.png" width="60%" height="60%"></p>
+<p>如果只要做到 unsupervised dimension reduction 的話，使用 t-SNE 求得的 embedding 會比上圖都好看很多。但 <strong>t-SNE 沒有 Decoder</strong>，無法給定一個 embedding 去求回原先的 image。而這種 Encoder - Decoder 結構就相對彈性很多。</p>
+<p>t-SNE 的 MNIST 圖如下:<br><img src="/2017/08/26/AutoEncoder/MNIST_tSNE.png" width="60%" height="60%"></p>
+<hr>
+<h3 id="Do-Image-Generation-by-Decoder"><a href="#Do-Image-Generation-by-Decoder" class="headerlink" title="Do Image Generation by Decoder"></a>Do Image Generation by Decoder</h3><p>我們針對 Embedding Space 的一個區域去等距取出很多點，然後使用 Decoder 去 decode 出 image 來。</p>
+<p>MNIST 的範圍選擇為， x 軸和 y 軸 [-1~1] 間隔 0.2，共 100 個點。(可參考上面 embedding space 了解選擇的範圍)<br><img src="/2017/08/26/AutoEncoder/MNIST_decode.png" width="60%" height="60%"></p>
+<p>notMNIST 的範圍選擇為， x 軸和 y 軸 [-2~2] 間隔 0.2，共 400 個點。(可參考上面 embedding space 了解選擇的範圍)<br><img src="/2017/08/26/AutoEncoder/notMNIST_decode.png" width="60%" height="60%"></p>
+<p>可以發現 embedding space 的兩個維度<strong>具有某些意義在!</strong></p>
+<hr>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
+<li><a href="https://www.youtube.com/watch?v=Tk5B4seA-AU" target="_blank" rel="external">李宏毅 Deep AutoEncoder</a></li>
+<li><a href="https://distill.pub/2016/misread-tsne/" target="_blank" rel="external">Distill t-SNE</a></li>
+<li><a href="http://www.cs.toronto.edu/~hinton/science.pdf" target="_blank" rel="external">Reducing the Dimensionality of Data with Neural Networks (Hinton 2006)</a></li>
+<li>本文之 [<a href="https://github.com/bobondemon/AutoEncoder" target="_blank" rel="external">github</a>]</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/ML/" rel="tag"># ML</a>
+          
+            <a href="/tags/Deep-Learning/" rel="tag"># Deep Learning</a>
+          
+            <a href="/tags/auto-encoder/" rel="tag"># auto-encoder</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/08/23/TF-Notes-Variable-Construct-Share-and-Collect/" rel="next" title="TF Notes (1), Variable Construct Share and Collect">
+                <i class="fa fa-chevron-left"></i> TF Notes (1), Variable Construct Share and Collect
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">20</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">分類</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">31</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Data-Loading-and-Plotting"><span class="nav-number">1.</span> <span class="nav-text">Data Loading and Plotting</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AutoEncoder-Graph-Construction"><span class="nav-number">2.</span> <span class="nav-text">AutoEncoder Graph Construction</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Define-the-input-output-tensors"><span class="nav-number">2.1.</span> <span class="nav-text">Define the input output tensors</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Define-the-graph-and-construct-it"><span class="nav-number">2.2.</span> <span class="nav-text">Define the graph and construct it</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Define-loss-and-optimizer"><span class="nav-number">2.3.</span> <span class="nav-text">Define loss and optimizer</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Run-Session"><span class="nav-number">3.</span> <span class="nav-text">Run Session</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Show-some-reconstructed-images"><span class="nav-number">4.</span> <span class="nav-text">Show some reconstructed images</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Plot-Embeddings"><span class="nav-number">5.</span> <span class="nav-text">Plot Embeddings</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Do-Image-Generation-by-Decoder"><span class="nav-number">6.</span> <span class="nav-text">Do Image Generation by Decoder</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">7.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
