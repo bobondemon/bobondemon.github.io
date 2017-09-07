@@ -1,0 +1,816 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="ML,Deep Learning,Embedding," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="From Sparse Vector to Embeddings with Encoder–Decoder Structure
+求 Embeddings
+Encoder–Decoder 結構
+
+字典向量若我們字典裡有 $N$ 個 words, 第 $i$ 個字 $w^i$ 應該怎麼表示呢?
+通常使用 one-hot vector 來表示: 把 $w^i$ 變成一個長度 $N$ 的向量 $x">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Word Embeddings (Encoder-Decoder 架構)">
+<meta property="og:url" content="http://yoursite.com/2017/09/07/Word-Embeddings-and-Encoder-Decoder-Neural-Net/index.html">
+<meta property="og:site_name" content="CS Blog">
+<meta property="og:description" content="From Sparse Vector to Embeddings with Encoder–Decoder Structure
+求 Embeddings
+Encoder–Decoder 結構
+
+字典向量若我們字典裡有 $N$ 個 words, 第 $i$ 個字 $w^i$ 應該怎麼表示呢?
+通常使用 one-hot vector 來表示: 把 $w^i$ 變成一個長度 $N$ 的向量 $x">
+<meta property="og:image" content="http://yoursite.com/2017/09/07/Word-Embeddings-and-Encoder-Decoder-Neural-Net/./one-hot.png">
+<meta property="og:image" content="http://yoursite.com/2017/09/07/Word-Embeddings-and-Encoder-Decoder-Neural-Net/./one-hot-to-embed.png">
+<meta property="og:image" content="http://yoursite.com/2017/09/07/Word-Embeddings-and-Encoder-Decoder-Neural-Net/./embedMat.png">
+<meta property="og:image" content="http://yoursite.com/2017/09/07/Word-Embeddings-and-Encoder-Decoder-Neural-Net/./lm1.png">
+<meta property="og:image" content="http://yoursite.com/2017/09/07/Word-Embeddings-and-Encoder-Decoder-Neural-Net/./matmul4lookup.png">
+<meta property="og:image" content="http://yoursite.com/2017/09/07/Word-Embeddings-and-Encoder-Decoder-Neural-Net/./lm2.png">
+<meta property="og:image" content="http://yoursite.com/2017/09/07/Word-Embeddings-and-Encoder-Decoder-Neural-Net/./lm3.png">
+<meta property="og:image" content="http://yoursite.com/2017/09/07/Word-Embeddings-and-Encoder-Decoder-Neural-Net/./lm4.png">
+<meta property="og:image" content="http://yoursite.com/2017/09/07/Word-Embeddings-and-Encoder-Decoder-Neural-Net/./lm5.png">
+<meta property="og:image" content="http://yoursite.com/2017/09/07/Word-Embeddings-and-Encoder-Decoder-Neural-Net/./encoder-decoder.png">
+<meta property="og:updated_time" content="2017-09-07T13:41:11.159Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Word Embeddings (Encoder-Decoder 架構)">
+<meta name="twitter:description" content="From Sparse Vector to Embeddings with Encoder–Decoder Structure
+求 Embeddings
+Encoder–Decoder 結構
+
+字典向量若我們字典裡有 $N$ 個 words, 第 $i$ 個字 $w^i$ 應該怎麼表示呢?
+通常使用 one-hot vector 來表示: 把 $w^i$ 變成一個長度 $N$ 的向量 $x">
+<meta name="twitter:image" content="http://yoursite.com/2017/09/07/Word-Embeddings-and-Encoder-Decoder-Neural-Net/./one-hot.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/09/07/Word-Embeddings-and-Encoder-Decoder-Neural-Net/"/>
+
+
+
+
+
+  <title> Word Embeddings (Encoder-Decoder 架構) | CS Blog </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">CS Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/07/Word-Embeddings-and-Encoder-Decoder-Neural-Net/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="CS Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Word Embeddings (Encoder-Decoder 架構)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2017-09-07T21:22:53+08:00">
+                2017-09-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<h3 id="From-Sparse-Vector-to-Embeddings-with-Encoder–Decoder-Structure"><a href="#From-Sparse-Vector-to-Embeddings-with-Encoder–Decoder-Structure" class="headerlink" title="From Sparse Vector to Embeddings with Encoder–Decoder Structure"></a>From Sparse Vector to Embeddings with Encoder–Decoder Structure</h3><ol>
+<li>求 Embeddings</li>
+<li>Encoder–Decoder 結構</li>
+</ol>
+<h3 id="字典向量"><a href="#字典向量" class="headerlink" title="字典向量"></a>字典向量</h3><p>若我們字典裡有 $N$ 個 words, 第 $i$ 個字 $w^i$ 應該怎麼表示呢?</p>
+<p>通常使用 one-hot vector 來表示: 把 $w^i$ 變成一個長度 $N$ 的向量 $x^i$。</p>
+<p><img src="/2017/09/07/Word-Embeddings-and-Encoder-Decoder-Neural-Net/./one-hot.png" height="15%" width="15%"></p>
+<a id="more"></a>
+<p>恭喜! 有了 vector 我們就可以套用數學模型了。</p>
+<p>問題是這樣的向量太稀疏了，尤其是當字典非常大的時候。</p>
+<p>稀疏向量對於模型訓練很沒有效率。</p>
+<p>我們需要轉換到比較緊密的向量，通常稱為 embedding。</p>
+<p>下圖舉例將 $x$ 對應到它的緊密向量 $e$, 緊密向量有 <code>embed_dim</code> 維度</p>
+<p><img src="/2017/09/07/Word-Embeddings-and-Encoder-Decoder-Neural-Net/./one-hot-to-embed.png" height="30%" width="30%"></p>
+<h3 id="先假設已知如何對應到緊密向量"><a href="#先假設已知如何對應到緊密向量" class="headerlink" title="先假設已知如何對應到緊密向量"></a>先假設已知如何對應到緊密向量</h3><p>已知一個 <code>N * embed_dim</code> 的矩陣 $E$，第 $i$ 個 row $e^i$ 就是 $w^i$ 的 embedding。</p>
+<p><img src="/2017/09/07/Word-Embeddings-and-Encoder-Decoder-Neural-Net/./embedMat.png" height="20%" width="20%"></p>
+<p>我們就可以使用 $e$ 來代替原先的稀疏向量 $x$ 進行訓練，讓訓練更好更容易。</p>
+<p>以一個語言模型來說，使用 LSTM 模型如下:</p>
+<p><img src="/2017/09/07/Word-Embeddings-and-Encoder-Decoder-Neural-Net/./lm1.png" height="60%" width="60%"></p>
+<p>恩，這樣大功告成，我們的模型可以順利訓練 …. ??</p>
+<p>不對，$E$ 這個 lookup table 怎麼決定?</p>
+<h3 id="Lookup-Table-使用矩陣相乘"><a href="#Lookup-Table-使用矩陣相乘" class="headerlink" title="Lookup Table 使用矩陣相乘"></a>Lookup Table 使用矩陣相乘</h3><p>答案是讓模型<strong>自己訓練決定</strong>。要更了解內部運作，我們先將 lookup table 使用矩陣相乘的方式來看。</p>
+<p><img src="/2017/09/07/Word-Embeddings-and-Encoder-Decoder-Neural-Net/./matmul4lookup.png" height="70%" width="70%"></p>
+<p>所以使用 lookup table LSTM 的語言模型變成如下</p>
+<p><img src="/2017/09/07/Word-Embeddings-and-Encoder-Decoder-Neural-Net/./lm2.png" height="50%" width="50%"></p>
+<p>等等，矩陣相乘不就跟 neural net 一樣嗎?</p>
+<p>這樣看起來這個 lookup table $E$ 就是一層的類神經網路而已 (沒有 activation function)。</p>
+<p>我們用 LL (Linear Layer) 來代表，$E$ 就是 LL 的 weight matrix。</p>
+<p><img src="/2017/09/07/Word-Embeddings-and-Encoder-Decoder-Neural-Net/./lm3.png" height="50%" width="50%"></p>
+<p>表示成 neural net 的方式，我們就直接可以 Backprob 訓練出 LL 的 weight $E$ 了。而 $E$ 就是我們要找的 embeddings。</p>
+<blockquote>
+<ol>
+<li>Tensorflow 中做這樣的 lookup table 可以使用 <a href="https://www.tensorflow.org/api_docs/python/tf/nn/embedding_lookup" target="_blank" rel="external">tf.nn.embedding_lookup()</a>。</li>
+<li>Embedding 的作法可參考 tf <a href="https://www.tensorflow.org/programmers_guide/embedding" target="_blank" rel="external">官網此處</a>。</li>
+</ol>
+</blockquote>
+<h3 id="LL很弱怎麼辦"><a href="#LL很弱怎麼辦" class="headerlink" title="LL很弱怎麼辦?"></a>LL很弱怎麼辦?</h3><p>只用<strong>一層</strong>線性組合 (LL) 就想把特徵擷取做到很好，似乎有點簡化了。</p>
+<p>沒錯，我們都知道，特徵擷取是 <strong>Deep</strong> neural net 的拿手好戲，所以我們可以將 LL 換成強大的 CNN。</p>
+<p><img src="/2017/09/07/Word-Embeddings-and-Encoder-Decoder-Neural-Net/./lm4.png" height="50%" width="50%"></p>
+<p>這種先經過一層特徵擷取，再做辨識，其實跟 Encoder – Decoder 的架構一樣。</p>
+<p><img src="/2017/09/07/Word-Embeddings-and-Encoder-Decoder-Neural-Net/./lm5.png" height="50%" width="50%"></p>
+<p>都是先經過 Encoder 做出 embeddings，接著使用 Embeddings decode 出結果。</p>
+<p>Encoder 如果也採用 RNN 的話基本上就是 <a href="http://arxiv.org/abs/1409.3215" target="_blank" rel="external">sequence-to-sequence</a> 的架構了。</p>
+<p><img src="/2017/09/07/Word-Embeddings-and-Encoder-Decoder-Neural-Net/./encoder-decoder.png" height="100%" width="100%"></p>
+<p>基本上拓展一下，對圖或影像做 Encode，而 Decoder 負責解碼出描述的文字。或是語言翻譯，語音辨識，都可以這麼看待。</p>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
+<li>Embedding tf 官網 <a href="https://www.tensorflow.org/programmers_guide/embedding" target="_blank" rel="external">link</a></li>
+<li>Sequence to sequence learning <a href="http://arxiv.org/abs/1409.3215" target="_blank" rel="external">link</a></li>
+<li>Udacity lstm <a href="https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/udacity/6_lstm.ipynb" target="_blank" rel="external">github</a></li>
+<li><a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/" target="_blank" rel="external">colah lstm</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/ML/" rel="tag"># ML</a>
+          
+            <a href="/tags/Deep-Learning/" rel="tag"># Deep Learning</a>
+          
+            <a href="/tags/Embedding/" rel="tag"># Embedding</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/08/26/AutoEncoder/" rel="next" title="AutoEncoder">
+                <i class="fa fa-chevron-left"></i> AutoEncoder
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">分類</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#From-Sparse-Vector-to-Embeddings-with-Encoder–Decoder-Structure"><span class="nav-number">1.</span> <span class="nav-text">From Sparse Vector to Embeddings with Encoder–Decoder Structure</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#字典向量"><span class="nav-number">2.</span> <span class="nav-text">字典向量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#先假設已知如何對應到緊密向量"><span class="nav-number">3.</span> <span class="nav-text">先假設已知如何對應到緊密向量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Lookup-Table-使用矩陣相乘"><span class="nav-number">4.</span> <span class="nav-text">Lookup Table 使用矩陣相乘</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LL很弱怎麼辦"><span class="nav-number">5.</span> <span class="nav-text">LL很弱怎麼辦?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">6.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
