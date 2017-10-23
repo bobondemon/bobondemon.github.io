@@ -102,7 +102,7 @@
 <meta property="og:image" content="http://yoursite.com/2017/10/22/A-Toy-Example-for-Teacher-Student-Domain-Adaptation/flip69_2.png">
 <meta property="og:image" content="http://yoursite.com/2017/10/22/A-Toy-Example-for-Teacher-Student-Domain-Adaptation/what-ts-learn.png">
 <meta property="og:image" content="http://yoursite.com/2017/10/22/A-Toy-Example-for-Teacher-Student-Domain-Adaptation/modified-s-model.png">
-<meta property="og:updated_time" content="2017-10-22T07:37:20.581Z">
+<meta property="og:updated_time" content="2017-10-23T14:08:46.868Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="A Toy Example for Teacher Student Domain Adaptation">
 <meta name="twitter:description" content="看了這篇 2017 Microsoft AI and Research 的文章 “Large-Scale Domain Adaptation via Teacher-Student Learning“ 覺得滿有意思的，加上很容易實作，因此就分析一下這篇的可行性。
@@ -381,7 +381,7 @@
 <p>以上面論文中的圖來說，左邊 Teacher network 只能在 Source Domain 有好的辨識能力，目標是希望得到右邊的 Student network 能在 Target Domain 針對同樣問題也有好的辨識能力。論文方法是一開始先將 Teacher network 拷貝一份給 Student network ，接著就開始餵 parallel data 給兩個 networks。</p>
 <p>所謂 parallel data 意思是相同的資料來源，但是在不同 domain 蒐集，例如同一個人講同一句話，一個近場麥克風蒐集到，另一個遠場蒐集到。目標函式就是希望兩個 network 的後驗概率相同 (兩者的後驗概率平方誤差為0)，而我們只更新 Student network。在實作上不會使用後驗概率來計算兩個 network 的誤差，會使用未經過 softmax 的那層，也就是一般說的 logits 來計算。原因簡單說明如下:</p>
 <blockquote>
-<p>softmax 會將同樣是 negative 的類別的機率都壓到很低，但是 <strong>negative examples 也有分好壞</strong>，讀者可以試試 [10,2,1] 經過 softmax 後， 2 跟 1 之間的差異會被抹平。<br>因此好的做法是，不要使用 softmax ，而是使用 logits。 Hinton 在這篇<a href="https://arxiv.org/abs/1503.02531" target="_blank" rel="external">論文</a>裡修改了 softmax 函式，多了一個 temperature $T$，論文裡推導這樣修改的 softmax，其實跟目標函式使用 logits 的平方誤差是一樣的 (在每次input sample都具有mean=0的條件下)</p>
+<p>softmax 會將同樣是 negative 的類別的機率都壓到很低，但是 <strong>negative examples 也有分好壞</strong>，讀者可以試試 [10,2,1] 經過 softmax 後， 2 跟 1 之間的差異會被抹平。<br>因此好的做法是，不要使用 softmax ，而是使用 logits。 Hinton 在這篇<a href="https://arxiv.org/abs/1503.02531" target="_blank" rel="external">論文</a>裡修改了 softmax 函式，多了一個 temperature $T$，論文裡推導這樣修改的 softmax，其實跟目標函式使用 logits 的平方誤差是一樣的 (在 <em>“T跟logits差異很大”</em> 且 <em>“logits的分布均值為0”</em> 的條件下)</p>
 </blockquote>
 <p>這樣做的物理意義就相當於，<strong>將 “某聲音的遠場表現在 Student network 眼裡”，視為跟 “該聲音的近場表現在 Teacher network 眼裡” 認定為相同一件事情。</strong>因此就不需要針對 data 做標記了，只需要拿到這樣的一大堆 parallel data 就可以，而這很容易。</p>
 <p>附上論文上的步驟如下:</p>
