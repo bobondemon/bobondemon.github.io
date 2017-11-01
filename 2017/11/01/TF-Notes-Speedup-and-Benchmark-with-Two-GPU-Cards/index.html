@@ -1,0 +1,778 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="TensorFlow," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="這篇文章實作了官網的 同步式 data Parallelism 方法 ref，並且與原本只用一張GPU做個比較。實驗只使用兩張卡，多張卡方法一樣。主要架構如下圖 by TF 官網:
+
+兩張卡等於是把一次要計算的 mini-batch 拆成兩半給兩個 (相同的) models 去並行計算 gradients，然後再交由 cpu 統一更新 model。詳細請自行參考官網。下面直接秀 Codes">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TF Notes (2), Speedup and Benchmark with Two GPU Cards">
+<meta property="og:url" content="http://yoursite.com/2017/11/01/TF-Notes-Speedup-and-Benchmark-with-Two-GPU-Cards/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="這篇文章實作了官網的 同步式 data Parallelism 方法 ref，並且與原本只用一張GPU做個比較。實驗只使用兩張卡，多張卡方法一樣。主要架構如下圖 by TF 官網:
+
+兩張卡等於是把一次要計算的 mini-batch 拆成兩半給兩個 (相同的) models 去並行計算 gradients，然後再交由 cpu 統一更新 model。詳細請自行參考官網。下面直接秀 Codes">
+<meta property="og:image" content="http://yoursite.com/2017/11/01/TF-Notes-Speedup-and-Benchmark-with-Two-GPU-Cards/Parallelism.png">
+<meta property="og:image" content="http://yoursite.com/2017/11/01/TF-Notes-Speedup-and-Benchmark-with-Two-GPU-Cards/results.png">
+<meta property="og:updated_time" content="2017-11-01T13:46:58.134Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="TF Notes (2), Speedup and Benchmark with Two GPU Cards">
+<meta name="twitter:description" content="這篇文章實作了官網的 同步式 data Parallelism 方法 ref，並且與原本只用一張GPU做個比較。實驗只使用兩張卡，多張卡方法一樣。主要架構如下圖 by TF 官網:
+
+兩張卡等於是把一次要計算的 mini-batch 拆成兩半給兩個 (相同的) models 去並行計算 gradients，然後再交由 cpu 統一更新 model。詳細請自行參考官網。下面直接秀 Codes">
+<meta name="twitter:image" content="http://yoursite.com/2017/11/01/TF-Notes-Speedup-and-Benchmark-with-Two-GPU-Cards/Parallelism.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/11/01/TF-Notes-Speedup-and-Benchmark-with-Two-GPU-Cards/"/>
+
+
+
+
+
+  <title> TF Notes (2), Speedup and Benchmark with Two GPU Cards | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/11/01/TF-Notes-Speedup-and-Benchmark-with-Two-GPU-Cards/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                TF Notes (2), Speedup and Benchmark with Two GPU Cards
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2017-11-01T20:28:49+08:00">
+                2017-11-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>這篇文章實作了官網的 <strong>同步式 data Parallelism</strong> 方法 <a href="https://www.tensorflow.org/tutorials/deep_cnn" target="_blank" rel="external">ref</a>，並且與原本只用一張GPU做個比較。實驗只使用兩張卡，多張卡方法一樣。主要架構如下圖 by TF 官網:</p>
+<p><img src="/2017/11/01/TF-Notes-Speedup-and-Benchmark-with-Two-GPU-Cards/Parallelism.png" width="40%" height="40%"></p>
+<p>兩張卡等於是把一次要計算的 mini-batch 拆成兩半給兩個 (相同的) models 去並行計算 gradients，然後再交由 cpu 統一更新 model。詳細請自行參考官網。下面直接秀 Codes 和結果。</p>
+<a id="more"></a>
+<hr>
+<h2 id="Machine-Spec"><a href="#Machine-Spec" class="headerlink" title="Machine Spec."></a>Machine Spec.</h2><p>GPU 卡為 <a href="http://www.thinkmate.com/product/nvidia/900-22081-2250-000" target="_blank" rel="external">Tesla K40c</a></p>
+<p>CPU 為 <a href="https://ark.intel.com/products/81908/Intel-Xeon-Processor-E5-2680-v3-30M-Cache-2_50-GHz" target="_blank" rel="external">Intel(R) Xeon(R) CPU E5-2680 v3 @ 2.50GHz</a></p>
+<hr>
+<h2 id="單-GPU-跑-MNIST"><a href="#單-GPU-跑-MNIST" class="headerlink" title="單 GPU 跑 MNIST"></a>單 GPU 跑 MNIST</h2><p>直接上 Codes</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div><div class="line">189</div><div class="line">190</div><div class="line">191</div><div class="line">192</div><div class="line">193</div><div class="line">194</div><div class="line">195</div><div class="line">196</div><div class="line">197</div><div class="line">198</div><div class="line">199</div><div class="line">200</div><div class="line">201</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> gzip</div><div class="line"><span class="keyword">import</span> os</div><div class="line"><span class="keyword">import</span> tempfile</div><div class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</div><div class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</div><div class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</div><div class="line"><span class="keyword">from</span> tensorflow.contrib.layers <span class="keyword">import</span> flatten</div><div class="line"><span class="keyword">from</span> tensorflow.examples.tutorials.mnist <span class="keyword">import</span> input_data</div><div class="line"><span class="keyword">from</span> sklearn.utils <span class="keyword">import</span> shuffle</div><div class="line"></div><div class="line"><span class="string">"""</span></div><div class="line">Data Loading</div><div class="line">"""</div><div class="line">dataPath=<span class="string">'../dataset/MNIST_data/'</span></div><div class="line">mnist = input_data.read_data_sets(dataPath, one_hot=<span class="keyword">True</span>)</div><div class="line"><span class="comment"># read the images and reformat the image shape from [img_num,img_height,img_width] to [img_num,img_height,img_width,1]</span></div><div class="line">img_width = <span class="number">28</span></div><div class="line">img_height = <span class="number">28</span></div><div class="line">images = mnist.train.images</div><div class="line">img_num, _ = images.shape</div><div class="line">images = np.reshape(images,(img_num,img_height,img_width))</div><div class="line">images = images[...,np.newaxis]</div><div class="line">print(<span class="string">'(Input to CNN) Images with shape &#123;&#125;'</span>.format(images.shape))</div><div class="line"><span class="comment"># read the labels</span></div><div class="line">labels1Hot = mnist.train.labels</div><div class="line">print(<span class="string">'(Input to CNN) labels1Hot.shape = &#123;&#125;'</span>.format(labels1Hot.shape))</div><div class="line">labels = np.argmax(labels1Hot,axis=<span class="number">1</span>)</div><div class="line">labels = labels[...,np.newaxis]</div><div class="line">print(<span class="string">'labels.shape = &#123;&#125;'</span>.format(labels.shape))</div><div class="line">n_classes = len(np.unique(labels))</div><div class="line"><span class="comment"># load the validation set</span></div><div class="line">images_valid = mnist.validation.images</div><div class="line">img_num_valid = len(images_valid)</div><div class="line">images_valid = np.reshape(images_valid,(img_num_valid,img_height,img_width))</div><div class="line">images_valid = images_valid[...,np.newaxis]</div><div class="line">labels1Hot_valid = mnist.validation.labels</div><div class="line">print(<span class="string">'Having %d number of validation images'</span> % img_num_valid)</div><div class="line"><span class="comment"># plotting sample images</span></div><div class="line">plt.figure(figsize=(<span class="number">15</span>,<span class="number">5</span>))</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> np.arange(<span class="number">2</span>*<span class="number">7</span>):</div><div class="line">    random_idx = np.random.randint(<span class="number">0</span>,img_num)</div><div class="line">    plt.subplot(<span class="number">2</span>,<span class="number">7</span>,i+<span class="number">1</span>)</div><div class="line">    plt.imshow(images[random_idx][...,<span class="number">0</span>],cmap=<span class="string">'gray'</span>)</div><div class="line">    plt.title(labels[random_idx][<span class="number">0</span>])</div><div class="line"></div><div class="line"><span class="string">"""</span></div><div class="line">First define the hyper-parameters</div><div class="line">"""</div><div class="line"><span class="comment"># Hyper-parameters</span></div><div class="line">EPOCHS = <span class="number">30</span></div><div class="line">BATCH_SIZE = <span class="number">512</span></div><div class="line">rate = <span class="number">0.001</span></div><div class="line">drop_out_keep_prob = <span class="number">0.5</span></div><div class="line">ksize = <span class="number">5</span></div><div class="line">cnn_depth_list = [<span class="number">16</span>, <span class="number">32</span>]</div><div class="line">mlp_depth_list = [<span class="number">256</span>, <span class="number">128</span>]</div><div class="line">cNum = <span class="number">1</span></div><div class="line"></div><div class="line"><span class="string">"""</span></div><div class="line">Define the input output tensors</div><div class="line">"""</div><div class="line"><span class="comment"># using one-hot decoding</span></div><div class="line">x = tf.placeholder(tf.float32, (<span class="keyword">None</span>, img_height, img_width, cNum))</div><div class="line">one_hot_y = tf.placeholder(tf.int32, (<span class="keyword">None</span>, n_classes))</div><div class="line"><span class="comment">#one_hot_y = tf.one_hot(y, n_classes)</span></div><div class="line">keep_prob = tf.placeholder(tf.float32) <span class="comment"># probability to keep units</span></div><div class="line"></div><div class="line"><span class="string">"""</span></div><div class="line">Define the graph and construct it</div><div class="line">"""</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">MNISTCNN</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, ksize, cnn_depth_list, mlp_depth_list, img_height, img_width, cNum, n_classes)</span>:</span></div><div class="line">        self._ksize = ksize</div><div class="line">        self._cnn_depth_list = cnn_depth_list</div><div class="line">        self._mlp_depth_list = mlp_depth_list</div><div class="line">        self._img_height = img_height</div><div class="line">        self._img_width = img_width</div><div class="line">        self._cNum = cNum</div><div class="line">        self._n_classes = n_classes</div><div class="line">        </div><div class="line">        self._mu = <span class="number">0</span></div><div class="line">        self._sigma = <span class="number">0.1</span></div><div class="line">        </div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">create</span><span class="params">(self,x,keep_prob)</span>:</span></div><div class="line">        conv = self._conv(x, self._cNum, self._ksize, self._cnn_depth_list[<span class="number">0</span>], <span class="string">'conv1'</span>)</div><div class="line">        <span class="comment"># Pooling. Input = 24x24xlayer_depth['layer_1']. Output = 12x12xlayer_depth['layer_1'].</span></div><div class="line">        conv = tf.nn.max_pool(conv, ksize=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>], strides=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>], padding=<span class="string">'VALID'</span>)</div><div class="line">        <span class="keyword">for</span> lidx <span class="keyword">in</span> range(<span class="number">1</span>,len(self._cnn_depth_list)):</div><div class="line">            conv = self._conv(conv, self._cnn_depth_list[lidx<span class="number">-1</span>], self._ksize, self._cnn_depth_list[lidx], <span class="string">'conv&#123;&#125;'</span>.format(lidx+<span class="number">1</span>))</div><div class="line">            conv = tf.nn.max_pool(conv, ksize=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>], strides=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>], padding=<span class="string">'VALID'</span>)</div><div class="line">        </div><div class="line">        fc = flatten(conv)</div><div class="line">        bsize, fc_in_dim = fc.shape</div><div class="line">        fc = self._fc(fc,fc_in_dim,self._mlp_depth_list[<span class="number">0</span>],<span class="string">'fc1'</span>)</div><div class="line">        fc = tf.nn.dropout(fc, keep_prob)    <span class="comment"># dropout</span></div><div class="line">        <span class="keyword">for</span> lidx <span class="keyword">in</span> range(<span class="number">1</span>,len(self._mlp_depth_list)):</div><div class="line">            fc = self._fc(fc,self._mlp_depth_list[lidx<span class="number">-1</span>],self._mlp_depth_list[lidx],<span class="string">'fc&#123;&#125;'</span>.format(lidx+<span class="number">1</span>))</div><div class="line">            fc = tf.nn.dropout(fc, keep_prob)    <span class="comment"># dropout</span></div><div class="line">        </div><div class="line">        <span class="keyword">with</span> tf.variable_scope(<span class="string">'logits'</span>) <span class="keyword">as</span> scope:</div><div class="line">            logits_w = tf.get_variable(<span class="string">'logits_w'</span>, shape=[self._mlp_depth_list[<span class="number">-1</span>],self._n_classes],\</div><div class="line">                                       initializer=tf.random_uniform_initializer(<span class="number">-0.1</span>,<span class="number">0.1</span>))</div><div class="line">            logits_b = tf.get_variable(<span class="string">'logits_b'</span>, shape=[self._n_classes],\</div><div class="line">                                       initializer=tf.zeros_initializer)</div><div class="line">            logits = tf.nn.xw_plus_b(fc, logits_w, logits_b, name=scope.name)</div><div class="line">        print(logits.shape)</div><div class="line">        <span class="keyword">return</span> logits</div><div class="line">        </div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_conv</span><span class="params">(self, x, in_depth, ksize, out_depth, scope_name, relu=True)</span>:</span></div><div class="line">        bsize,h,w,cNum = x.shape</div><div class="line">        <span class="keyword">assert</span>(h-(ksize<span class="number">-1</span>)&gt;=<span class="number">1</span>)</div><div class="line">        <span class="keyword">assert</span>(w-(ksize<span class="number">-1</span>)&gt;=<span class="number">1</span>)</div><div class="line">        <span class="keyword">with</span> tf.variable_scope(scope_name) <span class="keyword">as</span> scope:</div><div class="line">            <span class="comment"># Create tf variables for the weights and biases</span></div><div class="line">            weights = tf.get_variable(<span class="string">'weights'</span>, shape=(ksize, ksize, in_depth, out_depth),\</div><div class="line">                                      initializer=tf.random_normal_initializer(self._mu,self._sigma))</div><div class="line">            biases = tf.get_variable(<span class="string">'biases'</span>, shape=(out_depth),initializer=tf.zeros_initializer)</div><div class="line">            out = tf.nn.conv2d(x, weights, strides=[<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>], padding=<span class="string">'VALID'</span>,name=scope.name) + biases</div><div class="line">        <span class="keyword">if</span> relu:</div><div class="line">            <span class="comment"># Apply ReLu non linearity</span></div><div class="line">            relu = tf.nn.relu(out)</div><div class="line">            <span class="keyword">return</span> relu</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            <span class="keyword">return</span> out</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_fc</span><span class="params">(self, x, num_in, num_out, scope_name, relu=True)</span>:</span></div><div class="line">        <span class="string">"""Create a fully connected layer."""</span></div><div class="line">        <span class="keyword">with</span> tf.variable_scope(scope_name) <span class="keyword">as</span> scope:</div><div class="line">            <span class="comment"># Create tf variables for the weights and biases</span></div><div class="line">            weights = tf.get_variable(<span class="string">'weights'</span>, shape=[num_in, num_out],\</div><div class="line">                                      initializer=tf.random_uniform_initializer(<span class="number">-0.1</span>,<span class="number">0.1</span>))</div><div class="line">            biases = tf.get_variable(<span class="string">'biases'</span>, [num_out],\</div><div class="line">                                     initializer=tf.zeros_initializer)</div><div class="line">            <span class="comment"># Matrix multiply weights and inputs and add bias</span></div><div class="line">            out = tf.nn.xw_plus_b(x, weights, biases, name=scope.name)</div><div class="line">        <span class="keyword">if</span> relu:</div><div class="line">            <span class="comment"># Apply ReLu non linearity</span></div><div class="line">            relu = tf.nn.relu(out)</div><div class="line">            <span class="keyword">return</span> relu</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            <span class="keyword">return</span> out</div><div class="line">            </div><div class="line">mnistCNN = MNISTCNN(ksize, cnn_depth_list, mlp_depth_list, img_height, img_width, cNum, n_classes)</div><div class="line">logits = mnistCNN.create(x,keep_prob)</div><div class="line"></div><div class="line"><span class="string">"""</span></div><div class="line">Define loss and optimizer</div><div class="line">"""</div><div class="line">cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=one_hot_y,logits=logits)</div><div class="line">loss_operation = tf.reduce_mean(cross_entropy)</div><div class="line">optimizer = tf.train.AdamOptimizer(learning_rate = rate)</div><div class="line">training_operation = optimizer.minimize(loss_operation)</div><div class="line"></div><div class="line"><span class="comment"># Define accuracy evaluation</span></div><div class="line"><span class="comment"># calculate the average accuracy by calling evaluate(X_data, y_data)</span></div><div class="line">correct_prediction = tf.equal(tf.argmax(logits, axis=<span class="number">1</span>), tf.argmax(one_hot_y, axis=<span class="number">1</span>))</div><div class="line">accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">evaluate</span><span class="params">(X_data, y_data)</span>:</span></div><div class="line">    num_examples = len(X_data)</div><div class="line">    total_accuracy = <span class="number">0</span></div><div class="line">    sess = tf.get_default_session()</div><div class="line">    <span class="keyword">for</span> offset <span class="keyword">in</span> range(<span class="number">0</span>, num_examples, BATCH_SIZE):</div><div class="line">        batch_x, batch_y = X_data[offset:offset+BATCH_SIZE], y_data[offset:offset+BATCH_SIZE]</div><div class="line">        accuracy = sess.run(accuracy_operation, feed_dict=&#123;x: batch_x, one_hot_y: batch_y, keep_prob: <span class="number">1.0</span>&#125;)</div><div class="line">        total_accuracy += (accuracy * len(batch_x))</div><div class="line">    <span class="keyword">return</span> total_accuracy / num_examples</div><div class="line">    </div><div class="line"><span class="string">"""</span></div><div class="line">Run Session</div><div class="line">"""</div><div class="line"><span class="comment">### Train your model here.</span></div><div class="line"><span class="keyword">import</span> time</div><div class="line"><span class="keyword">if</span> <span class="keyword">not</span> os.path.isdir(<span class="string">'./models'</span>):</div><div class="line">    os.makedirs(<span class="string">'./models'</span>)</div><div class="line"><span class="comment">#saver = tf.train.Saver()</span></div><div class="line">accumulate_time = <span class="number">0.0</span></div><div class="line"><span class="keyword">with</span> tf.Session() <span class="keyword">as</span> sess:</div><div class="line">    sess.run(tf.global_variables_initializer())</div><div class="line">    num_examples = img_num</div><div class="line">    </div><div class="line">    print(<span class="string">"Training..."</span>)</div><div class="line">    print()</div><div class="line">    train_accuracy = np.zeros(EPOCHS)</div><div class="line">    validation_accuracy = np.zeros(EPOCHS)</div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(EPOCHS):</div><div class="line">        stime = time.time()</div><div class="line">        acc_train_accuracy = <span class="number">0</span></div><div class="line">        X_train, y_train = shuffle(images, labels1Hot)</div><div class="line">        <span class="keyword">for</span> offset <span class="keyword">in</span> range(<span class="number">0</span>, num_examples, BATCH_SIZE):</div><div class="line">            end = offset + BATCH_SIZE</div><div class="line">            batch_x, batch_y = X_train[offset:end], y_train[offset:end]</div><div class="line">            sess.run(training_operation, feed_dict=&#123;x: batch_x, one_hot_y: batch_y, keep_prob: drop_out_keep_prob&#125;)</div><div class="line"></div><div class="line">        etime = time.time()</div><div class="line">        accumulate_time += etime - stime</div><div class="line">        validation_accuracy[i] = evaluate(images_valid, labels1Hot_valid)</div><div class="line">        print(<span class="string">"EPOCH &#123;&#125; ..."</span>.format(i+<span class="number">1</span>))</div><div class="line">        print(<span class="string">"Validation Accuracy = &#123;:.3f&#125;"</span>.format(validation_accuracy[i]))</div><div class="line">        print()</div><div class="line"></div><div class="line">    print(<span class="string">'Cost time: '</span> + str(accumulate_time) + <span class="string">' sec.'</span>)</div></pre></td></tr></table></figure>
+<hr>
+<h2 id="同步式-data-Parallelism-在兩張-GPU-跑-MNIST"><a href="#同步式-data-Parallelism-在兩張-GPU-跑-MNIST" class="headerlink" title="同步式 data Parallelism 在兩張 GPU 跑 MNIST"></a>同步式 data Parallelism 在兩張 GPU 跑 MNIST</h2><p>一樣直接上 Codes</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div><div class="line">189</div><div class="line">190</div><div class="line">191</div><div class="line">192</div><div class="line">193</div><div class="line">194</div><div class="line">195</div><div class="line">196</div><div class="line">197</div><div class="line">198</div><div class="line">199</div><div class="line">200</div><div class="line">201</div><div class="line">202</div><div class="line">203</div><div class="line">204</div><div class="line">205</div><div class="line">206</div><div class="line">207</div><div class="line">208</div><div class="line">209</div><div class="line">210</div><div class="line">211</div><div class="line">212</div><div class="line">213</div><div class="line">214</div><div class="line">215</div><div class="line">216</div><div class="line">217</div><div class="line">218</div><div class="line">219</div><div class="line">220</div><div class="line">221</div><div class="line">222</div><div class="line">223</div><div class="line">224</div><div class="line">225</div><div class="line">226</div><div class="line">227</div><div class="line">228</div><div class="line">229</div><div class="line">230</div><div class="line">231</div><div class="line">232</div><div class="line">233</div><div class="line">234</div><div class="line">235</div><div class="line">236</div><div class="line">237</div><div class="line">238</div><div class="line">239</div><div class="line">240</div><div class="line">241</div><div class="line">242</div><div class="line">243</div><div class="line">244</div><div class="line">245</div><div class="line">246</div><div class="line">247</div><div class="line">248</div><div class="line">249</div><div class="line">250</div><div class="line">251</div><div class="line">252</div><div class="line">253</div><div class="line">254</div><div class="line">255</div><div class="line">256</div><div class="line">257</div><div class="line">258</div><div class="line">259</div><div class="line">260</div><div class="line">261</div><div class="line">262</div><div class="line">263</div><div class="line">264</div><div class="line">265</div><div class="line">266</div><div class="line">267</div><div class="line">268</div><div class="line">269</div><div class="line">270</div><div class="line">271</div><div class="line">272</div><div class="line">273</div><div class="line">274</div><div class="line">275</div><div class="line">276</div><div class="line">277</div><div class="line">278</div><div class="line">279</div><div class="line">280</div><div class="line">281</div><div class="line">282</div><div class="line">283</div><div class="line">284</div><div class="line">285</div><div class="line">286</div><div class="line">287</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> gzip</div><div class="line"><span class="keyword">import</span> os</div><div class="line"><span class="keyword">import</span> tempfile</div><div class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</div><div class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</div><div class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</div><div class="line"><span class="keyword">from</span> tensorflow.contrib.layers <span class="keyword">import</span> flatten</div><div class="line"><span class="keyword">from</span> tensorflow.examples.tutorials.mnist <span class="keyword">import</span> input_data</div><div class="line"><span class="keyword">from</span> sklearn.utils <span class="keyword">import</span> shuffle</div><div class="line"></div><div class="line"><span class="string">"""</span></div><div class="line">Data Loading</div><div class="line">"""</div><div class="line">dataPath=<span class="string">'../dataset/MNIST_data/'</span></div><div class="line">mnist = input_data.read_data_sets(dataPath, one_hot=<span class="keyword">True</span>)</div><div class="line"><span class="comment"># read the images and reformat the image shape from [img_num,img_height,img_width] to [img_num,img_height,img_width,1]</span></div><div class="line">img_width = <span class="number">28</span></div><div class="line">img_height = <span class="number">28</span></div><div class="line">images = mnist.train.images</div><div class="line">img_num, _ = images.shape</div><div class="line">images = np.reshape(images,(img_num,img_height,img_width))</div><div class="line">images = images[...,np.newaxis]</div><div class="line">print(<span class="string">'(Input to CNN) Images with shape &#123;&#125;'</span>.format(images.shape))</div><div class="line"><span class="comment"># read the labels</span></div><div class="line">labels1Hot = mnist.train.labels</div><div class="line">print(<span class="string">'(Input to CNN) labels1Hot.shape = &#123;&#125;'</span>.format(labels1Hot.shape))</div><div class="line">labels = np.argmax(labels1Hot,axis=<span class="number">1</span>)</div><div class="line">labels = labels[...,np.newaxis]</div><div class="line">print(<span class="string">'labels.shape = &#123;&#125;'</span>.format(labels.shape))</div><div class="line">n_classes = len(np.unique(labels))<span class="comment"># read the labels</span></div><div class="line">labels1Hot = mnist.train.labels</div><div class="line">print(<span class="string">'(Input to CNN) labels1Hot.shape = &#123;&#125;'</span>.format(labels1Hot.shape))</div><div class="line">labels = np.argmax(labels1Hot,axis=<span class="number">1</span>)</div><div class="line">labels = labels[...,np.newaxis]</div><div class="line">print(<span class="string">'labels.shape = &#123;&#125;'</span>.format(labels.shape))</div><div class="line">n_classes = len(np.unique(labels))</div><div class="line"><span class="comment"># load the validation set</span></div><div class="line">images_valid = mnist.validation.images</div><div class="line">img_num_valid = len(images_valid)</div><div class="line">images_valid = np.reshape(images_valid,(img_num_valid,img_height,img_width))</div><div class="line">images_valid = images_valid[...,np.newaxis]</div><div class="line">labels1Hot_valid = mnist.validation.labels</div><div class="line">print(<span class="string">'Having %d number of validation images'</span> % img_num_valid)</div><div class="line">plt.figure(figsize=(<span class="number">15</span>,<span class="number">5</span>))</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> np.arange(<span class="number">2</span>*<span class="number">7</span>):</div><div class="line">    random_idx = np.random.randint(<span class="number">0</span>,img_num)</div><div class="line">    plt.subplot(<span class="number">2</span>,<span class="number">7</span>,i+<span class="number">1</span>)</div><div class="line">    plt.imshow(images[random_idx][...,<span class="number">0</span>],cmap=<span class="string">'gray'</span>)</div><div class="line">    plt.title(labels[random_idx][<span class="number">0</span>])</div><div class="line"></div><div class="line"><span class="string">"""</span></div><div class="line">First define the hyper-parameters</div><div class="line">"""</div><div class="line"><span class="comment"># Hyper-parameters</span></div><div class="line">EPOCHS = <span class="number">30</span></div><div class="line">BATCH_SIZE = <span class="number">512</span></div><div class="line">rate = <span class="number">0.001</span></div><div class="line">drop_out_keep_prob = <span class="number">0.5</span></div><div class="line">ksize = <span class="number">5</span></div><div class="line">cnn_depth_list = [<span class="number">16</span>, <span class="number">32</span>]</div><div class="line">mlp_depth_list = [<span class="number">256</span>, <span class="number">128</span>]</div><div class="line">cNum = <span class="number">1</span></div><div class="line"></div><div class="line"><span class="string">"""</span></div><div class="line">Define the graph and construct it</div><div class="line">"""</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">MNISTCNN</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, ksize, cnn_depth_list, mlp_depth_list, img_height, img_width, cNum, n_classes)</span>:</span></div><div class="line">        self._ksize = ksize</div><div class="line">        self._cnn_depth_list = cnn_depth_list</div><div class="line">        self._mlp_depth_list = mlp_depth_list</div><div class="line">        self._img_height = img_height</div><div class="line">        self._img_width = img_width</div><div class="line">        self._cNum = cNum</div><div class="line">        self._n_classes = n_classes</div><div class="line">        </div><div class="line">        self._mu = <span class="number">0</span></div><div class="line">        self._sigma = <span class="number">0.1</span></div><div class="line">        </div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">create</span><span class="params">(self,x,keep_prob)</span>:</span></div><div class="line">        conv = self._conv(x, self._cNum, self._ksize, self._cnn_depth_list[<span class="number">0</span>], <span class="string">'conv1'</span>)</div><div class="line">        <span class="comment"># Pooling. Input = 24x24xlayer_depth['layer_1']. Output = 12x12xlayer_depth['layer_1'].</span></div><div class="line">        conv = tf.nn.max_pool(conv, ksize=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>], strides=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>], padding=<span class="string">'VALID'</span>)</div><div class="line">        <span class="keyword">for</span> lidx <span class="keyword">in</span> range(<span class="number">1</span>,len(self._cnn_depth_list)):</div><div class="line">            conv = self._conv(conv, self._cnn_depth_list[lidx<span class="number">-1</span>], self._ksize, self._cnn_depth_list[lidx], <span class="string">'conv&#123;&#125;'</span>.format(lidx+<span class="number">1</span>))</div><div class="line">            conv = tf.nn.max_pool(conv, ksize=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>], strides=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>], padding=<span class="string">'VALID'</span>)</div><div class="line">        </div><div class="line">        fc = flatten(conv)</div><div class="line">        bsize, fc_in_dim = fc.shape</div><div class="line">        fc = self._fc(fc,fc_in_dim,self._mlp_depth_list[<span class="number">0</span>],<span class="string">'fc1'</span>)</div><div class="line">        fc = tf.nn.dropout(fc, keep_prob)    <span class="comment"># dropout</span></div><div class="line">        <span class="keyword">for</span> lidx <span class="keyword">in</span> range(<span class="number">1</span>,len(self._mlp_depth_list)):</div><div class="line">            fc = self._fc(fc,self._mlp_depth_list[lidx<span class="number">-1</span>],self._mlp_depth_list[lidx],<span class="string">'fc&#123;&#125;'</span>.format(lidx+<span class="number">1</span>))</div><div class="line">            fc = tf.nn.dropout(fc, keep_prob)    <span class="comment"># dropout</span></div><div class="line">        </div><div class="line">        <span class="keyword">with</span> tf.variable_scope(<span class="string">'logits'</span>) <span class="keyword">as</span> scope:</div><div class="line">            <span class="keyword">with</span> tf.device(<span class="string">'/cpu:0'</span>):</div><div class="line">                logits_w = tf.get_variable(<span class="string">'logits_w'</span>, shape=[self._mlp_depth_list[<span class="number">-1</span>],self._n_classes],\</div><div class="line">                                           initializer=tf.random_uniform_initializer(<span class="number">-0.1</span>,<span class="number">0.1</span>))</div><div class="line">                logits_b = tf.get_variable(<span class="string">'logits_b'</span>, shape=[self._n_classes],\</div><div class="line">                                           initializer=tf.zeros_initializer)</div><div class="line">            logits = tf.nn.xw_plus_b(fc, logits_w, logits_b, name=scope.name)</div><div class="line">        print(logits.shape)</div><div class="line">        <span class="keyword">return</span> logits</div><div class="line">        </div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_conv</span><span class="params">(self, x, in_depth, ksize, out_depth, scope_name, relu=True)</span>:</span></div><div class="line">        bsize,h,w,cNum = x.shape</div><div class="line">        <span class="keyword">assert</span>(h-(ksize<span class="number">-1</span>)&gt;=<span class="number">1</span>)</div><div class="line">        <span class="keyword">assert</span>(w-(ksize<span class="number">-1</span>)&gt;=<span class="number">1</span>)</div><div class="line">        <span class="keyword">with</span> tf.variable_scope(scope_name) <span class="keyword">as</span> scope:</div><div class="line">            <span class="keyword">with</span> tf.device(<span class="string">'/cpu:0'</span>):</div><div class="line">                <span class="comment"># Create tf variables for the weights and biases</span></div><div class="line">                weights = tf.get_variable(<span class="string">'weights'</span>, shape=(ksize, ksize, in_depth, out_depth),\</div><div class="line">                                          initializer=tf.random_normal_initializer(self._mu,self._sigma))</div><div class="line">                biases = tf.get_variable(<span class="string">'biases'</span>, shape=(out_depth),initializer=tf.zeros_initializer)</div><div class="line">            out = tf.nn.conv2d(x, weights, strides=[<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>], padding=<span class="string">'VALID'</span>,name=scope.name) + biases</div><div class="line">        <span class="keyword">if</span> relu:</div><div class="line">            <span class="comment"># Apply ReLu non linearity</span></div><div class="line">            relu = tf.nn.relu(out)</div><div class="line">            <span class="keyword">return</span> relu</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            <span class="keyword">return</span> out</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_fc</span><span class="params">(self, x, num_in, num_out, scope_name, relu=True)</span>:</span></div><div class="line">        <span class="string">"""Create a fully connected layer."""</span></div><div class="line">        <span class="keyword">with</span> tf.variable_scope(scope_name) <span class="keyword">as</span> scope:</div><div class="line">            <span class="keyword">with</span> tf.device(<span class="string">'/cpu:0'</span>):</div><div class="line">                <span class="comment"># Create tf variables for the weights and biases</span></div><div class="line">                weights = tf.get_variable(<span class="string">'weights'</span>, shape=[num_in, num_out],\</div><div class="line">                                          initializer=tf.random_uniform_initializer(<span class="number">-0.1</span>,<span class="number">0.1</span>))</div><div class="line">                biases = tf.get_variable(<span class="string">'biases'</span>, [num_out],\</div><div class="line">                                         initializer=tf.zeros_initializer)</div><div class="line">            <span class="comment"># Matrix multiply weights and inputs and add bias</span></div><div class="line">            out = tf.nn.xw_plus_b(x, weights, biases, name=scope.name)</div><div class="line">        <span class="keyword">if</span> relu:</div><div class="line">            <span class="comment"># Apply ReLu non linearity</span></div><div class="line">            relu = tf.nn.relu(out)</div><div class="line">            <span class="keyword">return</span> relu</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            <span class="keyword">return</span> out</div><div class="line">            </div><div class="line">mnistCNN = MNISTCNN(ksize, cnn_depth_list, mlp_depth_list, img_height, img_width, cNum, n_classes)</div><div class="line"></div><div class="line"><span class="comment"># Averaging gradients for all tower models on GPU</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">average_gradients</span><span class="params">(tower_grads)</span>:</span></div><div class="line">    <span class="string">"""Calculate the average gradient for each shared variable across all towers.</span></div><div class="line">    Note that this function provides a synchronization point across all towers.</div><div class="line">    Args:</div><div class="line">    tower_grads: List of lists of (gradient, variable) tuples. The outer list</div><div class="line">      is over individual gradients. The inner list is over the gradient</div><div class="line">      calculation for each tower.</div><div class="line">    Returns:</div><div class="line">     List of pairs of (gradient, variable) where the gradient has been averaged</div><div class="line">     across all towers.</div><div class="line">    """</div><div class="line">    average_grads = []</div><div class="line">    <span class="keyword">for</span> grad_and_vars <span class="keyword">in</span> zip(*tower_grads):</div><div class="line">        <span class="comment"># Note that each grad_and_vars looks like the following:</span></div><div class="line">        <span class="comment">#   ((grad0_gpu0, var0_gpu0), ... , (grad0_gpuN, var0_gpuN))</span></div><div class="line">        grads = []</div><div class="line">        <span class="keyword">for</span> g, _ <span class="keyword">in</span> grad_and_vars:</div><div class="line">            <span class="comment"># Add 0 dimension to the gradients to represent the tower.</span></div><div class="line">            expanded_g = tf.expand_dims(g, <span class="number">0</span>)</div><div class="line"></div><div class="line">            <span class="comment"># Append on a 'tower' dimension which we will average over below.</span></div><div class="line">            grads.append(expanded_g)</div><div class="line"></div><div class="line">        <span class="comment"># Average over the 'tower' dimension.</span></div><div class="line">        grad = tf.concat(axis=<span class="number">0</span>, values=grads)</div><div class="line">        grad = tf.reduce_mean(grad, <span class="number">0</span>)</div><div class="line"></div><div class="line">        <span class="comment"># Keep in mind that the Variables are redundant because they are shared</span></div><div class="line">        <span class="comment"># across towers. So .. we will just return the first tower's pointer to</span></div><div class="line">        <span class="comment"># the Variable.</span></div><div class="line">        v = grad_and_vars[<span class="number">0</span>][<span class="number">1</span>]</div><div class="line">        grad_and_var = (grad, v)</div><div class="line">        average_grads.append(grad_and_var)</div><div class="line">    <span class="keyword">return</span> average_grads</div><div class="line"></div><div class="line"><span class="comment"># Construct model for each GPU, where variables are shared/updated by CPU</span></div><div class="line"><span class="keyword">with</span> tf.device(<span class="string">'/cpu:0'</span>):</div><div class="line">    optimizer = tf.train.AdamOptimizer(learning_rate = rate)</div><div class="line"></div><div class="line"><span class="comment"># Calculate the gradients for each model tower.</span></div><div class="line">tower_grads = []</div><div class="line">logits_list = []</div><div class="line">feed_x = []</div><div class="line">feed_one_hot_y = []</div><div class="line">keep_prob = tf.placeholder(tf.float32) <span class="comment"># probability to keep units</span></div><div class="line"><span class="keyword">with</span> tf.variable_scope(tf.get_variable_scope()):</div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">2</span>):</div><div class="line">        <span class="keyword">with</span> tf.device(<span class="string">'/gpu:%d'</span> % i):</div><div class="line">            x = tf.placeholder(tf.float32, (<span class="keyword">None</span>, img_height, img_width, cNum))</div><div class="line">            feed_x.append(x)</div><div class="line">            one_hot_y = tf.placeholder(tf.int32, (<span class="keyword">None</span>, n_classes))</div><div class="line">            feed_one_hot_y.append(one_hot_y)</div><div class="line"></div><div class="line">            logits = mnistCNN.create(x,keep_prob)</div><div class="line">            logits_list.append(logits)</div><div class="line"></div><div class="line">            cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=one_hot_y,logits=logits)</div><div class="line">            loss_op = tf.reduce_mean(cross_entropy)</div><div class="line"></div><div class="line">            tf.get_variable_scope().reuse_variables()</div><div class="line"></div><div class="line">            <span class="comment"># Calculate the gradients for each batch of data on this model tower.</span></div><div class="line">            grads = optimizer.compute_gradients(loss_op)</div><div class="line">            <span class="comment"># Keep track of the gradients across all towers.</span></div><div class="line">            tower_grads.append(grads)</div><div class="line"></div><div class="line"><span class="keyword">with</span> tf.device(<span class="string">'/cpu:0'</span>):</div><div class="line">    <span class="comment"># We must calculate the mean of each gradient. Note that this is the</span></div><div class="line">    <span class="comment"># synchronization point across all towers.</span></div><div class="line">    grads = average_gradients(tower_grads)</div><div class="line">    </div><div class="line">    <span class="comment"># Apply the gradients to adjust the shared variables.</span></div><div class="line">    apply_gradient_op = optimizer.apply_gradients(grads)</div><div class="line">    </div><div class="line">    training_op = apply_gradient_op</div><div class="line">    </div><div class="line"><span class="string">"""</span></div><div class="line">Prediction/Inference Part</div><div class="line">"""</div><div class="line"><span class="comment"># Define accuracy evaluation, calculate the average accuracy by calling evaluate(X_data, y_data)</span></div><div class="line"><span class="comment"># Using model that in the First GPU to calculate</span></div><div class="line">correct_prediction = tf.equal(tf.argmax(logits_list[<span class="number">0</span>], axis=<span class="number">1</span>), tf.argmax(feed_one_hot_y[<span class="number">0</span>], axis=<span class="number">1</span>))</div><div class="line">accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">evaluate</span><span class="params">(X_data, y_data)</span>:</span></div><div class="line">    num_examples = len(X_data)</div><div class="line">    total_accuracy = <span class="number">0</span></div><div class="line">    sess = tf.get_default_session()</div><div class="line">    <span class="keyword">for</span> offset <span class="keyword">in</span> range(<span class="number">0</span>, num_examples, BATCH_SIZE):</div><div class="line">        batch_x, batch_y = X_data[offset:offset+BATCH_SIZE], y_data[offset:offset+BATCH_SIZE]</div><div class="line">        accuracy = sess.run(accuracy_operation, feed_dict=&#123;feed_x[<span class="number">0</span>]: batch_x, feed_one_hot_y[<span class="number">0</span>]: batch_y, keep_prob: <span class="number">1.0</span>&#125;)</div><div class="line">        total_accuracy += (accuracy * len(batch_x))</div><div class="line">    <span class="keyword">return</span> total_accuracy / num_examples</div><div class="line">    </div><div class="line"><span class="string">"""</span></div><div class="line">Run Session</div><div class="line">"""</div><div class="line"><span class="comment"># &#123;feed_x[0]:batch_x_1, feed_x[1]:batch_x_2,\</span></div><div class="line"><span class="comment"># feed_one_hot_y[0]:batch_y_1, feed_one_hot_y[1]:batch_y_1, keep_prob:drop_out_keep_prob&#125;</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">gen_feed_dict</span><span class="params">(batch_x, batch_y, drop_out_keep_prob)</span>:</span></div><div class="line">    <span class="keyword">assert</span>(len(batch_x)==len(batch_y))</div><div class="line">    <span class="keyword">assert</span>(len(batch_x)%<span class="number">2</span>==<span class="number">0</span>)</div><div class="line">    data_num = int(len(batch_x)/<span class="number">2</span>)</div><div class="line">    rtn_dict = &#123;&#125;</div><div class="line">    rtn_dict[feed_x[<span class="number">0</span>]] = batch_x[:data_num]</div><div class="line">    rtn_dict[feed_x[<span class="number">1</span>]] = batch_x[data_num:]</div><div class="line">    rtn_dict[feed_one_hot_y[<span class="number">0</span>]] = batch_y[:data_num]</div><div class="line">    rtn_dict[feed_one_hot_y[<span class="number">1</span>]] = batch_y[data_num:]</div><div class="line">    rtn_dict[keep_prob] = drop_out_keep_prob</div><div class="line">    <span class="keyword">return</span> rtn_dict</div><div class="line">    </div><div class="line"><span class="comment">### Train your model here.</span></div><div class="line"><span class="keyword">import</span> time</div><div class="line"><span class="keyword">if</span> <span class="keyword">not</span> os.path.isdir(<span class="string">'./models'</span>):</div><div class="line">    os.makedirs(<span class="string">'./models'</span>)</div><div class="line"><span class="comment">#saver = tf.train.Saver()</span></div><div class="line">accumulate_time = <span class="number">0.0</span></div><div class="line"><span class="keyword">with</span> tf.Session() <span class="keyword">as</span> sess:</div><div class="line">    sess.run(tf.global_variables_initializer())</div><div class="line">    num_examples = img_num</div><div class="line">    </div><div class="line">    print(<span class="string">"Training..."</span>)</div><div class="line">    print()</div><div class="line">    train_accuracy = np.zeros(EPOCHS)</div><div class="line">    validation_accuracy = np.zeros(EPOCHS)</div><div class="line">    stime = time.time()</div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(EPOCHS):</div><div class="line">        stime = time.time()</div><div class="line">        acc_train_accuracy = <span class="number">0</span></div><div class="line">        X_train, y_train = shuffle(images, labels1Hot)</div><div class="line">        <span class="keyword">for</span> offset <span class="keyword">in</span> range(<span class="number">0</span>, num_examples, BATCH_SIZE):</div><div class="line">            end = offset + BATCH_SIZE</div><div class="line">            batch_x, batch_y = X_train[offset:end], y_train[offset:end]</div><div class="line">            feed_dict = gen_feed_dict(batch_x, batch_y, drop_out_keep_prob)</div><div class="line">            sess.run(training_op, feed_dict=feed_dict)</div><div class="line"></div><div class="line">        etime = time.time()</div><div class="line">        accumulate_time += etime - stime</div><div class="line">        validation_accuracy[i] = evaluate(images_valid, labels1Hot_valid)</div><div class="line">        print(<span class="string">"EPOCH &#123;&#125; ..."</span>.format(i+<span class="number">1</span>))</div><div class="line">        print(<span class="string">"Validation Accuracy = &#123;:.3f&#125;"</span>.format(validation_accuracy[i]))</div><div class="line">    </div><div class="line">    print(<span class="string">'Cost time: '</span> + str(accumulate_time) + <span class="string">' sec.'</span>)</div></pre></td></tr></table></figure>
+<p>幾個注意處:</p>
+<ol>
+<li>記得建立 variables (tf.get_variable) 時要使用 <code>with tf.device(&#39;/cpu:0&#39;):</code> 確保變量是存在 cpu 內</li>
+<li><p>可以跑一小段 code:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">with</span> tf.Session(config=tf.ConfigProto(log_device_placement=<span class="keyword">True</span>)) <span class="keyword">as</span> sess:</div><div class="line">    sess.run(tf.global_variables_initializer())</div></pre></td></tr></table></figure>
+<p>來觀察變量是否正確放在 cpu 上。</p>
+</li>
+<li>延續 2. 若使用 jupyter notebook 可以這樣做 <code>jupyter notebook &gt; outputlog</code>，執行完 2. 的 code 接著 <code>cat outputlog | grep &#39;cpu&#39;</code> 觀察變量是否存在。</li>
+<li>使用 <code>collections</code> (如下) 來確認變數有正確分享 (養成好習慣)<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">trainable_collection = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)</div><div class="line">global_collection = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES)</div><div class="line">print(<span class="string">'Without Scope: len(trainable_collection)=&#123;&#125;; len(global_collection)=&#123;&#125;'</span>.format(len(trainable_collection),len(global_collection)))</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<hr>
+<h2 id="Benchmark-Results"><a href="#Benchmark-Results" class="headerlink" title="Benchmark Results"></a>Benchmark Results</h2><p><img src="/2017/11/01/TF-Notes-Speedup-and-Benchmark-with-Two-GPU-Cards/results.png" width="60%" height="60%"></p>
+<p>batch size = 128 時，使用兩張 GPU 花的時間為一張的 0.78 倍。而 batch size = 512 時的效果更明顯，為 0.69 倍。</p>
+<hr>
+<h2 id="一點小結論"><a href="#一點小結論" class="headerlink" title="一點小結論"></a>一點小結論</h2><p>這種同步的架構適合在 batch size 大的時候，效果會更明顯。實驗起來兩張卡在 512 batch size 花的時間在一張卡的 0.7 倍。<br>不過相比使用兩張卡，一張卡其實有一點優勢是在變量全部放在 GPU 上，因此省去了 CPU &lt;–&gt; GPU 的傳輸代價。這也是主要只到 0.7 倍，而沒有接近 0.5 倍的關鍵原因。</p>
+<hr>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ol>
+<li>Tensorflow 官網 <a href="https://www.tensorflow.org/tutorials/deep_cnn" target="_blank" rel="external">同步式 data Parallelism 方法</a></li>
+<li><a href="https://github.com/tensorflow/models/tree/master/tutorials/image/cifar10" target="_blank" rel="external">Tensorflow github cifar10_multi_gpu_train.py</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/TensorFlow/" rel="tag"># TensorFlow</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/10/22/A-Toy-Example-for-Teacher-Student-Domain-Adaptation/" rel="next" title="A Toy Example for Teacher Student Domain Adaptation">
+                <i class="fa fa-chevron-left"></i> A Toy Example for Teacher Student Domain Adaptation
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">分類</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Machine-Spec"><span class="nav-number">1.</span> <span class="nav-text">Machine Spec.</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#單-GPU-跑-MNIST"><span class="nav-number">2.</span> <span class="nav-text">單 GPU 跑 MNIST</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#同步式-data-Parallelism-在兩張-GPU-跑-MNIST"><span class="nav-number">3.</span> <span class="nav-text">同步式 data Parallelism 在兩張 GPU 跑 MNIST</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Benchmark-Results"><span class="nav-number">4.</span> <span class="nav-text">Benchmark Results</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一點小結論"><span class="nav-number">5.</span> <span class="nav-text">一點小結論</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">6.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
