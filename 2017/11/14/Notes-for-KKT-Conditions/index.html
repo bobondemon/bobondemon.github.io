@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="KKT,Numerical Optimization," />
 
 
 
@@ -87,16 +87,19 @@
 
 
 
-<meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.">
+<meta name="description" content="2011年自己做的筆記, 放上來以免檔案丟失, 也方便隨時參考. 參考自 “Numerical Optimization” by Jorge Nocedal and Stephen J. Wright.
+就像是一般微積分裡學到的一樣, 對於一個函式 $f(x)$ 若 $x^\ast$ 為一 minimal/maximum point, 則 $f’(x^\ast)=0$. 而如果有了一些 等">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello World">
-<meta property="og:url" content="http://yoursite.com/2017/01/08/hello-world/index.html">
+<meta property="og:title" content="Notes for KKT Conditions (未完成)">
+<meta property="og:url" content="http://yoursite.com/2017/11/14/Notes-for-KKT-Conditions/index.html">
 <meta property="og:site_name" content="棒棒生">
-<meta property="og:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.">
-<meta property="og:updated_time" content="2017-03-15T16:00:21.318Z">
+<meta property="og:description" content="2011年自己做的筆記, 放上來以免檔案丟失, 也方便隨時參考. 參考自 “Numerical Optimization” by Jorge Nocedal and Stephen J. Wright.
+就像是一般微積分裡學到的一樣, 對於一個函式 $f(x)$ 若 $x^\ast$ 為一 minimal/maximum point, 則 $f’(x^\ast)=0$. 而如果有了一些 等">
+<meta property="og:updated_time" content="2017-11-14T15:40:39.261Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hello World">
-<meta name="twitter:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.">
+<meta name="twitter:title" content="Notes for KKT Conditions (未完成)">
+<meta name="twitter:description" content="2011年自己做的筆記, 放上來以免檔案丟失, 也方便隨時參考. 參考自 “Numerical Optimization” by Jorge Nocedal and Stephen J. Wright.
+就像是一般微積分裡學到的一樣, 對於一個函式 $f(x)$ 若 $x^\ast$ 為一 minimal/maximum point, 則 $f’(x^\ast)=0$. 而如果有了一些 等">
 
 
 
@@ -124,13 +127,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/01/08/hello-world/"/>
+  <link rel="canonical" href="http://yoursite.com/2017/11/14/Notes-for-KKT-Conditions/"/>
 
 
 
 
 
-  <title> Hello World | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  <title> Notes for KKT Conditions (未完成) | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
@@ -259,7 +262,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/01/08/hello-world/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/11/14/Notes-for-KKT-Conditions/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -280,7 +283,7 @@
             
             
               
-                Hello World
+                Notes for KKT Conditions (未完成)
               
             
           </h1>
@@ -295,8 +298,8 @@
               
                 <span class="post-meta-item-text">發表於</span>
               
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2017-01-08T21:43:07+08:00">
-                2017-01-08
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2017-11-14T21:36:40+08:00">
+                2017-11-14
               </time>
             
 
@@ -318,8 +321,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/雜/" itemprop="url" rel="index">
-                    <span itemprop="name">雜</span>
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
                   </a>
                 </span>
 
@@ -353,16 +356,71 @@
       
 
       
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>2011年自己做的筆記, 放上來以免檔案丟失, 也方便隨時參考. 參考自 “Numerical Optimization” by Jorge Nocedal and Stephen J. Wright.</p>
+<p>就像是一般微積分裡學到的一樣, 對於一個函式 $f(x)$ 若 $x^\ast$ 為一 minimal/maximum point, 則 $f’(x^\ast)=0$. 而如果有了一些 <strong>等式或不等式的條件</strong>, 若 $x^\ast$ 為一 minimal/maximum point, 則變成滿足 KKT Conditions.</p>
+<p>具體來說，我們要探討的是對於以下的問題，如果 $x^\ast$ 為一 minimal point 且滿足式 (2) 的條件, 則會發生什麼事情 (我們找的是<strong>必要條件</strong>)</p>
+<blockquote>
+<span>$$\begin{align} 
+\min f(x) \\
+s.t. \begin{array}{rcl}
+c_i(x)=0,i \in \mathbf{E} \\
+c_i(x)\geq 0, i \in \mathbf{I} \\
+\end{array}
+\end{align}$$</span><!-- Has MathJax -->
+</blockquote>
 <a id="more"></a>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo new <span class="string">"My New Post"</span></div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo server</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo generate</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo deploy</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+<h3 id="Descent-Direction"><a href="#Descent-Direction" class="headerlink" title="Descent Direction"></a>Descent Direction</h3><p>一般這樣的問題不會有 closed form solution, 因此會使用數值最佳化的方式, 找出一個 sequence ${x<em>k}$ 來逼近 $x^\ast$. 問題是如何讓這樣的 sequence 逼近一個 (local) minimum ? 一個嘗試是至少先讓找到的每一個 $x</em>{k+1}$ 都比前一步更好. 換句話說就是要保證找到的 $x<em>{k+1}$ 滿足 $f(x</em>{k+1})&lt;f(x_k)$.</p>
+<p>有了這個想法, 再來就是該怎麼找下一個點, 或是說, 基於現在的點 $x_k$, 該往哪個方向 $d$, 走多遠 $t$? 也因此，我們也就衍生了一個問題, <strong>往哪個方向走函數值會保證下降 (descent direction)</strong>?</p>
+<p>descent direction 保證了該方向上只要不要走太大步, 目標函數值一定會下降, 反過來說, 如果 $x^\ast$ 已經是 (local) minimum 了, 在該點上不應該存在 descent direction. 基於上述的討論, 我們有必要了解清楚 descent direction. 定義如下</p>
+<blockquote>
+<p>[Def]:<br>令 $f \in C^1(\mathbb{R}^n,\mathbb{R})$, 我們稱 $d$ 為 $x_0$ 的一個 descent direction 如果滿足: $\exists t&gt;0$, such that $f(x_0+sd)&lt;f(x_0),\forall s \leq t$</p>
+</blockquote>
+<p>其實很容易證得: 只要該方向 $d$ 跟 gradient $\triangledown f(x_0)$ 方向相反, 就會是 $x_0$ 的一個 descent direction</p>
+<blockquote>
+<p>[Thm1]:<br>令 $f \in C^1(\mathbb{R}^n,\mathbb{R})$, 如果滿足 $\triangledown f(x_0)^Td<0$ 則="" $d$="" 就會是="" $x_0$="" 的一個="" descent="" direction="" [pf]:="" 由微分的定義出發="" <span="">$$\lim_{t\rightarrow 0^+}\frac{f(x_0+td)-f(x_0)-\triangledown f(x_0)^Ttd}{\parallel td \parallel}=0 \\
+\Rightarrow \lim_{t\rightarrow 0^+}\frac{f(x_0+td)-f(x_0)}{t \parallel d \parallel}=\triangledown f(x_0)^T\frac{d}{\parallel d \parallel} \\
+\Rightarrow \lim_{t\rightarrow 0^+}\frac{f(x_0+td)-f(x_0)}{t}=\triangledown f(x_0)^Td&lt;0 \\
+\Rightarrow \exists t&gt;0,s.t.,f(x_0+sd)-f(x_0)&lt;0,for\forall s \leq t \\
+\Rightarrow \exists t&gt;0,s.t.,f(x_0+sd)&lt;f(x_0),for\forall s \leq t$$<!-- Has MathJax --></0$></p>
+</blockquote>
+<p>很明顯 steepest descent $d=-\triangledown f(x_0)$ 是 descent direction. 其實只要滿足這種形式 $d=-B\triangledown f(x_0)$ 當 $B$ 是正定，就會是 descent direction. 而當 B 定義為 $\triangledown ^2 f(x_0)$ (Hessian Matrix 是半正定, 通常是 full rank 就會正定), 這種形式就是牛頓法 $d=−\triangledown ^2 f(x_0)\triangledown f (x_0)$</p>
+<p>不過我們今天要處理的是 constrained opt, 會有等式或不等式的條件, 因此我們的搜尋空間只能在滿足這些條件下去搜尋, 稱該空間為 feasible set = {x|x滿足所有(2)式的條件}. 可以想像, 在 feasible set 的限制下, 能搜尋的 direction 會被限制. 因此 “Numerical Optimization” 這本書就展開了一系列的討論和證明, 可以得到在這個 feasible set 下, 這些 <em>能搜尋的方向(我們稱為 limiting direction)所構成的集合</em> 究竟長什麼樣. 且發生在最佳解上的 limiting directions 都不會是 descent direction (合理, 不然就找到更佳的解了).</p>
+<p>此外, 看課本的話, 會繞更大一圈才會知道什麼是 KKT Conditions (但是相當嚴謹且豐富). 為了清楚了解 KKT, 我們繞過課本的方法, 完全採用微積分學過的 <a href="https://en.wikipedia.org/wiki/Lagrange_multiplier" target="_blank" rel="external">Lagrange Multiplier Theorem</a> 來說明.</p>
+<h3 id="了解-KKT-Conditions"><a href="#了解-KKT-Conditions" class="headerlink" title="了解 KKT Conditions"></a>了解 KKT Conditions</h3><h4 id="限制條件為等式"><a href="#限制條件為等式" class="headerlink" title="限制條件為等式"></a>限制條件為等式</h4><p>其實 KKT 的表達全部圍繞在 Lagrange Multiplier Theorem 上. 一般課本上講的都是等式條件, 我們列出高維課本裏頭的定理:</p>
+<blockquote>
+<p>[Thm2]:</p>
+</blockquote>
+<p>考慮以下問題</p>
+<blockquote>
+<span>$$\min f(x) \\
+s.t. \begin{array}{rcl}
+c(x)=0 \\
+\end{array}$$</span><!-- Has MathJax -->
+</blockquote>
+<p>我們可以得到, 若 $x^\ast$ 為一個 local minimum 則滿足 $\triangledown f(x^\ast)=\lambda\triangledown c(x^\ast)$, for some $\lambda$<br>此時的 $\lambda$ 正負都有可能, 也就說明了兩個 gradients 是平行的. 用圖來說明如下:</p>
+<h4 id="限制條件為不等式"><a href="#限制條件為不等式" class="headerlink" title="限制條件為不等式"></a>限制條件為不等式</h4><p>考慮以下問題</p>
+<blockquote>
+<span>$$\min f(x) \\
+s.t. \begin{array}{rcl}
+c(x)\geq 0 \\
+\end{array}$$</span><!-- Has MathJax -->
+</blockquote>
+<p>當 $x^\ast$ 為一個 local minimum 會發生什麼事? 分成兩種情況討論:</p>
+<ol>
+<li>$c(x^\ast)=0$</li>
+<li>$c(x^\ast)&gt;0$</li>
+</ol>
+<p>第一種情況就退化成條件為等式的情形. 因此存在 $\lambda$ 滿足 $\triangledown f(x^\ast)=\lambda\triangledown c(x^\ast)$. 如果 $\lambda&lt;0$, 導致 $\triangledown c(x^\ast)$ 跟 $\triangledown f(x^\ast)$ 反方向的話, $\triangledown c(x^\ast)^T\triangledown f(x^\ast)&lt;0$ 導致 $\triangledown c(x^\ast)$ 變成一個 desent direction.<br>則表示我們可以找到一個方向使得目標函數值下降且同時讓條件函數值上升(因此仍然是 feasible), 那麼與 $x^\ast$ 是 local minimum 矛盾.<br>因此得到的結論是 $\triangledown c(x^\ast)$ 跟 $\triangledown f(x^\ast)$ 同方向, i.e., $\lambda\geq 0$. 圖示如下:</p>
+<p>第二種情況是退化成 unconstrained opt, 因為 $x^\ast$ 是在 feasible set 內, 換句話說 $x^\ast$ 是 feasible set 的 interior point. 既然是 unconstrained opt, 且 $x^\ast$ 為 local minimum, 則表示 $\triangledown f(x^\ast)=0$, 所以當然也可以寫成 $\triangledown f(x^\ast)=\lambda\triangledown c(x^\ast)$ 只不過此時的 $\lambda=0$</p>
+<p>所以不管是第一種或是第二種情形, 我們都可以寫成</p>
+<blockquote>
+<p>存在 $\lambda\geq 0$ 滿足 $\triangledown f(x^\ast)=\lambda\triangledown c(x^\ast)$</p>
+</blockquote>
+<h3 id="KKT-Conditions"><a href="#KKT-Conditions" class="headerlink" title="KKT Conditions"></a>KKT Conditions</h3><p>[To be continued …]</p>
 
       
     </div>
@@ -390,6 +448,14 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/KKT/" rel="tag"># KKT</a>
+          
+            <a href="/tags/Numerical-Optimization/" rel="tag"># Numerical Optimization</a>
+          
+        </div>
+      
 
       
         
@@ -399,15 +465,15 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
+              <a href="/2017/11/01/TF-Notes-Speedup-and-Benchmark-with-Two-GPU-Cards/" rel="next" title="TF Notes (2), Speedup and Benchmark with Two GPU Cards">
+                <i class="fa fa-chevron-left"></i> TF Notes (2), Speedup and Benchmark with Two GPU Cards
+              </a>
+            
           </div>
 
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/01/08/chinese-encoding/" rel="prev" title="Hexo 中文顯示 and Markdown 測試">
-                Hexo 中文顯示 and Markdown 測試 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -536,7 +602,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Quick-Start"><span class="nav-number">1.</span> <span class="nav-text">Quick Start</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Create-a-new-post"><span class="nav-number">1.1.</span> <span class="nav-text">Create a new post</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Run-server"><span class="nav-number">1.2.</span> <span class="nav-text">Run server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Generate-static-files"><span class="nav-number">1.3.</span> <span class="nav-text">Generate static files</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Deploy-to-remote-sites"><span class="nav-number">1.4.</span> <span class="nav-text">Deploy to remote sites</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Descent-Direction"><span class="nav-number">1.</span> <span class="nav-text">Descent Direction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#了解-KKT-Conditions"><span class="nav-number">2.</span> <span class="nav-text">了解 KKT Conditions</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#限制條件為等式"><span class="nav-number">2.1.</span> <span class="nav-text">限制條件為等式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#限制條件為不等式"><span class="nav-number">2.2.</span> <span class="nav-text">限制條件為不等式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#KKT-Conditions"><span class="nav-number">3.</span> <span class="nav-text">KKT Conditions</span></a></li></ol></div>
             
 
           </div>
