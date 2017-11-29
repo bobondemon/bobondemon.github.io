@@ -1,0 +1,820 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="TensorFlow," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="這篇介紹 computational graph (計算圖譜), 主要來源參考自李宏毅教授的課程內容. 並且我們使用 tensorflow 的求導函數 tf.gradients 來驗證 computational graph. 最後我們在 MNIST 上驗證整個 DNN/CNN 的 backpropagation 可以利用 computational graph 的計算方式訓練.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TF Notes (3), Computational Graph in Tensorflow">
+<meta property="og:url" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="這篇介紹 computational graph (計算圖譜), 主要來源參考自李宏毅教授的課程內容. 並且我們使用 tensorflow 的求導函數 tf.gradients 來驗證 computational graph. 最後我們在 MNIST 上驗證整個 DNN/CNN 的 backpropagation 可以利用 computational graph 的計算方式訓練.">
+<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/cover.gif">
+<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic1.png">
+<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic2.png">
+<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic3.png">
+<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic4.png">
+<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic5.png">
+<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic6.png">
+<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic7.png">
+<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic8.png">
+<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic9.png">
+<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic10.png">
+<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic11.png">
+<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic12.png">
+<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic13.png">
+<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic14.png">
+<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic15.png">
+<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic15.png">
+<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic17.png">
+<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic18.png">
+<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic19.png">
+<meta property="og:updated_time" content="2017-11-29T18:54:08.016Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="TF Notes (3), Computational Graph in Tensorflow">
+<meta name="twitter:description" content="這篇介紹 computational graph (計算圖譜), 主要來源參考自李宏毅教授的課程內容. 並且我們使用 tensorflow 的求導函數 tf.gradients 來驗證 computational graph. 最後我們在 MNIST 上驗證整個 DNN/CNN 的 backpropagation 可以利用 computational graph 的計算方式訓練.">
+<meta name="twitter:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/cover.gif">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/"/>
+
+
+
+
+
+  <title> TF Notes (3), Computational Graph in Tensorflow | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                TF Notes (3), Computational Graph in Tensorflow
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2017-11-29T20:36:59+08:00">
+                2017-11-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>這篇介紹 computational graph (計算圖譜), 主要來源參考自李宏毅教授的<a href="https://www.youtube.com/watch?v=-yhm3WdGFok" target="_blank" rel="external">課程內容</a>. 並且我們使用 tensorflow 的求導函數 <code>tf.gradients</code> 來驗證 computational graph. 最後我們在 MNIST 上驗證整個 DNN/CNN 的 backpropagation 可以利用 computational graph 的計算方式訓練.</p>
+<p><img src="/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/cover.gif" width="80%" height="80%"></p>
+<a id="more"></a>
+<hr>
+<h2 id="Computational-Graph"><a href="#Computational-Graph" class="headerlink" title="Computational Graph"></a>Computational Graph</h2><p>主要就截圖李教授的投影片, 一個 computational graph 的 node 和 edge 可以定義如下</p>
+<p><img src="/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic1.png" width="60%" height="60%"></p>
+<p>對於 chain rule 的話, 我們的計算圖譜可以這麼畫</p>
+<p><img src="/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic2.png" width="60%" height="60%"></p>
+<p>其實就是 chain rule 用這樣的圖形表示. 比較要注意的就是 case 2 的情況, 由於 $x$ and $y$ 都會被 $s$ 影響, 因此計算 gradients 時要累加兩條路徑.</p>
+<p>再來另一項要注意的是如果有 share variables 我們的計算圖譜該怎麼表示呢 ? 舉例來說如下的函式<br><span>$y=x\cdot e^{x^2}$</span><!-- Has MathJax --></p>
+<p>計算圖譜畫出來長這樣</p>
+<p><img src="/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic3.png" width="60%" height="60%"></p>
+<p>簡單來說把相同變數的 nodes 上所有的路徑都相加起來. 上面的範例就是計算 $\frac{\partial y}{\partial x}$ 時, 有三條路徑是從 node $x$ 出發最終會影響到 node $y$ 的, 讀者應該可以很容易看出來.</p>
+<p>另外如果分別計算這三條路徑, 其實很多 edges 的求導結果會重複, 因此從 $x$ 出發計算到 $y$ 會很沒有效率, 所以反過來 (Reverse mode) 從 root ($y$) 出發, 反向找出要求的 nodes ($x$) 就可以避免很多重複運算.</p>
+<hr>
+<h2 id="Verify-with-Tensorflow"><a href="#Verify-with-Tensorflow" class="headerlink" title="Verify with Tensorflow"></a>Verify with Tensorflow</h2><p>考慮以下範例, 其中 $&lt;,&gt;$ 表示內積, $a$, $b$, 和 $1$ 都是屬於 $R^3$ 的向量. 它的計算圖譜如下:</p>
+<p><img src="/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic4.png" width="40%" height="40%"><br><img src="/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic5.png" width="40%" height="40%"></p>
+<p>在 Tensorflow 中, <a href="https://www.tensorflow.org/api_docs/python/tf/gradients" target="_blank" rel="external"><code>tf.gradients</code></a> 可以幫助計算 gradients. 舉例來說如果我們要計算 $\frac{\partial e}{\partial c}$, 我們只要這樣呼叫即可 <code>ge_c=tf.gradients(ys=e,xs=c)</code>. 為了方便, 我們將 $\frac{\partial y}{\partial x}$ 在程式裡命名為 <code>gy_x</code>.</p>
+<p>下面這段 codes 計算出上圖 5 個 edges 的 gradients:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</div><div class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</div><div class="line"></div><div class="line">a = tf.placeholder(tf.float32, shape=(<span class="number">1</span>,<span class="number">3</span>))</div><div class="line">b = tf.placeholder(tf.float32, shape=(<span class="number">1</span>,<span class="number">3</span>))</div><div class="line"></div><div class="line">c = a + b</div><div class="line">d = b + <span class="number">1</span></div><div class="line">e = tf.matmul(c,d,transpose_b=<span class="keyword">True</span>)</div><div class="line"></div><div class="line">ge_c, ge_d = tf.gradients(ys=e,xs=[c,d])</div><div class="line">gc_a, gc_b = tf.gradients(ys=c,xs=[a,b])</div><div class="line">gd_b = tf.gradients(ys=d,xs=b)</div><div class="line"></div><div class="line"><span class="keyword">with</span> tf.Session() <span class="keyword">as</span> sess:</div><div class="line">    sess.run(tf.global_variables_initializer())</div><div class="line">    gec, ged, gca, gcb, gdb = sess.run([ge_c, ge_d, gc_a, gc_b, gd_b],feed_dict=&#123;a:[[<span class="number">2</span>,<span class="number">1</span>,<span class="number">0</span>]],b:[[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]]&#125;)</div><div class="line">    print(<span class="string">'ge_c=&#123;&#125;\nge_d=&#123;&#125;\ngc_a=&#123;&#125;\ngc_b=&#123;&#125;\ngd_b=&#123;&#125;'</span>.format(gec, ged, gca, gcb, gdb))</div></pre></td></tr></table></figure>
+<p>計算結果為</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">ge_c=[[ <span class="number">2.</span>  <span class="number">3.</span>  <span class="number">4.</span>]]</div><div class="line">ge_d=[[ <span class="number">3.</span>  <span class="number">3.</span>  <span class="number">3.</span>]]</div><div class="line">gc_a=[[ <span class="number">1.</span>  <span class="number">1.</span>  <span class="number">1.</span>]]</div><div class="line">gc_b=[[ <span class="number">1.</span>  <span class="number">1.</span>  <span class="number">1.</span>]]</div><div class="line">gd_b=[array([[ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>]], dtype=float32)]</div></pre></td></tr></table></figure>
+<p>可以自己手算驗證一下, 結果當然是對的 (使用 <a href="https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant" target="_blank" rel="external">Jacobian matrix</a> 計算)</p>
+<p>所以我們如果要得到 $\frac{\partial e}{\partial b}$, 我們只要算 <code>ge_c*gc_b + ge_d*gd_b</code> 就可以了. 不過這樣自己把相同路徑做相乘，不同路徑做相加, 太麻煩了! 其實有更好的方法.</p>
+<p>對於同一條路徑做相乘, <code>tf.gradients</code> 有一個 arguments 是 <code>grad_ys</code> 就可以很容易做到.</p>
+<blockquote>
+<p><code>tf.gradients(ys=,xs=,grad_ys=)</code></p>
+</blockquote>
+<p>以下圖來說明</p>
+<p><img src="/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic6.png" width="60%" height="60%"></p>
+<p>但事實上根本也不用這麼麻煩, 除非是遇到很特殊的狀況, 否則我們直接呼叫 <code>tf.gradients(c,a)</code>, tensorflow 就會直接幫我們把<strong>同樣路徑的 gradients 做相乘, 不同路徑的 gradients 結果做相加</strong>了! 所以上面就直接呼叫 <code>tf.gradients(c,a)</code> 其實也就等於 <code>gb_a2</code> 了.</p>
+<p>最後回到開始的 e=<a+b,b+1> 的範例, 如果要計算 $\frac{\partial e}{\partial b}$, 照原本提供的 codes 需要計算三條路徑各自相乘後再相加, 其實只要直接呼叫 <code>ge_b=tf.gradients(e,b)</code> 就完成這件事了 (<code>ge_c*gc_b + ge_d*gd_b</code>)</a+b,b+1></p>
+<hr>
+<h2 id="MNIST-用計算圖譜計算-back-propagation"><a href="#MNIST-用計算圖譜計算-back-propagation" class="headerlink" title="MNIST 用計算圖譜計算 back propagation"></a>MNIST 用計算圖譜計算 back propagation</h2><h3 id="DNN-的計算圖譜"><a href="#DNN-的計算圖譜" class="headerlink" title="DNN 的計算圖譜"></a>DNN 的計算圖譜</h3><p>為了清楚了解 Neural network 的 backpropagation 如何用 computational graph 來計算 gradients 並進而 update 參數, 我們不使用 tf.optimizer 幫我們自動計算. 一個 3 layers fo MLP-DNN 的計算圖譜我們可以這樣表示:</p>
+<p><img src="/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic7.png" width="60%" height="60%"></p>
+<p>圖裡的參數直接對應了程式碼裡的命名, 因此可以很方便對照. 其中 tensorflow 裡參數的名字跟數學上的對應如下:</p>
+<span>$$\begin{align}
+gll=\frac{\partial \mbox{loss}}{\partial \mbox{logits}} \\
+gly2=\frac{\partial \mbox{logits}}{\partial y2}gll \\
+gy2y1=\frac{\partial y2}{\partial y1}gly2 \\
+gy1y0=\frac{\partial y1}{\partial y0}gy2y1 \\
+(glw3,glb3)=(\frac{\partial \mbox{logits}}{\partial w3}gll,\frac{\partial \mbox{logits}}{\partial b3}gll) \\
+(gy2w2,gy2b2)=(\frac{\partial y2}{\partial w2}gly2,\frac{\partial y2}{\partial b2}gly2) \\
+(gy1w1,gy1b1)=(\frac{\partial y1}{\partial w1}gy2y1,\frac{\partial y1}{\partial b1}gy2y1) \\
+(gy0w0,gy0b0)=(\frac{\partial y0}{\partial w0}gy1y0,\frac{\partial y0}{\partial b0}gy1y0)
+\end{align}$$</span><!-- Has MathJax -->
+<p>相對應的 tensorflow 代碼如下:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">gll = tf.gradients(ys=loss,xs=logits)</div><div class="line">gly2 = tf.gradients(ys=logits,xs=y2,grad_ys=gll)</div><div class="line">gy2y1 = tf.gradients(ys=y2,xs=y1,grad_ys=gly2)</div><div class="line">gy1y0 = tf.gradients(ys=y1,xs=y0,grad_ys=gy2y1)</div><div class="line"></div><div class="line">glw3 = tf.gradients(ys=logits,xs=w3,grad_ys=gll)</div><div class="line">glb3 = tf.gradients(ys=logits,xs=b3,grad_ys=gll)</div><div class="line"></div><div class="line">gy2w2 = tf.gradients(ys=y2,xs=w2,grad_ys=gly2)</div><div class="line">gy2b2 = tf.gradients(ys=y2,xs=b2,grad_ys=gly2)</div><div class="line"></div><div class="line">gy1w1 = tf.gradients(ys=y1,xs=w1,grad_ys=gy2y1)</div><div class="line">gy1b1 = tf.gradients(ys=y1,xs=b1,grad_ys=gy2y1)</div><div class="line"></div><div class="line">gy0w0 = tf.gradients(ys=y0,xs=w0,grad_ys=gy1y0)</div><div class="line">gy0b0 = tf.gradients(ys=y0,xs=b0,grad_ys=gy1y0)</div></pre></td></tr></table></figure></p>
+<p>用圖來表示為:</p>
+<p><img src="/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic8.png" width="40%" height="40%"><img src="/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic9.png" width="40%" height="40%"><img src="/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic10.png" width="40%" height="40%"><br><img src="/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic11.png" width="40%" height="40%"><img src="/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic12.png" width="40%" height="40%"><img src="/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic13.png" width="40%" height="40%"><br><img src="/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic14.png" width="40%" height="40%"><img src="/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic15.png" width="40%" height="40%"><img src="/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic15.png" width="40%" height="40%"><br><img src="/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic17.png" width="40%" height="40%"><img src="/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic18.png" width="40%" height="40%"><img src="/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic19.png" width="40%" height="40%"></p>
+<h3 id="Tensorflow-程式碼"><a href="#Tensorflow-程式碼" class="headerlink" title="Tensorflow 程式碼"></a>Tensorflow 程式碼</h3><p>用上面一段的方式計算出所需參數的 gradients 後, update 使用最單純的 steepest descent, 這部分程式碼如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">update_w3 = tf.assign_add(w3,-rate*glw3[<span class="number">0</span>])</div><div class="line">update_b3 = tf.assign_add(b3,-rate*glb3[<span class="number">0</span>])</div><div class="line"></div><div class="line">update_w2 = tf.assign_add(w2,-rate*gy2w2[<span class="number">0</span>])</div><div class="line">update_b2 = tf.assign_add(b2,-rate*gy2b2[<span class="number">0</span>])</div><div class="line"></div><div class="line">update_w1 = tf.assign_add(w1,-rate*gy1w1[<span class="number">0</span>])</div><div class="line">update_b1 = tf.assign_add(b1,-rate*gy1b1[<span class="number">0</span>])</div><div class="line"></div><div class="line">update_w0 = tf.assign_add(w0,-rate*gy0w0[<span class="number">0</span>])</div><div class="line">update_b0 = tf.assign_add(b0,-rate*gy0b0[<span class="number">0</span>])</div><div class="line"></div><div class="line">training_operation = [update_w3, update_b3, update_w2, update_b2, update_w1, update_b1, update_w0, update_b0]</div></pre></td></tr></table></figure>
+<p>完整程式碼如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> os</div><div class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</div><div class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</div><div class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</div><div class="line"><span class="keyword">from</span> tensorflow.contrib.layers <span class="keyword">import</span> flatten</div><div class="line"><span class="keyword">from</span> tensorflow.examples.tutorials.mnist <span class="keyword">import</span> input_data</div><div class="line"><span class="keyword">from</span> sklearn.utils <span class="keyword">import</span> shuffle</div><div class="line"><span class="string">"""</span></div><div class="line">Data Loading</div><div class="line">"""</div><div class="line">dataPath=<span class="string">'../dataset/MNIST_data/'</span></div><div class="line">mnist = input_data.read_data_sets(dataPath, one_hot=<span class="keyword">True</span>)</div><div class="line"><span class="comment"># read the images and reformat the image shape from [img_num,img_height,img_width] to [img_num,img_height,img_width,1]</span></div><div class="line">img_width = <span class="number">28</span></div><div class="line">img_height = <span class="number">28</span></div><div class="line">images = mnist.train.images</div><div class="line">img_num, _ = images.shape</div><div class="line">images = np.reshape(images,(img_num,img_height,img_width))</div><div class="line">images = images[...,np.newaxis]</div><div class="line">print(<span class="string">'(Input to CNN) Images with shape &#123;&#125;'</span>.format(images.shape))</div><div class="line"><span class="comment"># read the labels</span></div><div class="line">labels1Hot = mnist.train.labels</div><div class="line">print(<span class="string">'(Input to CNN) labels1Hot.shape = &#123;&#125;'</span>.format(labels1Hot.shape))</div><div class="line">labels = np.argmax(labels1Hot,axis=<span class="number">1</span>)</div><div class="line">labels = labels[...,np.newaxis]</div><div class="line">print(<span class="string">'labels.shape = &#123;&#125;'</span>.format(labels.shape))</div><div class="line">n_classes = len(np.unique(labels))</div><div class="line"><span class="comment"># load the validation set</span></div><div class="line">images_valid = mnist.validation.images</div><div class="line">img_num_valid = len(images_valid)</div><div class="line">images_valid = np.reshape(images_valid,(img_num_valid,img_height,img_width))</div><div class="line">images_valid = images_valid[...,np.newaxis]</div><div class="line">labels1Hot_valid = mnist.validation.labels</div><div class="line">print(<span class="string">'Having %d number of validation images'</span> % img_num_valid)</div><div class="line"><span class="comment"># plotting sample images</span></div><div class="line">plt.figure(figsize=(<span class="number">15</span>,<span class="number">5</span>))</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> np.arange(<span class="number">2</span>*<span class="number">7</span>):</div><div class="line">    random_idx = np.random.randint(<span class="number">0</span>,img_num)</div><div class="line">    plt.subplot(<span class="number">2</span>,<span class="number">7</span>,i+<span class="number">1</span>)</div><div class="line">    plt.imshow(images[random_idx][...,<span class="number">0</span>],cmap=<span class="string">'gray'</span>)</div><div class="line">    plt.title(labels[random_idx][<span class="number">0</span>])</div><div class="line"><span class="string">"""</span></div><div class="line">First define the hyper-parameters</div><div class="line">"""</div><div class="line"><span class="comment"># Hyper-parameters</span></div><div class="line">EPOCHS = <span class="number">30</span></div><div class="line">BATCH_SIZE = <span class="number">512</span></div><div class="line">rate = <span class="number">0.01</span></div><div class="line">depth_list = [<span class="number">512</span>, <span class="number">256</span>, <span class="number">128</span>]</div><div class="line">cNum = <span class="number">1</span></div><div class="line"><span class="string">"""</span></div><div class="line">Define the input output tensors</div><div class="line">"""</div><div class="line"><span class="comment"># using one-hot decoding</span></div><div class="line">x = tf.placeholder(tf.float32, (<span class="keyword">None</span>, img_height, img_width, cNum))</div><div class="line">one_hot_y = tf.placeholder(tf.int32, (<span class="keyword">None</span>, n_classes))</div><div class="line"><span class="comment">#one_hot_y = tf.one_hot(y, n_classes)</span></div><div class="line"></div><div class="line"><span class="string">"""</span></div><div class="line">Define the graph and construct it</div><div class="line">"""</div><div class="line"></div><div class="line">z0 = flatten(x)</div><div class="line"></div><div class="line">w0 = tf.get_variable(<span class="string">'w0'</span>, shape=[img_width*img_height, depth_list[<span class="number">0</span>]], initializer=tf.random_uniform_initializer(<span class="number">-0.1</span>,<span class="number">0.1</span>))</div><div class="line">b0 = tf.get_variable(<span class="string">'b0'</span>, [depth_list[<span class="number">0</span>]], initializer=tf.zeros_initializer)</div><div class="line">y0 = tf.nn.xw_plus_b(z0, w0, b0)</div><div class="line">z1 = tf.nn.relu(y0)</div><div class="line"></div><div class="line">w1 = tf.get_variable(<span class="string">'w1'</span>, shape=[depth_list[<span class="number">0</span>], depth_list[<span class="number">1</span>]], initializer=tf.random_uniform_initializer(<span class="number">-0.1</span>,<span class="number">0.1</span>))</div><div class="line">b1 = tf.get_variable(<span class="string">'b1'</span>, [depth_list[<span class="number">1</span>]], initializer=tf.zeros_initializer)</div><div class="line">y1 = tf.nn.xw_plus_b(z1, w1, b1)</div><div class="line">z2 = tf.nn.relu(y1)</div><div class="line"></div><div class="line">w2 = tf.get_variable(<span class="string">'w2'</span>, shape=[depth_list[<span class="number">1</span>], depth_list[<span class="number">2</span>]], initializer=tf.random_uniform_initializer(<span class="number">-0.1</span>,<span class="number">0.1</span>))</div><div class="line">b2 = tf.get_variable(<span class="string">'b2'</span>, [depth_list[<span class="number">2</span>]], initializer=tf.zeros_initializer)</div><div class="line">y2 = tf.nn.xw_plus_b(z2, w2, b2)</div><div class="line">z3 = tf.nn.relu(y2)</div><div class="line"></div><div class="line">w3 = tf.get_variable(<span class="string">'w3'</span>, shape=[depth_list[<span class="number">2</span>], n_classes], initializer=tf.random_uniform_initializer(<span class="number">-0.1</span>,<span class="number">0.1</span>))</div><div class="line">b3 = tf.get_variable(<span class="string">'b3'</span>, [n_classes], initializer=tf.zeros_initializer)</div><div class="line">logits = tf.nn.xw_plus_b(z3, w3, b3)</div><div class="line"></div><div class="line">cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=one_hot_y,logits=logits)</div><div class="line">loss = tf.reduce_mean(cross_entropy)</div><div class="line"></div><div class="line"><span class="string">"""</span></div><div class="line">Define gradients</div><div class="line">"""</div><div class="line"></div><div class="line"></div><div class="line">gll = tf.gradients(ys=loss,xs=logits)</div><div class="line">gly2 = tf.gradients(ys=logits,xs=y2,grad_ys=gll)</div><div class="line">gy2y1 = tf.gradients(ys=y2,xs=y1,grad_ys=gly2)</div><div class="line">gy1y0 = tf.gradients(ys=y1,xs=y0,grad_ys=gy2y1)</div><div class="line"></div><div class="line">glw3 = tf.gradients(ys=logits,xs=w3,grad_ys=gll)</div><div class="line">glb3 = tf.gradients(ys=logits,xs=b3,grad_ys=gll)</div><div class="line"></div><div class="line">gy2w2 = tf.gradients(ys=y2,xs=w2,grad_ys=gly2)</div><div class="line">gy2b2 = tf.gradients(ys=y2,xs=b2,grad_ys=gly2)</div><div class="line"></div><div class="line">gy1w1 = tf.gradients(ys=y1,xs=w1,grad_ys=gy2y1)</div><div class="line">gy1b1 = tf.gradients(ys=y1,xs=b1,grad_ys=gy2y1)</div><div class="line"></div><div class="line">gy0w0 = tf.gradients(ys=y0,xs=w0,grad_ys=gy1y0)</div><div class="line">gy0b0 = tf.gradients(ys=y0,xs=b0,grad_ys=gy1y0)</div><div class="line"></div><div class="line">update_w3 = tf.assign_add(w3,-rate*glw3[<span class="number">0</span>])</div><div class="line">update_b3 = tf.assign_add(b3,-rate*glb3[<span class="number">0</span>])</div><div class="line"></div><div class="line">update_w2 = tf.assign_add(w2,-rate*gy2w2[<span class="number">0</span>])</div><div class="line">update_b2 = tf.assign_add(b2,-rate*gy2b2[<span class="number">0</span>])</div><div class="line"></div><div class="line">update_w1 = tf.assign_add(w1,-rate*gy1w1[<span class="number">0</span>])</div><div class="line">update_b1 = tf.assign_add(b1,-rate*gy1b1[<span class="number">0</span>])</div><div class="line"></div><div class="line">update_w0 = tf.assign_add(w0,-rate*gy0w0[<span class="number">0</span>])</div><div class="line">update_b0 = tf.assign_add(b0,-rate*gy0b0[<span class="number">0</span>])</div><div class="line"></div><div class="line"></div><div class="line">training_operation = [update_w3, update_b3, update_w2, update_b2, update_w1, update_b1, update_w0, update_b0]</div><div class="line"></div><div class="line"><span class="string">"""</span></div><div class="line">Define accuracy evaluation</div><div class="line">"""</div><div class="line"><span class="comment"># calculate the average accuracy by calling evaluate(X_data, y_data)</span></div><div class="line">correct_prediction = tf.equal(tf.argmax(logits, axis=<span class="number">1</span>), tf.argmax(one_hot_y, axis=<span class="number">1</span>))</div><div class="line">accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">evaluate</span><span class="params">(X_data, y_data)</span>:</span></div><div class="line">    num_examples = len(X_data)</div><div class="line">    total_accuracy = <span class="number">0</span></div><div class="line">    sess = tf.get_default_session()</div><div class="line">    <span class="keyword">for</span> offset <span class="keyword">in</span> range(<span class="number">0</span>, num_examples, BATCH_SIZE):</div><div class="line">        batch_x, batch_y = X_data[offset:offset+BATCH_SIZE], y_data[offset:offset+BATCH_SIZE]</div><div class="line">        accuracy = sess.run(accuracy_operation, feed_dict=&#123;x: batch_x, one_hot_y: batch_y&#125;)</div><div class="line">        total_accuracy += (accuracy * len(batch_x))</div><div class="line">    <span class="keyword">return</span> total_accuracy / num_examples</div><div class="line">    </div><div class="line"><span class="string">"""</span></div><div class="line">Run Session</div><div class="line">"""</div><div class="line"><span class="comment">### Train your model here.</span></div><div class="line"><span class="keyword">import</span> time</div><div class="line"><span class="keyword">if</span> <span class="keyword">not</span> os.path.isdir(<span class="string">'./models'</span>):</div><div class="line">    os.makedirs(<span class="string">'./models'</span>)</div><div class="line"><span class="comment">#saver = tf.train.Saver()</span></div><div class="line">accumulate_time = <span class="number">0.0</span></div><div class="line"><span class="keyword">with</span> tf.Session() <span class="keyword">as</span> sess:</div><div class="line">    sess.run(tf.global_variables_initializer())</div><div class="line">    num_examples = img_num</div><div class="line">    </div><div class="line">    print(<span class="string">"Training..."</span>)</div><div class="line">    print()</div><div class="line">    train_accuracy = np.zeros(EPOCHS)</div><div class="line">    validation_accuracy = np.zeros(EPOCHS)</div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(EPOCHS):</div><div class="line">        stime = time.time()</div><div class="line">        acc_train_accuracy = <span class="number">0</span></div><div class="line">        X_train, y_train = shuffle(images, labels1Hot)</div><div class="line">        <span class="keyword">for</span> offset <span class="keyword">in</span> range(<span class="number">0</span>, num_examples, BATCH_SIZE):</div><div class="line">            end = offset + BATCH_SIZE</div><div class="line">            batch_x, batch_y = X_train[offset:end], y_train[offset:end]</div><div class="line">            sess.run(training_operation, feed_dict=&#123;x: batch_x, one_hot_y: batch_y&#125;)</div><div class="line">        etime = time.time()</div><div class="line">        accumulate_time += etime - stime</div><div class="line">        validation_accuracy[i] = evaluate(images_valid, labels1Hot_valid)</div><div class="line">        print(<span class="string">"EPOCH &#123;&#125; ..."</span>.format(i+<span class="number">1</span>))</div><div class="line">        print(<span class="string">"Validation Accuracy = &#123;:.3f&#125;"</span>.format(validation_accuracy[i]))</div><div class="line">        print()</div><div class="line">    print(<span class="string">'Cost time: '</span> + str(accumulate_time) + <span class="string">' sec.'</span>)</div></pre></td></tr></table></figure>
+<p>訓練結果如下:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">EPOCH <span class="number">1</span> ...</div><div class="line">Validation Accuracy = <span class="number">0.553</span></div><div class="line">EPOCH <span class="number">2</span> ...</div><div class="line">Validation Accuracy = <span class="number">0.698</span></div><div class="line">EPOCH <span class="number">3</span> ...</div><div class="line">Validation Accuracy = <span class="number">0.771</span></div><div class="line"></div><div class="line"><span class="meta">... </span>略</div><div class="line"></div><div class="line">EPOCH <span class="number">28</span> ...</div><div class="line">Validation Accuracy = <span class="number">0.936</span></div><div class="line"></div><div class="line">EPOCH <span class="number">29</span> ...</div><div class="line">Validation Accuracy = <span class="number">0.936</span></div><div class="line"></div><div class="line">EPOCH <span class="number">30</span> ...</div><div class="line">Validation Accuracy = <span class="number">0.936</span></div></pre></td></tr></table></figure>
+<p>這速度果然明顯比用 Adam 慢很多, 但至少說明了我們的確<strong>使用 Computational graph 的計算方式完成了 back propagation!</strong></p>
+<hr>
+<h2 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h2><p>Tensorflow 使用計算圖譜的框架來計算函數的 gradients, 一旦這樣做, 神經網路的 backprop 很自然地就完成了. 事實上, 所有流行的框架全部都這麼做, 就連 Kaldi 原先在 nnet2 不這麼做, 到 nnet3 也改用計算圖譜來完成了.</p>
+<hr>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ol>
+<li><a href="https://www.youtube.com/watch?v=-yhm3WdGFok" target="_blank" rel="external">李宏毅 Computational Graph</a></li>
+<li><a href="https://www.tensorflow.org/api_docs/python/tf/gradients" target="_blank" rel="external">tf.gradients說明</a></li>
+<li><a href="https://colah.github.io/posts/2015-08-Backprop/" target="_blank" rel="external">Colah’s Blog</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/TensorFlow/" rel="tag"># TensorFlow</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/14/Notes-for-KKT-Conditions/" rel="next" title="Notes for KKT Conditions">
+                <i class="fa fa-chevron-left"></i> Notes for KKT Conditions
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">25</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">34</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Computational-Graph"><span class="nav-number">1.</span> <span class="nav-text">Computational Graph</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Verify-with-Tensorflow"><span class="nav-number">2.</span> <span class="nav-text">Verify with Tensorflow</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MNIST-用計算圖譜計算-back-propagation"><span class="nav-number">3.</span> <span class="nav-text">MNIST 用計算圖譜計算 back propagation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DNN-的計算圖譜"><span class="nav-number">3.1.</span> <span class="nav-text">DNN 的計算圖譜</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tensorflow-程式碼"><span class="nav-number">3.2.</span> <span class="nav-text">Tensorflow 程式碼</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#結論"><span class="nav-number">4.</span> <span class="nav-text">結論</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">5.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
