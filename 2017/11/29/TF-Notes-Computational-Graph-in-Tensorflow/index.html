@@ -113,7 +113,7 @@
 <meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic17.png">
 <meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic18.png">
 <meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic19.png">
-<meta property="og:updated_time" content="2017-11-29T18:54:08.016Z">
+<meta property="og:updated_time" content="2017-11-30T12:21:20.633Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="TF Notes (3), Computational Graph in Tensorflow">
 <meta name="twitter:description" content="這篇介紹 computational graph (計算圖譜), 主要來源參考自李宏毅教授的課程內容. 並且我們使用 tensorflow 的求導函數 tf.gradients 來驗證 computational graph. 最後我們在 MNIST 上驗證整個 DNN/CNN 的 backpropagation 可以利用 computational graph 的計算方式訓練.">
@@ -409,7 +409,7 @@
 <p>以下圖來說明</p>
 <p><img src="/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic6.png" width="60%" height="60%"></p>
 <p>但事實上根本也不用這麼麻煩, 除非是遇到很特殊的狀況, 否則我們直接呼叫 <code>tf.gradients(c,a)</code>, tensorflow 就會直接幫我們把<strong>同樣路徑的 gradients 做相乘, 不同路徑的 gradients 結果做相加</strong>了! 所以上面就直接呼叫 <code>tf.gradients(c,a)</code> 其實也就等於 <code>gb_a2</code> 了.</p>
-<p>最後回到開始的 e=<a+b,b+1> 的範例, 如果要計算 $\frac{\partial e}{\partial b}$, 照原本提供的 codes 需要計算三條路徑各自相乘後再相加, 其實只要直接呼叫 <code>ge_b=tf.gradients(e,b)</code> 就完成這件事了 (<code>ge_c*gc_b + ge_d*gd_b</code>)</a+b,b+1></p>
+<p>最後回到開始的 <code>e=&lt;a+b,b+1&gt;</code> 的範例, 如果要計算 $\frac{\partial e}{\partial b}$, 照原本提供的 codes 需要計算三條路徑各自相乘後再相加, 其實只要直接呼叫 <code>ge_b=tf.gradients(e,b)</code> 就完成這件事了 (<code>ge_c*gc_b + ge_d*gd_b</code>)</p>
 <hr>
 <h2 id="MNIST-用計算圖譜計算-back-propagation"><a href="#MNIST-用計算圖譜計算-back-propagation" class="headerlink" title="MNIST 用計算圖譜計算 back propagation"></a>MNIST 用計算圖譜計算 back propagation</h2><h3 id="DNN-的計算圖譜"><a href="#DNN-的計算圖譜" class="headerlink" title="DNN 的計算圖譜"></a>DNN 的計算圖譜</h3><p>為了清楚了解 Neural network 的 backpropagation 如何用 computational graph 來計算 gradients 並進而 update 參數, 我們不使用 tf.optimizer 幫我們自動計算. 一個 3 layers fo MLP-DNN 的計算圖譜我們可以這樣表示:</p>
 <p><img src="/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic7.png" width="60%" height="60%"></p>
@@ -435,7 +435,7 @@ gy1y0=\frac{\partial y1}{\partial y0}gy2y1 \\
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">EPOCH <span class="number">1</span> ...</div><div class="line">Validation Accuracy = <span class="number">0.553</span></div><div class="line">EPOCH <span class="number">2</span> ...</div><div class="line">Validation Accuracy = <span class="number">0.698</span></div><div class="line">EPOCH <span class="number">3</span> ...</div><div class="line">Validation Accuracy = <span class="number">0.771</span></div><div class="line"></div><div class="line"><span class="meta">... </span>略</div><div class="line"></div><div class="line">EPOCH <span class="number">28</span> ...</div><div class="line">Validation Accuracy = <span class="number">0.936</span></div><div class="line"></div><div class="line">EPOCH <span class="number">29</span> ...</div><div class="line">Validation Accuracy = <span class="number">0.936</span></div><div class="line"></div><div class="line">EPOCH <span class="number">30</span> ...</div><div class="line">Validation Accuracy = <span class="number">0.936</span></div></pre></td></tr></table></figure>
 <p>這速度果然明顯比用 Adam 慢很多, 但至少說明了我們的確<strong>使用 Computational graph 的計算方式完成了 back propagation!</strong></p>
 <hr>
-<h2 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h2><p>Tensorflow 使用計算圖譜的框架來計算函數的 gradients, 一旦這樣做, 神經網路的 backprop 很自然地就完成了. 事實上, 所有流行的框架全部都這麼做, 就連 Kaldi 原先在 nnet2 不這麼做, 到 nnet3 也改用計算圖譜來完成了.</p>
+<h2 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h2><p>Tensorflow 使用計算圖譜的框架來計算函數的 gradients, 一旦這樣做, 神經網路的 backprop 很自然了. 事實上, 所有流行的框架都這麼做, 就連 Kaldi 原先在 nnet2 不是, 但到 nnet3 也改用計算圖譜來實作.</p>
 <hr>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ol>
 <li><a href="https://www.youtube.com/watch?v=-yhm3WdGFok" target="_blank" rel="external">李宏毅 Computational Graph</a></li>
