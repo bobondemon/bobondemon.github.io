@@ -359,7 +359,9 @@
 </script>
 
 <hr>
-<p>Maximum Mutual Information (MMI) 序列的鑑別性訓練方法從早期的 GMM-HMM, 到現今就算使用了深度學習同樣十分有用, 如 <a href="http://www.kaldi-asr.org/doc/chain.html">Kaldi chain model</a> 在 DNN-HMM 的基礎上加上序列鑑別訓練, 性能會再進一步提升. 前一陣子讀了俞棟、鄧力的這本 <a href="https://www.amazon.cn/gp/product/B01H2AXN1I/ref=ox_sc_act_image_3?psc=1&amp;smid=A1AJ19PSB66TGU">語音識別實踐</a>, 對我來說整理得滿好的, 就是數學部分的推導有點簡潔了些, 所以這篇就基於該書的推導, 補齊了較詳細的步驟, 並且嘗試使用 <a href="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/">Computational graph</a> 的方式理解 MMI 的訓練. 那麼就開始吧.</p>
+<p>Maximum Mutual Information (MMI) 序列的鑑別性訓練方法從早期的 GMM-HMM, 到現今就算使用了深度學習同樣十分有用, 如 <a href="http://www.kaldi-asr.org/doc/chain.html">Kaldi chain model</a> 在 DNN-HMM 的基礎上加上序列鑑別訓練, 性能會再進一步提升. 前一陣子讀了俞棟、鄧力的這本 <a href="https://www.amazon.cn/gp/product/B01H2AXN1I/ref=ox_sc_act_image_3?psc=1&amp;smid=A1AJ19PSB66TGU">語音識別實踐</a>, 對我來說整理得滿好的, 就是數學部分的推導有點簡潔了些, 所以這篇就基於該書的推導, 補齊了較詳細的步驟, 並且嘗試使用 <a href="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/">Computational graph</a> 的方式理解 MMI 的訓練. 那麼就開始吧!</p>
+<p>用自己畫的 MMI 的計算圖譜當封面吧 :)</p>
+<p><img src="/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/MMI_computational_graph2.png" width="50%" height="50%"></p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/#more" rel="contents">
@@ -511,7 +513,7 @@
 
 <hr>
 <p>這篇介紹 computational graph (計算圖譜), 主要來源參考自李宏毅教授的<a href="https://www.youtube.com/watch?v=-yhm3WdGFok">課程內容</a>. 並且我們使用 tensorflow 的求導函數 <code>tf.gradients</code> 來驗證 computational graph. 最後我們在 MNIST 上驗證整個 DNN/CNN 的 backpropagation 可以利用 computational graph 的計算方式訓練.</p>
-<p><img src="/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/cover.gif" width="80%" height="80%"></p>
+<p><img src="/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/cover.gif" width="60%" height="60%"></p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/#more" rel="contents">

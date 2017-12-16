@@ -93,13 +93,14 @@
 <meta property="og:url" content="http://yoursite.com/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="Maximum Mutual Information (MMI) 序列的鑑別性訓練方法從早期的 GMM-HMM, 到現今就算使用了深度學習同樣十分有用, 如 Kaldi chain model 在 DNN-HMM 的基礎上加上序列鑑別訓練, 性能會再進一步提升. 前一陣子讀了俞棟、鄧力的這本 語音識別實踐, 對我來說整理得滿好的, 就是數學部分的推導有點簡潔了些, 所以這篇就基於該書的推導">
+<meta property="og:image" content="http://yoursite.com/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/MMI_computational_graph2.png">
 <meta property="og:image" content="http://yoursite.com/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/MMI_computational_graph1.png">
 <meta property="og:image" content="http://yoursite.com/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/MMI_computational_graph2.png">
-<meta property="og:updated_time" content="2017-12-16T17:21:26.767Z">
+<meta property="og:updated_time" content="2017-12-16T17:45:39.602Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Maximum Mutual Information in Speech Recognition">
 <meta name="twitter:description" content="Maximum Mutual Information (MMI) 序列的鑑別性訓練方法從早期的 GMM-HMM, 到現今就算使用了深度學習同樣十分有用, 如 Kaldi chain model 在 DNN-HMM 的基礎上加上序列鑑別訓練, 性能會再進一步提升. 前一陣子讀了俞棟、鄧力的這本 語音識別實踐, 對我來說整理得滿好的, 就是數學部分的推導有點簡潔了些, 所以這篇就基於該書的推導">
-<meta name="twitter:image" content="http://yoursite.com/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/MMI_computational_graph1.png">
+<meta name="twitter:image" content="http://yoursite.com/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/MMI_computational_graph2.png">
 
 
 
@@ -360,7 +361,9 @@
 </script>
 
 <hr>
-<p>Maximum Mutual Information (MMI) 序列的鑑別性訓練方法從早期的 GMM-HMM, 到現今就算使用了深度學習同樣十分有用, 如 <a href="http://www.kaldi-asr.org/doc/chain.html" target="_blank" rel="external">Kaldi chain model</a> 在 DNN-HMM 的基礎上加上序列鑑別訓練, 性能會再進一步提升. 前一陣子讀了俞棟、鄧力的這本 <a href="https://www.amazon.cn/gp/product/B01H2AXN1I/ref=ox_sc_act_image_3?psc=1&amp;smid=A1AJ19PSB66TGU" target="_blank" rel="external">語音識別實踐</a>, 對我來說整理得滿好的, 就是數學部分的推導有點簡潔了些, 所以這篇就基於該書的推導, 補齊了較詳細的步驟, 並且嘗試使用 <a href="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/" target="_blank" rel="external">Computational graph</a> 的方式理解 MMI 的訓練. 那麼就開始吧.</p>
+<p>Maximum Mutual Information (MMI) 序列的鑑別性訓練方法從早期的 GMM-HMM, 到現今就算使用了深度學習同樣十分有用, 如 <a href="http://www.kaldi-asr.org/doc/chain.html" target="_blank" rel="external">Kaldi chain model</a> 在 DNN-HMM 的基礎上加上序列鑑別訓練, 性能會再進一步提升. 前一陣子讀了俞棟、鄧力的這本 <a href="https://www.amazon.cn/gp/product/B01H2AXN1I/ref=ox_sc_act_image_3?psc=1&amp;smid=A1AJ19PSB66TGU" target="_blank" rel="external">語音識別實踐</a>, 對我來說整理得滿好的, 就是數學部分的推導有點簡潔了些, 所以這篇就基於該書的推導, 補齊了較詳細的步驟, 並且嘗試使用 <a href="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/" target="_blank" rel="external">Computational graph</a> 的方式理解 MMI 的訓練. 那麼就開始吧!</p>
+<p>用自己畫的 MMI 的計算圖譜當封面吧 :)</p>
+<p><img src="/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/MMI_computational_graph2.png" width="50%" height="50%"></p>
 <a id="more"></a>
 <hr>
 <h3 id="MMI-數學定義"><a href="#MMI-數學定義" class="headerlink" title="MMI 數學定義"></a>MMI 數學定義</h3><p>定義<br><span>$o^m=o_1^m,...,o_t^m,...,o_{T_m}^m$</span><!-- Has MathJax --><br>是訓練樣本裡第 m 句話的 observation (MFCC,fbank,…) sequence, 該 sequence 有 $T_m$ 個 observation vector. 而<br><span>$w^m=w_1^m,...,w_t^m,...,w_{N_m}^m$</span><!-- Has MathJax --><br>則是該句話的正確 transcription, 有 $N_m$ 個字. 通過 forced-alignment 可以得到相對應的 state sequence<br><span>$s^m=s_1^m,...,s_t^m,...,s_{T_m}^m$</span><!-- Has MathJax --><br>MMI 目的就是希望模型算出的正確答案 sequence 機率愈大愈好, 同時非正確答案 (與之競爭的其他 sequences) 的機率要愈小愈好, 所以正確答案放分子, 非正確放分母, 整體要愈大愈好. 由於考慮了競爭 sequences 的最小化, 所以是<strong>鑑別性</strong>訓練. 又此種方始是基於整句的 sequence 考量, 因此是<strong>序列</strong>鑑別性訓練. 數學寫下來如下:<br><span>$$J_{MMI}(\theta;S)=\sum_{m=1}^M J_{MMI}(\theta\|o^m,w^m) \\
