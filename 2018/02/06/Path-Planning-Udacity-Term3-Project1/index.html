@@ -93,12 +93,13 @@
 <meta property="og:url" content="http://yoursite.com/2018/02/06/Path-Planning-Udacity-Term3-Project1/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="停了半年 的 Udacity Self Driving Car (SDC) Program, 終於又開始了. 做為 Term3 的第一個 Project, 我抱著高度的期待. 不過完成後, 有點小失望. 失望的原因是這個 project 跟課程上的連結感覺不是那麼明顯. 例如課程上有講到 A*, hybrid A* 的算法, 但 project 是模擬 highway drive, 因此">
+<meta property="og:image" content="http://yoursite.com/2018/02/06/Path-Planning-Udacity-Term3-Project1/cover.png">
 <meta property="og:image" content="http://yoursite.com/2018/02/06/Path-Planning-Udacity-Term3-Project1/top_view_algo.png">
-<meta property="og:updated_time" content="2018-02-06T16:10:35.685Z">
+<meta property="og:updated_time" content="2018-02-09T16:11:04.212Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Path-Planning-Udacity-Term3-Project1">
 <meta name="twitter:description" content="停了半年 的 Udacity Self Driving Car (SDC) Program, 終於又開始了. 做為 Term3 的第一個 Project, 我抱著高度的期待. 不過完成後, 有點小失望. 失望的原因是這個 project 跟課程上的連結感覺不是那麼明顯. 例如課程上有講到 A*, hybrid A* 的算法, 但 project 是模擬 highway drive, 因此">
-<meta name="twitter:image" content="http://yoursite.com/2018/02/06/Path-Planning-Udacity-Term3-Project1/top_view_algo.png">
+<meta name="twitter:image" content="http://yoursite.com/2018/02/06/Path-Planning-Udacity-Term3-Project1/cover.png">
 
 
 
@@ -359,13 +360,14 @@
 </script>
 
 <hr>
+<p><img src="/2018/02/06/Path-Planning-Udacity-Term3-Project1/cover.png" width="80%" height="80%"></p>
 <p>停了半年 的 Udacity Self Driving Car (SDC) Program, 終於又開始了. 做為 Term3 的第一個 Project, 我抱著高度的期待. 不過完成後, 有點小失望. 失望的原因是這個 project 跟課程上的連結感覺不是那麼明顯. 例如課程上有講到 A*, hybrid A* 的算法, 但 project 是模擬 highway drive, 因此 A* 比較不適合 (適合在 parking lot 場景). 另外也有提到怎麼降低 jerk (加速度的微分, 主要是不舒適的來源), 當參考內容是很好, 不過在寫 Project 時感覺也不大需要.</p>
 <p>這篇就是個紀錄, 會很水. 方法很簡單, 一張圖解決:</p>
-<p><img src="/2018/02/06/Path-Planning-Udacity-Term3-Project1/top_view_algo.png" width="80%" height="80%"></p>
 <a id="more"></a>
+<p><img src="/2018/02/06/Path-Planning-Udacity-Term3-Project1/top_view_algo.png" width="80%" height="80%"></p>
 <p>ego-car 根據自己所在的車道, 最多可以有三條路徑選擇, 路徑就用 <a href="http://kluge.in-chemnitz.de/opensource/spline/" target="_blank" rel="external">spline curve</a> 產生, 確保夠 smooth. 同時有 sensor-fusion 的資料可以知道其他車子的狀況, 然後利用 prediction model 去預測其他車的路徑 (我就單純使用 constant velocity 線性路徑). 如果有 collision 在未來的 1 or 1.5 秒, 該路徑就無效. 另外, 如果有車子太靠近, 就減速.</p>
 <p>ego-car 的每個路徑都會有各自的 cost, cost 是根據一些喜好, 譬如哪一條車道可以跑得比較快, 哪一條路徑比較不會跟其他車子太接近等等… 這 Project 最麻煩的就是在設計 cost function, 和調整. (還有熟悉 project 的程式碼…麻煩阿)</p>
-<p>影片後續補上. Project github <a href="https://github.com/bobondemon/Path-Planning-Project" target="_blank" rel="external">在此</a></p>
+<p>影片連結 <a href="https://youtu.be/x-_GKEgyccY" target="_blank" rel="external">here</a>. Project github <a href="https://github.com/bobondemon/Path-Planning-Project" target="_blank" rel="external">here</a></p>
 <p>沒了, 文章水不水 ? 好水阿, 真心虛</p>
 
       
