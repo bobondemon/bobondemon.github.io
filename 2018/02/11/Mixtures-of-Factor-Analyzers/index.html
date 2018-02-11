@@ -1,0 +1,840 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Factor Analysis,Mixture Models,Expectation Maximization,GMM," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="這篇使用 Bishop PRML 的 notations, 同使參考 Zoubin Ghahramani and Geoffrey E. Hinton (沒錯, 就是那位 Hiton) 1997 年的論文 “The EM Algorithm for Mixtures of Factor Analyzers“, 實作了 Mixtures of Factor Analyzers in pyth">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mixtures of Factor Analyzers">
+<meta property="og:url" content="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="這篇使用 Bishop PRML 的 notations, 同使參考 Zoubin Ghahramani and Geoffrey E. Hinton (沒錯, 就是那位 Hiton) 1997 年的論文 “The EM Algorithm for Mixtures of Factor Analyzers“, 實作了 Mixtures of Factor Analyzers in pyth">
+<meta property="og:image" content="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/cover.png">
+<meta property="og:image" content="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/generative_view.png">
+<meta property="og:image" content="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/linearGaussian.png">
+<meta property="og:image" content="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/FA.png">
+<meta property="og:image" content="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/MFA.png">
+<meta property="og:updated_time" content="2018-02-11T19:13:30.203Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Mixtures of Factor Analyzers">
+<meta name="twitter:description" content="這篇使用 Bishop PRML 的 notations, 同使參考 Zoubin Ghahramani and Geoffrey E. Hinton (沒錯, 就是那位 Hiton) 1997 年的論文 “The EM Algorithm for Mixtures of Factor Analyzers“, 實作了 Mixtures of Factor Analyzers in pyth">
+<meta name="twitter:image" content="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/cover.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/"/>
+
+
+
+
+
+  <title> Mixtures of Factor Analyzers | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Mixtures of Factor Analyzers
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2018-02-11T23:23:24+08:00">
+                2018-02-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>這篇使用 <a href="http://research.microsoft.com/en-us/um/people/cmbishop/prml/" target="_blank" rel="external">Bishop PRML</a> 的 notations, 同使參考 Zoubin Ghahramani and Geoffrey E. Hinton (沒錯, 就是那位 Hiton) 1997 年的論文 “<a href="The_EM_Algorithm_for_Mixtures_of_Factor_Analyzers.pdf">The EM Algorithm for Mixtures of Factor Analyzers</a>“, 實作了 Mixtures of Factor Analyzers in python, <a href="https://github.com/bobondemon/MixtureFA" target="_blank" rel="external">github</a>.</p>
+<p>會比較精簡, 省略一些描述 (尤其是 EM 的部分), 想看更多描述推薦直接看 PRML book. 一開始我們先談什麼是 Factor Analysis, 以及它的 EM 解, 之後就推廣到 mixtures models. 直接進入正題吧~</p>
+<p><img src="/2018/02/11/Mixtures-of-Factor-Analyzers/cover.png" width="50%" height="50%"></p>
+<a id="more"></a>
+<hr>
+<h3 id="Factor-Analysis"><a href="#Factor-Analysis" class="headerlink" title="Factor Analysis"></a>Factor Analysis</h3><p>一些 notations 定義: $x$ 表示我們的 observation, 維度是 $D$. $z$ 是我們的 latent variable, 維度是 $K$. 我們一般都期望 $K \ll D$. $x$ and $z$ follow linear-Gaussian framework, 有如下的關係:</p>
+<span>$$\begin{align}
+p(z)=N(z|0,I) \\
+p(x|z)=N(x|Wz+\mu,\Psi) \\
+\end{align}$$</span><!-- Has MathJax -->
+<p>$W$ 是一個線性轉換, 將低維度的 latent space 轉換到高維度的 observation space, 另外 <strong>$\Psi$ 必須是對角矩陣</strong>. 由於是對角的關係, 因此 $\Psi$ 捕捉了 obaservation 維度的各自變異量, 因此稱為 <em>uniquenesses</em>, 而 $W$ 就是負責捕捉共同項, 稱為 <em>factor loading</em>. 書裡有一個簡單明瞭的圖解釋上述的模型, 我就不多說了, 自行看圖:</p>
+<p><img src="/2018/02/11/Mixtures-of-Factor-Analyzers/generative_view.png" width="70%" height="70%"></p>
+<p>因為是 linear-Gaussian model, 所以 marginal distribution 也是 Gaussian:</p>
+<span>$$\begin{align}
+p(x)=N(x|\mu,C) \\
+\mbox{where } C=WW^T+\Psi
+\end{align}$$</span><!-- Has MathJax -->
+<p>同時, 事後機率也是 Gaussian</p>
+<span>$$\begin{align}
+p(z|x)=N(z|GW^T\Psi^{-1}(x-\bar{x}),G^{-1}) \\
+\mbox{where } G=(I+W^T\Psi^{-1}W)^{-1}
+\end{align}$$</span><!-- Has MathJax -->
+<blockquote>
+<p>完整的 lineaer-Gaussian model 公式, from PRML book:<br><img src="/2018/02/11/Mixtures-of-Factor-Analyzers/linearGaussian.png" width="70%" height="70%"></p>
+</blockquote>
+<p>有了 $p(x)$ (式 3) 基本上我們就可以根據 training data 算出 likelihood, 然後找出什麼樣的參數可以最大化它. 但是這裡的問題是含有未知變數 $z$, 這個在 training data 看不到, 因為我們只看的到 $x$.</p>
+<p>不過別擔心, EM 演算法可以處理含有未知變數情況下的 maximal likelihood estimation. 忘了什麼是 EM, 可以參考一下<a href="EM_notes.pdf">這</a>. 很精簡的講一下就是, 找到一個輔助函數 $Q$, 該輔助函數一定小於原來的 likelihood 函數, 因此只要找到一組參數可以對輔助函數最大化, 那麼對於原來的 likelihood 函數也會有提升, 重複下去就可以持續提升, 直到 local maximum.<br>另外輔助函數就是 “complete-data log likelihood and take its expectation with respect to the posterior distribution of the latent distribution evaluated using ‘old’ parameter values”, 我知道很粗略, 還請自行看筆記或是 PRML Ch9.</p>
+<h4 id="E-Step"><a href="#E-Step" class="headerlink" title="E-Step"></a>E-Step</h4><p>E-Step 主要算出基於舊參數下的事後機率的一階二階統計量</p>
+<p>首先將符號做簡化, 方便後面的式子更簡潔 ($n$ 是訓練資料的 index):</p>
+<span>$$\mathbb{E}[z_n]\equiv\mathbb{E}_{z_n|x_n}[z_n] \\
+\mathbb{E}[z_nz_n^T]\equiv\mathbb{E}_{z_n|x_n}[z_nz_n^T] \\$$</span><!-- Has MathJax -->
+<p>事後機率的一階二階統計量如下:</p>
+<span>$$\begin{align}
+\mathbb{E}[z_n] = GW^T\Psi^{-1}(x_n-\mu) \\
+\mathbb{E}[z_nz_n^T] = G + \mathbb{E}[z_n] \mathbb{E}[z_n]^T \\
+\mbox{where } G=(I+W^T\Psi^{-1}W)^{-1}
+\end{align}$$</span><!-- Has MathJax -->
+<p>因為事後機率是 Gaussian, 所以由式 (5) 可以推得式 (7) 和 式 (8).</p>
+<h4 id="M-Step"><a href="#M-Step" class="headerlink" title="M-Step"></a>M-Step</h4><p>這一步就是最大化輔助函數 $Q$, 其中 $\mu$ 等於 sample mean, 可以直接寫死不需要 iteration. 另外兩個參數 update 如下:</p>
+<span>$$\begin{align}
+W^{new}=\left[\sum_{n=1}^N (x_n-\mu)\mathbb{E}[z_n]^T\right]\left[\sum_{n=1}^N \mathbb{E}[z_nz_n^T]\right]^{-1} \\
+\Psi^{new}=\mbox{diag}\left[S-W^{new}\frac{1}{N}\sum_{n=1}^N \mathbb{E}[z_n](x_n-\mu)^T\right]
+\end{align}$$</span><!-- Has MathJax -->
+<p>$S$ 是 sample covariance matrix (除 N 的那個 biased)</p>
+<h4 id="Toy-Example"><a href="#Toy-Example" class="headerlink" title="Toy Example"></a>Toy Example</h4><p>黑色那條線是真正產生資料時的 $W$, 可以當成正確答案. 紅色的是 FA 估計出來的 $W$ 和 $p(x)$. 可以發現 $W$ 沒有跟正確答案一樣, 這是因為我們在做 maximum likelihood 的時候, 只關心 $p(x)$, 因此可以有不同的 latent space 產生相同的 $p(x)$. 範例也一併把 probabilistic PCA 做出來了, 可以發現 PPCA 算的 $W$ 跟正確答案很接近, 這是因為此範例的資料其實是根據 PPCA 的模型產生的, 所以 PPCA 較接近是正常. 同時我們看到 PPCA 估計出來的 $p(x)$ 其實也跟 FA 一樣, 再度佐證 FA 其實也沒算錯, 只是不同的表達方式.</p>
+<p><img src="/2018/02/11/Mixtures-of-Factor-Analyzers/FA.png" width="70%" height="70%"></p>
+<hr>
+<h3 id="Mixtures-of-Factor-Analyers"><a href="#Mixtures-of-Factor-Analyers" class="headerlink" title="Mixtures of Factor Analyers"></a>Mixtures of Factor Analyers</h3><p>將 FA 假設有多個 components 組成就變成 MFA 了, 其實就跟 GMM 一樣, 差別在於我們<strong>用了 latent space 去各別 model 每個 Gaussian Components</strong> 而已!</p>
+<p>要注意的是, 這時候的 latent variables 不只有 $z$, 還有 $m$ (=1~M 表示有 $M$ 個 components), 我們用下標 $j$ 表示 component 的 index.</p>
+<p>另外, 每一個 component, 會有各自的 latent space, 因此有各自的 $W_j$ 和 $\mu_j$, 但是<strong>全部的 components 共用一個 uniquenesses $\Psi$</strong>.</p>
+<span>$$\begin{align}
+p(x|z,m=j)=N(x|W_j z+\mu_j,\Psi)
+\end{align}$$</span><!-- Has MathJax -->
+<p>和 GMM 一樣, 每一個 component 都有一個 weights, $\pi_j$, 合起來機率是1</p>
+<h4 id="E-Step-1"><a href="#E-Step-1" class="headerlink" title="E-Step"></a>E-Step</h4><p>一階和二階統計量如下:</p>
+<span>$$\begin{align}
+\color{red}{\mathbb{E}[z_n|m=j]} = G_j W_j^T \Psi^{-1}(x_n-\mu_j) \\
+\color{red}{\mathbb{E}[z_nz_n^T|m=j]} = G_j + \mathbb{E}[z_n|m=j] \mathbb{E}[z_n|m=j]^T \\
+\mbox{where } G_j=(I+W_j^T\Psi^{-1}W_j)^{-1}
+\end{align}$$</span><!-- Has MathJax -->
+<p>而真正的事後機率為:</p>
+<span>$$\begin{align}
+\mathbb{E}[m=j,z_n] = h_{nj}\mathbb{E}[z_n|m=j] \\
+\mathbb{E}[m=j,z_nz_n^T] = h_{nj}\mathbb{E}[z_nz_n^T|m=j] \\
+\mbox{where } \color{red}{h_{nj}}=\mathbb{E}[m=j|x_n]\propto p(x_n,m=j)
+\end{align}$$</span><!-- Has MathJax -->
+<p>將 (18) 解釋清楚一下, 基本上就是計算給定一個 $x_n$, 它是由 component $j$ 所產生的機率是多少. 我們可以進一步推導如下:</p>
+<span>$$\begin{align}
+p(x_n,m=j)=p(m=j)p(x_n)\\
+=\pi_j N(x_n|\mu_j,C_j=W_jW_j^T+\Psi)
+\end{align}$$</span><!-- Has MathJax -->
+<p>(19) 到 (20) 的部分可以由 (3) 和 (4) 所知道的 marginal distribution $p(x)$ 得到</p>
+<p>到這裡, 所有需要的統計量, 紅色部分, 我們都可以算得了.</p>
+<h4 id="M-Step-1"><a href="#M-Step-1" class="headerlink" title="M-Step"></a>M-Step</h4><p>通通微分等於零, 通通微分等於零, 通通微分等於零 … 得到:</p>
+<span>$$\begin{align}
+\pi_j^{new}=\frac{1}{N}\sum_{n=1}^N h_{nj} \\
+\mu_j^{new}=\frac{\sum_{n=1}^N h_{nj}x_n}{\sum_{n=1}^N h_{nj}} \\
+W_j^{new}=\left[\sum_{n=1}^N h_{nj}(x_n-\mu_j)\mathbb{E}[z_n|m=j]^T\right]\left[\sum_{n=1}^N h_{nj}\mathbb{E}[z_nz_n^T|m=j]\right]^{-1} \\
+\Psi^{new}=\frac{1}{N}\mbox{diag}\left[ \sum_{nj} h_{nj} \left( (x_n-\mu_j) - W_j^{new}\mathbb{E}[z_n|m=j] \right)(x_n-\mu_j)^T \right]
+\end{align}$$</span><!-- Has MathJax -->
+<h4 id="Toy-Example-1"><a href="#Toy-Example-1" class="headerlink" title="Toy Example"></a>Toy Example</h4><p><img src="/2018/02/11/Mixtures-of-Factor-Analyzers/MFA.png" width="70%" height="70%"></p>
+<p>圖應該很清楚了, 有正確 model 到 data</p>
+<blockquote>
+<p>這個 MFA 還真的不容易實作, 寫起來很多要注意的地方, 很燒腦阿! 不過做完了之後頗有成就感~</p>
+</blockquote>
+<hr>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
+<li>自己實作的 Python MFA (含 Toy examples) <a href="https://github.com/bobondemon/MixtureFA" target="_blank" rel="external">github</a></li>
+<li>Zoubin Ghahramani and Geoffrey E. Hinton, <a href="The_EM_Algorithm_for_Mixtures_of_Factor_Analyzers.pdf">The EM Algorithm for Mixtures of Factor Analyzers</a></li>
+<li><a href="http://research.microsoft.com/en-us/um/people/cmbishop/prml/" target="_blank" rel="external">Bishop PRML</a></li>
+<li>以前的 <a href="EM_notes.pdf">EM 筆記</a></li>
+<li>以前的 <a href="GMMwithEM.pdf">GMM EM 筆記</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Factor-Analysis/" rel="tag"># Factor Analysis</a>
+          
+            <a href="/tags/Mixture-Models/" rel="tag"># Mixture Models</a>
+          
+            <a href="/tags/Expectation-Maximization/" rel="tag"># Expectation Maximization</a>
+          
+            <a href="/tags/GMM/" rel="tag"># GMM</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/02/06/Path-Planning-Udacity-Term3-Project1/" rel="next" title="Path-Planning-Udacity-Term3-Project1">
+                <i class="fa fa-chevron-left"></i> Path-Planning-Udacity-Term3-Project1
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">28</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">41</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Factor-Analysis"><span class="nav-number">1.</span> <span class="nav-text">Factor Analysis</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#E-Step"><span class="nav-number">1.1.</span> <span class="nav-text">E-Step</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#M-Step"><span class="nav-number">1.2.</span> <span class="nav-text">M-Step</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Toy-Example"><span class="nav-number">1.3.</span> <span class="nav-text">Toy Example</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mixtures-of-Factor-Analyers"><span class="nav-number">2.</span> <span class="nav-text">Mixtures of Factor Analyers</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#E-Step-1"><span class="nav-number">2.1.</span> <span class="nav-text">E-Step</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#M-Step-1"><span class="nav-number">2.2.</span> <span class="nav-text">M-Step</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Toy-Example-1"><span class="nav-number">2.3.</span> <span class="nav-text">Toy Example</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">3.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
