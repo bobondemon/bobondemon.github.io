@@ -87,22 +87,22 @@
 
 
 
-<meta name="description" content="這篇使用 Bishop PRML 的 notations, 同使參考 Zoubin Ghahramani and Geoffrey E. Hinton (沒錯, 就是那位 Hiton) 1997 年的論文 “The EM Algorithm for Mixtures of Factor Analyzers“, 實作了 Mixtures of Factor Analyzers in pyth">
+<meta name="description" content="這篇使用 Bishop PRML 的 notations, 同使參考 Zoubin Ghahramani and Geoffrey E. Hinton (沒錯, 就是那位 Hiton, 另外, 第一作者也是神人級別, 劍橋教授, Uber 首席科學家) 1997 年的論文 “The EM Algorithm for Mixtures of Factor Analyzers“, 實作了 Mi">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Mixtures of Factor Analyzers">
 <meta property="og:url" content="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/index.html">
 <meta property="og:site_name" content="棒棒生">
-<meta property="og:description" content="這篇使用 Bishop PRML 的 notations, 同使參考 Zoubin Ghahramani and Geoffrey E. Hinton (沒錯, 就是那位 Hiton) 1997 年的論文 “The EM Algorithm for Mixtures of Factor Analyzers“, 實作了 Mixtures of Factor Analyzers in pyth">
+<meta property="og:description" content="這篇使用 Bishop PRML 的 notations, 同使參考 Zoubin Ghahramani and Geoffrey E. Hinton (沒錯, 就是那位 Hiton, 另外, 第一作者也是神人級別, 劍橋教授, Uber 首席科學家) 1997 年的論文 “The EM Algorithm for Mixtures of Factor Analyzers“, 實作了 Mi">
 <meta property="og:image" content="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/cover.png">
 <meta property="og:image" content="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/generative_view.png">
 <meta property="og:image" content="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/linearGaussian.png">
 <meta property="og:image" content="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/FA.png">
 <meta property="og:image" content="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/MFA.png">
 <meta property="og:image" content="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/ivec.png">
-<meta property="og:updated_time" content="2018-02-13T14:46:44.739Z">
+<meta property="og:updated_time" content="2018-02-13T15:39:13.378Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Mixtures of Factor Analyzers">
-<meta name="twitter:description" content="這篇使用 Bishop PRML 的 notations, 同使參考 Zoubin Ghahramani and Geoffrey E. Hinton (沒錯, 就是那位 Hiton) 1997 年的論文 “The EM Algorithm for Mixtures of Factor Analyzers“, 實作了 Mixtures of Factor Analyzers in pyth">
+<meta name="twitter:description" content="這篇使用 Bishop PRML 的 notations, 同使參考 Zoubin Ghahramani and Geoffrey E. Hinton (沒錯, 就是那位 Hiton, 另外, 第一作者也是神人級別, 劍橋教授, Uber 首席科學家) 1997 年的論文 “The EM Algorithm for Mixtures of Factor Analyzers“, 實作了 Mi">
 <meta name="twitter:image" content="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/cover.png">
 
 
@@ -364,7 +364,7 @@
 </script>
 
 <hr>
-<p>這篇使用 <a href="http://research.microsoft.com/en-us/um/people/cmbishop/prml/" target="_blank" rel="external">Bishop PRML</a> 的 notations, 同使參考 Zoubin Ghahramani and Geoffrey E. Hinton (沒錯, 就是那位 Hiton) 1997 年的論文 “<a href="The_EM_Algorithm_for_Mixtures_of_Factor_Analyzers.pdf">The EM Algorithm for Mixtures of Factor Analyzers</a>“, 實作了 Mixtures of Factor Analyzers in python, <a href="https://github.com/bobondemon/MixtureFA" target="_blank" rel="external">github</a>.</p>
+<p>這篇使用 <a href="http://research.microsoft.com/en-us/um/people/cmbishop/prml/" target="_blank" rel="external">Bishop PRML</a> 的 notations, 同使參考 Zoubin Ghahramani and Geoffrey E. Hinton (沒錯, 就是那位 Hiton, 另外, 第一作者也是神人級別, 劍橋教授, Uber 首席科學家) 1997 年的論文 “<a href="The_EM_Algorithm_for_Mixtures_of_Factor_Analyzers.pdf">The EM Algorithm for Mixtures of Factor Analyzers</a>“, 實作了 Mixtures of Factor Analyzers, 臥槽! 都20年去了! <a href="https://github.com/bobondemon/MixtureFA" target="_blank" rel="external">My python implementation, github</a>.</p>
 <p>會比較精簡, 省略一些描述 (尤其是 EM 的部分), 想看更多描述推薦直接看 PRML book. 一開始我們先談什麼是 Factor Analysis, 以及它的 EM 解, 之後就推廣到 mixtures models. 直接進入正題吧~</p>
 <p><img src="/2018/02/11/Mixtures-of-Factor-Analyzers/cover.png" width="50%" height="50%"></p>
 <a id="more"></a>
