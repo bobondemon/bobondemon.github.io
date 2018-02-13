@@ -99,7 +99,7 @@
 <meta property="og:image" content="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/FA.png">
 <meta property="og:image" content="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/MFA.png">
 <meta property="og:image" content="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/ivec.png">
-<meta property="og:updated_time" content="2018-02-13T12:17:37.492Z">
+<meta property="og:updated_time" content="2018-02-13T14:46:44.739Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Mixtures of Factor Analyzers">
 <meta name="twitter:description" content="這篇使用 Bishop PRML 的 notations, 同使參考 Zoubin Ghahramani and Geoffrey E. Hinton (沒錯, 就是那位 Hiton) 1997 年的論文 “The EM Algorithm for Mixtures of Factor Analyzers“, 實作了 Mixtures of Factor Analyzers in pyth">
@@ -450,7 +450,7 @@ W_j^{new}=\left[\sum_{n=1}^N h_{nj}(x_n-\mu_j)\mathbb{E}[z_n|m=j]^T\right]\left[
 <p>這個 MFA 還真的不容易實作, 寫起來很多要注意的地方, 很燒腦阿! 不過做完了之後頗有成就感~</p>
 </blockquote>
 <hr>
-<h3 id="i-vector"><a href="#i-vector" class="headerlink" title="i-vector"></a>i-vector</h3><p>其實會想寫這篇主要是因為語者識別中的 <a href="ieeexplore.ieee.org/document/5545402/"><strong>ivector</strong></a>, 而 ivector 基本上就是一個 MFA. 在計算 ivector 時, 我們會先估計 Universal Background Model (UBM), 其實就是所有語者的所有語音特徵算出來的 GMM. 以下圖為例, UBM 有兩個 Gaussian Components, 而經由 MFA 我們可以得到相對應的 $W_1$ 和 $W_2$.</p>
+<h3 id="i-vector"><a href="#i-vector" class="headerlink" title="i-vector"></a>i-vector</h3><p>其實會想寫這篇主要是因為語者識別中的 <a href="http://ieeexplore.ieee.org/document/5545402/" target="_blank" rel="external"><strong>ivector</strong></a>, 而 ivector 基本上就是一個 MFA. 在計算 ivector 時, 我們會先估計 Universal Background Model (UBM), 其實就是所有語者的所有語音特徵算出來的 GMM. 以下圖為例, UBM 有兩個 Gaussian Components, 而經由 MFA 我們可以得到相對應的 $W_1$ 和 $W_2$.</p>
 <p>為了方便, 我們假設某一句話只有 2 個 mfcc vectors $[x,v]$, 並且在特徵空間的位置如下所示.</p>
 <p><img src="/2018/02/11/Mixtures-of-Factor-Analyzers/ivec.png" width="70%" height="70%"></p>
 <p>我們可以經由事後機率的 pdf (式 (5)), 得到 z 的高斯分布, 取該高斯分布的 mean 當成 latent vector. 所以對於每一個 mfcc vector 我們都可以算出該 mfcc 對於所有 components 的 latent vaector (以及它們的機率).</p>
@@ -481,7 +481,7 @@ p(z_2|v,m=2)z_2
 <li><a href="http://research.microsoft.com/en-us/um/people/cmbishop/prml/" target="_blank" rel="external">Bishop PRML</a></li>
 <li>以前的 <a href="EM_notes.pdf">EM 筆記</a></li>
 <li>以前的 <a href="GMMwithEM.pdf">GMM EM 筆記</a></li>
-<li><a href="ieeexplore.ieee.org/document/5545402/">i-vector 原始論文</a></li>
+<li><a href="http://ieeexplore.ieee.org/document/5545402/" target="_blank" rel="external">i-vector 原始論文</a></li>
 <li><a href="http://ieeexplore.ieee.org/document/4409052/authors" target="_blank" rel="external">PLDA 原始論文</a></li>
 </ol>
 
