@@ -94,12 +94,14 @@
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="這篇使用 Bishop PRML 的 notations, 同使參考 Zoubin Ghahramani and Geoffrey E. Hinton (沒錯, 就是那位 Hiton, 另外, 第一作者也是神人級別, 劍橋教授, Uber 首席科學家) 1997 年的論文 “The EM Algorithm for Mixtures of Factor Analyzers“, 實作了 Mi">
 <meta property="og:image" content="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/cover.png">
+<meta property="og:image" content="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/Gauss.jpg">
+<meta property="og:image" content="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/latent_space.png">
 <meta property="og:image" content="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/generative_view.png">
 <meta property="og:image" content="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/linearGaussian.png">
 <meta property="og:image" content="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/FA.png">
 <meta property="og:image" content="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/MFA.png">
 <meta property="og:image" content="http://yoursite.com/2018/02/11/Mixtures-of-Factor-Analyzers/ivec.png">
-<meta property="og:updated_time" content="2018-02-13T15:39:13.378Z">
+<meta property="og:updated_time" content="2018-03-06T11:52:01.434Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Mixtures of Factor Analyzers">
 <meta name="twitter:description" content="這篇使用 Bishop PRML 的 notations, 同使參考 Zoubin Ghahramani and Geoffrey E. Hinton (沒錯, 就是那位 Hiton, 另外, 第一作者也是神人級別, 劍橋教授, Uber 首席科學家) 1997 年的論文 “The EM Algorithm for Mixtures of Factor Analyzers“, 實作了 Mi">
@@ -369,7 +371,12 @@
 <p><img src="/2018/02/11/Mixtures-of-Factor-Analyzers/cover.png" width="50%" height="50%"></p>
 <a id="more"></a>
 <hr>
-<h3 id="Factor-Analysis"><a href="#Factor-Analysis" class="headerlink" title="Factor Analysis"></a>Factor Analysis</h3><p>一些 notations 定義: $x$ 表示我們的 observation, 維度是 $D$. $z$ 是我們的 latent variable, 維度是 $K$. 我們一般都期望 $K \ll D$. $x$ and $z$ follow linear-Gaussian framework, 有如下的關係:</p>
+<h3 id="Factor-Analysis"><a href="#Factor-Analysis" class="headerlink" title="Factor Analysis"></a>Factor Analysis</h3><p>一言以蔽之, <strong>sub-space 降維</strong>. 假設我們都活在陰魂不散的 Gauss 世界中, 所有 model 都是高斯分布.</p>
+<p><img src="/2018/02/11/Mixtures-of-Factor-Analyzers/Gauss.jpg" width="50%" height="50%"></p>
+<p>我們觀察的資料 $x$ 都是高斯分布, 且都是高維度. 但實際上 $x$ 通常只由少數幾個看不到的變數控制, 一般稱這些看不到的變數為 latent variable $z$. 如下圖舉例:</p>
+<p><img src="/2018/02/11/Mixtures-of-Factor-Analyzers/latent_space.png" width="60%" height="60%"></p>
+<p>所以我們的主要問題就是, 怎麼對 Gaussian distribution 建立 sub-space 模型?  答案就是使用 Linear Gaussian Model.</p>
+<p>一些 notations 定義: $x$ 表示我們的 observation, 維度是 $D$. $z$ 是我們的 latent variable, 維度是 $K$. 我們一般都期望 $K \ll D$. $x$ and $z$ follow linear-Gaussian framework, 有如下的關係:</p>
 <span>$$\begin{align}
 p(z)=N(z|0,I) \\
 p(x|z)=N(x|Wz+\mu,\Psi) \\
