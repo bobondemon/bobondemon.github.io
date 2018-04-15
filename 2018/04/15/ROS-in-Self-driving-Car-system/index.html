@@ -1,0 +1,804 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Udacity,ROS," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="這是經歷了漫長的時間, 最後的一哩路了….從2016年12月開始, 到2018年4月中, 花了整整一年五個月. 其實我原先打算半年前就畢業的, 但是中途有狀況, 所以只好 term2 完成後停了半年才開始 term3, 也因此到昨天才剛確定畢業! 而昨天剛好也參加了 Udacity 在中國兩周年的會, 見到了 David Sliver 本人, 算是畢業的一個小紀念!
+
+最後的 projec">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ROS in Self-driving Car system">
+<meta property="og:url" content="http://yoursite.com/2018/04/15/ROS-in-Self-driving-Car-system/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="這是經歷了漫長的時間, 最後的一哩路了….從2016年12月開始, 到2018年4月中, 花了整整一年五個月. 其實我原先打算半年前就畢業的, 但是中途有狀況, 所以只好 term2 完成後停了半年才開始 term3, 也因此到昨天才剛確定畢業! 而昨天剛好也參加了 Udacity 在中國兩周年的會, 見到了 David Sliver 本人, 算是畢業的一個小紀念!
+
+最後的 projec">
+<meta property="og:image" content="http://yoursite.com/2018/04/15/ROS-in-Self-driving-Car-system/David.jpeg">
+<meta property="og:image" content="http://yoursite.com/2018/04/15/ROS-in-Self-driving-Car-system/final-project-ros-graph.png">
+<meta property="og:image" content="http://yoursite.com/2018/04/15/ROS-in-Self-driving-Car-system/roslog.png">
+<meta property="og:image" content="http://yoursite.com/2018/04/15/ROS-in-Self-driving-Car-system/train_img.png">
+<meta property="og:image" content="http://yoursite.com/2018/04/15/ROS-in-Self-driving-Car-system/bosch_1.png">
+<meta property="og:image" content="http://yoursite.com/2018/04/15/ROS-in-Self-driving-Car-system/bosch_2.png">
+<meta property="og:image" content="http://yoursite.com/2018/04/15/ROS-in-Self-driving-Car-system/sim1.jpg">
+<meta property="og:image" content="http://yoursite.com/2018/04/15/ROS-in-Self-driving-Car-system/sim2.jpg">
+<meta property="og:image" content="http://yoursite.com/2018/04/15/ROS-in-Self-driving-Car-system/sim3.jpg">
+<meta property="og:image" content="http://yoursite.com/2018/04/15/ROS-in-Self-driving-Car-system/sim4.jpg">
+<meta property="og:image" content="http://yoursite.com/2018/04/15/ROS-in-Self-driving-Car-system/tf-obj-api.png">
+<meta property="og:updated_time" content="2018-04-15T14:30:51.504Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ROS in Self-driving Car system">
+<meta name="twitter:description" content="這是經歷了漫長的時間, 最後的一哩路了….從2016年12月開始, 到2018年4月中, 花了整整一年五個月. 其實我原先打算半年前就畢業的, 但是中途有狀況, 所以只好 term2 完成後停了半年才開始 term3, 也因此到昨天才剛確定畢業! 而昨天剛好也參加了 Udacity 在中國兩周年的會, 見到了 David Sliver 本人, 算是畢業的一個小紀念!
+
+最後的 projec">
+<meta name="twitter:image" content="http://yoursite.com/2018/04/15/ROS-in-Self-driving-Car-system/David.jpeg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/04/15/ROS-in-Self-driving-Car-system/"/>
+
+
+
+
+
+  <title> ROS in Self-driving Car system | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/15/ROS-in-Self-driving-Car-system/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                ROS in Self-driving Car system
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2018-04-15T19:05:29+08:00">
+                2018-04-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>這是經歷了漫長的時間, 最後的一哩路了….從2016年12月開始, 到2018年4月中, 花了整整一年五個月. 其實我原先打算半年前就畢業的, 但是中途有狀況, 所以只好 term2 完成後停了半年才開始 term3, 也因此到昨天才剛確定畢業! 而昨天剛好也參加了 Udacity 在中國兩周年的會, 見到了 David Sliver 本人, 算是畢業的一個小紀念!</p>
+<p><img src="/2018/04/15/ROS-in-Self-driving-Car-system/David.jpeg" width="60%" height="60%"></p>
+<p>最後的 project 比較有別於以往, 採用 team work 的方式. 我們的 team 共五人, team lead Franz Pucher 德國, Theodore King 美國, 和我. 疑? 另外兩個呢? 對於 project 完全沒貢獻…我不想說了….= =</p>
+<a id="more"></a>
+<hr>
+<h3 id="ROS-簡介"><a href="#ROS-簡介" class="headerlink" title="ROS 簡介"></a>ROS 簡介</h3><p>關於機器人控制和自動車都會使用 ROS (Robot Operating System), ROS 一定要參考 <a href="http://wiki.ros.org/" target="_blank" rel="external">ROS wiki</a>. 本次作業的 ROS 系統擷取課程圖片如下:</p>
+<p><img src="/2018/04/15/ROS-in-Self-driving-Car-system/final-project-ros-graph.png" width="100%" height="100%"></p>
+<p>看不懂沒關係, 了解 ROS 主要三個概念: <strong>Node</strong>, <strong>Topic</strong>, <strong>Msg</strong> 就清楚上面的圖在幹嘛了. <strong>Node</strong> 簡單講類似於 class, 可以訂閱某些 <strong>Topic</strong>, 和發送 <strong>Msg</strong> 到指定的 <strong>Topic</strong>. 舉例來說當有某個 Node A 發送一個 msg M 到一個 topic T 時, 如果 Node B 有訂閱 topic T, 則 Node B 會收到 msg M, 並且執行預先設定好的 call back function. 用以下的程式範例舉例:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">TrafficLightDetector</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        rospy.init_node(<span class="string">'tl_detector'</span>)  <span class="comment"># 要在開頭就先 init 好這是 ros node</span></div><div class="line">        ...</div><div class="line">        <span class="comment"># 訂閱了一個 topic '/current_pose', 並且如果有 msg 發送到此 topic, 此 node 會收到並且呼叫 call back function self.pose_cb</span></div><div class="line">        sub = rospy.Subscriber(<span class="string">'/current_pose'</span>, PoseStamped, self.pose_cb, queue_size=<span class="number">1</span>)</div><div class="line">        <span class="comment"># 此 node 會發送 msg 到 topic '/traffic_waypoint'</span></div><div class="line">        self.upcoming_red_light_pub = rospy.Publisher(<span class="string">'/traffic_waypoint'</span>, Int32, queue_size=<span class="number">1</span>)</div><div class="line">        </div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">pose_cb</span><span class="params">(self, msg)</span>:</span></div><div class="line">        self.pose = msg.pose</div></pre></td></tr></table></figure>
+<p>要注意的是, 由於 topic 運作方式為一旦有其他 node 發送 msg 到此 topic, 有訂閱此 topic 的 node 的 call back function 都會被呼叫. 這就意謂著 topic 如果發送 msg 太頻繁, 導致訂閱的 node 無法及時消化, 則 msg 會掉包. 一種解決方式為使用 <code>rospy.Rate</code> 控制發送的頻率. 但是其實還有另一種傳送 msg 的方式: <strong>Service</strong></p>
+<p>簡單講 Service 的概念就是 request and response, 不同於 topic, service 會將兩個 node 直接連接起來, 一個發起 request 後, 會等另一個 node response 才會接著做下去. 一個簡單的舉例如下:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 需注意 ServiceClassName 要先在 package 裡的 srv folder 定義好</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">NodeA</span><span class="params">(object)</span>:</span></div><div class="line">...</div><div class="line">    <span class="comment"># 拿到該 service</span></div><div class="line">    service = rospy.ServiceProxy(<span class="string">'service_name'</span>,ServiceClassName)</div><div class="line">    <span class="comment"># 拿到可以 request 的 msg instance</span></div><div class="line">    msg = ServiceClassNameRequest()</div><div class="line">    <span class="comment"># 修改 msg 成需要的狀態</span></div><div class="line">    ...</div><div class="line">    <span class="comment"># 發起 request 並得到 response</span></div><div class="line">    response = service(msg)</div><div class="line">    </div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">NodeB</span><span class="params">(object)</span>:</span></div><div class="line">...</div><div class="line">    rospy.Service(<span class="string">'service_name'</span>,ServiceClassName, self.handler_func)</div><div class="line">    ...</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">handler_func</span><span class="params">(self, msg)</span>:</span></div><div class="line">        <span class="comment"># 收到 request 的 msg, 在此 handler function 負責處理如何 response</span></div><div class="line">        ...</div></pre></td></tr></table></figure>
+<p>上面的範例使用了兩個 nodes, node A 負責發起 request, 而 node B 負責 response. 另外筆記一些 ros 常用的指令和功能<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line">&gt;&gt; roscore <span class="comment"># start ROS master</span></div><div class="line"></div><div class="line"><span class="comment"># rosrun 可以指定負責要跑哪個 node</span></div><div class="line">&gt;&gt; rosrun package_name node_name</div><div class="line"></div><div class="line"><span class="comment"># node 一多, 可以使用 roslauch 一次執行多個 nodes, 但是要寫好 launch file</span></div><div class="line">&gt;&gt; roslaunch launch/launchfile</div><div class="line"></div><div class="line"><span class="comment"># 列出 active 的 nodes</span></div><div class="line">&gt;&gt; rosnode list</div><div class="line"></div><div class="line"><span class="comment"># 列出 active 的 topics</span></div><div class="line">&gt;&gt; rostopic list</div><div class="line"></div><div class="line"><span class="comment"># 查看某個 topic</span></div><div class="line">&gt;&gt; rostopic info topic_name</div><div class="line"></div><div class="line"><span class="comment"># 將 publish 到此 topic 的 msgs 都即時顯示在 terminal 上</span></div><div class="line">&gt;&gt; rostopic echo topic_name</div><div class="line"></div><div class="line"><span class="comment"># 一般來說 rospy.loginfo('info msg') 會顯示在 /rosout 這個 topic, 因此適合 debug</span></div><div class="line">&gt;&gt; rostopic echo /rosout</div><div class="line"></div><div class="line"><span class="comment"># 查看某個 msg</span></div><div class="line">&gt;&gt; rosmsg info msg_name</div><div class="line"></div><div class="line"><span class="comment"># build 自定義的 ros package</span></div><div class="line">&gt;&gt; cd ~/catkin_ws; catkin_make</div><div class="line"></div><div class="line"><span class="comment"># 檢查 package 的 dependency</span></div><div class="line">&gt;&gt; rosdep install -i package_name</div><div class="line"></div><div class="line"><span class="comment"># 如果將某個 package 加入到自己的 catkin_ws 時, 需加到 catkin_ws/src 資料夾下, 並且重新 make</span></div><div class="line">&gt;&gt; cd ~/catkin_ws/src</div><div class="line">&gt;&gt; git clone <span class="string">'some packages'</span></div><div class="line">&gt;&gt; cd ~/catkin_ws</div><div class="line">&gt;&gt; catkin_make</div><div class="line"></div><div class="line"><span class="comment"># Build 完後, 需要 source 才可以將 catkin_ws/src 下的所有 packages 都加到 ros 中</span></div><div class="line">&gt;&gt; source ~/catkin_ws/devel/setup.bash</div></pre></td></tr></table></figure></p>
+<p>Debug 的話 <code>rospy.loginfo</code>, <code>rospy.logwarn</code>, <code>rospy.logerr</code>, <code>rospy.logfatal</code> 很好用, 它們分別會被記錄在以下幾個地方:</p>
+<p><img src="/2018/04/15/ROS-in-Self-driving-Car-system/roslog.png" width="100%" height="100%"></p>
+<hr>
+<h3 id="Self-Driving-Car-ROS-Nodes"><a href="#Self-Driving-Car-ROS-Nodes" class="headerlink" title="Self-Driving Car ROS Nodes"></a>Self-Driving Car ROS Nodes</h3><p>因此這最後的 project 主要就分成三個部分</p>
+<ol>
+<li><strong>Perception</strong>:<br>這部分負責收到 <code>/image_color</code> 這個 topic 的影像後, 來找出 traffic sign 在哪裡並且是哪種燈號. 相當於 term1 的 <a href="https://bobondemon.github.io/2017/03/12/Vehicle-Tracking/#more" target="_blank" rel="external">Vehicle Tracking</a>, 我主要負責此部分, 但是沒有使用當時做 project 的 sliding window + svm 方法. 下面會詳細介紹.</li>
+<li><strong>Planning</strong>:<br>負責根據目前車子的位置以及如果有紅燈的話, 必須規劃好新的路徑, 並將期望的速度一併發送給 Control. 相當於 term3 的 <a href="https://bobondemon.github.io/2018/02/06/Path-Planning-Udacity-Term3-Project1/" target="_blank" rel="external">Path Planning</a></li>
+<li><strong>Control</strong>:<br>根據規畫的路徑和速度, 找出可以實際操控的參數 (throttle, brake, steering). 相當於 term2 的 <a href="https://bobondemon.github.io/2017/06/28/ModelPredictiveControl/" target="_blank" rel="external">Model Predictive Control</a>. 但我們團隊沒有用 MPC, 而是使用 <a href="https://en.wikipedia.org/wiki/PID_controller" target="_blank" rel="external">PID control</a>.</li>
+</ol>
+<hr>
+<h3 id="Perception-Traffic-Light"><a href="#Perception-Traffic-Light" class="headerlink" title="Perception Traffic Light"></a>Perception Traffic Light</h3><p>由於小弟我不是做 CV 的, 沒這麼多厲害的能力, 因此一開始我也沒打算訓個 YOLO 之類的方法. 重頭開始訓練的話我只能先想到不如用上次 project 的 <a href="https://bobondemon.github.io/2018/03/06/Udacity-Semantic-Segmentation/" target="_blank" rel="external">semantic segmantation</a> 方法, 將認為是 traffic sign 的部分找出來, 接著用簡單的顏色區分一下好了.</p>
+<p>training set 我使用 <a href="https://hci.iwr.uni-heidelberg.de/node/6132" target="_blank" rel="external">Bosch Traffic Light Dataset</a>, 共有 5093 張 images. 很多張影像完全沒有 traffic sign, 因此我就忽略, 並且有些 traffic sign 實在太小, 那種情況也忽略, 最後篩選出 548 張有 traffic signs 的影像並且 resize 成 600x800, 舉個例如下:</p>
+<p><img src="/2018/04/15/ROS-in-Self-driving-Car-system/train_img.png" width="100%" height="100%"></p>
+<p>注意到用的 semantic segmentation 方法是 <strong>pixel level</strong> 的, 也就是說每個 pixel 都會去判別 yes/no traffic sign. 而我們看到就算是都有 traffic sign 的影像了, 實際上 pixel 是 traffic sign 所占的比例還是偏低, 這讓我開始有點懷疑是否 DNN 有能力分辨出來. 但是….還真的可以!</p>
+<blockquote>
+<p>現在有種感覺, 有時候針對資料不平均做了一些方式讓每個 class 平均一些, 但是 DNN 的效果其實都沒啥提升, 感覺 DNN 對資料不平均的問題較不敏感</p>
+</blockquote>
+<p><img src="/2018/04/15/ROS-in-Self-driving-Car-system/bosch_1.png" width="60%" height="60%"><br><img src="/2018/04/15/ROS-in-Self-driving-Car-system/bosch_2.png" width="60%" height="60%"></p>
+<p>不過由於模擬器的 traffic sign 跟 Bosch 的差太多, 因此效果不大好. 我只好加入了一些模器器下的影像去訓練, 結果就好很多了.</p>
+<p><img src="/2018/04/15/ROS-in-Self-driving-Car-system/sim1.jpg" width="60%" height="60%"><br><img src="/2018/04/15/ROS-in-Self-driving-Car-system/sim2.jpg" width="60%" height="60%"><br><img src="/2018/04/15/ROS-in-Self-driving-Car-system/sim3.jpg" width="60%" height="60%"><br><img src="/2018/04/15/ROS-in-Self-driving-Car-system/sim4.jpg" width="60%" height="60%"></p>
+<p>但還是遇到一個問題, 我的 macbook 沒有 GPU, 跑一張影像花了 120 secs, 而一秒鐘 camera 會傳來 8 張影像! 根本處理不了, 關鍵是也不知道 Udacity 它們用自己 GPU 跑起來會多快. 所以我就將影像長寬各縮小一半, 總體速度會降到原來的 1/4. 就算如此還是無法驗證是否夠快.</p>
+<p>我們團隊卡在這個無法驗證的狀況很久, 導致可能需要用到延長四周的情形. 最後在 teammate Theodore King 的幫助下, 我們使用了 <a href="https://github.com/coldKnight/TrafficLight_Detection-TensorFlowAPI" target="_blank" rel="external">tf 的 object detection API</a>, 使用 mobilenet 速度快到<del>靠北</del>飛起來. 連 CPU 處理一張影像都只需要不到1秒的時間! 何況使用 GPU. 最終總算有驚無險過關了.</p>
+<p><img src="/2018/04/15/ROS-in-Self-driving-Car-system/tf-obj-api.png" width="60%" height="60%"></p>
+<p><del>我之前做那麼辛苦幹嘛</del></p>
+<hr>
+<h3 id="閒聊"><a href="#閒聊" class="headerlink" title="閒聊"></a>閒聊</h3><p>其實 Udacity 規劃相當棒了, 主要幾個部分都有分別的實作過, 最後來個大一統, 真的很有意思. 但我仍要吐槽的是, 搞環境太麻煩了! 模擬器跑在 virtualbox 上, 而我的 virtualbox window 沒法裝好, 只能裝在 macbook, 但 macbook 又沒有 GPU, 導致使用 deep learning 的方法完全不知夠不夠快! 另外, VM 的環境我還搞不定怎麼跟 host share data, 搞得我只好上傳雲端再下載, 最後衰事接踵而來, VM 也搞不定翻牆 (對, 我在網路長城的牆內)…..80%都在搞環境….真的很痛苦</p>
+<p>恩, 終於畢業了… 結束了這漫長的旅程. 原以為我會興奮得不得了, 不過可能是因為最後 project 搞環境太痛苦, 加上這樣子的團隊合作其實沒有約束力 (有兩個完全的壟員), 反而解脫感壓過了高興. 但總結來說, 還是很感謝 Udacity 陪伴了我一年多, 並且有了這麼有趣的經驗! 有機會的話, 我還是會繼續上 Udacity 其他課程的.</p>
+<hr>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
+<li><a href="https://github.com/fjp/CarND-Capstone" target="_blank" rel="external">Our github</a></li>
+<li><a href="http://wiki.ros.org/" target="_blank" rel="external">ROS wiki</a></li>
+<li><a href="https://github.com/coldKnight/TrafficLight_Detection-TensorFlowAPI" target="_blank" rel="external">TrafficLight_Detection-TensorFlowAPI</a></li>
+<li><a href="https://bobondemon.github.io/2018/03/06/Udacity-Semantic-Segmentation/" target="_blank" rel="external">Semantic Segmantation</a></li>
+<li><a href="https://bobondemon.github.io/2018/02/06/Path-Planning-Udacity-Term3-Project1/" target="_blank" rel="external">Path Planning</a></li>
+<li><a href="https://bobondemon.github.io/2017/06/28/ModelPredictiveControl/" target="_blank" rel="external">Model Predictive Control</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Udacity/" rel="tag"># Udacity</a>
+          
+            <a href="/tags/ROS/" rel="tag"># ROS</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/06/Udacity-Semantic-Segmentation/" rel="next" title="Udacity-Semantic-Segmentation">
+                <i class="fa fa-chevron-left"></i> Udacity-Semantic-Segmentation
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">30</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#ROS-簡介"><span class="nav-number">1.</span> <span class="nav-text">ROS 簡介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Self-Driving-Car-ROS-Nodes"><span class="nav-number">2.</span> <span class="nav-text">Self-Driving Car ROS Nodes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Perception-Traffic-Light"><span class="nav-number">3.</span> <span class="nav-text">Perception Traffic Light</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#閒聊"><span class="nav-number">4.</span> <span class="nav-text">閒聊</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">5.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
