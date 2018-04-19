@@ -96,7 +96,8 @@
 <meta property="og:image" content="http://yoursite.com/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/MMI_computational_graph2.png">
 <meta property="og:image" content="http://yoursite.com/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/MMI_computational_graph1.png">
 <meta property="og:image" content="http://yoursite.com/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/MMI_computational_graph2.png">
-<meta property="og:updated_time" content="2017-12-16T17:45:39.602Z">
+<meta property="og:image" content="http://yoursite.com/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/eq18_details.jpg">
+<meta property="og:updated_time" content="2018-04-19T14:42:47.174Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Maximum Mutual Information in Speech Recognition">
 <meta name="twitter:description" content="Maximum Mutual Information (MMI) 序列的鑑別性訓練方法從早期的 GMM-HMM, 到現今就算使用了深度學習同樣十分有用, 如 Kaldi chain model 在 DNN-HMM 的基礎上加上序列鑑別訓練, 性能會再進一步提升. 前一陣子讀了俞棟、鄧力的這本 語音識別實踐, 對我來說整理得滿好的, 就是數學部分的推導有點簡潔了些, 所以這篇就基於該書的推導">
@@ -440,6 +441,9 @@ e_t^L(i)=\sum_r K\left(\delta(r=s_t)-\frac{\sum_{w:s_t=r}p(o\|s,\theta)^K p(w)}{
 \end{align}$$</span><!-- Has MathJax --><br>其中一個很重要的定義<br><span>$$\begin{align}
 \gamma_t^{DEN}(r)=\frac{\sum_{w:s_t=r}p(o\|s,\theta)^K p(w)}{\sum_w p(o\|s^w,\theta)^K p(w)}
 \end{align}$$</span><!-- Has MathJax --><br>物理意義就是<strong>時間$t$在狀態$r$的機率</strong>! 理論上來說我們要取遍所有可能的 word sequence $w$ 並求和計算, 但實際上只會在 decoding 時的 lattice 上計算, 以節省時間. 到目前為止我們算完了 MMI 最困難的部分了, 得到 $e_t^L(i)$ 後 (式(18))，剩下的就只是 follow 上圖的 MMI computational graph 去做.</p>
+<blockquote>
+<p>有讀者來信詢問式 (17) 如何推導至 (18), 過程如下圖: (抱歉偷懶不打 Latex 了)<br><img src="/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/eq18_details.jpg" width="80%" height="80%"></p>
+</blockquote>
 <hr>
 <h3 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h3><p>還有一些其他變種如 boost MMI (bMMI)、MPE、MCE等等, 差別只是在最小化不同的標註精細度, 最重要的還是要先了解 MMI 就可以容易推廣了. 這些都有一個統一的表達法如下:<br><span>$$\begin{align}
 e_t^L(i)=K\left(\gamma_t^{DEN}(i)-\gamma_t^{NUM}(i)\right)
