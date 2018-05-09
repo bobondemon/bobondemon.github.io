@@ -1,0 +1,790 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Computational Graph,TensorFlow," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="這篇是個小練習, 就兩點:
+
+了解什麼是 deconvolution, 並在 tensorflow 中怎麼用
+實作一個 CNN AutoEncoder, Encoder 用 conv2d, Decoder 用 conv2d_transpose">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TF Notes (4), Deconvolution">
+<meta property="og:url" content="http://yoursite.com/2018/05/09/TF-Notes-deconvolution/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="這篇是個小練習, 就兩點:
+
+了解什麼是 deconvolution, 並在 tensorflow 中怎麼用
+實作一個 CNN AutoEncoder, Encoder 用 conv2d, Decoder 用 conv2d_transpose">
+<meta property="og:image" content="http://yoursite.com/2018/05/09/TF-Notes-deconvolution/conv_transpose.png">
+<meta property="og:image" content="http://yoursite.com/2018/05/09/TF-Notes-deconvolution/CNN_autoencoder.png">
+<meta property="og:image" content="http://yoursite.com/2018/05/09/TF-Notes-deconvolution/MNIST-CNN-AutoEncoder-hdim2-2d.png">
+<meta property="og:image" content="http://yoursite.com/2018/05/09/TF-Notes-deconvolution/MNIST-CNN-AutoEncoder-hdim128-tSNE.png">
+<meta property="og:updated_time" content="2018-05-09T12:41:02.897Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="TF Notes (4), Deconvolution">
+<meta name="twitter:description" content="這篇是個小練習, 就兩點:
+
+了解什麼是 deconvolution, 並在 tensorflow 中怎麼用
+實作一個 CNN AutoEncoder, Encoder 用 conv2d, Decoder 用 conv2d_transpose">
+<meta name="twitter:image" content="http://yoursite.com/2018/05/09/TF-Notes-deconvolution/conv_transpose.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/05/09/TF-Notes-deconvolution/"/>
+
+
+
+
+
+  <title> TF Notes (4), Deconvolution | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/09/TF-Notes-deconvolution/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                TF Notes (4), Deconvolution
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2018-05-09T19:59:12+08:00">
+                2018-05-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>這篇是個小練習, 就兩點:</p>
+<ol>
+<li>了解什麼是 deconvolution, 並在 tensorflow 中怎麼用</li>
+<li>實作一個 CNN AutoEncoder, Encoder 用 <code>conv2d</code>, Decoder 用 <code>conv2d_transpose</code></li>
+</ol>
+<a id="more"></a>
+<hr>
+<h2 id="What-is-deconvolution"><a href="#What-is-deconvolution" class="headerlink" title="What is deconvolution?"></a>What is deconvolution?</h2><p>破題: Deconvolution 的操作就是 kernel tranpose 後的 convolution. 使用<a href="https://youtu.be/Tk5B4seA-AU?t=35m41s" target="_blank" rel="external">李宏毅老師的上課內容</a>, 如下圖:</p>
+<p><img src="/2018/05/09/TF-Notes-deconvolution/conv_transpose.png" width="60%" height="60%"></p>
+<p>其實圖已經十分明確了, 因此不多解釋.</p>
+<p>另外在 tensorflow 中, 假設我們的 kernel $W$ 為 <code>W.shape = (img_h, img_w, dim1, dim2)</code>. 則 <code>tf.nn.conv2d(in_tensor,W,stride,padding)</code> 會將 <code>(dim1,dim2)</code> 看成 <code>(in_dim, out_dim)</code>. 而 <code>tf.nn.conv2d_transpose(in_tensor,W,output_shape,stride)</code> 會將 <code>(dim1,dim2)</code> 看成 <code>(out_dim, in_dim)</code>, 注意是反過來的. 有兩點多做說明:</p>
+<ol>
+<li><code>tf.nn.conv2d_transpose</code> 會自動對 $W$ 做 transpose 之後再 convolution, 因此我們不需要自己做 transpose.</li>
+<li><code>tf.nn.conv2d_transpose</code> 需要額外指定 <code>output_shape</code>.</li>
+</ol>
+<blockquote>
+<p>更多 conv/transpose_conv/dilated_conv with stride/padding 有個 <strong>非常棒的可視化</strong> 結果參考此 <a href="https://github.com/vdumoulin/conv_arithmetic" target="_blank" rel="external">github</a></p>
+</blockquote>
+<hr>
+<h2 id="CNN-AutoEncoder"><a href="#CNN-AutoEncoder" class="headerlink" title="CNN AutoEncoder"></a>CNN AutoEncoder</h2><p>結構如下圖</p>
+<p><img src="/2018/05/09/TF-Notes-deconvolution/CNN_autoencoder.png" width="80%" height="80%"></p>
+<p>直接將 embedding 壓到 2 維, 每個類別的分布情形如下:</p>
+<p><img src="/2018/05/09/TF-Notes-deconvolution/MNIST-CNN-AutoEncoder-hdim2-2d.png" width="80%" height="80%"></p>
+<p>embedding 是 128 維, 並使用 tSNE 投影到 2 維畫圖如下:</p>
+<p><img src="/2018/05/09/TF-Notes-deconvolution/MNIST-CNN-AutoEncoder-hdim128-tSNE.png" width="80%" height="80%"></p>
+<p>Encoder 如下:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">Encoder</span><span class="params">(x)</span>:</span></div><div class="line">    print(<span class="string">'Input x got shape='</span>,x.shape)  <span class="comment"># (None,28,28,1)</span></div><div class="line">    <span class="comment"># Layer 1 encode: Input = (batch_num, img_height, img_width, cNum). Output = (batch_num, img_height/2, img_width/2, layer_dim['conv1'])</span></div><div class="line">    layer1_en = tf.nn.relu(tf.nn.conv2d(x, weights[<span class="string">'conv1'</span>], strides=[<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>], padding=<span class="string">'SAME'</span>))</div><div class="line">    <span class="comment"># Avg Pooling</span></div><div class="line">    layer1_en = tf.nn.avg_pool(layer1_en, ksize=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>], strides=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>], padding=<span class="string">'VALID'</span>)</div><div class="line">    print(<span class="string">'After Layer 1, got shape='</span>,layer1_en.shape)  <span class="comment"># (None,14,14,32)</span></div><div class="line"></div><div class="line">    <span class="comment"># Layer 2 encode: Input = (batch_num, img_height/2, img_width/2, layer_dim['conv1']). Output = (batch_num, img_height/4, img_width/4, layer_dim['conv2'])</span></div><div class="line">    layer2_en = tf.nn.relu(tf.nn.conv2d(layer1_en, weights[<span class="string">'conv2'</span>], strides=[<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>], padding=<span class="string">'SAME'</span>))</div><div class="line">    <span class="comment"># Avg Pooling</span></div><div class="line">    layer2_en = tf.nn.avg_pool(layer2_en, ksize=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>], strides=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>], padding=<span class="string">'VALID'</span>)</div><div class="line">    print(<span class="string">'After Layer 2, got shape='</span>,layer2_en.shape)  <span class="comment"># (None,7,7,64)</span></div><div class="line"></div><div class="line">    <span class="comment"># Layer embedded: Input = (batch_num, img_height/4 * img_width/4 * layer_dim['conv2']). Output = (batch_num, layer_dim['embedded'])</span></div><div class="line">    flatten_in = flatten(layer2_en)</div><div class="line">    embedded   = tf.matmul(flatten_in,weights[<span class="string">'embedded'</span>])</div><div class="line">    print(<span class="string">'embedded has shape='</span>,embedded.shape)</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> embedded</div></pre></td></tr></table></figure>
+<p>Decoder 如下:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">Decoder</span><span class="params">(embedded)</span>:</span></div><div class="line">    <span class="comment"># API: tf.nn.conv2d_transpose = (value, filter, output_shape, strides, padding='SAME', ...)</span></div><div class="line">    bsize = tf.shape(embedded)[<span class="number">0</span>]</div><div class="line"></div><div class="line">    <span class="comment"># Layer embedded decode: Input = (batch_num, layer_dim['embedded']). Output = (batch_num, in_dim_for_embedded)</span></div><div class="line">    embedded_t = tf.matmul(embedded,weights[<span class="string">'embedded'</span>],transpose_b=<span class="keyword">True</span>)</div><div class="line">    embedded_t = tf.reshape(embedded_t,[<span class="number">-1</span>, <span class="number">7</span>, <span class="number">7</span>, layer_dim[<span class="string">'conv2'</span>]])</div><div class="line">    print(<span class="string">'embedded_t has shape='</span>,embedded_t.shape)</div><div class="line"></div><div class="line">    <span class="comment"># Layer 2 decode: Input = (batch_num, 7, 7, layer_dim['conv2']). Output = (batch_num, 14, 14, layer_dim['conv1'])</span></div><div class="line">    layer2_t = tf.nn.relu(tf.nn.conv2d_transpose(embedded_t,weights[<span class="string">'conv2t'</span>],[bsize, <span class="number">14</span>, <span class="number">14</span>, layer_dim[<span class="string">'conv1'</span>]], [<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>]))</div><div class="line">    print(<span class="string">'layer2_t has shape='</span>,layer2_t.shape)</div><div class="line"></div><div class="line">    <span class="comment"># Layer 1 decode: Input = (batch_num, 14, 14, layer_dim['conv1']). Output = (batch_num, 28, 28, cNum)</span></div><div class="line">    layer1_t = tf.nn.relu(tf.nn.conv2d_transpose(layer2_t,weights[<span class="string">'conv1t'</span>],[bsize, <span class="number">28</span>, <span class="number">28</span>, cNum], [<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>]))</div><div class="line">    print(<span class="string">'layer1_t has shape='</span>,layer1_t.shape)</div><div class="line">    </div><div class="line">    <span class="comment"># Layer reconstruct: Input = batch_num x layer_dim['layer1']. Output = batch_num x img_dim.</span></div><div class="line">    reconstruct = tf.nn.relu(tf.nn.conv2d(layer1_t, weights[<span class="string">'reconstruct'</span>], strides=[<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>], padding=<span class="string">'SAME'</span>)) - <span class="number">0.5</span></div><div class="line">    print(<span class="string">'reconstruct has shape='</span>,reconstruct.shape)</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> reconstruct</div></pre></td></tr></table></figure>
+<p>AutoEncoder 串起來很容易:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">AutoEncoder</span><span class="params">(x)</span>:</span>    </div><div class="line">    embedded = Encoder(x)</div><div class="line">    reconstruct = Decoder(embedded)</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> [embedded, reconstruct]</div></pre></td></tr></table></figure>
+<p>完整 source codes 參考下面 reference</p>
+<hr>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ol>
+<li><a href="https://youtu.be/Tk5B4seA-AU?t=35m41s" target="_blank" rel="external">李宏毅 deconvolution 解釋</a></li>
+<li><a href="https://www.tensorflow.org/api_docs/python/tf/nn/conv2d_transpose" target="_blank" rel="external">tf.nn.conv2d_transpose 說明</a></li>
+<li>conv/transpose_conv/dilated_conv with stride/padding 可視化: <a href="https://github.com/vdumoulin/conv_arithmetic" target="_blank" rel="external">github</a></li>
+<li><a href="MNIST-CNN-AutoEncoder.py">本篇完整 source codes</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Computational-Graph/" rel="tag"># Computational Graph</a>
+          
+            <a href="/tags/TensorFlow/" rel="tag"># TensorFlow</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/15/ROS-in-Self-driving-Car-system/" rel="next" title="ROS in Self-driving Car system">
+                <i class="fa fa-chevron-left"></i> ROS in Self-driving Car system
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">31</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">41</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#What-is-deconvolution"><span class="nav-number">1.</span> <span class="nav-text">What is deconvolution?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CNN-AutoEncoder"><span class="nav-number">2.</span> <span class="nav-text">CNN AutoEncoder</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">3.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
