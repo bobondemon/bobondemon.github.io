@@ -1,0 +1,783 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Kaldi," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Kaldi I/O C++ Level 筆記, 主要介紹以下幾點, 以及它們在 Kaldi c++ 裡如何關聯:
+
+標準 low-level I/O for Kaldi Object
+XXXHolder類別: 一個符合標準 low-level I/O 的類別
+Kaldi Table Object: &amp;lt;key,value&amp;gt; pairs 組成的 Kaldi 格式檔案 (scp, a">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kaldi Notes (1), I/O in C++ Level">
+<meta property="og:url" content="http://yoursite.com/2018/05/31/Kaldi-Notes-IO-in-C-Level/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="Kaldi I/O C++ Level 筆記, 主要介紹以下幾點, 以及它們在 Kaldi c++ 裡如何關聯:
+
+標準 low-level I/O for Kaldi Object
+XXXHolder類別: 一個符合標準 low-level I/O 的類別
+Kaldi Table Object: &amp;lt;key,value&amp;gt; pairs 組成的 Kaldi 格式檔案 (scp, a">
+<meta property="og:updated_time" content="2018-05-31T16:26:08.329Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Kaldi Notes (1), I/O in C++ Level">
+<meta name="twitter:description" content="Kaldi I/O C++ Level 筆記, 主要介紹以下幾點, 以及它們在 Kaldi c++ 裡如何關聯:
+
+標準 low-level I/O for Kaldi Object
+XXXHolder類別: 一個符合標準 low-level I/O 的類別
+Kaldi Table Object: &amp;lt;key,value&amp;gt; pairs 組成的 Kaldi 格式檔案 (scp, a">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/05/31/Kaldi-Notes-IO-in-C-Level/"/>
+
+
+
+
+
+  <title> Kaldi Notes (1), I/O in C++ Level | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/31/Kaldi-Notes-IO-in-C-Level/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Kaldi Notes (1), I/O in C++ Level
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2018-05-31T23:32:43+08:00">
+                2018-05-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p><a href="http://kaldi-asr.org/doc/io.html#io_sec_files" target="_blank" rel="external">Kaldi I/O</a> C++ Level 筆記, 主要介紹以下幾點, 以及它們在 Kaldi c++ 裡如何關聯:</p>
+<ol>
+<li>標準 low-level I/O for Kaldi Object</li>
+<li><a href="http://kaldi-asr.org/doc/kaldi-holder_8h_source.html" target="_blank" rel="external">XXXHolder</a>類別: 一個符合標準 low-level I/O 的類別</li>
+<li>Kaldi Table Object: <code>&lt;key,value&gt;</code> pairs 組成的 Kaldi 格式檔案 (scp, ark), 其中 value 為 XXXHolder 類別</li>
+</ol>
+<a id="more"></a>
+<hr>
+<h2 id="標準-low-level-I-O-for-Kaldi-Object"><a href="#標準-low-level-I-O-for-Kaldi-Object" class="headerlink" title="標準 low-level I/O for Kaldi Object"></a>標準 low-level I/O for Kaldi Object</h2><p>Kaldi Object 有自己的標準 I/O 介面:<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> SomeKaldiClass &#123;</div><div class="line">  <span class="keyword">public</span>:</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Read</span><span class="params">(<span class="built_in">std</span>::istream &amp;is, <span class="keyword">bool</span> binary)</span></span>;</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Write</span><span class="params">(<span class="built_in">std</span>::ostream &amp;os, <span class="keyword">bool</span> binary)</span> <span class="keyword">const</span></span>;</div><div class="line">  &#125;;</div></pre></td></tr></table></figure></p>
+<p>因此定義了該 Kaldi Class 如何針對 istream 讀取 (ostream 寫入). 在 Kaldi 中, istream/ostream 一般是由 <a href="http://kaldi-asr.org/doc/classkaldi_1_1Input.html" target="_blank" rel="external">Input</a>/<a href="http://kaldi-asr.org/doc/classkaldi_1_1Output.html" target="_blank" rel="external">Output</a>(在 <a href="http://kaldi-asr.org/doc/kaldi-io_8h.html" target="_blank" rel="external">util/kaldi-io.h</a> 裡定義) 這個 class 來開啟的. 那為何不用一般的 c++ iostream 開啟一個檔案呢? 這是因為 Kaldi 想要支援更多樣的檔案開啟方式, 稱為 “Extended filenames: <strong>rxfilenames</strong> and <strong>wxfilenames</strong>“.</p>
+<blockquote>
+<p>例如可以從 stdin/stdout, pipe, file 和 file with offset 讀取寫入, 詳細請看<a href="http://kaldi-asr.org/doc/io.html" target="_blank" rel="external">文檔</a>的 “Extended filenames: rxfilenames and wxfilenames” 部分.</p>
+</blockquote>
+<p>所以 Input/Ouput Class 會自動解析 rxfilenames/wxfilenames 然後開啟 istream/ostream. 開啟後, Kaldi Object 就可以透過標準的 I/O 介面呼叫 Read/Write 方法了. 官網範例如下:<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">&#123; <span class="comment">// input.</span></div><div class="line">  <span class="keyword">bool</span> binary_in;</div><div class="line">  <span class="function">Input <span class="title">ki</span><span class="params">(some_rxfilename, &amp;binary_in)</span></span>;</div><div class="line">  my_object.Read(ki.Stream(), binary_in);</div><div class="line">  <span class="comment">// you can have more than one object in a file:</span></div><div class="line">  my_other_object.Read(ki.Stream(), binary_in);</div><div class="line">&#125;</div><div class="line"><span class="comment">// output. note, "binary" is probably a command-line option.</span></div><div class="line">&#123;</div><div class="line">  <span class="function">Output <span class="title">ko</span><span class="params">(some_wxfilename, binary)</span></span>;</div><div class="line">  my_object.Write(ko.Stream(), binary);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>有時候會看到更精簡的寫法如下<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span> </span>&#123;</div><div class="line">  ...</div><div class="line">  <span class="built_in">std</span>::<span class="built_in">string</span> rxfilenames = po.GetArg(<span class="number">1</span>);</div><div class="line">  <span class="built_in">std</span>::<span class="built_in">string</span> wxfilenames = po.GetArg(<span class="number">2</span>);</div><div class="line">  SomeKaldiClass my_object;</div><div class="line">  ReadKaldiObject(rxfilenames, &amp;my_object);</div><div class="line">  WriteKaldiObject(my_object, wxfilenames, binary);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>其中 <code>ReadKaldiObject</code> and <code>WriteKaldiObject</code> (defined in <a href="http://kaldi-asr.org/doc/kaldi-io_8h.html" target="_blank" rel="external">util/kaldi-io.h</a>) 的作用只是將 Input/Output 開啟 xfilenames 為 iostream, 並傳給 my_object 的標準 I/O 介面包裝起 來而已. 擷取 define 片段如下:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> C&gt; <span class="function"><span class="keyword">void</span> <span class="title">ReadKaldiObject</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span> &amp;filename, C *c)</span> </span>&#123;</div><div class="line">  <span class="keyword">bool</span> binary_in;</div><div class="line">  <span class="function">Input <span class="title">ki</span><span class="params">(filename, &amp;binary_in)</span></span>;</div><div class="line">  c-&gt;Read(ki.Stream(), binary_in);</div><div class="line">&#125;</div><div class="line"><span class="comment">// Specialize the template for reading matrices, because we want to be able to</span></div><div class="line"><span class="comment">// support reading 'ranges' (row and column ranges), like foo.mat[10:20].</span></div><div class="line"><span class="comment">// 上面的 class C 如果是 Matrix&lt;float&gt; or Matrix&lt;double&gt; 的話, 使用下面兩個定義</span></div><div class="line"><span class="comment">// Note: 這種方式是 template 的 specialization, 同樣名稱的 template function or class 可以重複出現，只針對某些 type 客製化</span></div><div class="line"><span class="keyword">template</span> &lt;&gt; <span class="function"><span class="keyword">void</span> <span class="title">ReadKaldiObject</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span> &amp;filename,</span></span></div><div class="line">                                 Matrix&lt;<span class="keyword">float</span>&gt; *m);</div><div class="line"><span class="keyword">template</span> &lt;&gt; <span class="function"><span class="keyword">void</span> <span class="title">ReadKaldiObject</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span> &amp;filename,</span></span></div><div class="line">                                 Matrix&lt;<span class="keyword">double</span>&gt; *m);</div><div class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> C&gt; <span class="function"><span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">WriteKaldiObject</span><span class="params">(<span class="keyword">const</span> C &amp;c,</span></span></div><div class="line">                                                <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span> &amp;filename,</div><div class="line">                                                <span class="keyword">bool</span> binary) &#123;</div><div class="line">  <span class="function">Output <span class="title">ko</span><span class="params">(filename, binary)</span></span>;</div><div class="line">  c.Write(ko.Stream(), binary);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<hr>
+<h2 id="Kaldi-Table-Object"><a href="#Kaldi-Table-Object" class="headerlink" title="Kaldi Table Object"></a>Kaldi Table Object</h2><p>Table Object 不直接透過標準的 Read/Write 操作, 是因為 Table object 的構成是由 <code>&lt;key,value&gt;</code> pairs 組成的, 而 value 才會是一個符合標準 Read/Write 操作的 object. 這種 table 所需要的讀寫可能有很多方式, 譬如 sequential access, random access 等等, 因此單純的 Read/Write 比較不能滿足需求, 更需要的是要有 Next, Done, Key, Value 等等的操作方式. 例如以下範例:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">std</span>::<span class="built_in">string</span> feature_rspecifier = <span class="string">"scp:/tmp/my_orig_features.scp"</span>,</div><div class="line">  transform_rspecifier = <span class="string">"ark:/tmp/transforms.ark"</span>,</div><div class="line">  feature_wspecifier = <span class="string">"ark,t:/tmp/new_features.ark"</span>;</div><div class="line"><span class="comment">// there are actually more convenient typedefs for the types below,</span></div><div class="line"><span class="comment">// e.g. BaseFloatMatrixWriter, SequentialBaseFloatMatrixReader, etc.</span></div><div class="line">TableWriter&lt;BaseFloatMatrixHolder&gt; feature_writer(feature_wspecifier);</div><div class="line">SequentialTableReader&lt;BaseFloatMatrixHolder&gt; feature_reader(feature_rspecifier);</div><div class="line">RandomAccessTableReader&lt;BaseFloatMatrixHolder&gt; transform_reader(transform_rspecifier);</div><div class="line"><span class="keyword">for</span>(; !feature_reader.Done(); feature_reader.Next()) &#123;</div><div class="line">  <span class="built_in">std</span>::<span class="built_in">string</span> utt = feature_reader.Key();</div><div class="line">  <span class="keyword">if</span>(transform_reader.HasKey(utt)) &#123;</div><div class="line">    Matrix&lt;BaseFloat&gt; new_feats(feature_reader.Value());</div><div class="line">    ApplyFmllrTransform(new_feats, transform_reader.Value(utt));</div><div class="line">    feature_writer.Write(utt, new_feats);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>主要有幾種 table classes:<br><a href="http://kaldi-asr.org/doc/classkaldi_1_1TableWriter.html" target="_blank" rel="external">TableWriter</a>, <a href="http://kaldi-asr.org/doc/classkaldi_1_1SequentialTableReader.html" target="_blank" rel="external">SequentialTableReader</a>, <a href="http://kaldi-asr.org/doc/classkaldi_1_1RandomAccessTableReader.html" target="_blank" rel="external">RandomAccessTableReader</a> 等等, 都定義在 <a href="http://kaldi-asr.org/doc/kaldi-table_8h.html" target="_blank" rel="external">util/kaldi-table.h</a>. 我們就以 SequentialTableReader 來舉例. 上面的範例 <code>feature_reader</code> 就是一個 SequentialTableReader, 他的 <code>&lt;key,value&gt;</code> pairs 中的 value 定義為 BaseFloatMatrixHolder 類別 (一個符合標準 low-level I/O 的 Kaldi Class, 等於是多一層包裝).</p>
+<blockquote>
+<p>XXXHolder (如 KaldiObjectHolder, BasicHolder, BasicVectorHolder, BasicVectorVectorHolder, …) 指的是符合標準 low-level I/O 的 Kaldi Object, 因此這些 XXXHolder 都可以統一透過 Read/Write 來呼叫. 這些 Holder 的定義在 <a href="http://kaldi-asr.org/doc/kaldi-holder_8h_source.html" target="_blank" rel="external">util/kaldi-holder.h</a>.<br>另外 kaldi-holder.h 最後一行會 include <a href="http://kaldi-asr.org/doc/kaldi-holder-inl_8h_source.html#l00045" target="_blank" rel="external">kaldi-holder-inl.h</a>. “-inl” 意思是 inline, 通常會放在相對應沒有 -inl 的 .h 最後面, 用來當作是 inline implementation 用.</p>
+</blockquote>
+<p>SequentialTableReader 的定義在 “util/kaldi-table.h”, 擷取要介紹的片段:<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span>&lt;<span class="keyword">class</span> Holder&gt;</div><div class="line"><span class="keyword">class</span> SequentialTableReader &#123;</div><div class="line">  <span class="keyword">public</span>:</div><div class="line">    <span class="keyword">typedef</span> <span class="keyword">typename</span> Holder::T T;</div><div class="line">    <span class="function"><span class="keyword">inline</span> <span class="keyword">bool</span> <span class="title">Done</span><span class="params">()</span></span>;</div><div class="line">    <span class="keyword">inline</span> <span class="built_in">std</span>::<span class="function"><span class="built_in">string</span> <span class="title">Key</span><span class="params">()</span></span>;</div><div class="line">    <span class="function">T &amp;<span class="title">Value</span><span class="params">()</span></span>;</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Next</span><span class="params">()</span></span>;</div><div class="line">  <span class="keyword">private</span>:</div><div class="line">    SequentialTableReaderImplBase&lt;Holder&gt; *impl_;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>Done(), Next(), Key(), and Value() 都可以從 <code>feature_reader</code> 看到如何使用, 應該很直覺, 而 Holder 的解釋上面說了. 剩下要說明的是這行 <code>SequentialTableReaderImplBase&lt;Holder&gt; *impl_;</code>. 在呼叫 SequentialTableReader 的 Next() 時, 他實際上呼叫的是 <code>impl_</code> 的 Next(). 定義在 <a href="http://kaldi-asr.org/doc/kaldi-table-inl_8h_source.html" target="_blank" rel="external">util/kaldi-table-inl.h</a> 片段:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span>&lt;<span class="keyword">class</span> Holder&gt;</div><div class="line"><span class="keyword">void</span> SequentialTableReader&lt;Holder&gt;::Next() &#123;</div><div class="line">  CheckImpl();</div><div class="line">  impl_-&gt;Next();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>impl_</code> 的 class 宣告是 “SequentialTableReaderImplBase”, 該類別的角色是提供一個父類別, 實際上會根據 <code>impl_</code> 真正的類別呼叫其對應的 Next(), 就是多型的使用. 現在假設 <code>impl_</code> 真正的類別是 SequentialTableReaderArchiveImpl. 我們可以在 <a href="http://kaldi-asr.org/doc/kaldi-table-inl_8h_source.html" target="_blank" rel="external">util/kaldi-table-inl.h</a> 看到他的 Next (<a href="http://kaldi-asr.org/doc/kaldi-table-inl_8h_source.html" target="_blank" rel="external">line 531</a>) 實作如下:<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">Next</span><span class="params">()</span> </span>&#123;</div><div class="line">  ...</div><div class="line">  <span class="keyword">if</span> (holder_.Read(is)) &#123;</div><div class="line">    state_ = kHaveObject;</div><div class="line">    <span class="keyword">return</span>;</div><div class="line">  &#125; <span class="keyword">else</span> &#123;</div><div class="line">    ...</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>到這才真正看到透過 XXXHolder 使用 low-level I/O 的 Read()!</p>
+<blockquote>
+<p>Kaldi Codes 品質很高阿, 要花不少時間讀, 果然 c++ 底子還是太差了.</p>
+</blockquote>
+<hr>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li><a href="http://kaldi-asr.org/" target="_blank" rel="external">Kaldi Project</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Kaldi/" rel="tag"># Kaldi</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/09/TF-Notes-deconvolution/" rel="next" title="TF Notes (4), Deconvolution">
+                <i class="fa fa-chevron-left"></i> TF Notes (4), Deconvolution
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#標準-low-level-I-O-for-Kaldi-Object"><span class="nav-number">1.</span> <span class="nav-text">標準 low-level I/O for Kaldi Object</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Kaldi-Table-Object"><span class="nav-number">2.</span> <span class="nav-text">Kaldi Table Object</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">3.</span> <span class="nav-text">References</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
