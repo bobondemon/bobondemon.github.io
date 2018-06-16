@@ -1,0 +1,930 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Probabilistic Graphical Models,Bayesian Network,Markov Network,Conditional Random Field,POS tagging," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="本篇主要介紹什麼是 PGM, 以及一個很重要的應用 Part-of-Speech tagging. PGM 的部分主要圍繞在 “它是什麼?” 也就是 Koller 課程的 Representation. Inference 不討論, 因為自己也沒讀很深入 (汗), 而 Learning 就相當於 ML 裡的 training, 會在介紹 POS 時推導一下.
+文章結構如下:
+
+What i">
+<meta property="og:type" content="article">
+<meta property="og:title" content="(what is) Probabilistic Graphical Models">
+<meta property="og:url" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="本篇主要介紹什麼是 PGM, 以及一個很重要的應用 Part-of-Speech tagging. PGM 的部分主要圍繞在 “它是什麼?” 也就是 Koller 課程的 Representation. Inference 不討論, 因為自己也沒讀很深入 (汗), 而 Learning 就相當於 ML 裡的 training, 會在介紹 POS 時推導一下.
+文章結構如下:
+
+What i">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/perfect_map.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/BN_MN_examples.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic1.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic2.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic3.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic4.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic5.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic6.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic7.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic8.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic9.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic10.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic11.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic12.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic13.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic14.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic15.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic16.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic17.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic18.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic19.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic20.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic21.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic22.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic23.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic24.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic25.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic26.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic27.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic28.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic29.png">
+<meta property="og:updated_time" content="2018-06-16T07:09:20.445Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="(what is) Probabilistic Graphical Models">
+<meta name="twitter:description" content="本篇主要介紹什麼是 PGM, 以及一個很重要的應用 Part-of-Speech tagging. PGM 的部分主要圍繞在 “它是什麼?” 也就是 Koller 課程的 Representation. Inference 不討論, 因為自己也沒讀很深入 (汗), 而 Learning 就相當於 ML 裡的 training, 會在介紹 POS 時推導一下.
+文章結構如下:
+
+What i">
+<meta name="twitter:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/perfect_map.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/"/>
+
+
+
+
+
+  <title> (what is) Probabilistic Graphical Models | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                (what is) Probabilistic Graphical Models
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2018-06-16T10:27:30+08:00">
+                2018-06-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>本篇主要介紹什麼是 PGM, 以及一個很重要的應用 Part-of-Speech tagging. PGM 的部分主要圍繞在 “它是什麼?” 也就是 <a href="https://www.coursera.org/specializations/probabilistic-graphical-models" target="_blank" rel="external">Koller</a> 課程的 Representation. Inference 不討論, 因為自己也沒讀很深入 (汗), 而 Learning 就相當於 ML 裡的 training, 會在介紹 POS 時推導一下.</p>
+<p>文章結構如下:</p>
+<ul>
+<li>What is Probabilistic Graphical Model (PGM)?</li>
+<li>What is Bayesian Network (BN)?</li>
+<li>What is Markov Network (MN)? (or Markov Random Field)</li>
+<li>What is Conditional Random Field (CRF)?</li>
+<li>Part-of-Speech (POS) Tagging</li>
+<li>References</li>
+</ul>
+<p>文長…</p>
+<a id="more"></a>
+<hr>
+<h3 id="What-is-Probabilistic-Graphical-Model-PGM"><a href="#What-is-Probabilistic-Graphical-Model-PGM" class="headerlink" title="What is Probabilistic Graphical Model (PGM)?"></a>What is Probabilistic Graphical Model (PGM)?</h3><p>它是描述 pdf 的一種方式, 不同的描述方式如 directed/undirected graphical model, or Factor Graph 所能描述的 pdf 範圍是不同的. (ref: <a href="https://www.microsoft.com/en-us/research/people/cmbishop/#!prml-book" target="_blank" rel="external">PRML</a>) 其中 P 代表所有 distributions 的集合, U 和 D 分別表示 undirected 和 directed graphical models.</p>
+<p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/perfect_map.png" width="40%" height="40%"></p>
+<p>以有向無向圖來分如下:</p>
+<ul>
+<li>Directed Acyclic Graph (DAG): Bayesian Network</li>
+<li>Undirected Graph: Markov Network</li>
+</ul>
+<p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/BN_MN_examples.png" width="60%" height="60%"></p>
+<p>注意 BN 除了 directed 之外, 還需要 acyclic. 有了圖之後, 怎麼跟 distribution 產生連結的? 下面我們分別介紹 BN and MN.</p>
+<hr>
+<h3 id="What-is-Bayesian-Network-BN"><a href="#What-is-Bayesian-Network-BN" class="headerlink" title="What is Bayesian Network (BN)?"></a>What is Bayesian Network (BN)?</h3><p>對於一個任意的 distibution over variables $x_1,…,x_V$ 我們可以用基本的 chain rule 拆解如下:</p>
+<span>$$\begin{align}
+p(x_{1:V})=p(x_1)p(x_2|x_1)p(x_3|x_{1:2})...p(x_V|x_{1:V-1})
+\end{align}$$</span><!-- Has MathJax -->
+<p>變數的 order 可以任意排列, 舉例來說</p>
+<span>$$\begin{align}
+p(x,y,z)\\
+=p(x)p(y|x)p(z|x,y)\\
+=p(x)p(z|x)p(y|x,z)
+\end{align}$$</span><!-- Has MathJax -->
+<p>基於這種拆解我們可以很自然地想到, 不如把每個變數都當成 nodes, 再將 conditioning 的關係用 edges 連起來. 因此基本可以這麼表達:</p>
+<span>$$\begin{align}
+p(x_{1:V}|G)=\prod_{t=1}^{V}p(x_t|pa(x_t))
+\end{align}$$</span><!-- Has MathJax -->
+<p>其中 $pa(x_t)$ 表示 node $x_t$ 的 parent nodes. 我們用式 (3) 和 (4) 當例子就可以畫出如下的圖:</p>
+<p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic1.png" width="60%" height="60%"></p>
+<p>可以發現同一個 pdf 可以畫出多個 BN, 因此表達方式不是唯一.</p>
+<h4 id="Conditioning-V-S-Independency"><a href="#Conditioning-V-S-Independency" class="headerlink" title="Conditioning V.S. Independency"></a>Conditioning V.S. Independency</h4><p>接著我們可能會想, 如果我們希望對 pdf 加一些獨立條件呢, 譬如如果希望 $x \perp y$, 是不是可以直接將圖中的 $x$ 和 $y$ 的 edge 拔掉就可以了呢? 先破題, 答案是不行. 同樣以上面的例子解釋, 如果我們用拔掉 edge 的話, 圖變成:</p>
+<p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic2.png" width="60%" height="60%"></p>
+<p>事實上這兩個圖已經各自表示不同的 distribution 了. 特別要注意在右圖中<strong>拔掉 $x$ and $y$ 的 edge 沒有造成 $x \perp y$</strong>. 解釋如下:</p>
+<p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic3.png" width="60%" height="60%"></p>
+<p>那究竟該如何<strong>從一個圖直接看出變數之間是否獨立?</strong> 為了解答這個問題, 我們先從簡單的三個 nodes 開始</p>
+<h4 id="Flow-of-Influence"><a href="#Flow-of-Influence" class="headerlink" title="Flow of Influence"></a>Flow of Influence</h4><p>三個 nodes 的 DAG 圖本質上就分以下三類, 其中 given 的變數我們通常以實心圓表示</p>
+<p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic4.png" width="60%" height="60%"></p>
+<p>我們就個別討論</p>
+<p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic5.png" width="60%" height="60%"><br><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic6.png" width="60%" height="60%"><br><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic7.png" width="60%" height="60%"></p>
+<p>需要特別注意的是 case 3 的 <strong>v-structure</strong>, 行為跟其他兩種相反. 一種好記的方式是, 我們假設 given 的變量是一個石頭, 而 edges 可以想成是水流, 所以 given 變量就把水流擋住, 因此會造成獨立. 唯一個例外就是 v-structure, 行為剛好相反.</p>
+<h4 id="Active-Trail-in-BN"><a href="#Active-Trail-in-BN" class="headerlink" title="Active Trail in BN"></a>Active Trail in BN</h4><p>我們可以很容易將三個 nodes 的 trail 擴展成 $V$ 個 nodes 的 trail. 因此可以很方便的觀察某條 trail 起始的 node 能否影響到最後的 node.</p>
+<p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic8.png" width="60%" height="60%"></p>
+<h4 id="d-separation"><a href="#d-separation" class="headerlink" title="d-separation"></a>d-separation</h4><p>繼續擴展! 我們假設在 BN $G$ 上 node $x$ and $y$ 有 $N$ 條 trails. 我們則可以藉由檢查每條 trail 是否 active 最終就會知道 $x$ 能否影響到 $y$.</p>
+<p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic9.png" width="60%" height="60%"></p>
+<p>需要注意的是, 這些 d-separation 條件我們都可以直接從給定的 $G$ 上直接讀出來 (對於 distribution 沒有任何假設), 為了方便我們定義以下兩個 terms</p>
+<span>$$\begin{align}
+CI(G)=\{\textbf{d-sep}(x,y|z)|x,y,z\textbf{ in }G\}\\
+CI(p)=\{(x \perp y|z)|x,y,z\textbf{ in }G\}\\
+\end{align}$$</span><!-- Has MathJax -->
+<p>$CI(G)$ 所列出的 statements 是由 d-sep 所提供, 也就是說從 $G$ 直接讀出來的, 而 $CI(p)$ 才是真的對於 distribution $p$ 來說所有條件獨立的 statements.</p>
+<p>OK, 到目前為止, 給定一個 BN $G$, 和一個 distribution $p$ (注意 $p$ 不一定可以被 $G$ 所表示), 他們之間的關係到底是什麼? 下面就要引出非常重要的定理 Factorization and Independent 的關係來說明</p>
+<h4 id="Factorization-and-Independent"><a href="#Factorization-and-Independent" class="headerlink" title="Factorization and Independent"></a>Factorization and Independent</h4><p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic10.png" width="60%" height="60%"></p>
+<p>白話文: 假設 $p$ 剛好可以寫成 $G$ 的 factorization 型式 (式 (5)), 則所有 $G$ 指出需要 $\perp$ 的 statements (根據 d-sep 所列), $p$ 都滿足</p>
+<p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic11.png" width="60%" height="60%"></p>
+<p>白話文: 假設所有 $G$ 指出需要 $\perp$ 的 statements (根據 d-sep 所列), $p$ 都滿足, 則 $p$ 可以寫成 $G$ 的 factorization 型式 (式 (5))</p>
+<p>我們用 PRML book 裡一個具體的描述來說明 Thm1 and Thm2 之間的關係</p>
+<p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic12.png" width="60%" height="60%"></p>
+<p>給定一個 $G$, 就好像一個篩子一樣, 根據兩種方式篩選 distribution</p>
+<ol>
+<li>$p$ 剛好可以寫成 $G$ 的 factorization 型式 (式 (5))</li>
+<li>$G$ 指出需要 $\perp$ 的 statements (根據 d-sep 所列), 剛好 $p$ 都滿足</li>
+</ol>
+<p>用上面兩種篩選方式最後篩出來的 distributions 分別稱為 $DF1$ and $DF2$ 兩個 sets. 定理告訴我們它們式同一個集合!</p>
+<h4 id="Example"><a href="#Example" class="headerlink" title="Example"></a>Example</h4><p>把下圖的 joint pdf 寫出來:</p>
+<p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic13.png" width="60%" height="60%"></p>
+<p>使用式 (5) 的方式寫一下, 讀者很快就發現, 這不就是 HMM 嗎?</p>
+<p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic14.png" width="60%" height="60%"></p>
+<hr>
+<h3 id="What-is-Markov-Network-MN"><a href="#What-is-Markov-Network-MN" class="headerlink" title="What is Markov Network (MN)?"></a>What is Markov Network (MN)?</h3><h4 id="Factorization"><a href="#Factorization" class="headerlink" title="Factorization"></a>Factorization</h4><p>在解釋 MN 之前, 先了解一下什麼是 (maximal) clique.</p>
+<p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic15.png" width="60%" height="60%"></p>
+<p>因此, 我們可以用 maximal cliques 來定義一個 MN.</p>
+<span>$$\begin{align}
+p(x)=\frac{1}{Z}\prod_{c\in\mathcal{C}}\psi_c(x_c)
+\end{align}$$</span><!-- Has MathJax -->
+<p>$\mathcal{C}$ 是 maximal cliques 的集合. 然後 $Z$ 是一個 normalization term, 目的為使之成為 distribution.</p>
+<span>$$\begin{align}
+Z=\sum_x\prod_{c\in\mathcal{C}}\psi_c(x_c)
+\end{align}$$</span><!-- Has MathJax -->
+<p>舉個例子:</p>
+<p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic16.png" width="60%" height="60%"></p>
+<p>用無向圖的方式來表達 distribution 有一個很大的好處就是判斷 Active Trail 和 separation 變得非常非常簡單! 直接看下圖的說明</p>
+<p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic17.png" width="60%" height="60%"></p>
+<p>如同在 BN 時的討論, 給定一個 MN $H$, 和一個 distribution $p$ (注意 $p$ 不一定可以被 $H$ 所表示), 他們之間的關係可以由 Factorization and Independent 的定理來說明</p>
+<h4 id="Factorization-and-Independent-1"><a href="#Factorization-and-Independent-1" class="headerlink" title="Factorization and Independent"></a>Factorization and Independent</h4><p>我們直接擷取 <a href="https://www.cs.ubc.ca/~murphyk/" target="_blank" rel="external">Kevin Murphy</a> 書所列的定理, <a href="https://en.wikipedia.org/wiki/Hammersley%E2%80%93Clifford_theorem" target="_blank" rel="external">Hammersley-Clifford</a> 定理</p>
+<p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic18.png" width="80%" height="80%"></p>
+<p>跟 BN 一樣, <em>factorization iff independence</em>, 但有一個重要的 assumption, 就是 distribution 必須 strictly positive (如上圖紅色框的部分). 我們一樣用 PRML 篩子的觀念來具體化:</p>
+<p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic19.png" width="60%" height="60%"></p>
+<p>描述就跳過了.</p>
+<h4 id="Example-1"><a href="#Example-1" class="headerlink" title="Example"></a>Example</h4><p>由於有 $p(x)&gt;0$ 的假設在, 因此如果將 factor functions $\psi(x_c)$ 都使用 $exp$ 來定義的話, 整個 product 相乘後的 distribution 必定滿足 strictly positive. 因此 $exp$ 就不失為一種方便的 modeling 方式了</p>
+<p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic20.png" width="60%" height="60%"></p>
+<hr>
+<h3 id="喘口氣的結論"><a href="#喘口氣的結論" class="headerlink" title="喘口氣的結論"></a>喘口氣的結論</h3><p>到這裡, 我們可以</p>
+<ul>
+<li>用 graph 簡單的表示出 joint pdf (用 factorization).</li>
+<li>也可以從 graph 中看出 conditional independence (用 active tail, separation)</li>
+</ul>
+<p>因此我們可以針對要 model 的問題利用 graph 來描述 joint pdf 了. 但是光描述好 model 沒用, 我們還需要 inference (test) and learning (train). Inference 非常推薦看 PRML ch8, 講如何對 tree graph 做 sum-product algorithm (belief propagation) 非常精彩.</p>
+<p>接著如何推廣到一般 general graph 則可以使用 junction tree algorithm (推薦看這篇<a href="https://www.cs.helsinki.fi/u/bmmalone/probabilistic-models-spring-2014/JunctionTreeKahle.pdf" target="_blank" rel="external">文章</a>, 解釋非常棒!). 上述兩種方式都屬於 exact inference, 對於一些情形仍會需要 exponential time 計算, 因此我們需要 variational inference 或 sampling 的方式算 approximation.</p>
+<p>最後有關 learning 我們使用接下來的 POS tagging 當範例推導一下. 但別急, 在講 POS 之前我們得先談一個重要的東西, Conditional Random Field.</p>
+<hr>
+<h3 id="What-is-Conditional-Random-Field-CRF"><a href="#What-is-Conditional-Random-Field-CRF" class="headerlink" title="What is Conditional Random Field (CRF)?"></a>What is Conditional Random Field (CRF)?</h3><p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic21.png" width="60%" height="60%"></p>
+<p>如同上圖的說明, 基本上 CRF 仍舊是一個 MN, 最大的差別是 normalization term 如今不再是一個 constant, 而是 depends on conditioning 的變數 $x$.</p>
+<p>一個在 sequence labeling 常用的 CRF 模型是 Linear-Chain CRF</p>
+<p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic22.png" width="60%" height="60%"></p>
+<p>有了這些概念後我們就可以說說 POS 了</p>
+<hr>
+<h3 id="Part-of-Speech-POS-Tagging"><a href="#Part-of-Speech-POS-Tagging" class="headerlink" title="Part-of-Speech (POS) Tagging"></a>Part-of-Speech (POS) Tagging</h3><p>擷取自李宏毅教授上課投影片</p>
+<p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic23.png" width="60%" height="60%"></p>
+<p>基本上就是給定一個 word sequence $x$, 我們希望找出哪一個詞性標註的 sequence $y$ 會使得機率最大. 機率最大的那個 $y$ 就是我們要的詞性標註序列.</p>
+<p>使用現學現賣的 PGM modeling 知識, 我們可以使用 BN or MN 的方式描述模型</p>
+<ul>
+<li>BN: Hidden Markov Model (HMM)</li>
+<li>MN: Linear chain CRF with log-linear model</li>
+</ul>
+<h4 id="有向圖-HMM-方法"><a href="#有向圖-HMM-方法" class="headerlink" title="有向圖 HMM 方法"></a>有向圖 HMM 方法</h4><p>一樣擷取自李宏毅教授上課投影片</p>
+<p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic24.png" width="60%" height="60%"></p>
+<p>還記得本文前面講 BN 時的 HMM example 嗎? $y$ 就是詞性, $x$ 就是字. HMM 是在 model 給定詞性序列情形下的字序列 distribution. 了解語音辨識的童鞋門應該再熟悉不過了, 只不過這裡問題比較簡單, 在語音辨識裡, 我們不會針對每個 frame 去標註它是屬於哪一個發音的 state, 因此標註其實是 hidden 的. 但在這裡每個 word 都會有一個對應正確答案的詞性標註, 沒有 hidden 資訊, 因此也不需要 EM algorithm, 簡單的 counting 即可做完訓練. that all …</p>
+<h4 id="無向圖-CRF-方法"><a href="#無向圖-CRF-方法" class="headerlink" title="無向圖 CRF 方法"></a>無向圖 CRF 方法</h4><p>精確說是 Linear chain CRF with log-linear model</p>
+<p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic25.png" width="60%" height="60%"></p>
+<p>我們把 log-linear model 的 factor 帶入 linear chain CRF 中, 注意其中 $\phi$ 是需要定義的特徵函數, 我們這裡先假設可以抽取出 $K$ 維. 因此可以推導如下</p>
+<p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic26.png" width="80%" height="80%"><br><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic27.png" width="40%" height="40%"></p>
+<p>實作上我們會針對時間 share weights, 這是因為句子都是長短不一的, 另一方面這樣做也可以大量減少參數量. 所以最後可以簡化成一個 weigth vector $w$ 和我們合併的特徵向量 $f(x,y)$ 的 log-linear model.</p>
+<h5 id="Learning"><a href="#Learning" class="headerlink" title="Learning"></a>Learning</h5><p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic28.png" width="60%" height="60%"></p>
+<p>目標函數就是在最大化 CRF 的 likelihood. 採用 gradient method. 而 gradient 的推導事實上也不困難, 只要花點耐心即可了解</p>
+<p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic29.png" width="80%" height="80%"></p>
+<p>但是其實我說不困難只說對了一半, 紅色的地方事實上需要跑 inference 才可以得到, 好在 linear-chain 架構下正好可以用 Viterbi 做前向後算計算, 這部分的式子可以跟 “<a href="https://book.douban.com/subject/10590856/" target="_blank" rel="external">李航 統計學習方法</a>“ 這本書的 p201 式 (11.34) 銜接上, 該式寫出了前向後向計算.</p>
+<h5 id="Tool"><a href="#Tool" class="headerlink" title="Tool"></a>Tool</h5><p><a href="https://taku910.github.io/crfpp/" target="_blank" rel="external">CRF++</a> 做為語音辨識的後處理十分好用的工具, in c++.</p>
+<hr>
+<h3 id="References"><a href="#References" class="headerlink" title="References"></a>References</h3><p>PGM 博大精深, 這個框架很完整且嚴謹, 值得我後續花時間研讀, 有機會看能否將 Koller 的課程上過一次看看.</p>
+<ol>
+<li>Bishop <a href="http://research.microsoft.com/en-us/um/people/cmbishop/prml/" target="_blank" rel="external">PRML book</a></li>
+<li><a href="https://www.cs.ubc.ca/~murphyk/" target="_blank" rel="external">Kevin Murphy</a> book</li>
+<li><a href="https://www.cs.helsinki.fi/u/bmmalone/probabilistic-models-spring-2014/JunctionTreeKahle.pdf" target="_blank" rel="external">Junction Tree Algorithm</a></li>
+<li><a href="https://book.douban.com/subject/10590856/" target="_blank" rel="external">李航 統計學習方法</a></li>
+<li><a href="http://speech.ee.ntu.edu.tw/~tlkagk/" target="_blank" rel="external">李宏毅</a>老師 ML 課程</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Probabilistic-Graphical-Models/" rel="tag"># Probabilistic Graphical Models</a>
+          
+            <a href="/tags/Bayesian-Network/" rel="tag"># Bayesian Network</a>
+          
+            <a href="/tags/Markov-Network/" rel="tag"># Markov Network</a>
+          
+            <a href="/tags/Conditional-Random-Field/" rel="tag"># Conditional Random Field</a>
+          
+            <a href="/tags/POS-tagging/" rel="tag"># POS tagging</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/31/Kaldi-Notes-IO-in-C-Level/" rel="next" title="Kaldi Notes (1), I/O in C++ Level">
+                <i class="fa fa-chevron-left"></i> Kaldi Notes (1), I/O in C++ Level
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">47</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#What-is-Probabilistic-Graphical-Model-PGM"><span class="nav-number">1.</span> <span class="nav-text">What is Probabilistic Graphical Model (PGM)?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#What-is-Bayesian-Network-BN"><span class="nav-number">2.</span> <span class="nav-text">What is Bayesian Network (BN)?</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Conditioning-V-S-Independency"><span class="nav-number">2.1.</span> <span class="nav-text">Conditioning V.S. Independency</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Flow-of-Influence"><span class="nav-number">2.2.</span> <span class="nav-text">Flow of Influence</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Active-Trail-in-BN"><span class="nav-number">2.3.</span> <span class="nav-text">Active Trail in BN</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#d-separation"><span class="nav-number">2.4.</span> <span class="nav-text">d-separation</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Factorization-and-Independent"><span class="nav-number">2.5.</span> <span class="nav-text">Factorization and Independent</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Example"><span class="nav-number">2.6.</span> <span class="nav-text">Example</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#What-is-Markov-Network-MN"><span class="nav-number">3.</span> <span class="nav-text">What is Markov Network (MN)?</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Factorization"><span class="nav-number">3.1.</span> <span class="nav-text">Factorization</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Factorization-and-Independent-1"><span class="nav-number">3.2.</span> <span class="nav-text">Factorization and Independent</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Example-1"><span class="nav-number">3.3.</span> <span class="nav-text">Example</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#喘口氣的結論"><span class="nav-number">4.</span> <span class="nav-text">喘口氣的結論</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#What-is-Conditional-Random-Field-CRF"><span class="nav-number">5.</span> <span class="nav-text">What is Conditional Random Field (CRF)?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Part-of-Speech-POS-Tagging"><span class="nav-number">6.</span> <span class="nav-text">Part-of-Speech (POS) Tagging</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#有向圖-HMM-方法"><span class="nav-number">6.1.</span> <span class="nav-text">有向圖 HMM 方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#無向圖-CRF-方法"><span class="nav-number">6.2.</span> <span class="nav-text">無向圖 CRF 方法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Learning"><span class="nav-number">6.2.1.</span> <span class="nav-text">Learning</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Tool"><span class="nav-number">6.2.2.</span> <span class="nav-text">Tool</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#References"><span class="nav-number">7.</span> <span class="nav-text">References</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
