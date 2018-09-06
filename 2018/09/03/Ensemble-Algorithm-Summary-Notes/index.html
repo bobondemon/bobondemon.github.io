@@ -1,0 +1,959 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="bagging,Adaboost,Gradient Boost," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="這是用自己理解的方式整理了林軒田老師 ML 課程. 其中 Decision tree and Random Forest 沒紀錄.
+以前第一次接觸到 Adaboost 的時候就被它深深著迷了, 當時 face detection 可商用算法無不採用經典的 Viola and Jones adaboost method. 在現在 DNN 成主流的時候, 雖然 adaboost 光環已退去,">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ensemble Algorithm Summary Notes">
+<meta property="og:url" content="http://yoursite.com/2018/09/03/Ensemble-Algorithm-Summary-Notes/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="這是用自己理解的方式整理了林軒田老師 ML 課程. 其中 Decision tree and Random Forest 沒紀錄.
+以前第一次接觸到 Adaboost 的時候就被它深深著迷了, 當時 face detection 可商用算法無不採用經典的 Viola and Jones adaboost method. 在現在 DNN 成主流的時候, 雖然 adaboost 光環已退去,">
+<meta property="og:image" content="http://yoursite.com/2018/09/03/Ensemble-Algorithm-Summary-Notes/ada_reweighting.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/03/Ensemble-Algorithm-Summary-Notes/adaboost_algorithm.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/03/Ensemble-Algorithm-Summary-Notes/error_function.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/03/Ensemble-Algorithm-Summary-Notes/adaboost_best_h_selection.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/03/Ensemble-Algorithm-Summary-Notes/GBDT.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/03/Ensemble-Algorithm-Summary-Notes/Boosting_FD_ref.png">
+<meta property="og:updated_time" content="2018-09-06T14:29:25.293Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Ensemble Algorithm Summary Notes">
+<meta name="twitter:description" content="這是用自己理解的方式整理了林軒田老師 ML 課程. 其中 Decision tree and Random Forest 沒紀錄.
+以前第一次接觸到 Adaboost 的時候就被它深深著迷了, 當時 face detection 可商用算法無不採用經典的 Viola and Jones adaboost method. 在現在 DNN 成主流的時候, 雖然 adaboost 光環已退去,">
+<meta name="twitter:image" content="http://yoursite.com/2018/09/03/Ensemble-Algorithm-Summary-Notes/ada_reweighting.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/09/03/Ensemble-Algorithm-Summary-Notes/"/>
+
+
+
+
+
+  <title> Ensemble Algorithm Summary Notes | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/03/Ensemble-Algorithm-Summary-Notes/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Ensemble Algorithm Summary Notes
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2018-09-03T21:45:08+08:00">
+                2018-09-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>這是用自己理解的方式整理了<a href="https://www.youtube.com/playlist?list=PL1AVtvtzG0LYN-dOGPYyRrzzyI5fk_D4H&amp;pbjreload=10" target="_blank" rel="external">林軒田老師 ML 課程</a>. 其中 Decision tree and Random Forest 沒紀錄.</p>
+<p>以前第一次接觸到 Adaboost 的時候就被它深深著迷了, 當時 face detection 可商用算法無不採用經典的 <a href="http://wearables.cc.gatech.edu/paper_of_week/viola01rapid.pdf" target="_blank" rel="external">Viola and Jones</a> adaboost method. 在現在 DNN 成主流的時候, 雖然 adaboost 光環已退去, 但在 data mining, data science 領域 boosting 方法仍是最成功的算法之一. 基本上在 Kaggle 比賽可以看到主要兩大方法, 舉凡聲音影像文字等等的辨識就是 DNN, 其他凡是 data mining 相關的就屬 boosting (xgboost).<br>有趣的是, 近年也有研究人員用 ensemble 的角度看待 DNN, 從這角度就能理解為何一路從 highway network –&gt; skip layer resent –&gt; resnext 的架構演變, 以及為何效果這麼好. 可以參考 <a href="https://www.msra.cn/zh-cn/news/features/deep-neural-network-20161212" target="_blank" rel="external">“深度神经网络中深度究竟带来了什么？”</a> 很精彩的解釋, 或是 MSR 2017 這篇論文 <a href="http://arxiv.org/abs/1611.07718" target="_blank" rel="external">Deep Convolutional Neural Networks with Merge-and-Run Mappings</a></p>
+<p>筆記內容如下:</p>
+<a id="more"></a>
+<ol>
+<li>Bagging (or bootstrap)</li>
+<li>Adaboost 演算法<br>2.1 Adaboost large margin 解釋<br>2.2 Adaboost exponential error 解釋</li>
+<li>Additive Model (a framework)</li>
+<li><a href="https://en.wikipedia.org/wiki/Gradient_boosting" target="_blank" rel="external">Gradient Boosting</a></li>
+<li>Adaboost as an additive model</li>
+<li>Gradient Boost Decision Tree (GBDT)</li>
+<li>待研究: <a href="https://github.com/dmlc/xgboost" target="_blank" rel="external">XGBoost</a> (Kaggle 比賽神器)</li>
+</ol>
+<hr>
+<h3 id="Bagging-or-bootstrap"><a href="#Bagging-or-bootstrap" class="headerlink" title="Bagging (or bootstrap)"></a>Bagging (or bootstrap)</h3><p>還記得我們在 <a href="https://bobondemon.github.io/2017/03/13/Why-Aggregation-Work/" target="_blank" rel="external">Why-Aggregation-Work</a> 這篇提到, 當我們有很多 weak learner ${g_t}$ 時, 要得到一個 strong learner $G$ 最簡單的方法就是投票(或平均). 所以一個關鍵問題是要怎麼產生很多的 $g_t$?<br>Bagging (or bootstrap) 提供了一個簡單的方法: 假設 dataset $D$ 有 $N$ 筆資料, bagging 就是從 $D$ 中<strong>重複</strong>採樣出 $N’$ 筆, 我們稱 $D’$, 然後 $g_t$ 就可以用 $D’$ 訓練出來.<br>既然現在可以方便地產生很多 ${g_t}$, 然後就 $G$ 就採用平均方式, ensemble algorithm 就結束了?! 當然沒有, 別忘了有一個很關鍵的特性是, 當 ${g_t}$ 意見愈分歧時產生出來的 $G$ 效果愈好!<br>那我們就問了, bagging 不就採樣嗎? 我怎麼知道這次採樣出來的 $D’$ 所訓練出來的 $g_t$ 會跟之前一次的意見分歧?<br>我們就是能知道! (神奇吧) 要了解為什麼, 我們必須先將 bagging 擴展一下, 想成是對 <strong>weighted</strong> $D$ 採樣, 其中每一筆資料 $x_n$ 的 weight $u_n$ 代表抽中的機率. 如果 bagging 是對 weighted $D$ 採樣的話, 在第 t 輪的 $g_t$ 得到方式如下:</p>
+<span>$$\begin{align}
+g_t=\arg\min_{h\in \mathcal{H}}\left(\sum_{n=1}^N u_n^{(t)} \mathbb{I}[y_n\neq h(x_n)] \right)
+\end{align}$$</span><!-- Has MathJax -->
+<p>其中 $\mathbb{I}[…]$ 表示 indicator function, 條件為 true 則 return 1, otherwise return 0.<br>想法就是我們要設計一組新的權重, 讓新的權重對於 $g_t$ 來說相當於亂猜, 這樣用新權重找出的 $g_t+1$ 就會跟之前的意見分歧了. 具體來說, 新權重要有以下的效果:</p>
+<span>$$\begin{align}
+\frac{\sum_{n=1}^N{u_n^{(t+1)} \mathbb{I}[y_n\neq g_t(x_n)]}}{\sum_{n=1}^N{u_n^{(t+1)}}}=\frac{1}{2}
+\end{align}$$</span><!-- Has MathJax -->
+<p>物理意義就是對於 $g_t$ 來說<br><span>$$\begin{align}
+\mbox{for weak learner }g_t\mbox{:  }\left(\mbox{total }u_n^{(t+1)}\mbox{ of incorrect}\right)=
+\left(\mbox{total }u_n^{(t+1)}\mbox{ of correct}\right)
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>所以新的權重調整方式其實很簡單, 用一個例子解釋. 假如 $u_n^t$ incorrect 合是 300, $u_n^t$ correct 合是 500. 我們只要把之前的 $u_n^t$ incorrect部分都乘 500, 而 correct 部分乘 300就可以了.<br>或者我們這麼寫, 定義 $\epsilon_t=300/(300+500)$, 則<br><span>$$\begin{align}
+u_n^{(t+1)}=u_n^{(t)}(1-\epsilon_t) \mbox{, if } y_n\neq g_t(x_n)\\
+u_n^{(t+1)}=u_n^{(t)}\epsilon_t \mbox{, if } y_n = g_t(x_n)\\
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>或通常也可以這麼計算</p>
+<p><img src="/2018/09/03/Ensemble-Algorithm-Summary-Notes/ada_reweighting.png" width="80%" height="80%"></p>
+<p>所以目前為止, 我們可以用 bagging 的方式 (對 weighted data) 產生出看似相當意見不同的 $g_t$, 那最後的 $G$ 用平均就可以了嗎? 可能不大好, 因為 $g_t$ 是針對某一種權重的 dataset 好, 不代表對原來沒有權重 (或uniform權重) 的 dataset 是好的.<br>既然直接平均可能不夠好, 不如就用 linear combination 方式組合 $g_t$ 吧, 不過組合的 coefficients 是需要巧思設計的. 而 Adaboost 就設計出了一種組合方式, 能證明這種組合方式會使得 training error 收斂至0. (另一種用 additive model 的解釋方式為這樣的 coefficient 設計方式相當於用 steepest descent 並選擇最佳的步長). 這些會在文章下面說明.</p>
+<hr>
+<h3 id="Adaboost-演算法"><a href="#Adaboost-演算法" class="headerlink" title="Adaboost 演算法"></a>Adaboost 演算法</h3><p><img src="/2018/09/03/Ensemble-Algorithm-Summary-Notes/adaboost_algorithm.png" width="80%" height="80%"></p>
+<h4 id="Adaboost-large-margin-解釋"><a href="#Adaboost-large-margin-解釋" class="headerlink" title="Adaboost large margin 解釋"></a>Adaboost large margin 解釋</h4><p>一般來說, model 愈複雜愈容易 overfit, 不過很特別的是 adaboost 隨著 iteration 結合愈多 weak learners 反而不會有容易 overfit 的現象. 其中一種解釋方式是 adaboost 具有類似 SVM 的 large margin 效果.<br>我們首先分析一下第 t+1 次 iteration, dataset 的 weights<br><span>$$\begin{align}
+u_n^{(t+1)}=u_n^{(t)}\diamond_t^{-y_n g_t(x_n)}\\
+=u_n^{(t)}\exp (-y_n \alpha_t g_t(x_n))
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>我們這裡使用 binary classification 來說明, 其中 $y_n,g_t(x_n)\in${-1,+1}, 式 (6) 可以從上一段 “Adaboost 演算法” 的圖中步驟2的 update 式子看出. 而式 (7) 從 $\diamond_t$ 定義得到.<br>上式可以一路展開到開頭 (iteration 1), 如下:</p>
+<span>$$\begin{align}
+u_n^{(T+1)}=u_n^{(1)}\prod_{t=1}^T \exp (-y_n \alpha_t g_t(x_n)) \\
+=\frac{1}{N}\exp\left(-y_n
+\color{orange}{
+\sum_{t=1}^T \alpha_t g_t(x_n)
+}
+\right)
+\end{align}$$</span><!-- Has MathJax -->
+<p>有發現嗎? 橘色的部分其實就是我們的 $G$</p>
+<span>$$\begin{align}
+G(x_n)=sign\left(
+\color{orange}{
+\sum_{t=1}^T \alpha_t g_t(x_n)
+}
+\right)
+\end{align}$$</span><!-- Has MathJax -->
+<p>而如果將 $\alpha_t$ 看成是 t-th coefficient, $g_t(x_n)$ 看成是 t-th 維度的特徵, 橘色部分就等同於 <strong>unnormalized margin</strong>. (除以 coefficients 的 norm 就是 margin了)<br>Adaboost 可以證明 (with exponential decay)</p>
+<span>$$\begin{align}
+\sum_{n=1}^N u_n^{(t)}\rightarrow 0\mbox{,  for  }t\rightarrow 0
+\end{align}$$</span><!-- Has MathJax -->
+<p>這意味著什麼? 說明了隨著 iteration 增加, 橘色的值會愈大, 等同於我們的 $G$ 對於資料的 margin 會愈大.<br>證明可參考 <a href="https://book.douban.com/subject/10590856/" target="_blank" rel="external">李航 統計學習方法</a> p142</p>
+<h4 id="Adaboost-exponential-error-解釋"><a href="#Adaboost-exponential-error-解釋" class="headerlink" title="Adaboost exponential error 解釋"></a>Adaboost exponential error 解釋</h4><p>其實單看式 (9) 我們完全可以把它當成 error function. 重寫一下:</p>
+<span>$$\begin{align}
+u_n^{(T+1)}=\frac{1}{N}\exp\left(-y_n
+\color{orange}{
+\sum_{t=1}^T \alpha_t g_t(x_n)
+}
+\right)\\
+=\frac{1}{N}\exp\left(-y_n
+\color{orange}{
+f_T(x_n)
+}
+\right)
+\end{align}$$</span><!-- Has MathJax -->
+<p>怎麼說呢? 其實橘色部分我們可想成是該筆資料 $x_n$ 的分數, 記做 $f_T(x_n)$, 當 $y_n=+1$ 時, 如果 $f_T(x_n)$ 很小則會導致 $\exp(-y_n f_T(x_n))$ 會很大, 同理當 $y_n=-1$ 時, 如果 $f_T(x_n)$ 很大則會導致 $\exp(-y_n f_T(x_n))$ 會很大. 因此 $\exp(-y_n f_T(x_n))$ 可以當成 error function 來 minimize.<br>而它跟 0-1 error function 有如下的關係:<br><img src="/2018/09/03/Ensemble-Algorithm-Summary-Notes/error_function.png" width="80%" height="80%"></p>
+<p>而我們知道 Adaboost 滿足式 (11), 等同於說明 exponential error 收斂. 由於 upper bound 的關係也導致了 0-1 error 收斂.<br>聽到有個方法可以使 error 迅速收斂到 0, 這不是太完美了嗎? 別高興得太早, 因為這個 error 是 inside error. 有學過 ML 的童鞋就應該會警覺到當 inside error 為 0, 意味著非常容易 overfit! 好在實作上 Adaboost 卻不是那麼容易 (原因在上一段 large margin 的解釋), 這就帶來了一個好處, 就是在使用 Adaboost 的時候, 我們可以很放心的直接訓練多次 iteration, 甚至到 inside error 接近 0, 最後的 outside test 也不會壞掉. 這特性倒是挺方便的.</p>
+<p>AdaBoost 小結論</p>
+<blockquote>
+<p>我們希望藉由融合很多 {$g_t$} 來得到強大的 $G$, 同時我們知道 {$g_t$} 之間意見愈分歧愈好.<br>每一個 $g_t$ 都是根據當前 weighted dataset 得到的. 利用調整資料權重的方式來讓上一次的 $g_t$ 表現很差, 這樣新權重的 dataset 訓練出來的 $g$ 就會跟之前的看法分歧.<br>Adaboost 再利用一種頗為巧思的線性組合方式來融合 {$g_t$}, 最終得到強大的 $G$</p>
+</blockquote>
+<hr>
+<h3 id="Additive-Model-a-framework"><a href="#Additive-Model-a-framework" class="headerlink" title="Additive Model (a framework)"></a>Additive Model (a framework)</h3><p>這是非常重要的一個框架, Adaboost 在這框架下可視為它的一個 special case, 同時著名的 Gradient Boost Decision Tree (GBDT) 也是基於此框架下的演算法. 通常 supervised learning 就是在學習 input and output 之間的 mapping function $f$, 簡單講, 直接學一個好的 $f$ 可能很困難, 所以不如使用 greedy 方式, 就是從目前的 $f_t$ 出發, 考慮怎麼修正現在的 $f_t$ 來使得 error 更小. 嚴謹一點數學描述如下:</p>
+<p>考慮 additive model<br><span>$$\begin{align}
+f_T(x)=\sum_{t=1}^T \alpha_t g_t(x)
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>其中, $g_t(x)$ 為第 t 次學到的 base learner, $\alpha_t$ 為它的權重.<br>定義 $L(y,f(x))$ 為 loss (or error) function, 所以我們要找的修正的 mapping function 如下:</p>
+<span>$$\begin{align}
+(\alpha_T,g_T)=\arg\min_{\eta,h}\sum_{n=1}^N L(y_n,f_{T-1}(x_n)+\eta h(x_n))
+\end{align}$$</span><!-- Has MathJax -->
+<p>用上式的方法找到要修正的 mapping function 因此 mapping function 更新如下:</p>
+<span>$$\begin{align}
+f_T(x)=f_{T-1}(x)+\alpha_T g_T(x)
+\end{align}$$</span><!-- Has MathJax -->
+<p>我們可以想成是在函數空間做 gradient descent. 每一次就是找一個 descent direction, 在這裡就是 $h$, 然後設定合適的步長 $\eta$, 這麼想就是最佳化的 gradient descent 了.</p>
+<hr>
+<h3 id="Gradient-Boosting"><a href="#Gradient-Boosting" class="headerlink" title="Gradient Boosting"></a>Gradient Boosting</h3><p>Additive model framework 很簡單, 難的地方在那個 $\arg\min$ 式 (15). 而 <a href="https://en.wikipedia.org/wiki/Gradient_boosting" target="_blank" rel="external">Gradient Boosting</a> 可以說是一種明確實現 Additive model 的方式, 我們可以將 $\eta$ 和 $h$ 分開找, 例如先找 $h$:</p>
+<span>$$\begin{align}
+&amp;\min_h\sum_{n=1}^N L(y_n,f_{T-1}(x_n)+\eta h(x_n))\\
+&amp;\mbox{by Taylor:  }\simeq \min_h\sum_{n=1}^N\left(L(y_n,f_{T-1}(x_n))+\eta h(x_n)
+\color{red}{
+\left(\frac{\partial L(y_n,f)}{\partial f}\right) _{f=f_{T-1}}
+}
+\right)\\
+\end{align}$$</span><!-- Has MathJax -->
+<p>Taylor 展開式那邊可以這麼想</p>
+<span>$$\begin{align}
+&amp;\mbox{將  }L(y_n,
+\color{green}{
+f_{T-1}(x_n)
+}+
+\color{blue}{
+\eta h(x_n)
+}
+)\mbox{  看作  }\hat{L}(
+\color{green}{
+\tilde{x}
+}+
+\color{blue}{
+\delta
+}
+)\\
+&amp;\mbox{因此 by Taylor  }
+\simeq \hat{L}(
+\color{green}{\tilde{x}}
+)+
+\color{blue}{\delta}
+\left(\frac{\partial
+\hat{L}(x)
+}{\partial x}\right)_{x=
+\color{green}{\tilde{x}}
+}
+\end{align}$$</span><!-- Has MathJax -->
+<p>上面紅色部分在計算的時候是一個固定值, 我們先令為</p>
+<span>$$\begin{align}
+\left(\frac{\partial L(y_n,f)}{\partial f}\right) _{f=f_{T-1}}=
+\color{red}{-\tilde{y}_n}
+\end{align}$$</span><!-- Has MathJax -->
+<p>所以 (18) 變成</p>
+<span>$$\begin{align}
+&amp;= \min_h\sum_{n=1}^N\left(L(y_n,f_{T-1}(x_n))
+\color{red}{-}
+\eta h(x_n)
+\color{red}{
+\tilde{y_n}
+}
+\right)\\
+&amp;\mbox{去掉與}h\mbox{無關項並補上}2=\min_h \sum_{n=1}^N \left(-2h(x_n)\tilde{y}_n\right)
+\end{align}$$</span><!-- Has MathJax -->
+<p>很明顯, 如果 $h$ 無限制, 則解為 $h=\infty$, 這顯然不是我們要的, 在 optimization 的時候, 我們需要的只是 gradient 的方向, 而不是大小, 大小可以由 stepsize 控制. 不過如果加上 $norm(h)=1$ 條件並使用 Lagrange Multipliers 會較複雜, 實作上我們就直接將 $norm(h)$ 當作一個 penality 加在 loss 裡就可以. 因此 (23) 修改如下:</p>
+<span>$$\begin{align}
+=\min_h \sum_{n=1}^N \left(-2h(x_n)\tilde{y}_n+(h(x_n))^2\right)
+\end{align}$$</span><!-- Has MathJax -->
+<p>湊齊平方項會變成 (之前加的2是為了這裡湊平方項)</p>
+<span>$$\begin{align}
+=\min_h \sum_{n=1}^N \left( \mbox{const}+\left(h(x_n)-\tilde{y}_n\right)^2 \right)
+\end{align}$$</span><!-- Has MathJax -->
+<p>OK! 到這裡我們發現了一個重要的解釋, <strong>$h$ 的找法就是對 $\tilde{y}_n$ 做 sqaure error regression!</strong></p>
+<p>得到 $g_T=h$ 後, 那麼步長 $\eta$ 呢?</p>
+<span>$$\begin{align}
+\alpha_T=\min_{\eta}\sum_{n=1}^N L(y_n,f_{T-1}(x_n)+\eta g_T(x_n))\\
+\end{align}$$</span><!-- Has MathJax -->
+<p>這個解通常很好算, 令 $L$ 微分為 0 即可, 是個單變量求解.</p>
+<p>到目前為止, 我們可以將整個 Gradient Boost 演算法列出來了:</p>
+<span>$$\begin{align}
+&amp;\mbox{1. Init }g_0(x)\\
+&amp;\mbox{2. For }t=1~T\mbox{  do:}\\
+&amp;\mbox{3. }\tilde{y}_n=-\left(\frac{\partial L(y_n,f)}{\partial f}\right)_{f=f_{t-1}}\mbox{,  n=1~N}\\
+&amp;\mbox{4. }g_t=\arg\min_h\left(h(x_n)-\tilde{y}_n\right)^2\\
+&amp;\mbox{5. }\alpha_T=\arg\min_{\eta}\sum_{n=1}^N L\left(y_n,f_{t-1}(x_n)+\eta g_t(x_n)\right)\\
+&amp;\mbox{6. }f_t(x)=f_{t-1}(x)+\alpha_t g_t(x)
+\end{align}$$</span><!-- Has MathJax -->
+<hr>
+<h3 id="Adaboost-as-an-additive-model"><a href="#Adaboost-as-an-additive-model" class="headerlink" title="Adaboost as an additive model"></a>Adaboost as an additive model</h3><p>將 Adaboost 套用 additive model framework 時會是什麼情況?<br>首先 loss 是 exponential loss, 然後一樣用 binary classification 來說明, 其中 $y_n,g_t(x_n)\in${-1,+1}, 則我們要找的 $h$ 如下 (對照 (12) and (13) 並使用 additive model (14) 的架構):</p>
+<span>$$\begin{align}
+g_T=\min_h\sum_{n=1}^N\exp\left(-y_n\left(f_{T-1}(x_n)+\eta h(x_n)\right)\right)\\
+=\min_h\sum_{n=1}^N u_n^{(T)}\exp(-y_n\eta h(x_n))\\
+\simeq\min_h\sum_{n=1}^N u_n^{(T)}(1-y_n\eta h(x_n))\\
+=\min_h\sum_{n=1}^N u_n^{(T)}(-y_n h(x_n))\\
+\end{align}$$</span><!-- Has MathJax -->
+<p>(33) 到 (34) 使用 $u_n^{(T)}$ 的定義, 參考 (13). 而最後的 (36) 表明了實際上就是選擇讓 training data 在新的 weighted dataset 下表現最好的那個 $h$, 具體原因看下圖.<br><img src="/2018/09/03/Ensemble-Algorithm-Summary-Notes/adaboost_best_h_selection.png" width="60%" height="60%"><br>這不正是 Adaboost 選擇 weak learner 的方式嗎?</p>
+<p>最後別忘了 stepsize, 將 (34) 換一下變數, $h$ 變 $\eta$:</p>
+<span>$$\begin{align}
+\alpha_T=\arg\min_{\eta}\sum_{n=1}^N u_n^{(T)}\exp(-y_n \eta g_t(x_n))\\
+\end{align}$$</span><!-- Has MathJax -->
+<p>兩種情況:<br><span>$$\begin{align}
+\mbox{1. }y_n=g_t(x_n)\mbox{:  }u_n^{(T)}\exp(-\eta)\\
+\mbox{2. }y_n\neq g_t(x_n)\mbox{:  }u_n^{(T)}\exp(+\eta)\\
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>所以<br><span>$$\begin{align}
+\alpha_T=\arg\min_{\eta}\left(\sum_{n=1}^N u_n^{(T)}\right) \cdot \left(\left(1-\epsilon_T\right)\exp\left(-\eta\right)+\epsilon_T\exp\left(+\eta\right)\right)
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>令微分為 0, 我們可以很容易得到</p>
+<span>$$\begin{align}
+\alpha_T = \ln\sqrt{\frac{1-\epsilon_T}{\epsilon_T}}
+\end{align}$$</span><!-- Has MathJax -->
+<p>這正好也就是 adaboost 所計算的方式!</p>
+<p>總結一下, Adaboost 在 additive model 框架下, 相當於使用 steepest gradient descent 方式在函數空間找 weaker learner, 並且將 stepsize 指定為最佳步長.</p>
+<hr>
+<h3 id="Gradient-Boost-Decision-Tree-GBDT"><a href="#Gradient-Boost-Decision-Tree-GBDT" class="headerlink" title="Gradient Boost Decision Tree (GBDT)"></a>Gradient Boost Decision Tree (GBDT)</h3><p>Gradient Boost 很棒的一個特性是 error function 沒限定, 例如使用 exponential error 就是 adaboost, 而另一個常用的是 sqaure error.<br>當使用 square error 時, $\tilde{y}_n$ 就會變成 $(y_n-x_n)$ 也就是 residual. 對照 GradientBoost (27)~(32) 來看, 我們發現整個演算法變成<strong>對每一次 iteration 的 residual 做 regression</strong>.<br>另外在實務上 base learner 常常使用 Decision Tree (因為 decision tree 有很多好處: 可解釋性、訓練快、可處理缺失資料…), 不過這就要特別注意了, 因為如果長成 fully growed tree 就直接把 residual regression 到 0 了. 因此, decision tree 需要 regularization, 而實務上採用 pruned tree. 整個 GBDT 節自課程 slide 如下:</p>
+<p><img src="/2018/09/03/Ensemble-Algorithm-Summary-Notes/GBDT.png" width="80%" height="80%"></p>
+<hr>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
+<li><a href="https://www.youtube.com/playlist?list=PL1AVtvtzG0LYN-dOGPYyRrzzyI5fk_D4H&amp;pbjreload=10" target="_blank" rel="external">林軒田老師 ML 課程</a></li>
+<li><a href="https://book.douban.com/subject/10590856/" target="_blank" rel="external">李航 統計學習方法</a></li>
+<li><a href="https://bobondemon.github.io/2017/03/13/Why-Aggregation-Work/" target="_blank" rel="external">Why-Aggregation-Work</a></li>
+<li>以前 Adaboost and face detection paper survey<br><img src="/2018/09/03/Ensemble-Algorithm-Summary-Notes/Boosting_FD_ref.png" width="100%" height="100%"></li>
+<li>其中<a href="http://wearables.cc.gatech.edu/paper_of_week/viola01rapid.pdf" target="_blank" rel="external">Rapid object detection using a boosted cascade of simple features</a>, 2001, <strong>cited 17597</strong></li>
+<li><a href="https://www.msra.cn/zh-cn/news/features/deep-neural-network-20161212" target="_blank" rel="external">深度神经网络中深度究竟带来了什么？</a></li>
+<li><a href="http://arxiv.org/abs/1611.07718" target="_blank" rel="external">Deep Convolutional Neural Networks with Merge-and-Run Mappings</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/bagging/" rel="tag"># bagging</a>
+          
+            <a href="/tags/Adaboost/" rel="tag"># Adaboost</a>
+          
+            <a href="/tags/Gradient-Boost/" rel="tag"># Gradient Boost</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/07/30/TF-Notes-GRU-in-Tensorflow/" rel="next" title="TF Notes (5), GRU in Tensorflow">
+                <i class="fa fa-chevron-left"></i> TF Notes (5), GRU in Tensorflow
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">35</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Bagging-or-bootstrap"><span class="nav-number">1.</span> <span class="nav-text">Bagging (or bootstrap)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Adaboost-演算法"><span class="nav-number">2.</span> <span class="nav-text">Adaboost 演算法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Adaboost-large-margin-解釋"><span class="nav-number">2.1.</span> <span class="nav-text">Adaboost large margin 解釋</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Adaboost-exponential-error-解釋"><span class="nav-number">2.2.</span> <span class="nav-text">Adaboost exponential error 解釋</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Additive-Model-a-framework"><span class="nav-number">3.</span> <span class="nav-text">Additive Model (a framework)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Gradient-Boosting"><span class="nav-number">4.</span> <span class="nav-text">Gradient Boosting</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Adaboost-as-an-additive-model"><span class="nav-number">5.</span> <span class="nav-text">Adaboost as an additive model</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Gradient-Boost-Decision-Tree-GBDT"><span class="nav-number">6.</span> <span class="nav-text">Gradient Boost Decision Tree (GBDT)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">7.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
