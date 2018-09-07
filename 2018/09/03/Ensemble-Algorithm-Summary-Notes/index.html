@@ -101,7 +101,7 @@
 <meta property="og:image" content="http://yoursite.com/2018/09/03/Ensemble-Algorithm-Summary-Notes/adaboost_best_h_selection.png">
 <meta property="og:image" content="http://yoursite.com/2018/09/03/Ensemble-Algorithm-Summary-Notes/GBDT.png">
 <meta property="og:image" content="http://yoursite.com/2018/09/03/Ensemble-Algorithm-Summary-Notes/Boosting_FD_ref.png">
-<meta property="og:updated_time" content="2018-09-06T14:29:25.293Z">
+<meta property="og:updated_time" content="2018-09-07T15:12:32.447Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Ensemble Algorithm Summary Notes">
 <meta name="twitter:description" content="這是用自己理解的方式整理了林軒田老師 ML 課程. 其中 Decision tree and Random Forest 沒紀錄.
@@ -568,6 +568,27 @@ g_T=\min_h\sum_{n=1}^N\exp\left(-y_n\left(f_{T-1}(x_n)+\eta h(x_n)\right)\right)
 <h3 id="Gradient-Boost-Decision-Tree-GBDT"><a href="#Gradient-Boost-Decision-Tree-GBDT" class="headerlink" title="Gradient Boost Decision Tree (GBDT)"></a>Gradient Boost Decision Tree (GBDT)</h3><p>Gradient Boost 很棒的一個特性是 error function 沒限定, 例如使用 exponential error 就是 adaboost, 而另一個常用的是 sqaure error.<br>當使用 square error 時, $\tilde{y}_n$ 就會變成 $(y_n-x_n)$ 也就是 residual. 對照 GradientBoost (27)~(32) 來看, 我們發現整個演算法變成<strong>對每一次 iteration 的 residual 做 regression</strong>.<br>另外在實務上 base learner 常常使用 Decision Tree (因為 decision tree 有很多好處: 可解釋性、訓練快、可處理缺失資料…), 不過這就要特別注意了, 因為如果長成 fully growed tree 就直接把 residual regression 到 0 了. 因此, decision tree 需要 regularization, 而實務上採用 pruned tree. 整個 GBDT 節自課程 slide 如下:</p>
 <p><img src="/2018/09/03/Ensemble-Algorithm-Summary-Notes/GBDT.png" width="80%" height="80%"></p>
 <hr>
+<h3 id="XGBoost"><a href="#XGBoost" class="headerlink" title="XGBoost"></a>XGBoost</h3><p>這篇文章 <a href="http://djjowfy.com/2017/08/01/XGBoost%E7%9A%84%E5%8E%9F%E7%90%86/" target="_blank" rel="external">XGBoost的原理</a> 介紹得很好</p>
+<p>幾個重點整理, XGBoost 基本上也是 gradient boost 的一種, 比較特別的是泰勒展展開 (18) 使用到二階導函數:</p>
+<span>$$\begin{align}
+&amp;\min_h\sum_{n=1}^N L(y_n,f_{T-1}(x_n)+\eta h(x_n))\\
+&amp;\simeq \min_h\sum_{n=1}^N\left(L(y_n,f_{T-1}(x_n))+\eta h(x_n)
+\left(\frac{\partial L(y_n,f)}{\partial f}\right) _{f=f_{T-1}}\\ 
+\color{red}
+{
++\eta^2h^2(x_n)\left(\frac{\partial^2 L(y_n,f)}{\partial^2 f}\right)_{f=f_{T-1}}
+}
+\right)\\
+&amp;=\min_h\sum_{n=1}^N \left( L(y_n,f_{T-1}(x_n)) + \eta h(x_n)\mbox{Gradient}_n + \frac{\eta^2h^2(x_n)}{2}\mbox{Hessian}_n \right)\\
+&amp;=\min_h\sum_{n=1}^N \left( \eta h(x_n)\mbox{Gradient}_n + \frac{\eta^2h^2(x_n)}{2}\mbox{Hessian}_n \right)\\
+\end{align}$$</span><!-- Has MathJax -->
+<p>最後再加上一個 regularization term</p>
+<span>$$\begin{align}
+&amp;=\min_h\sum_{n=1}^N \left( \eta h(x_n)\mbox{Gradient}_n + \frac{\eta^2h^2(x_n)}{2}\mbox{Hessian}_n \right) + \Omega(h)\\
+\end{align}$$</span><!-- Has MathJax -->
+<p>針對 (46) 要找到最好的 $h$, 如果使用 Decision Tree, $\Omega(h)$ 可以使用樹的深度、葉子數量、葉子值的大小等等計算. 但關鍵是如何有效率地找到很好的 $h$, 而在 Decision Tree 此問題相當於如何有效率的對 Tree 做 splitting. XGBoost <a href="https://arxiv.org/abs/1603.02754" target="_blank" rel="external">文章</a>使用非常有效率的近似方法, 並且該方法可以很好的並行加速.</p>
+<p>對於 xgboost 就只粗淺的了解到這了, 也還沒有真的有什麼調整的經驗, 就把這個課題放在 todo list 吧.</p>
+<hr>
 <h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
 <li><a href="https://www.youtube.com/playlist?list=PL1AVtvtzG0LYN-dOGPYyRrzzyI5fk_D4H&amp;pbjreload=10" target="_blank" rel="external">林軒田老師 ML 課程</a></li>
 <li><a href="https://book.douban.com/subject/10590856/" target="_blank" rel="external">李航 統計學習方法</a></li>
@@ -576,6 +597,8 @@ g_T=\min_h\sum_{n=1}^N\exp\left(-y_n\left(f_{T-1}(x_n)+\eta h(x_n)\right)\right)
 <li>其中<a href="http://wearables.cc.gatech.edu/paper_of_week/viola01rapid.pdf" target="_blank" rel="external">Rapid object detection using a boosted cascade of simple features</a>, 2001, <strong>cited 17597</strong></li>
 <li><a href="https://www.msra.cn/zh-cn/news/features/deep-neural-network-20161212" target="_blank" rel="external">深度神经网络中深度究竟带来了什么？</a></li>
 <li><a href="http://arxiv.org/abs/1611.07718" target="_blank" rel="external">Deep Convolutional Neural Networks with Merge-and-Run Mappings</a></li>
+<li><a href="http://djjowfy.com/2017/08/01/XGBoost%E7%9A%84%E5%8E%9F%E7%90%86/" target="_blank" rel="external">XGBoost的原理</a></li>
+<li><a href="https://arxiv.org/abs/1603.02754" target="_blank" rel="external">XGBoost: A Scalable Tree Boosting System</a></li>
 </ol>
 
       
@@ -760,7 +783,7 @@ g_T=\min_h\sum_{n=1}^N\exp\left(-y_n\left(f_{T-1}(x_n)+\eta h(x_n)\right)\right)
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Bagging-or-bootstrap"><span class="nav-number">1.</span> <span class="nav-text">Bagging (or bootstrap)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Adaboost-演算法"><span class="nav-number">2.</span> <span class="nav-text">Adaboost 演算法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Adaboost-large-margin-解釋"><span class="nav-number">2.1.</span> <span class="nav-text">Adaboost large margin 解釋</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Adaboost-exponential-error-解釋"><span class="nav-number">2.2.</span> <span class="nav-text">Adaboost exponential error 解釋</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Additive-Model-a-framework"><span class="nav-number">3.</span> <span class="nav-text">Additive Model (a framework)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Gradient-Boosting"><span class="nav-number">4.</span> <span class="nav-text">Gradient Boosting</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Adaboost-as-an-additive-model"><span class="nav-number">5.</span> <span class="nav-text">Adaboost as an additive model</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Gradient-Boost-Decision-Tree-GBDT"><span class="nav-number">6.</span> <span class="nav-text">Gradient Boost Decision Tree (GBDT)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">7.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Bagging-or-bootstrap"><span class="nav-number">1.</span> <span class="nav-text">Bagging (or bootstrap)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Adaboost-演算法"><span class="nav-number">2.</span> <span class="nav-text">Adaboost 演算法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Adaboost-large-margin-解釋"><span class="nav-number">2.1.</span> <span class="nav-text">Adaboost large margin 解釋</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Adaboost-exponential-error-解釋"><span class="nav-number">2.2.</span> <span class="nav-text">Adaboost exponential error 解釋</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Additive-Model-a-framework"><span class="nav-number">3.</span> <span class="nav-text">Additive Model (a framework)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Gradient-Boosting"><span class="nav-number">4.</span> <span class="nav-text">Gradient Boosting</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Adaboost-as-an-additive-model"><span class="nav-number">5.</span> <span class="nav-text">Adaboost as an additive model</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Gradient-Boost-Decision-Tree-GBDT"><span class="nav-number">6.</span> <span class="nav-text">Gradient Boost Decision Tree (GBDT)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#XGBoost"><span class="nav-number">7.</span> <span class="nav-text">XGBoost</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">8.</span> <span class="nav-text">Reference</span></a></li></ol></div>
             
 
           </div>
