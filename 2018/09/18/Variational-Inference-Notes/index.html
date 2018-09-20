@@ -1,0 +1,862 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Variational Inference,ELBO,Variational Auto Encoder (VAE)," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="前一陣子學習了 Variational Inference, 因為自己記性只有 LSTM 沒有 L, 所以趕快記下筆記. 學得還是很粗淺, 又是一個大坑阿.監督學習不外乎就是 training 和 testing (inference). 而 inference 在做的事情就是在計算後驗概率 $p(z|x)$. 在 PGM 中通常是 intractable, 或要找到 exact solu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Variational Inference Notes">
+<meta property="og:url" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="前一陣子學習了 Variational Inference, 因為自己記性只有 LSTM 沒有 L, 所以趕快記下筆記. 學得還是很粗淺, 又是一個大坑阿.監督學習不外乎就是 training 和 testing (inference). 而 inference 在做的事情就是在計算後驗概率 $p(z|x)$. 在 PGM 中通常是 intractable, 或要找到 exact solu">
+<meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/cover.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/ELBO_gradient.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/em_ELBO.png">
+<meta property="og:updated_time" content="2018-09-20T17:17:09.775Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Variational Inference Notes">
+<meta name="twitter:description" content="前一陣子學習了 Variational Inference, 因為自己記性只有 LSTM 沒有 L, 所以趕快記下筆記. 學得還是很粗淺, 又是一個大坑阿.監督學習不外乎就是 training 和 testing (inference). 而 inference 在做的事情就是在計算後驗概率 $p(z|x)$. 在 PGM 中通常是 intractable, 或要找到 exact solu">
+<meta name="twitter:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/cover.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/09/18/Variational-Inference-Notes/"/>
+
+
+
+
+
+  <title> Variational Inference Notes | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/18/Variational-Inference-Notes/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Variational Inference Notes
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2018-09-18T22:21:05+08:00">
+                2018-09-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>前一陣子學習了 Variational Inference, 因為自己記性只有 LSTM 沒有 L, 所以趕快記下筆記. 學得還是很粗淺, 又是一個大坑阿.<br>監督學習不外乎就是 training 和 testing (inference). 而 inference 在做的事情就是在計算後驗概率 $p(z|x)$. 在 PGM 中通常是 intractable, 或要找到 exact solution 的計算複雜度太高, 這時 VI 就派上用場了. VI 簡單講就是當 $p(z|x)$ 不容易得到時, 可以幫你找到一個很好的近似, $q(z)$.</p>
+<p>放上一張 NIPS 2016 VI tutorial 的圖, 非常形象地表示 VI 做的事情: 將找 $p(z|x)$ 的問題轉化成一個最佳化問題.</p>
+<p><img src="/2018/09/18/Variational-Inference-Notes/cover.png" width="70%" height="70%"></p>
+<a id="more"></a>
+<hr>
+<h3 id="怎麼看作最佳化問題"><a href="#怎麼看作最佳化問題" class="headerlink" title="怎麼看作最佳化問題?"></a>怎麼看作最佳化問題?</h3><p>我們要找到一個 $q(z)$ 去逼近 $p(z|x)$, 因此需要計算兩個機率分佈的距離, 而 KL-divergence 是個很好的選擇 (雖然不滿足數學上的距離定義). 所以我們的目標就是希望 $KL(q(z)\Vert p(z|x))$ 愈小愈好, 接著我們對 KL 定義重新做如下的表達:</p>
+<span>$$\begin{align}
+KL\left(q(z)\Vert p(z|x)\right)=-\sum_z q(z)\log\frac{p(z|x)}{q(z)}\\
+=-\sum_z q(z)\left[\log\frac{p(x,z)}{q(z)}-\log p(x)\right]\\
+=-\sum_z q(z)\log\frac{p(x,z)}{q(z)}+\log p(x)
+\end{align}$$</span><!-- Has MathJax -->
+<p>得到這個非常重要的式子:</p>
+<span>$$\begin{align}
+\log p(x)=KL\left(q(z)\Vert p(z|x)\right)+\sum_z q(z)\log\frac{
+\color{green}{
+p(x,z)
+}
+}{q(z)}\\
+=KL\left(q(z)\Vert p(z|x)\right)+
+\color{orange}{
+\mathcal{L}(q)
+}
+\\
+\end{align}$$</span><!-- Has MathJax -->
+<p>為什麼做這樣的轉換呢? 這是因為<strong>通常 $p(z|x)$ 很難得到, 但是 complete likelihood $p(z,x)$ ((4)綠色部分) 通常很好求.</strong> (把這句話放在心裡, 文章都是基於這件事推論的)<br>觀察 (5), 注意到在 VI 的設定中 $x$ 是給定的, 也就造成了 $\log p(x)$ 是固定的. 由於 $KL\geq 0$, 讓 $KL$ 愈小愈好等同於讓 $\mathcal{L}(q)$ 愈大愈好. 因此 VI 的目標就是<strong>藉由最大化 $\mathcal{L}(q)$ 來迫使 $q(z)$ 接近 $p(z|x)$</strong>.</p>
+<blockquote>
+<p>$\mathcal{L}(q)$ 可以看出來是 marginal log likelihood $\log p(x)$ 的 lower bound. 因此稱 variational lower bound 或 <strong>Evidence Lower BOund (ELBO)</strong>.</p>
+</blockquote>
+<hr>
+<h3 id="ELBO-的-gradient"><a href="#ELBO-的-gradient" class="headerlink" title="ELBO 的 gradient"></a>ELBO 的 gradient</h3><p>我們做最佳化都需要計算 objective function 的 gradient. 讓要找的 $q$ 由參數 $\nu$ 控制, i.e. $q(z;\nu)$, 所以我們要找 ELBO 的 gradient 就是對 $\nu$ 微分.</p>
+<span>$$\begin{align}
+\mathcal{L}(\nu)=\mathbb{E}_{z\sim q}\left[\log p(x,z) - \log q(z;\nu)\right]\\
+\Rightarrow \nabla_{\nu}\mathcal{L}(\nu)=\nabla_{\nu}\left(\mathbb{E}_{z\sim q}\left[\log p(x,z) - \log q(z;\nu)\right]\right)\\
+\mbox{Note  }\neq \mathbb{E}_{z\sim q}\left(\nabla_{\nu}\left[\log p(x,z) - \log q(z;\nu)\right]\right)\\
+\end{align}$$</span><!-- Has MathJax -->
+<p>注意 (8) 不能將 Expectation 與 derivative 交換的原因是因為要微分的 $\nu$ 與要計算的 Expectation 分布 $q$ 有關. 下面會提到一個很重要的技巧, Reparameterization trick, 將 Expectation 與 derivative 交換, 而交換後有什麼好處呢? 下面提到的時候再說明.</p>
+<p>回到 (7) 展開 Expectation 繼續計算 gradient, 直接用 NIPS slide 結果如下:</p>
+<p><img src="/2018/09/18/Variational-Inference-Notes/ELBO_gradient.png" width="80%" height="80%"></p>
+<p>計算一個機率分佈的 Expectation 可用 Monte Carlo method 採樣, 例如採樣 $T$ 個 samples<br><span>$$\begin{align}
+\mathbb{E}_{z\sim q}f(z)\approx\frac{1}{T}\sum_{t=1}^Tf(z)\mbox{, where }z\sim q
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>因此 gradient 可以這麼大致找出來, 不過這方法找出來的 gradient 與真實的 gradient 存在很大的誤差, 換句話說, 這個近似的 gradient variance 太大了. 原因兩個</p>
+<ol>
+<li>$q$ 本身就還在估計, 本身就不準確了</li>
+<li>Monte Carlo method 採樣所造成的誤差</li>
+</ol>
+<p>下一段的 reparameterization trick 就可以去除掉上面第一個誤差, 因此估出來的 gradient 就穩定很多.</p>
+<hr>
+<h3 id="Reparameterization-Trick"><a href="#Reparameterization-Trick" class="headerlink" title="Reparameterization Trick"></a>Reparameterization Trick</h3><p>我們用 Gaussian 舉例, 令 $q$ 是 Gaussian, $q(z;\mu,\sigma)=\mathcal{N}(\mu,\sigma)$, 其中 $\nu=${$\mu,\sigma$}, 而我們其實可以知道 $z=\mu+\sigma \epsilon$, where $\epsilon\sim\mathcal{N}(0,\mathbf{I})$. 因此:<br><span>$$\begin{align}
+\mathcal{L}(\nu)=\mathbb{E}_{z\sim q}\left[\log p(x,z)-\log q(z;\nu)\right]\\
+=\mathbb{E}_{
+\color{red}{
+\epsilon\sim \mathcal{N}(0,\mathbf{I})
+}
+}\left[\log p(x,
+\color{red}{
+\mu+\sigma \epsilon
+}
+)-\log q(
+\color{red}{
+\mu+\sigma \epsilon
+}
+;\nu)\right]
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>這時候我們計算 ELBO 的 gradient 時, 我們發現 $\nu$ 與 Expectation 的分佈, $\mathcal{N}(0,\mathbf{I})$, 無關了! 因此 (7) 套用上面的 trick 就可以將 Expectation 與 derivative 交換. 結果如下:</p>
+<span>$$\begin{align}
+\nabla_{\mu}\mathcal{L}(\nu)=\mathbb{E}_{\epsilon\sim \mathcal{N}(0,\mathbf{I})}\left[\nabla_{\mu}\left(\log p(x,\mu+\sigma \epsilon) - \log q(\mu+\sigma \epsilon;\nu)\right)\right]\\
+\approx\frac{1}{T}\sum_{t=1}^T \nabla_{\mu}\left( \log p(x,\mu+\sigma \epsilon) - \log q(\mu+\sigma \epsilon;\nu) \right)\mbox{, where }\epsilon\sim\mathcal{N}(0,\mathbf{I})\\
+\end{align}$$</span><!-- Has MathJax -->
+<p>在上一段計算 ELBO gradient 所造成誤差的第一項原因就不存在了, 因此我們用 reparameterization 得到的 gradient 具有很小的 variance. <a href="https://github.com/gokererdogan" target="_blank" rel="external">這個 github</a> 做了實驗, 發現 reperameterization 的確大大降低了估計的 gradient 的 variance.</p>
+<blockquote>
+<span>$$\begin{align}
+\nabla_{\mu}\left(\log p(x,\mu+\sigma \epsilon) - \log q(\mu+\sigma \epsilon;\nu)\right)
+\end{align}$$</span><!-- Has MathJax -->
+<p>怎麼計算呢? 我們可以使用 Tensorflow 將要計算 gradient 的 function 寫出來, <code>tf.gradients</code> 就能算</p>
+</blockquote>
+<hr>
+<h3 id="Mean-Field-VI"><a href="#Mean-Field-VI" class="headerlink" title="Mean Field VI"></a>Mean Field VI</h3><p>Todo</p>
+<hr>
+<h3 id="KL-q-p-or-KL-p-q"><a href="#KL-q-p-or-KL-p-q" class="headerlink" title="KL(q|p) or KL(p|q)?"></a>KL(q|p) or KL(p|q)?</h3><p>Todo</p>
+<hr>
+<h3 id="VAE"><a href="#VAE" class="headerlink" title="VAE"></a>VAE</h3><p>Todo</p>
+<hr>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
+<li><a href="https://www.youtube.com/watch?v=4toWtb7PRH4" target="_blank" rel="external">Variational Inference tutorial series by Chieh Wu</a></li>
+<li><a href="https://www.youtube.com/watch?v=ogdv_6dbvVQ" target="_blank" rel="external">Variational Inference: Foundations and Modern Methods (NIPS 2016 tutorial)</a></li>
+<li><a href="http://nbviewer.jupyter.org/github/gokererdogan/Notebooks/blob/master/Reparameterization%20Trick.ipynb" target="_blank" rel="external">Reparameterization Trick</a></li>
+<li><a href="http://gokererdogan.github.io/" target="_blank" rel="external">Goker Erdogan</a> 有很好的 VAE, VI 文章 (還沒看, 放 todo)</li>
+</ol>
+<hr>
+<h3 id="Appendix-EM-跟-VI-很像阿"><a href="#Appendix-EM-跟-VI-很像阿" class="headerlink" title="Appendix: EM 跟 VI 很像阿"></a>Appendix: EM 跟 VI 很像阿</h3><p>在一般 EM 的設定上, 我們是希望找到一組參數 $\tilde{\theta}$ 可以讓 marginal likelihood $\log p(x|\theta)$ 最大, formally speaking:</p>
+<span>$$\begin{align}
+\tilde{\theta}=\arg\max_\theta \log p(x|\theta)
+\end{align}$$</span><!-- Has MathJax -->
+<p>如同 (4) 和 (5), 此時<strong>要求的變數不再是 $q$, 而是 $\theta$</strong>:</p>
+<span>$$\begin{align}
+\log p(x|\theta)=KL\left(q(z)\Vert p(z|x,\theta)\right)+\sum_z q(z)\log\frac{p(x,z|\theta)}{q(z)}\\
+=KL\left(q(z)\Vert p(z|x,\theta)\right)+
+\color{orange}{
+\mathcal{L}(q,\theta)
+}
+\\
+\end{align}$$</span><!-- Has MathJax -->
+<p>此時的 $\log p(x|\theta)$ 不再是固定的 (VI是), 而是我們希望愈大愈好. 而我們知道 $\mathcal{L}(q,\theta)$ 是它的 lower bound 這點不變, 因此如果 lower bound 愈大, 則我們的 $\log p(x|\theta)$ 就當然可能愈大.</p>
+<p>首先注意到 (?) 和 (?) 針對任何的 $q$ 和 $\theta$ 等式都成立, 我們先將 $\theta$ 用 $\theta^{old}$ 以及 $q(z)$ 用 $p(z|x,\theta^{old})$ 代入得到:</p>
+<span>$$\begin{align}
+\log p(x|\theta^{old})=
+KL\left(p(z|x,\theta^{old})\Vert p(z|x,\theta^{old})\right)+\mathcal{L}(p(z|x,\theta^{old}),\theta^{old})\\
+=0+\mathcal{L}(p(z|x,\theta^{old}),\theta^{old})\\
+\leq\max_{\theta}\mathcal{L}(p(z|x,\theta^{old}),\theta)\\
+\end{align}$$</span><!-- Has MathJax -->
+<p>接著求<br><span>$$\begin{align}
+\theta^{new}=\arg\max_{\theta} \mathcal{L}(p(z|x,\theta^{old}),\theta)
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>如此 lower bound 就被我們提高了.<br>(12) 就是 EM 的 M-step, 詳細請看 PRML Ch9.4 或參考下圖理解</p>
+<p><img src="/2018/09/18/Variational-Inference-Notes/em_ELBO.png" width="80%" height="80%"></p>
+<blockquote>
+<p>“$q(z)$ 用 $p(z|x,\theta^{old})$ 代入” 這句話其實有問題, 因為關鍵不就是 $p(z|x,\theta)$ 很難求嗎? 這似乎變成了一個雞生蛋蛋生雞的情況. (就我目前的理解) 所以通常 EM 處理的是 discrete 的 $z$, 然後利用 $\sum_z p(x,z|\theta)$ 算出 $p(x|\theta)$, 接著得到我們要的 $p(z|x,\theta)$. 等於是直接簡化了, 但 VI 無此限制.</p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Variational-Inference/" rel="tag"># Variational Inference</a>
+          
+            <a href="/tags/ELBO/" rel="tag"># ELBO</a>
+          
+            <a href="/tags/Variational-Auto-Encoder-VAE/" rel="tag"># Variational Auto Encoder (VAE)</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/09/03/Ensemble-Algorithm-Summary-Notes/" rel="next" title="Ensemble Algorithm Summary Notes">
+                <i class="fa fa-chevron-left"></i> Ensemble Algorithm Summary Notes
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">36</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">54</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#怎麼看作最佳化問題"><span class="nav-number">1.</span> <span class="nav-text">怎麼看作最佳化問題?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ELBO-的-gradient"><span class="nav-number">2.</span> <span class="nav-text">ELBO 的 gradient</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reparameterization-Trick"><span class="nav-number">3.</span> <span class="nav-text">Reparameterization Trick</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mean-Field-VI"><span class="nav-number">4.</span> <span class="nav-text">Mean Field VI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#KL-q-p-or-KL-p-q"><span class="nav-number">5.</span> <span class="nav-text">KL(q|p) or KL(p|q)?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#VAE"><span class="nav-number">6.</span> <span class="nav-text">VAE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">7.</span> <span class="nav-text">Reference</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Appendix-EM-跟-VI-很像阿"><span class="nav-number">8.</span> <span class="nav-text">Appendix: EM 跟 VI 很像阿</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
