@@ -100,7 +100,7 @@
 <meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/MFVI1.png">
 <meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/MFVI2.png">
 <meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/em_ELBO.png">
-<meta property="og:updated_time" content="2018-09-22T03:16:27.664Z">
+<meta property="og:updated_time" content="2018-09-22T03:29:04.354Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Variational Inference and VAE Notes">
 <meta name="twitter:description" content="前一陣子學習了 Variational Inference, 因為自己記性只有 LSTM 沒有 L, 所以趕快記下筆記. 學得還是很粗淺, 又是一個大坑阿.監督學習不外乎就是 training 和 testing (inference). 而 inference 在做的事情就是在計算後驗概率 $p(z|x)$. 在 PGM 中通常是 intractable, 或要找到 exact solu">
@@ -378,18 +378,18 @@ KL\left(q(z)\Vert p(z|x)\right)=-\sum_z q(z)\log\frac{p(z|x)}{q(z)}\\
 \end{align}$$</span><!-- Has MathJax -->
 <p>得到這個非常重要的式子:</p>
 <span>$$\begin{align}
-\log p(x)=KL\left(q(z)\Vert p(z|x)\right)+\sum_z q(z)\log\frac{
-\color{green}{
-p(x,z)
+\log p(x)=KL\left(q(z)\Vert p(z|x)\right)+
+\color{red}{
+\sum_z q(z)\log\frac{p(x,z)}{q(z)}
 }
-}{q(z)}\\
+\\
 =KL\left(q(z)\Vert p(z|x)\right)+
 \color{red}{
 \mathcal{L}(q)
 }
 \\
 \end{align}$$</span><!-- Has MathJax -->
-<p>為什麼做這樣的轉換呢? 這是因為<strong>通常 $p(z|x)$ 很難得到, 但是 complete likelihood $p(z,x)$ ((4)綠色部分) 通常很好求.</strong> (把這句話放在心裡, 文章都是基於這件事推論的)<br>觀察 (5), 注意到在 VI 的設定中 $\log p(x)$ 跟我們要找的 $q(z)$ 無關, 也就造成了 $\log p(x)$ 是固定的. 由於 $KL\geq 0$, 讓 $KL$ 愈小愈好等同於讓 $\mathcal{L}(q)$ 愈大愈好. 因此 VI 的目標就是<strong>藉由最大化 $\mathcal{L}(q)$ 來迫使 $q(z)$ 接近 $p(z|x)$</strong>.</p>
+<p>為什麼做這樣的轉換呢? 這是因為通常 $p(z|x)$ 很難得到, 但是 complete likelihood $p(z,x)$ 通常很好求.<br>觀察 (5), 注意到在 VI 的設定中 $\log p(x)$ 跟我們要找的 $q(z)$ 無關, 也就造成了 $\log p(x)$ 是固定的. 由於 $KL\geq 0$, 讓 $KL$ 愈小愈好等同於讓 $\mathcal{L}(q)$ 愈大愈好. 因此 VI 的目標就是<strong>藉由最大化 $\mathcal{L}(q)$ 來迫使 $q(z)$ 接近 $p(z|x)$</strong>.</p>
 <blockquote>
 <p>$\mathcal{L}(q)$ 可以看出來是 marginal log likelihood $\log p(x)$ 的 lower bound. 因此稱 variational lower bound 或 <strong>Evidence Lower BOund (ELBO)</strong>.</p>
 </blockquote>
@@ -513,7 +513,7 @@ q(z;\nu)
 \\
 \end{align}$$</span><!-- Has MathJax -->
 <p>此時的 $\log p(x|\theta)$ 不再是固定的 (VI是), 而是我們希望愈大愈好. 而我們知道 $\mathcal{L}(q,\theta)$ 是它的 lower bound 這點不變, 因此如果 lower bound 愈大, 則我們的 $\log p(x|\theta)$ 就當然可能愈大.</p>
-<p>首先注意到 (?) 和 (?) 針對任何的 $q$ 和 $\theta$ 等式都成立, 我們先將 $\theta$ 用 $\theta^{old}$ 以及 $q(z)$ 用 $p(z|x,\theta^{old})$ 代入得到:</p>
+<p>首先注意到 (21) 和 (22) 針對任何的 $q$ 和 $\theta$ 等式都成立, 我們先將 $\theta$ 用 $\theta^{old}$ 以及 $q(z)$ 用 $p(z|x,\theta^{old})$ 代入得到:</p>
 <span>$$\begin{align}
 \log p(x|\theta^{old})=
 KL\left(p(z|x,\theta^{old})\Vert p(z|x,\theta^{old})\right)+\mathcal{L}(p(z|x,\theta^{old}),\theta^{old})\\
@@ -523,7 +523,7 @@ KL\left(p(z|x,\theta^{old})\Vert p(z|x,\theta^{old})\right)+\mathcal{L}(p(z|x,\t
 <p>接著求<br><span>$$\begin{align}
 \theta^{new}=\arg\max_{\theta} \mathcal{L}(p(z|x,\theta^{old}),\theta)
 \end{align}$$</span><!-- Has MathJax --></p>
-<p>如此 lower bound 就被我們提高了.<br>(12) 就是 EM 的 M-step, 詳細請看 PRML Ch9.4 或參考下圖理解</p>
+<p>如此 lower bound 就被我們提高了.<br>(26) 就是 EM 的 M-step, 詳細請看 PRML Ch9.4 或參考下圖理解</p>
 <p><img src="/2018/09/18/Variational-Inference-Notes/em_ELBO.png" width="80%" height="80%"></p>
 <blockquote>
 <p>“$q(z)$ 用 $p(z|x,\theta^{old})$ 代入” 這句話其實有問題, 因為關鍵不就是 $p(z|x,\theta)$ 很難求嗎? 這似乎變成了一個雞生蛋蛋生雞的情況. (就我目前的理解) 所以通常 EM 處理的是 discrete 的 $z$, 然後利用 $\sum_z p(x,z|\theta)$ 算出 $p(x|\theta)$, 接著得到我們要的 $p(z|x,\theta)$. 等於是直接簡化了, 但 VI 無此限制.</p>
