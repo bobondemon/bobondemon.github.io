@@ -89,7 +89,7 @@
 
 <meta name="description" content="前一陣子學習了 Variational Inference, 因為自己記性只有 LSTM 沒有 L, 所以趕快記下筆記. 學得還是很粗淺, 又是一個大坑阿.監督學習不外乎就是 training 和 testing (inference). 而 inference 在做的事情就是在計算後驗概率 $p(z|x)$. 在 PGM 中通常是 intractable, 或要找到 exact solu">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Variational Inference Notes">
+<meta property="og:title" content="Variational Inference and VAE Notes">
 <meta property="og:url" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="前一陣子學習了 Variational Inference, 因為自己記性只有 LSTM 沒有 L, 所以趕快記下筆記. 學得還是很粗淺, 又是一個大坑阿.監督學習不外乎就是 training 和 testing (inference). 而 inference 在做的事情就是在計算後驗概率 $p(z|x)$. 在 PGM 中通常是 intractable, 或要找到 exact solu">
@@ -97,10 +97,12 @@
 <meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/ELBO_gradient.png">
 <meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/vae_encoder_decoder.png">
 <meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/vae_encoder_decoder2.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/MFVI1.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/MFVI2.png">
 <meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/em_ELBO.png">
-<meta property="og:updated_time" content="2018-09-22T02:07:42.095Z">
+<meta property="og:updated_time" content="2018-09-22T03:16:27.664Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Variational Inference Notes">
+<meta name="twitter:title" content="Variational Inference and VAE Notes">
 <meta name="twitter:description" content="前一陣子學習了 Variational Inference, 因為自己記性只有 LSTM 沒有 L, 所以趕快記下筆記. 學得還是很粗淺, 又是一個大坑阿.監督學習不外乎就是 training 和 testing (inference). 而 inference 在做的事情就是在計算後驗概率 $p(z|x)$. 在 PGM 中通常是 intractable, 或要找到 exact solu">
 <meta name="twitter:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/cover.png">
 
@@ -136,7 +138,7 @@
 
 
 
-  <title> Variational Inference Notes | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  <title> Variational Inference and VAE Notes | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
@@ -286,7 +288,7 @@
             
             
               
-                Variational Inference Notes
+                Variational Inference and VAE Notes
               
             
           </h1>
@@ -480,16 +482,21 @@ q(z;\nu)
 </blockquote>
 <p>VAE 就寫到這了, 想要更好地控制 $z$ space 就真的該找時間讀讀 <a href="https://papers.nips.cc/paper/5775-learning-structured-output-representation-using-deep-conditional-generative-models" target="_blank" rel="external">Conditional VAE</a>… 太多要讀的了, 讀不完阿…</p>
 <hr>
-<h3 id="Mean-Field-VI"><a href="#Mean-Field-VI" class="headerlink" title="Mean Field VI"></a>Mean Field VI</h3><p>Todo</p>
-<hr>
-<h3 id="KL-q-p-or-KL-p-q"><a href="#KL-q-p-or-KL-p-q" class="headerlink" title="KL(q|p) or KL(p|q)?"></a>KL(q|p) or KL(p|q)?</h3><p>Todo</p>
+<h3 id="Mean-Field-VI"><a href="#Mean-Field-VI" class="headerlink" title="Mean Field VI"></a>Mean Field VI</h3><p>Mean Field 進一步限制了 $q$ 的範圍, 它假設所有控制 $q$ 的參數 {$\nu_i$} 都是互相獨立的, 這樣所形成的函數空間稱為 mean-field family. 接著採取 coordinate ascent 方式, 針對每個 $\nu_i$ 獨立 update. 這種 fatorized 的 $q$ 一個問題是 estimate 出來的分布會太 compact, 原因是我們使用的指標是 $KL(q|p)$, 詳細參考 <a href="http://research.microsoft.com/en-us/um/people/cmbishop/prml/" target="_blank" rel="external">PRML</a> Fig 10.2. 放上 NIPS 2016 slides, 符號會跟本文有些不同, 不過總結得很好:</p>
+<p><img src="/2018/09/18/Variational-Inference-Notes/MFVI1.png" width="70%" height="70%"><br><img src="/2018/09/18/Variational-Inference-Notes/MFVI2.png" width="70%" height="70%"></p>
+<p>另外想了解更多 Mean Field VI 或是透過例子了解, 推薦以以下兩個資料:</p>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=4toWtb7PRH4" target="_blank" rel="external">Variational Inference tutorial series by Chieh Wu</a></li>
+<li><a href="http://www.openias.org/variational-coin-toss" target="_blank" rel="external">Variational Coin Toss by Björn Smedman</a></li>
+</ul>
 <hr>
 <h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
 <li><a href="https://www.youtube.com/watch?v=4toWtb7PRH4" target="_blank" rel="external">Variational Inference tutorial series by Chieh Wu</a></li>
 <li><a href="https://www.youtube.com/watch?v=ogdv_6dbvVQ" target="_blank" rel="external">Variational Inference: Foundations and Modern Methods (NIPS 2016 tutorial)</a></li>
 <li><a href="http://nbviewer.jupyter.org/github/gokererdogan/Notebooks/blob/master/Reparameterization%20Trick.ipynb" target="_blank" rel="external">Reparameterization Trick</a></li>
 <li><a href="http://gokererdogan.github.io/" target="_blank" rel="external">Goker Erdogan</a> 有很好的 VAE, VI 文章</li>
-<li><a href="https://papers.nips.cc/paper/5775-learning-structured-output-representation-using-deep-conditional-generative-models" target="_blank" rel="external">Conditional VAE</a> (todo)</li>
+<li><a href="https://papers.nips.cc/paper/5775-learning-structured-output-representation-using-deep-conditional-generative-models" target="_blank" rel="external">Conditional VAE</a> (TODO)</li>
+<li><a href="http://www.openias.org/variational-coin-toss" target="_blank" rel="external">Variational Coin Toss by Björn Smedman</a></li>
 </ol>
 <hr>
 <h3 id="Appendix-EM-跟-VI-很像阿"><a href="#Appendix-EM-跟-VI-很像阿" class="headerlink" title="Appendix: EM 跟 VI 很像阿"></a>Appendix: EM 跟 VI 很像阿</h3><p>在一般 EM 的設定上, 我們是希望找到一組參數 $\tilde{\theta}$ 可以讓 marginal likelihood $\log p(x|\theta)$ 最大, formally speaking:</p>
@@ -704,7 +711,7 @@ KL\left(p(z|x,\theta^{old})\Vert p(z|x,\theta^{old})\right)+\mathcal{L}(p(z|x,\t
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#怎麼看作最佳化問題"><span class="nav-number">1.</span> <span class="nav-text">怎麼看作最佳化問題?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ELBO-的-gradient"><span class="nav-number">2.</span> <span class="nav-text">ELBO 的 gradient</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reparameterization-Trick"><span class="nav-number">3.</span> <span class="nav-text">Reparameterization Trick</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#VAE"><span class="nav-number">4.</span> <span class="nav-text">VAE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mean-Field-VI"><span class="nav-number">5.</span> <span class="nav-text">Mean Field VI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#KL-q-p-or-KL-p-q"><span class="nav-number">6.</span> <span class="nav-text">KL(q|p) or KL(p|q)?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">7.</span> <span class="nav-text">Reference</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Appendix-EM-跟-VI-很像阿"><span class="nav-number">8.</span> <span class="nav-text">Appendix: EM 跟 VI 很像阿</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#怎麼看作最佳化問題"><span class="nav-number">1.</span> <span class="nav-text">怎麼看作最佳化問題?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ELBO-的-gradient"><span class="nav-number">2.</span> <span class="nav-text">ELBO 的 gradient</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reparameterization-Trick"><span class="nav-number">3.</span> <span class="nav-text">Reparameterization Trick</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#VAE"><span class="nav-number">4.</span> <span class="nav-text">VAE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mean-Field-VI"><span class="nav-number">5.</span> <span class="nav-text">Mean Field VI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">6.</span> <span class="nav-text">Reference</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Appendix-EM-跟-VI-很像阿"><span class="nav-number">7.</span> <span class="nav-text">Appendix: EM 跟 VI 很像阿</span></a></li></ol></div>
             
 
           </div>
