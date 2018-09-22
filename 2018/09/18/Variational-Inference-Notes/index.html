@@ -95,8 +95,10 @@
 <meta property="og:description" content="前一陣子學習了 Variational Inference, 因為自己記性只有 LSTM 沒有 L, 所以趕快記下筆記. 學得還是很粗淺, 又是一個大坑阿.監督學習不外乎就是 training 和 testing (inference). 而 inference 在做的事情就是在計算後驗概率 $p(z|x)$. 在 PGM 中通常是 intractable, 或要找到 exact solu">
 <meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/cover.png">
 <meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/ELBO_gradient.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/vae_encoder_decoder.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/vae_encoder_decoder2.png">
 <meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/em_ELBO.png">
-<meta property="og:updated_time" content="2018-09-20T17:17:09.775Z">
+<meta property="og:updated_time" content="2018-09-22T02:07:42.095Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Variational Inference Notes">
 <meta name="twitter:description" content="前一陣子學習了 Variational Inference, 因為自己記性只有 LSTM 沒有 L, 所以趕快記下筆記. 學得還是很粗淺, 又是一個大坑阿.監督學習不外乎就是 training 和 testing (inference). 而 inference 在做的事情就是在計算後驗概率 $p(z|x)$. 在 PGM 中通常是 intractable, 或要找到 exact solu">
@@ -380,12 +382,12 @@ p(x,z)
 }
 }{q(z)}\\
 =KL\left(q(z)\Vert p(z|x)\right)+
-\color{orange}{
+\color{red}{
 \mathcal{L}(q)
 }
 \\
 \end{align}$$</span><!-- Has MathJax -->
-<p>為什麼做這樣的轉換呢? 這是因為<strong>通常 $p(z|x)$ 很難得到, 但是 complete likelihood $p(z,x)$ ((4)綠色部分) 通常很好求.</strong> (把這句話放在心裡, 文章都是基於這件事推論的)<br>觀察 (5), 注意到在 VI 的設定中 $x$ 是給定的, 也就造成了 $\log p(x)$ 是固定的. 由於 $KL\geq 0$, 讓 $KL$ 愈小愈好等同於讓 $\mathcal{L}(q)$ 愈大愈好. 因此 VI 的目標就是<strong>藉由最大化 $\mathcal{L}(q)$ 來迫使 $q(z)$ 接近 $p(z|x)$</strong>.</p>
+<p>為什麼做這樣的轉換呢? 這是因為<strong>通常 $p(z|x)$ 很難得到, 但是 complete likelihood $p(z,x)$ ((4)綠色部分) 通常很好求.</strong> (把這句話放在心裡, 文章都是基於這件事推論的)<br>觀察 (5), 注意到在 VI 的設定中 $\log p(x)$ 跟我們要找的 $q(z)$ 無關, 也就造成了 $\log p(x)$ 是固定的. 由於 $KL\geq 0$, 讓 $KL$ 愈小愈好等同於讓 $\mathcal{L}(q)$ 愈大愈好. 因此 VI 的目標就是<strong>藉由最大化 $\mathcal{L}(q)$ 來迫使 $q(z)$ 接近 $p(z|x)$</strong>.</p>
 <blockquote>
 <p>$\mathcal{L}(q)$ 可以看出來是 marginal log likelihood $\log p(x)$ 的 lower bound. 因此稱 variational lower bound 或 <strong>Evidence Lower BOund (ELBO)</strong>.</p>
 </blockquote>
@@ -438,17 +440,56 @@ p(x,z)
 <p>怎麼計算呢? 我們可以使用 Tensorflow 將要計算 gradient 的 function 寫出來, <code>tf.gradients</code> 就能算</p>
 </blockquote>
 <hr>
+<h3 id="VAE"><a href="#VAE" class="headerlink" title="VAE"></a>VAE</h3><p>Variational Inference 怎麼跟 Neural Network 扯上關係的? 這實在很神奇.<br>我們先來看看 ELBO 除了 (6) 的寫法, 還可以這麼表示:</p>
+<span>$$\begin{align}
+\mathcal{L}(\nu)=\mathbb{E}_{z\sim q}\left[\log p(x,z) - \log q(z;\nu)\right]\\
+=\mathbb{E}_{z\sim q}\left[ \log p(x|z) + \log p(z) - log q(z;\nu) \right]\\
+=\mathbb{E}_{z\sim q}\left[ \log p(x|z)\right] + \mathbb{E}_{z\sim q}\left[ \log \frac{p(z)}{q(z;\nu)}\right]\\
+=\mathbb{E}_{z\sim q}\left[ \log p(x|z)\right] - KL(q(z;\nu)\|p(z))\\
+\end{align}$$</span><!-- Has MathJax -->
+<p>我們讓 $p(x|z)$ 被參數 $\theta$ 所控制, 所以最後 ELBO 如下:<br><span>$$\begin{align}
+\mathcal{L}(\nu,\theta)=\mathbb{E}_{z\sim q}\left[ \log
+\color{orange}{
+p(x|z,\theta)
+}
+\right] - KL(
+\color{blue}{
+q(z;\nu)
+}
+\|p(z))\\
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>讓我們用力看 (19) 一分鐘<br>接著在用力看 (19) 一分鐘<br>最後在用力看 (19) 一分鐘</p>
+<p>有看出什麼嗎? … 如果沒有, 試著對照下面這張圖</p>
+<p><img src="/2018/09/18/Variational-Inference-Notes/vae_encoder_decoder.png" width="60%" height="60%"></p>
+<p>Encoder 和 Decoder 都同時用 NN 來學習, 這裡 $\nu$ 和 $\theta$ 分別表示 NN 的參數, 而使用 Reparameterization trick 來計算 ELBO 的 gradient (14) 就相當於在做這兩個 NN 的 backprop.</p>
+<p>但是上圖的 Encoder 產生的是一個 pdf, 而給 Decoder 的是一個 sample $z$, 這該怎麼串一起? VAE 的做法就是將 $q(z)$ 設定為 diagonal Gaussian, 然後在這個 diagonal Gaussian 採樣出 $T$ 個 $z$ 就可以丟給 Decoder. 使用 diagonal Gaussian 有兩個好處:</p>
+<ol>
+<li>我們可以用 reparameterization trick, 因此採樣只在標準高斯上採樣, <strong>自然地 Encoder 的 output 就是 $\mu$ 和 $\sigma$ 了</strong>.</li>
+<li>(19)的 KL 項直接就有 closed form solution, 免掉算 expectation <strong>(假設$p(z)$也是Gaussian的話)</strong></li>
+</ol>
+<p>根據1, 架構改動如下:</p>
+<p><img src="/2018/09/18/Variational-Inference-Notes/vae_encoder_decoder2.png" width="70%" height="70%"></p>
+<p>將原來的 ELBO (10) 轉成 (19) 來看的話, 還可以看出一些資訊.<br>當最大化 (19) 的時候</p>
+<ul>
+<li>RHS 第一項要愈大愈好 (likelihood 愈大愈好), 因此這一項代表 reconstruct error 愈小愈好. </li>
+<li>RHS 第二項, 也就是 $KL(q(z;\nu)\Vert p(z))$ 則要愈小愈好. 因此會傾向於讓 $q(z;\nu)$ 愈接近 $p(z)$ 愈好. 這可以看做 regularization.</li>
+</ul>
+<p>但是別忘了一開始說 VI 的做法就是藉由最大化 ELBO 來迫使 $q(z;\nu)$ 接近 $p(z|x)$, 而上面才說最大化 ELBO 會傾向於讓 $q(z;\nu)$ 接近 $p(z)$.<br>這串起來就說 $q(z;\nu)$ 接近 $p(z|x)$ 接近 $p(z)$. 在 VAE 論文裡就將 $p(z)$ 直接設定為 $\mathcal{N}(0,\mathbf{I})$. 因此整個 VAE 訓練完的 Encoder 的 $z$ 分布會有高斯分布的情形.</p>
+<blockquote>
+<p>這裡我有個問題, 就是使 $p(z|x)$ 接近 $p(z)$ 怎麼感覺不大對勁 … 譬如用 MNIST 來說明, $p(z|‘1’)$ 應該要跟 $p(z|‘2’)$ 分布很不一樣才對 (這樣才是好的 representation), 但現在會讓它們都接近單位高斯 (因此不會有 cluster 現象).<br>不過實作上每個類別還是會有 cluster 現象, 猜是因為 reconstruction error 那項起的作用, 因為這項會跟接近單位高斯 trade-off. 待更深入研究…</p>
+</blockquote>
+<p>VAE 就寫到這了, 想要更好地控制 $z$ space 就真的該找時間讀讀 <a href="https://papers.nips.cc/paper/5775-learning-structured-output-representation-using-deep-conditional-generative-models" target="_blank" rel="external">Conditional VAE</a>… 太多要讀的了, 讀不完阿…</p>
+<hr>
 <h3 id="Mean-Field-VI"><a href="#Mean-Field-VI" class="headerlink" title="Mean Field VI"></a>Mean Field VI</h3><p>Todo</p>
 <hr>
 <h3 id="KL-q-p-or-KL-p-q"><a href="#KL-q-p-or-KL-p-q" class="headerlink" title="KL(q|p) or KL(p|q)?"></a>KL(q|p) or KL(p|q)?</h3><p>Todo</p>
-<hr>
-<h3 id="VAE"><a href="#VAE" class="headerlink" title="VAE"></a>VAE</h3><p>Todo</p>
 <hr>
 <h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
 <li><a href="https://www.youtube.com/watch?v=4toWtb7PRH4" target="_blank" rel="external">Variational Inference tutorial series by Chieh Wu</a></li>
 <li><a href="https://www.youtube.com/watch?v=ogdv_6dbvVQ" target="_blank" rel="external">Variational Inference: Foundations and Modern Methods (NIPS 2016 tutorial)</a></li>
 <li><a href="http://nbviewer.jupyter.org/github/gokererdogan/Notebooks/blob/master/Reparameterization%20Trick.ipynb" target="_blank" rel="external">Reparameterization Trick</a></li>
-<li><a href="http://gokererdogan.github.io/" target="_blank" rel="external">Goker Erdogan</a> 有很好的 VAE, VI 文章 (還沒看, 放 todo)</li>
+<li><a href="http://gokererdogan.github.io/" target="_blank" rel="external">Goker Erdogan</a> 有很好的 VAE, VI 文章</li>
+<li><a href="https://papers.nips.cc/paper/5775-learning-structured-output-representation-using-deep-conditional-generative-models" target="_blank" rel="external">Conditional VAE</a> (todo)</li>
 </ol>
 <hr>
 <h3 id="Appendix-EM-跟-VI-很像阿"><a href="#Appendix-EM-跟-VI-很像阿" class="headerlink" title="Appendix: EM 跟 VI 很像阿"></a>Appendix: EM 跟 VI 很像阿</h3><p>在一般 EM 的設定上, 我們是希望找到一組參數 $\tilde{\theta}$ 可以讓 marginal likelihood $\log p(x|\theta)$ 最大, formally speaking:</p>
@@ -663,7 +704,7 @@ KL\left(p(z|x,\theta^{old})\Vert p(z|x,\theta^{old})\right)+\mathcal{L}(p(z|x,\t
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#怎麼看作最佳化問題"><span class="nav-number">1.</span> <span class="nav-text">怎麼看作最佳化問題?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ELBO-的-gradient"><span class="nav-number">2.</span> <span class="nav-text">ELBO 的 gradient</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reparameterization-Trick"><span class="nav-number">3.</span> <span class="nav-text">Reparameterization Trick</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mean-Field-VI"><span class="nav-number">4.</span> <span class="nav-text">Mean Field VI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#KL-q-p-or-KL-p-q"><span class="nav-number">5.</span> <span class="nav-text">KL(q|p) or KL(p|q)?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#VAE"><span class="nav-number">6.</span> <span class="nav-text">VAE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">7.</span> <span class="nav-text">Reference</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Appendix-EM-跟-VI-很像阿"><span class="nav-number">8.</span> <span class="nav-text">Appendix: EM 跟 VI 很像阿</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#怎麼看作最佳化問題"><span class="nav-number">1.</span> <span class="nav-text">怎麼看作最佳化問題?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ELBO-的-gradient"><span class="nav-number">2.</span> <span class="nav-text">ELBO 的 gradient</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reparameterization-Trick"><span class="nav-number">3.</span> <span class="nav-text">Reparameterization Trick</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#VAE"><span class="nav-number">4.</span> <span class="nav-text">VAE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mean-Field-VI"><span class="nav-number">5.</span> <span class="nav-text">Mean Field VI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#KL-q-p-or-KL-p-q"><span class="nav-number">6.</span> <span class="nav-text">KL(q|p) or KL(p|q)?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">7.</span> <span class="nav-text">Reference</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Appendix-EM-跟-VI-很像阿"><span class="nav-number">8.</span> <span class="nav-text">Appendix: EM 跟 VI 很像阿</span></a></li></ol></div>
             
 
           </div>
