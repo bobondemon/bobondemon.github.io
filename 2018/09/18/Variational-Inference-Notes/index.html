@@ -101,7 +101,7 @@
 <meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/MFVI1.png">
 <meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/MFVI2.png">
 <meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/em_ELBO.png">
-<meta property="og:updated_time" content="2018-10-01T14:52:03.148Z">
+<meta property="og:updated_time" content="2018-10-01T16:17:44.599Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Variational Inference and VAE Notes">
 <meta name="twitter:description" content="前一陣子學習了 Variational Inference, 因為自己記性只有 LSTM 沒有 L, 所以趕快記下筆記. 學得還是很粗淺, 又是一個大坑阿.監督學習不外乎就是 training 和 testing (inference). 而 inference 在做的事情就是在計算後驗概率 $p(z|x)$. 在 PGM 中通常是 intractable, 或要找到 exact solu">
@@ -547,7 +547,7 @@ q(z;\nu
 \end{align}$$</span><!-- Has MathJax -->
 <p>這說明了我們在學 Encoder 和 Decoder 的 NN 時必須加入 conditioned on $c$ 這個條件! NN 怎麼做到這點呢? 很暴力, 直接將 class 的 one-hot 跟原來的 input concate 起來就當成是 condition 了. 因此 CVAE 的架構如下:</p>
 <p><img src="/2018/09/18/Variational-Inference-Notes/cvae_encoder_decoder.png" width="70%" height="70%"></p>
-<p>實作細節就不多說了, 直接參考 <a href="todo">codes</a></p>
+<p>實作細節就不多說了, 直接參考 <a href="https://github.com/bobondemon/CVAE" target="_blank" rel="external">codes</a></p>
 <hr>
 <h3 id="Mean-Field-VI"><a href="#Mean-Field-VI" class="headerlink" title="Mean Field VI"></a>Mean Field VI</h3><p>Mean Field 進一步限制了 $q$ 的範圍, 它假設所有控制 $q$ 的參數 {$\nu_i$} 都是互相獨立的, 這樣所形成的函數空間稱為 mean-field family. 接著採取 coordinate ascent 方式, 針對每個 $\nu_i$ 獨立 update. 這種 fatorized 的 $q$ 一個問題是 estimate 出來的分布會太 compact, 原因是我們使用的指標是 $KL(q|p)$, 詳細參考 <a href="http://research.microsoft.com/en-us/um/people/cmbishop/prml/" target="_blank" rel="external">PRML</a> Fig 10.2. 放上 NIPS 2016 slides, 符號會跟本文有些不同, 不過總結得很好:</p>
 <p><img src="/2018/09/18/Variational-Inference-Notes/MFVI1.png" width="70%" height="70%"><br><img src="/2018/09/18/Variational-Inference-Notes/MFVI2.png" width="70%" height="70%"></p>
@@ -565,7 +565,7 @@ q(z;\nu
 <li><a href="https://papers.nips.cc/paper/5775-learning-structured-output-representation-using-deep-conditional-generative-models" target="_blank" rel="external">Conditional VAE 原論文</a></li>
 <li><a href="https://wiseodd.github.io/techblog/2016/12/17/conditional-vae/" target="_blank" rel="external">Conditional VAE 好文章</a></li>
 <li><a href="http://www.openias.org/variational-coin-toss" target="_blank" rel="external">Variational Coin Toss by Björn Smedman</a></li>
-<li><a href="todo">My CVAE TF Practice</a></li>
+<li><a href="https://github.com/bobondemon/CVAE" target="_blank" rel="external">My CVAE TF Practice</a></li>
 </ol>
 <hr>
 <h3 id="Appendix-EM-跟-VI-很像阿"><a href="#Appendix-EM-跟-VI-很像阿" class="headerlink" title="Appendix: EM 跟 VI 很像阿"></a>Appendix: EM 跟 VI 很像阿</h3><p>在一般 EM 的設定上, 我們是希望找到一組參數 $\tilde{\theta}$ 可以讓 marginal likelihood $\log p(x|\theta)$ 最大, formally speaking:</p>
@@ -582,7 +582,7 @@ q(z;\nu
 \\
 \end{align}$$</span><!-- Has MathJax -->
 <p>此時的 $\log p(x|\theta)$ 不再是固定的 (VI是), 而是我們希望愈大愈好. 而我們知道 $\mathcal{L}(q,\theta)$ 是它的 lower bound 這點不變, 因此如果 lower bound 愈大, 則我們的 $\log p(x|\theta)$ 就當然可能愈大.</p>
-<p>首先注意到 (21) 和 (22) 針對任何的 $q$ 和 $\theta$ 等式都成立, 我們先將 $\theta$ 用 $\theta^{old}$ 以及 $q(z)$ 用 $p(z|x,\theta^{old})$ 代入得到:</p>
+<p>首先注意到 (23) 和 (24) 針對任何的 $q$ 和 $\theta$ 等式都成立, 我們先將 $\theta$ 用 $\theta^{old}$ 以及 $q(z)$ 用 $p(z|x,\theta^{old})$ 代入得到:</p>
 <span>$$\begin{align}
 \log p(x|\theta^{old})=
 KL\left(p(z|x,\theta^{old})\Vert p(z|x,\theta^{old})\right)+\mathcal{L}(p(z|x,\theta^{old}),\theta^{old})\\
@@ -592,7 +592,7 @@ KL\left(p(z|x,\theta^{old})\Vert p(z|x,\theta^{old})\right)+\mathcal{L}(p(z|x,\t
 <p>接著求<br><span>$$\begin{align}
 \theta^{new}=\arg\max_{\theta} \mathcal{L}(p(z|x,\theta^{old}),\theta)
 \end{align}$$</span><!-- Has MathJax --></p>
-<p>如此 lower bound 就被我們提高了.<br>(26) 就是 EM 的 M-step, 詳細請看 PRML Ch9.4 或參考下圖理解</p>
+<p>如此 lower bound 就被我們提高了.<br>(28) 就是 EM 的 M-step, 詳細請看 PRML Ch9.4 或參考下圖理解</p>
 <p><img src="/2018/09/18/Variational-Inference-Notes/em_ELBO.png" width="80%" height="80%"></p>
 <blockquote>
 <p>“$q(z)$ 用 $p(z|x,\theta^{old})$ 代入” 這句話其實有問題, 因為關鍵不就是 $p(z|x,\theta)$ 很難求嗎? 這似乎變成了一個雞生蛋蛋生雞的情況. (就我目前的理解) 所以通常 EM 處理的是 discrete 的 $z$, 然後利用 $\sum_z p(x,z|\theta)$ 算出 $p(x|\theta)$, 接著得到我們要的 $p(z|x,\theta)$. 等於是直接簡化了, 但 VI 無此限制.</p>
