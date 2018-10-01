@@ -97,10 +97,11 @@
 <meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/ELBO_gradient.png">
 <meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/vae_encoder_decoder.png">
 <meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/vae_encoder_decoder2.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/cvae_encoder_decoder.png">
 <meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/MFVI1.png">
 <meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/MFVI2.png">
 <meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/em_ELBO.png">
-<meta property="og:updated_time" content="2018-09-22T03:29:04.354Z">
+<meta property="og:updated_time" content="2018-10-01T14:52:03.148Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Variational Inference and VAE Notes">
 <meta name="twitter:description" content="前一陣子學習了 Variational Inference, 因為自己記性只有 LSTM 沒有 L, 所以趕快記下筆記. 學得還是很粗淺, 又是一個大坑阿.監督學習不外乎就是 training 和 testing (inference). 而 inference 在做的事情就是在計算後驗概率 $p(z|x)$. 在 PGM 中通常是 intractable, 或要找到 exact solu">
@@ -487,10 +488,66 @@ q(z;\nu)
 <li>RHS 第二項, 也就是 $KL(q(z;\nu)\Vert p(z))$ 則要愈小愈好. 因此會傾向於讓 $q(z;\nu)$ 愈接近 $p(z)$ 愈好. 這可以看做 regularization.</li>
 </ul>
 <p>但是別忘了一開始說 VI 的做法就是藉由最大化 ELBO 來迫使 $q(z;\nu)$ 接近 $p(z|x)$, 而上面才說最大化 ELBO 會傾向於讓 $q(z;\nu)$ 接近 $p(z)$.<br>這串起來就說 $q(z;\nu)$ 接近 $p(z|x)$ 接近 $p(z)$. 在 VAE 論文裡就將 $p(z)$ 直接設定為 $\mathcal{N}(0,\mathbf{I})$. 因此整個 VAE 訓練完的 Encoder 的 $z$ 分布會有高斯分布的情形.</p>
-<blockquote>
-<p>這裡我有個問題, 就是使 $p(z|x)$ 接近 $p(z)$ 怎麼感覺不大對勁 … 譬如用 MNIST 來說明, $p(z|‘1’)$ 應該要跟 $p(z|‘2’)$ 分布很不一樣才對 (這樣才是好的 representation), 但現在會讓它們都接近單位高斯 (因此不會有 cluster 現象).<br>不過實作上每個類別還是會有 cluster 現象, 猜是因為 reconstruction error 那項起的作用, 因為這項會跟接近單位高斯 trade-off. 待更深入研究…</p>
-</blockquote>
-<p>VAE 就寫到這了, 想要更好地控制 $z$ space 就真的該找時間讀讀 <a href="https://papers.nips.cc/paper/5775-learning-structured-output-representation-using-deep-conditional-generative-models" target="_blank" rel="external">Conditional VAE</a>… 太多要讀的了, 讀不完阿…</p>
+<h4 id="Conditional-VAE-CVAE"><a href="#Conditional-VAE-CVAE" class="headerlink" title="Conditional VAE (CVAE)"></a>Conditional VAE (CVAE)</h4><p>原來的 VAE 無法控制要生成某些類別的圖像, 也就是隨機產生 $z$ 不知道這會對應到哪個類別. CVAE 可以根據條件來產生圖像, 也就是除了給 $z$ 之外需要再給 $c$ (類別) 資訊來生成圖像. 怎麼辦到的呢? 方法簡單到我嚇一跳, 看原本<a href="https://papers.nips.cc/paper/5775-learning-structured-output-representation-using-deep-conditional-generative-models" target="_blank" rel="external">論文</a>有點迷迷糊糊, 但這篇<a href="https://wiseodd.github.io/techblog/2016/12/17/conditional-vae/" target="_blank" rel="external">文章</a>解釋得很清楚! 簡單來說將原來的推倒全部加上 condition on $c$ 的條件. 從 (4) 出發修改如下:</p>
+<span>$$\begin{align}
+\log p(x
+\color{red}{
+| c
+}
+)
+=KL\left(q(z
+\color{red}{
+| c
+}
+)\Vert p(z|x,
+\color{red}{
+c
+}
+)\right)+
+
+\sum_z q(z
+\color{red}{
+| c
+}
+)\log\frac{p(x,z
+\color{red}{
+| c
+}
+)}{q(z
+\color{red}{
+| c
+}
+)}
+
+\\
+\end{align}$$</span><!-- Has MathJax -->
+<p>用推導 VAE 一模一樣的流程, 其實什麼都沒做, 只是全部 conditioned on $c$ 得到 (19) 的 condition 版本</p>
+<span>$$\begin{align}
+\mathcal{L}(\nu,\theta
+\color{red}{
+| c
+}
+)=\mathbb{E}_{z\sim q}\left[ \log
+\color{orange}{
+p(x|z,\theta,
+\color{red}{
+c
+}
+)
+}
+\right] - KL(
+\color{blue}{
+q(z;\nu
+\color{red}{
+| c
+}
+)
+}
+\|p(z))\\
+\end{align}$$</span><!-- Has MathJax -->
+<p>這說明了我們在學 Encoder 和 Decoder 的 NN 時必須加入 conditioned on $c$ 這個條件! NN 怎麼做到這點呢? 很暴力, 直接將 class 的 one-hot 跟原來的 input concate 起來就當成是 condition 了. 因此 CVAE 的架構如下:</p>
+<p><img src="/2018/09/18/Variational-Inference-Notes/cvae_encoder_decoder.png" width="70%" height="70%"></p>
+<p>實作細節就不多說了, 直接參考 <a href="todo">codes</a></p>
 <hr>
 <h3 id="Mean-Field-VI"><a href="#Mean-Field-VI" class="headerlink" title="Mean Field VI"></a>Mean Field VI</h3><p>Mean Field 進一步限制了 $q$ 的範圍, 它假設所有控制 $q$ 的參數 {$\nu_i$} 都是互相獨立的, 這樣所形成的函數空間稱為 mean-field family. 接著採取 coordinate ascent 方式, 針對每個 $\nu_i$ 獨立 update. 這種 fatorized 的 $q$ 一個問題是 estimate 出來的分布會太 compact, 原因是我們使用的指標是 $KL(q|p)$, 詳細參考 <a href="http://research.microsoft.com/en-us/um/people/cmbishop/prml/" target="_blank" rel="external">PRML</a> Fig 10.2. 放上 NIPS 2016 slides, 符號會跟本文有些不同, 不過總結得很好:</p>
 <p><img src="/2018/09/18/Variational-Inference-Notes/MFVI1.png" width="70%" height="70%"><br><img src="/2018/09/18/Variational-Inference-Notes/MFVI2.png" width="70%" height="70%"></p>
@@ -505,8 +562,10 @@ q(z;\nu)
 <li><a href="https://www.youtube.com/watch?v=ogdv_6dbvVQ" target="_blank" rel="external">Variational Inference: Foundations and Modern Methods (NIPS 2016 tutorial)</a></li>
 <li><a href="http://nbviewer.jupyter.org/github/gokererdogan/Notebooks/blob/master/Reparameterization%20Trick.ipynb" target="_blank" rel="external">Reparameterization Trick</a></li>
 <li><a href="http://gokererdogan.github.io/" target="_blank" rel="external">Goker Erdogan</a> 有很好的 VAE, VI 文章</li>
-<li><a href="https://papers.nips.cc/paper/5775-learning-structured-output-representation-using-deep-conditional-generative-models" target="_blank" rel="external">Conditional VAE</a> (TODO)</li>
+<li><a href="https://papers.nips.cc/paper/5775-learning-structured-output-representation-using-deep-conditional-generative-models" target="_blank" rel="external">Conditional VAE 原論文</a></li>
+<li><a href="https://wiseodd.github.io/techblog/2016/12/17/conditional-vae/" target="_blank" rel="external">Conditional VAE 好文章</a></li>
 <li><a href="http://www.openias.org/variational-coin-toss" target="_blank" rel="external">Variational Coin Toss by Björn Smedman</a></li>
+<li><a href="todo">My CVAE TF Practice</a></li>
 </ol>
 <hr>
 <h3 id="Appendix-EM-跟-VI-很像阿"><a href="#Appendix-EM-跟-VI-很像阿" class="headerlink" title="Appendix: EM 跟 VI 很像阿"></a>Appendix: EM 跟 VI 很像阿</h3><p>在一般 EM 的設定上, 我們是希望找到一組參數 $\tilde{\theta}$ 可以讓 marginal likelihood $\log p(x|\theta)$ 最大, formally speaking:</p>
@@ -721,7 +780,7 @@ KL\left(p(z|x,\theta^{old})\Vert p(z|x,\theta^{old})\right)+\mathcal{L}(p(z|x,\t
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#怎麼看作最佳化問題"><span class="nav-number">1.</span> <span class="nav-text">怎麼看作最佳化問題?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ELBO-的-gradient"><span class="nav-number">2.</span> <span class="nav-text">ELBO 的 gradient</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reparameterization-Trick"><span class="nav-number">3.</span> <span class="nav-text">Reparameterization Trick</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#VAE"><span class="nav-number">4.</span> <span class="nav-text">VAE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mean-Field-VI"><span class="nav-number">5.</span> <span class="nav-text">Mean Field VI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">6.</span> <span class="nav-text">Reference</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Appendix-EM-跟-VI-很像阿"><span class="nav-number">7.</span> <span class="nav-text">Appendix: EM 跟 VI 很像阿</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#怎麼看作最佳化問題"><span class="nav-number">1.</span> <span class="nav-text">怎麼看作最佳化問題?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ELBO-的-gradient"><span class="nav-number">2.</span> <span class="nav-text">ELBO 的 gradient</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reparameterization-Trick"><span class="nav-number">3.</span> <span class="nav-text">Reparameterization Trick</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#VAE"><span class="nav-number">4.</span> <span class="nav-text">VAE</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Conditional-VAE-CVAE"><span class="nav-number">4.1.</span> <span class="nav-text">Conditional VAE (CVAE)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mean-Field-VI"><span class="nav-number">5.</span> <span class="nav-text">Mean Field VI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">6.</span> <span class="nav-text">Reference</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Appendix-EM-跟-VI-很像阿"><span class="nav-number">7.</span> <span class="nav-text">Appendix: EM 跟 VI 很像阿</span></a></li></ol></div>
             
 
           </div>
