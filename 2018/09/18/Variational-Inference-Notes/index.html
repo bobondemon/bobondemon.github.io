@@ -98,10 +98,13 @@
 <meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/vae_encoder_decoder.png">
 <meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/vae_encoder_decoder2.png">
 <meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/cvae_encoder_decoder.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/0_4.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/1_3.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/cond_value.png">
 <meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/MFVI1.png">
 <meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/MFVI2.png">
 <meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/em_ELBO.png">
-<meta property="og:updated_time" content="2018-10-01T16:17:44.599Z">
+<meta property="og:updated_time" content="2018-10-03T16:03:01.569Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Variational Inference and VAE Notes">
 <meta name="twitter:description" content="前一陣子學習了 Variational Inference, 因為自己記性只有 LSTM 沒有 L, 所以趕快記下筆記. 學得還是很粗淺, 又是一個大坑阿.監督學習不外乎就是 training 和 testing (inference). 而 inference 在做的事情就是在計算後驗概率 $p(z|x)$. 在 PGM 中通常是 intractable, 或要找到 exact solu">
@@ -548,8 +551,20 @@ q(z;\nu
 <p>這說明了我們在學 Encoder 和 Decoder 的 NN 時必須加入 conditioned on $c$ 這個條件! NN 怎麼做到這點呢? 很暴力, 直接將 class 的 one-hot 跟原來的 input concate 起來就當成是 condition 了. 因此 CVAE 的架構如下:</p>
 <p><img src="/2018/09/18/Variational-Inference-Notes/cvae_encoder_decoder.png" width="70%" height="70%"></p>
 <p>實作細節就不多說了, 直接參考 <a href="https://github.com/bobondemon/CVAE" target="_blank" rel="external">codes</a></p>
+<p>由於我們的 condition 是 one-hot, 如果同時將兩個 label 設定為 1, 是不是就能 conditioned on two classes 呢? 實驗如下</p>
+<ul>
+<li>conditioned on ‘0’ and ‘4’</li>
+</ul>
+<p><img src="/2018/09/18/Variational-Inference-Notes/0_4.png" width="70%" height="70%"></p>
+<ul>
+<li>conditioned on ‘1’ and ‘3’</li>
+</ul>
+<p><img src="/2018/09/18/Variational-Inference-Notes/1_3.png" width="70%" height="70%"></p>
+<p>另外, 如果給的 condition 值比較小, 是不是就可以產生比較不是那麼確定的 image 呢? 我們嘗試 conditioned on ‘4’ 且值從 0.1 (weak) 到 1.0 (strong), 結果如下:</p>
+<p><img src="/2018/09/18/Variational-Inference-Notes/cond_value.png" width="70%" height="70%"></p>
+<p>這個 condition 值大小還真有反應強度呢! Neural network 真的很神奇阿~</p>
 <hr>
-<h3 id="Mean-Field-VI"><a href="#Mean-Field-VI" class="headerlink" title="Mean Field VI"></a>Mean Field VI</h3><p>Mean Field 進一步限制了 $q$ 的範圍, 它假設所有控制 $q$ 的參數 {$\nu_i$} 都是互相獨立的, 這樣所形成的函數空間稱為 mean-field family. 接著採取 coordinate ascent 方式, 針對每個 $\nu_i$ 獨立 update. 這種 fatorized 的 $q$ 一個問題是 estimate 出來的分布會太 compact, 原因是我們使用的指標是 $KL(q|p)$, 詳細參考 <a href="http://research.microsoft.com/en-us/um/people/cmbishop/prml/" target="_blank" rel="external">PRML</a> Fig 10.2. 放上 NIPS 2016 slides, 符號會跟本文有些不同, 不過總結得很好:</p>
+<h3 id="Mean-Field-VI"><a href="#Mean-Field-VI" class="headerlink" title="Mean Field VI"></a>Mean Field VI</h3><p>讓我們拉回 VI. Mean Field 進一步限制了 $q$ 的範圍, 它假設所有控制 $q$ 的參數 {$\nu_i$} 都是互相獨立的, 這樣所形成的函數空間稱為 mean-field family. 接著採取 coordinate ascent 方式, 針對每個 $\nu_i$ 獨立 update. 這種 fatorized 的 $q$ 一個問題是 estimate 出來的分布會太 compact, 原因是我們使用的指標是 $KL(q|p)$, 詳細參考 <a href="http://research.microsoft.com/en-us/um/people/cmbishop/prml/" target="_blank" rel="external">PRML</a> Fig 10.2. 放上 NIPS 2016 slides, 符號會跟本文有些不同, 不過總結得很好:</p>
 <p><img src="/2018/09/18/Variational-Inference-Notes/MFVI1.png" width="70%" height="70%"><br><img src="/2018/09/18/Variational-Inference-Notes/MFVI2.png" width="70%" height="70%"></p>
 <p>另外想了解更多 Mean Field VI 或是透過例子了解, 推薦以以下兩個資料:</p>
 <ul>
