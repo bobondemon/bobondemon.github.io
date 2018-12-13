@@ -1,0 +1,874 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Gaussian Process,Bayesian Optimization,Stationary," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="上了 Coursera 的 Bayesian Methods for Machine Learning, 其中最後一週的課程介紹了 Gaussian processes &amp;amp; Bayesian optimization 覺得很有收穫, 因為做 ML 最痛苦的就是 hyper-parameter tuning, 常見的方法就是手動調, grid search or random sea">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Gaussian Process used in Bayesian Optimization">
+<meta property="og:url" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="上了 Coursera 的 Bayesian Methods for Machine Learning, 其中最後一週的課程介紹了 Gaussian processes &amp;amp; Bayesian optimization 覺得很有收穫, 因為做 ML 最痛苦的就是 hyper-parameter tuning, 常見的方法就是手動調, grid search or random sea">
+<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/cover.png">
+<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GP_def.png">
+<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GP_stationary_def.png">
+<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/kernel_def.png">
+<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/typical_kernel.png">
+<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/Stationary_exp.png">
+<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GP_regression1.png">
+<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GP_regression2.png">
+<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GP_regression3.png">
+<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GPy1.png">
+<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GPy2.png">
+<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GPy3.png">
+<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GPy4.png">
+<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/optimize_kernel.png">
+<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/optimize_kernel2.png">
+<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/optimize_kernel3.png">
+<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/black_box_opt.png">
+<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GPyOpt1.png">
+<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GPyOpt2.png">
+<meta property="og:updated_time" content="2018-12-13T13:47:50.427Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Gaussian Process used in Bayesian Optimization">
+<meta name="twitter:description" content="上了 Coursera 的 Bayesian Methods for Machine Learning, 其中最後一週的課程介紹了 Gaussian processes &amp;amp; Bayesian optimization 覺得很有收穫, 因為做 ML 最痛苦的就是 hyper-parameter tuning, 常見的方法就是手動調, grid search or random sea">
+<meta name="twitter:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/cover.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/"/>
+
+
+
+
+
+  <title> Gaussian Process used in Bayesian Optimization | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Gaussian Process used in Bayesian Optimization
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2018-12-09T18:46:36+08:00">
+                2018-12-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>上了 Coursera 的 <a href="https://www.coursera.org/learn/bayesian-methods-in-machine-learning/home/welcome" target="_blank" rel="external">Bayesian Methods for Machine Learning</a>, 其中最後一週的課程介紹了 Gaussian processes &amp; Bayesian optimization 覺得很有收穫, 因為做 ML 最痛苦的就是 hyper-parameter tuning, 常見的方法就是手動調, grid search or random search. 現在可以有一個較 “模型” 的作法: Bayesian optimization. 為了瞭解這個過程, 我們會介紹如下內容並同時使用 <a href="http://sheffieldml.github.io/GPy/" target="_blank" rel="external">GPy</a> and <a href="http://sheffieldml.github.io/GPyOpt/" target="_blank" rel="external">GPyOpt</a> 做些 toy example:</p>
+<ul>
+<li>Random Process and Gaussian Process</li>
+<li>Stationary and Wide-Sense Stationary (WSS)</li>
+<li>GP for regression</li>
+<li>GP for bayesian optimization</li>
+</ul>
+<p>讓我們進入 GP 的領域吧</p>
+<p><img src="/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/cover.png" width="60%" height="60%"></p>
+<a id="more"></a>
+<hr>
+<h3 id="Random-Process-RP-and-Gaussian-Process-GP"><a href="#Random-Process-RP-and-Gaussian-Process-GP" class="headerlink" title="Random Process (RP) and Gaussian Process (GP)"></a>Random Process (RP) and Gaussian Process (GP)</h3><p>Random process (RP) 或稱 stochastic process 定義為</p>
+<blockquote>
+<p>[Def]: For any $x\in\mathbb{R}^d$ assign random variable $f(x)$</p>
+</blockquote>
+<p>例如 $d=1$ 且是離散的情形, ($x\in\mathbb{N}$) 定義說明對於每一個 $x$, $f[x]$ 都是一個 r.v. 所以 $f[1]$, $f[2]$, … 都是 r.v.s. 此 case 通常把 $x$ 當作時間 $t$ 來看.</p>
+<p>而 Gaussian Process 定義為</p>
+<blockquote>
+<p>[Def]: Random process $f$ is <em>Gaussian</em>, if for any finite number points, their joint distribution is normal.<br><img src="/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GP_def.png" width="70%" height="70%"></p>
+</blockquote>
+<hr>
+<h3 id="Stationary-and-Wide-Sense-Stationary-WSS"><a href="#Stationary-and-Wide-Sense-Stationary-WSS" class="headerlink" title="Stationary and Wide-Sense Stationary (WSS)"></a>Stationary and Wide-Sense Stationary (WSS)</h3><h4 id="Stationary"><a href="#Stationary" class="headerlink" title="Stationary"></a>Stationary</h4><p>一個 RP 是 stationary 定義如下:</p>
+<blockquote>
+<p>[Def]: Random process is stationary if its finite-dimensional distributions depend only on relative position of the points</p>
+</blockquote>
+<p>簡單舉例: 取三個 r.v.s $(x_1,x_2,x_3)$ 他們的 joint pdf 會跟 $(x_1+t,x_2+t,x_3+t)$ 一模一樣<br><span>$$\begin{align}
+p(f(x_1),f(x_2),f(x_3))=p(f(x_1+t),f(x_2+t),f(x_3+t))
+\end{align}$$</span><!-- Has MathJax --><br>所以 pdf 只與相對位置有關, 白話講就是我們觀察 joint pdf 可以不用在意看的是哪個區段的信號, 因為都會一樣. 進一步地, 如果這個 RP 是 GP 的話, 我們知道 joint pdf 是 normal, 而 normal 只由 mean and variance totally 決定, 因此一個 GP 是 stationary 只要 mean and variance 只跟相對位置有關就會是 stationary. 基於這樣的條件我們可以寫出一個 stationary GP 的定義:</p>
+<blockquote>
+<p>[Def]:<br><img src="/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GP_stationary_def.png" width="40%" height="40%"></p>
+</blockquote>
+<p>Covariance matrix or Kernel 只跟相對位置有關, 以下為三種常見的定義方式<br><img src="/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/kernel_def.png" width="50%" height="50%"><br>不管怎樣, 通常相對位置近的 r.v. 都會假設比較相關, (這也符合實際狀況, 譬如聲音訊號時間點相近的 sample 會較相關), 也因此 kernel 都會長類似下面的樣子<br><img src="/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/typical_kernel.png" width="35%" height="35%"></p>
+<h4 id="支線-Wide-Sense-Stationary-WSS"><a href="#支線-Wide-Sense-Stationary-WSS" class="headerlink" title="支線 Wide-Sense Stationary (WSS)"></a>支線 Wide-Sense Stationary (WSS)</h4><p>本段可跳過, 主要是為了更深地理解 stationary 做的補充.<br>WSS 定義為</p>
+<blockquote>
+<p>[Def]: Random Process is WSS if its finite-dimensional distribution’s <strong>mean and variance</strong> depend only on relative position of the points</p>
+</blockquote>
+<p>注意 WSS 與 Stationary 的定義差異. 準確來說 Stationary 要求所有的 moments 都只與相對位置有關, 但 WSS 只要求到 first and second order moments. 說明了 WSS 將 stationary 的條件放寬. 注意到 WSS 不一定是 stationary 的 GP, 這是因為 WSS 沒有要求 distribution 必須是 Normal.<br>WSS, Stationary GP, Stationary RP 之間的關係可以這麼描述:<br><span>$$\begin{align}
+\mbox{Stationary GP}\subset\mbox{Stationary RP}\subset\mbox{WSS}
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>其實 WSS 與本篇主要討論的 Bayesian Optimization 沒有直接關係, 會想介紹是因為滿足 WSS 的話, 能使我們更直覺的 “看出” 一個訊號是否可能是 stationary. (另外 WSS 在 <a href="https://en.wikipedia.org/wiki/Adaptive_filter" target="_blank" rel="external">Adaptive Filtering</a> 非常重要, 相當於基石的存在)<br>首先使用課程的 stationary 範例:</p>
+<p><img src="/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/Stationary_exp.png" width="100%" height="100%"></p>
+<p>中間的圖明顯不是 stationary 因為 mean 隨著位置改變不是 constant, 但左邊和右邊就真的不是那麼容易看出來了. 那麼究竟有什麼方法輔助我們判斷 stationary 呢?<br>WSS 的 <a href="https://www.imft.fr/IMG/pdf/psdtheory.pdf" target="_blank" rel="external">power-spectral density property</a> 說明了一個 signal 如果是 WSS, 則它的 Covariance matrix or Kernel (訊號處理通常稱 auto-correlation) 的 DTFT 正好代表的物理意義就是 power spectral density, 而因為 kernel 不會因位置改變, 這導致了不管我們在哪個區段取出一個 window 的訊號, 它們的 power spectral density 都會長一樣. 這個性質可以讓我們很方便的 “看出” 是否是 stationary. (簡單講就是看 signal 的 frequency domain 是否因為隨著時間而變化, 變的話就一定不是 stationary)</p>
+<p>好了, 接著回到主線去.</p>
+<hr>
+<h3 id="GP-for-regression"><a href="#GP-for-regression" class="headerlink" title="GP for regression"></a>GP for regression</h3><p>直接節錄課程 slides, 因為 stationary GP 的 mean 是 const, 因此我們扣掉 offset 讓其為 0, 之後再補回即可.<br>做 Regression 的目的就是 given $x$ 如何預測 $f(x)$, 而我們有的 training data 為 $x_1, …, x_n$ 以及它們相對的 $f(x_1),…,f(x_n)$. GP 就可以很漂亮地利用 conditional probability 預測 $f(x)$</p>
+<p><img src="/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GP_regression1.png" width="70%" height="70%"><br>由於是 GP, 導致上面藍色部分結果仍是 Gaussian, 因此我們得到<br><strong>Regression 公式:</strong><br><img src="/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GP_regression2.png" width="70%" height="70%"></p>
+<p>有時候我們的 <strong>observation $f(x)$ 是 noisy</strong> 的, 此時簡單地對 $f(x)$ 加上一個 random Gaussain noise 會使得我們的 model robust 些. 上面公式都不用改, 只要針對 kernel 作如下更動即可<br><img src="/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GP_regression3.png" width="60%" height="60%"></p>
+<h4 id="GPy-toolkit-example"><a href="#GPy-toolkit-example" class="headerlink" title="GPy toolkit example"></a><a href="http://sheffieldml.github.io/GPy/" target="_blank" rel="external">GPy</a> toolkit example</h4><p>我們使用 <a href="http://nbviewer.jupyter.org/github/SheffieldML/notebook/blob/master/GPy/basic_gp.ipynb" target="_blank" rel="external">Gaussian process regression tutorial</a> 的範例, 使用上算是很直覺, 讓我們簡單實驗一下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</div><div class="line"><span class="keyword">import</span> GPy</div><div class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</div><div class="line"><span class="comment"># Generate data points, where Y is noisy</span></div><div class="line">X = np.random.uniform(<span class="number">-3.</span>,<span class="number">3.</span>,(<span class="number">20</span>,<span class="number">1</span>))</div><div class="line">Y = np.sin(X) + np.random.randn(<span class="number">20</span>,<span class="number">1</span>)*<span class="number">0.2</span></div><div class="line"><span class="comment"># Define kernel, we use RBF</span></div><div class="line">kernel = GPy.kern.RBF(input_dim=<span class="number">1</span>, variance=<span class="number">1.</span>, lengthscale=<span class="number">1.</span>)</div><div class="line"><span class="comment"># Define GP regression model</span></div><div class="line">m = GPy.models.GPRegression(X,Y,kernel,noise_var=<span class="number">1.</span>)</div><div class="line"><span class="comment"># See plot</span></div><div class="line">fig = m.plot()</div><div class="line">plt.show()</div></pre></td></tr></table></figure>
+<p>Codes 的結果如下</p>
+<p><img src="/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GPy1.png" width="50%" height="50%"></p>
+<blockquote>
+<p>[Note]: 上圖的 Mean 和 Confidence 指的是 Regression 公式的 $\mu$ and $\sigma^2$ (前幾張有紅框的圖), 另外使用 GPy 算 regression 結果的話這麼使用<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mu, sigma2 = m.predict(np.array([[<span class="number">1.0</span>]]))</div></pre></td></tr></table></figure></p>
+<p>基本上 input 是一個 <code>shape=(batch_size,in_dim)</code> 的 array</p>
+</blockquote>
+<p>可以看到就算是 data point 附近, 所顯示的 y 還是有非常大的 uncertainty, 這是因為 observation noise 的 variance 可能太大了, 我們從 1.0 改成 0.04 (正確答案) 看看</p>
+<p><img src="/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GPy2.png" width="50%" height="50%"></p>
+<p>可以看到有 data point 的地方不確定性降低很多, 且不確定性看起來很合理 (當然, 因為我們用正確答案的 noise var)<br>接著我們改 kernel 的 <code>lengthscale</code> (控制平滑程度) 從 1 縮小成 0.5 應該可以預期 regression 的 mean 會扭曲比較大, 結果如下</p>
+<p><img src="/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GPy3.png" width="50%" height="50%"></p>
+<p>看看一個極端情況, 將 kernel 的 <code>lengthscale</code> 降到非常小, 這會導致 kernel 退化成 delta function, 也就是除了自己大家互不相關. 查看 regression 公式 (前幾張有紅框的圖), 由於 kernel 退化成 delta function, <code>k</code> 向量趨近於 0, 所以 regression 公式的 mean 趨近於 0, variance 趨近於 prior <code>K(0)</code>. 我們將 <code>lengthscale</code> 調整成 0.02 得到如下的圖</p>
+<p><img src="/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GPy4.png" width="50%" height="50%"></p>
+<p>可以看到 x 稍微離開 data point 的地方, 基本 mean 就回到 0, 且 variance 回到 prior <code>K(0)</code></p>
+<p>從這簡單的實驗我們發現, 這三個控制參數:<br>-<code>RBF variance</code><br>-<code>RBF lengthscale</code><br>-<code>GPRegression noise_var</code></p>
+<p>設置不好, 基本很悲劇, 那怎麼才是對的? 下一段我們介紹使用最佳化方式找出最好的參數.</p>
+<h4 id="Learning-the-kernel-parameters"><a href="#Learning-the-kernel-parameters" class="headerlink" title="Learning the kernel parameters"></a>Learning the kernel parameters</h4><p>由於都是 normal, 因此 MLE 目標函式可微, 可微就使用 gradient ascent 來求參數. 課程 slide 如下</p>
+<p><img src="/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/optimize_kernel.png" width="60%" height="60%"></p>
+<p>GPy 的使用就這麼一行 <code>m.optimize(messages=True)</code></p>
+<p><img src="/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/optimize_kernel2.png" width="100%" height="100%"></p>
+<p>結果如下<br><img src="/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/optimize_kernel3.png" width="60%" height="60%"></p>
+<hr>
+<h3 id="GP-for-bayesian-optimization"><a href="#GP-for-bayesian-optimization" class="headerlink" title="GP for bayesian optimization"></a>GP for bayesian optimization</h3><p>問題再描述一下, 就是說模型有一大堆參數 (稱 $x$) 要調整, 選擇一組參數可以得到一個 validation accuracy (稱 $f(x)$), 我們希望找到一組參數使得 $f(x)$ 最大. 這個麻煩之處就在於我們對 $f(x)$ 的表示一無所知, 只能透過採樣得到 $f(x)$, 而每次要得到一個採樣的 $f(x)$ 都要經過漫長的訓練才能得到. 在這種情形下, <strong>怎麼透過最少採樣點得到較大的 $f(x)$ 值呢?</strong></p>
+<p>大絕就是用 GP 來 approximate $f(x)$</p>
+<p>合理嗎? 我們這麼想, 由於 kernel 一般的定義會使得相近的採樣點有較高的相關值, 也就是類似的參數會得到較相關的 validation accuracy. 這麼想的話多少有些合理. 另一個好處是使用 GP 可以帶給我們機率分布, 這使得我們可以使用各種考量來決定下一個採樣點. 例如: 我們可以考慮在那些不確定性較大的地方試試看, 因為說不定有更高的$f(x)$, 或是在已知目前估測的 GP model 下有較高的 mean 值那裏採樣. 這兩種方式稱為 “Exploration” and “Exploitation”</p>
+<p>所以 Bayesian optimization 主要就兩個部分, Surrogate model (可以使用 GP) 和 Acquisition function:</p>
+<p><img src="/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/black_box_opt.png" width="60%" height="60%"></p>
+<p>演算法就很直覺了, 根據 Acquisition function 得到的採樣點 $x$ 計算出來 $f(x)$ 後, 重新更新 GP (使用 MLE 找出最好的 GP 參數更新), 更新後繼續計算下個採樣點. 我們還未說明 Acquisition function 怎麼定義, 常用的方法有下面三種:</p>
+<ol>
+<li>Maximum probability of improvement (MPI)</li>
+<li>Upper confidence bound (UCB)</li>
+<li>Expected improvement (EI), 網路上說最常被用</li>
+</ol>
+<p>Expected improvement (EI) 可以參考這篇 <a href="http://krasserm.github.io/2018/03/21/bayesian-optimization/?fbclid=IwAR09t7tvjA1lX-xeW4-5NeUnm_at1EMGiGzf_lp3fKgu7bvTVrjoXjrLkZE" target="_blank" rel="external">blog</a> 搭配這個 <a href="http://pydoc.net/GPyOpt/0.1.4/GPyOpt.core.acquisition/?fbclid=IwAR0SbdccEae8O8PqtWTYEyA0MQRBsg8Q9SGZr6NJi-dAzz5fkSpeLw2j8Ko" target="_blank" rel="external">implementation</a>, 這裡就不重複了. 值得一提的是 Acquisition function 通常有個參數 $\xi$ 可以控制 Exploration 和 Exploitation 的 tradeoff. 接著我們使用 <a href="http://sheffieldml.github.io/GPyOpt/tutorial/index.html" target="_blank" rel="external">GPyOpt</a> 練習一個 toy example.</p>
+<h4 id="GPyOpt-toy-example"><a href="#GPyOpt-toy-example" class="headerlink" title="GPyOpt toy example"></a>GPyOpt toy example</h4><p>類似上面的 GP for regression 的範例, $x$ and $f(x)$ 我們簡單定義如下:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">sample_num = <span class="number">20</span></div><div class="line">offset = <span class="number">10</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">probeY</span><span class="params">(x)</span>:</span>	<span class="comment"># i.e. f(x)</span></div><div class="line">    <span class="keyword">return</span> np.sin(x) + np.random.randn()*<span class="number">0.2</span> + offset</div></pre></td></tr></table></figure>
+<p>這次我們將 $f(x)$ 故意加了一個 offset, 雖然對於 GP regression 的假設是 mean=0, 不過 GPyOpt 預設會對 $f(x)$ 去掉 offset, 所以其實我們可以很安全的使用 API. 接著關鍵程式碼如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">bounds = [&#123;<span class="string">'name'</span>: <span class="string">'var_1'</span>, <span class="string">'type'</span>: <span class="string">'continuous'</span>, <span class="string">'domain'</span>: (<span class="number">-3.0</span>,<span class="number">3.0</span>)&#125;]  <span class="comment"># domain definition</span></div><div class="line">myBopt = GPyOpt.methods.BayesianOptimization(f=probeY,        <span class="comment"># function to optimize       </span></div><div class="line">                                             domain=bounds,   <span class="comment"># box-constraints of the problem</span></div><div class="line">                                             normalize_Y=<span class="keyword">True</span>,      <span class="comment"># normalize Y to mean = 0 (default)</span></div><div class="line">                                             acquisition_type=<span class="string">'EI'</span>, <span class="comment"># acquisition function type (default)</span></div><div class="line">                                             maximize=<span class="keyword">False</span>,        <span class="comment"># do maixmization? (default=False)</span></div><div class="line">                                             exact_feval = <span class="keyword">False</span>)</div><div class="line">myBopt.run_optimization(max_iter)</div></pre></td></tr></table></figure>
+<p><code>bounds</code> 描述了每一個 <code>probeY</code> 的 arguments. 特別要說一下 <code>exact_feval = False</code>, 這是說明 $f(x)$ 是 noisy 的, 所以會有 noise variance 可以 model (參考 3. GP for regression 的 regression 公式含noise的情形), 這在實際情況非常重要. 更多 <code>BayesianOptimization</code> 參數描述 <a href="https://gpyopt.readthedocs.io/en/latest/GPyOpt.methods.html?highlight=BayesianOptimization" target="_blank" rel="external">參考這</a></p>
+<p>使用如下指令看 acquisition 和 regression function 的結果<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">myBopt.plot_acquisition()</div></pre></td></tr></table></figure></p>
+<p><img src="/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GPyOpt1.png" width="60%" height="60%"></p>
+<p>才花1x個採樣求出來的 regression function 就很逼近真實狀況了, 還不錯. 另外注意到這裡的 $f(x)$ 已經去掉 offset 了.<br>再來使用如下指令看每一次採樣值之間的差異, 以及採樣點的 $f(x)$<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">myBopt.plot_convergence()</div></pre></td></tr></table></figure></p>
+<p><img src="/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GPyOpt2.png" width="60%" height="60%"></p>
+<p>第9次採樣開始, 採樣點 $x$ 以及 $f(x)$ 之間基本沒什麼差異了.<br>若要拿到採樣過程的 $x$ and $f(x)$, 可使用 <code>myBopt.X</code> 和 <code>myBopt.Y</code></p>
+<h4 id="XGBoost-parameter-tuning"><a href="#XGBoost-parameter-tuning" class="headerlink" title="XGBoost parameter tuning"></a>XGBoost parameter tuning</h4><p>針對 XGBoost 的參數進行最佳化 (可參考這篇 <a href="http://krasserm.github.io/2018/03/21/bayesian-optimization/" target="_blank" rel="external">blog</a>), 關鍵就在於上面的 $probeY$ 需替換成計算某個採樣的 evaluation accuracy (因此還需要訓練). 關鍵程式碼如下:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> xgboost <span class="keyword">import</span> XGBRegressor</div><div class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> cross_val_score</div><div class="line"></div><div class="line"><span class="meta">... </span>Some codes here</div><div class="line"></div><div class="line"><span class="comment"># Score. Optimizer will try to find minimum, so we will add a "-" sign.</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">probeY</span><span class="params">(parameters)</span>:</span></div><div class="line">    parameters = parameters[<span class="number">0</span>]</div><div class="line">    score = -cross_val_score(</div><div class="line">                XGBRegressor(learning_rate=parameters[<span class="number">0</span>],</div><div class="line">                              max_depth=int(parameters[<span class="number">2</span>]),</div><div class="line">                              n_estimators=int(parameters[<span class="number">3</span>]),</div><div class="line">                              gamma=int(parameters[<span class="number">1</span>]),</div><div class="line">                              min_child_weight = parameters[<span class="number">4</span>]), </div><div class="line">                X, y, scoring=<span class="string">'neg_mean_squared_error'</span>).mean()</div><div class="line">    score = np.array(score)</div><div class="line">    <span class="keyword">return</span> score</div><div class="line"></div><div class="line"><span class="comment"># Bounds (<span class="doctag">NOTE:</span> define continuous variables first, then discrete!)</span></div><div class="line">bounds = [</div><div class="line">            &#123;<span class="string">'name'</span>: <span class="string">'learning_rate'</span>, <span class="string">'type'</span>: <span class="string">'continuous'</span>, <span class="string">'domain'</span>: (<span class="number">0</span>, <span class="number">1</span>)&#125;,</div><div class="line">            &#123;<span class="string">'name'</span>: <span class="string">'gamma'</span>, <span class="string">'type'</span>: <span class="string">'continuous'</span>, <span class="string">'domain'</span>: (<span class="number">0</span>, <span class="number">5</span>)&#125;,</div><div class="line">            &#123;<span class="string">'name'</span>: <span class="string">'max_depth'</span>, <span class="string">'type'</span>: <span class="string">'discrete'</span>, <span class="string">'domain'</span>: (<span class="number">1</span>, <span class="number">50</span>)&#125;,</div><div class="line">            &#123;<span class="string">'name'</span>: <span class="string">'n_estimators'</span>, <span class="string">'type'</span>: <span class="string">'discrete'</span>, <span class="string">'domain'</span>: (<span class="number">1</span>, <span class="number">300</span>)&#125;,</div><div class="line">            &#123;<span class="string">'name'</span>: <span class="string">'min_child_weight'</span>, <span class="string">'type'</span>: <span class="string">'discrete'</span>, <span class="string">'domain'</span>: (<span class="number">1</span>, <span class="number">10</span>)&#125;</div><div class="line">         ]</div><div class="line">np.random.seed(<span class="number">777</span>)</div><div class="line">optimizer = GPyOpt.methods.BayesianOptimization(f=f, domain=bounds,</div><div class="line">                                                acquisition_type =<span class="string">'MPI'</span>,</div><div class="line">                                                acquisition_par = <span class="number">0.1</span>,</div><div class="line">                                                exact_eval=<span class="keyword">True</span>)</div><div class="line">max_iter = <span class="number">50</span></div><div class="line">max_time = <span class="number">60</span></div><div class="line">optimizer.run_optimization(max_iter, max_time)</div><div class="line">optimizer.plot_convergence()</div><div class="line">optimizer.X[np.argmin(optimizer.Y)]</div></pre></td></tr></table></figure>
+<p>課程讓我們測試了 <code>sklearn.datasets.load_diabetes()</code> dataset, 使用 GPyOpt 可以讓 XGBoost 比預設參數有 9% 的提升! 還是很不錯的.</p>
+<p>再來就很期待是否能真的在工作上對 DNN 套用了.</p>
+<hr>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
+<li><a href="http://sheffieldml.github.io/GPy/" target="_blank" rel="external">GPy</a> and <a href="http://sheffieldml.github.io/GPyOpt/" target="_blank" rel="external">GPyOpt</a></li>
+<li><a href="http://sheffieldml.github.io/GPyOpt/tutorial/index.html" target="_blank" rel="external">GPyOpt’s documentation</a> can find APIs</li>
+<li><a href="http://nbviewer.jupyter.org/github/SheffieldML/GPyOpt/blob/master/manual/GPyOpt_reference_manual.ipynb" target="_blank" rel="external">GPyOpt tutorial</a></li>
+<li>很好的 GPy and GPyOpt 數學和範例 <a href="http://krasserm.github.io/2018/03/21/bayesian-optimization/" target="_blank" rel="external">blog</a></li>
+<li><a href="http://pydoc.net/GPyOpt/0.1.4/GPyOpt.core.acquisition/?fbclid=IwAR0SbdccEae8O8PqtWTYEyA0MQRBsg8Q9SGZr6NJi-dAzz5fkSpeLw2j8Ko" target="_blank" rel="external">Acquisition function implementation</a></li>
+<li>WSS power-spectral density property <a href="psdtheory.pdf">https://www.imft.fr/IMG/pdf/psdtheory.pdf</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Gaussian-Process/" rel="tag"># Gaussian Process</a>
+          
+            <a href="/tags/Bayesian-Optimization/" rel="tag"># Bayesian Optimization</a>
+          
+            <a href="/tags/Stationary/" rel="tag"># Stationary</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/10/16/CTC-Implementation-Practice/" rel="next" title="CTC Implementation Practice">
+                <i class="fa fa-chevron-left"></i> CTC Implementation Practice
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">38</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">58</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Random-Process-RP-and-Gaussian-Process-GP"><span class="nav-number">1.</span> <span class="nav-text">Random Process (RP) and Gaussian Process (GP)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Stationary-and-Wide-Sense-Stationary-WSS"><span class="nav-number">2.</span> <span class="nav-text">Stationary and Wide-Sense Stationary (WSS)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Stationary"><span class="nav-number">2.1.</span> <span class="nav-text">Stationary</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#支線-Wide-Sense-Stationary-WSS"><span class="nav-number">2.2.</span> <span class="nav-text">支線 Wide-Sense Stationary (WSS)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GP-for-regression"><span class="nav-number">3.</span> <span class="nav-text">GP for regression</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#GPy-toolkit-example"><span class="nav-number">3.1.</span> <span class="nav-text">GPy toolkit example</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Learning-the-kernel-parameters"><span class="nav-number">3.2.</span> <span class="nav-text">Learning the kernel parameters</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GP-for-bayesian-optimization"><span class="nav-number">4.</span> <span class="nav-text">GP for bayesian optimization</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#GPyOpt-toy-example"><span class="nav-number">4.1.</span> <span class="nav-text">GPyOpt toy example</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#XGBoost-parameter-tuning"><span class="nav-number">4.2.</span> <span class="nav-text">XGBoost parameter tuning</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">5.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
