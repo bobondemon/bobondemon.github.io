@@ -1,0 +1,953 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Bayesian Learning,Conjugate Prior,MLE,MAP," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="枉費我學習 ML 這麼久, 最近才完整了解 Bayesian learning 大架構, 以及與 MLE, MAP, Variational Inference, Sampling 之間的關聯. 這才終於有了見樹又見林的港覺阿! 筆記整理如下 …
+
+圖片來自 wiki, 我也好想要這個裝飾燈. 就這麼一個 Baye’s Rule, 撐起了統計機器學習的基石!">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Bayesian Learning Notes">
+<meta property="og:url" content="http://yoursite.com/2018/12/20/Bayesian-Learning-Notes/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="枉費我學習 ML 這麼久, 最近才完整了解 Bayesian learning 大架構, 以及與 MLE, MAP, Variational Inference, Sampling 之間的關聯. 這才終於有了見樹又見林的港覺阿! 筆記整理如下 …
+
+圖片來自 wiki, 我也好想要這個裝飾燈. 就這麼一個 Baye’s Rule, 撐起了統計機器學習的基石!">
+<meta property="og:image" content="http://yoursite.com/2018/12/20/Bayesian-Learning-Notes/cover.jpg">
+<meta property="og:image" content="http://yoursite.com/2018/12/20/Bayesian-Learning-Notes/summary.png">
+<meta property="og:updated_time" content="2018-12-21T15:57:42.616Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Bayesian Learning Notes">
+<meta name="twitter:description" content="枉費我學習 ML 這麼久, 最近才完整了解 Bayesian learning 大架構, 以及與 MLE, MAP, Variational Inference, Sampling 之間的關聯. 這才終於有了見樹又見林的港覺阿! 筆記整理如下 …
+
+圖片來自 wiki, 我也好想要這個裝飾燈. 就這麼一個 Baye’s Rule, 撐起了統計機器學習的基石!">
+<meta name="twitter:image" content="http://yoursite.com/2018/12/20/Bayesian-Learning-Notes/cover.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/12/20/Bayesian-Learning-Notes/"/>
+
+
+
+
+
+  <title> Bayesian Learning Notes | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/12/20/Bayesian-Learning-Notes/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Bayesian Learning Notes
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2018-12-20T22:39:42+08:00">
+                2018-12-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018/12/20/Bayesian-Learning-Notes/" class="leancloud_visitors" data-flag-title="Bayesian Learning Notes">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">閱讀次數 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>枉費我學習 ML 這麼久, 最近才完整了解 Bayesian learning 大架構, 以及與 MLE, MAP, Variational Inference, Sampling 之間的關聯. 這才終於有了見樹又見林的港覺阿! 筆記整理如下 …</p>
+<p><img src="/2018/12/20/Bayesian-Learning-Notes/cover.jpg" width="60%" height="60%"></p>
+<p>圖片來自 <a href="https://en.wikipedia.org/wiki/Bayes%27_theorem" target="_blank" rel="external">wiki</a>, 我也好想要這個裝飾燈. 就這麼一個 Baye’s Rule, 撐起了統計機器學習的基石!</p>
+<a id="more"></a>
+<hr>
+<h3 id="Bayesian-Learning"><a href="#Bayesian-Learning" class="headerlink" title="Bayesian Learning"></a>Bayesian Learning</h3><p>給定訓練集 ($X,Y$) 和一個 probabilistic classifier $p(y|x,\theta)$, 同時定義好 prior distribution $p(\theta)$.</p>
+<p>根據 Baye’s rule, <em>Training stage</em> 如下:</p>
+<span>$$\begin{align}
+p(\theta|X,Y)=\frac{p(Y|X,\theta)p(\theta)}{\color{red}{\int p(Y|X,\theta)p(\theta)\,d\theta}}
+\end{align}$$</span><!-- Has MathJax -->
+<p><em>Testing stage</em> 如下:</p>
+<span>$$\begin{align}
+p(y^*|x^*,X,Y)=\color{red}{\int p(y^*|x^*,\theta)p(\theta|X,Y)\,d\theta}
+\end{align}$$</span><!-- Has MathJax -->
+<p>注意到關鍵的兩個紅色積分通常都是不容易算, 或根本算不出來. 此時我們有兩種選擇:</p>
+<ol>
+<li>使用 <a href="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/" target="_blank" rel="external">Variational Inference</a> 找出一個 $q(\theta)$ 來逼近 $p(\theta|X,Y)$</li>
+<li>使用 sampling 方法. 理解一下這個積分的形式, 可以發現這是在算<strong>根據某個機率分佈$p(x)$計算$f(x)$的期望值</strong>. 因此, 如果我們直接根據 $p(x)$ sample 出 $M$ 個 $x$, 就可以用如下的平均算出近似值了.</li>
+</ol>
+<span>$$\begin{align}
+\int p(x)f(x) \,dx \simeq \frac{1}{M}\sum_{i=1}^M f(x_i)\mbox{,  where }x_i \sim p(x)
+\end{align}$$</span><!-- Has MathJax -->
+<p>我們可能會想, 是不是可以將 Bayesian learning 做些簡化來避掉上述紅色積分? 是的, MLE 和 MAP 就是簡化了完整的 Bayesian learning 過程. 下面介紹.</p>
+<hr>
+<h3 id="MLE-and-MAP"><a href="#MLE-and-MAP" class="headerlink" title="MLE and MAP"></a>MLE and MAP</h3><p>Baye’s rule (式 (1)), 在 ML 中舉足輕重, 幾乎是所有的根本. 重新列出來並用不同顏色做強調</p>
+<span>$$\begin{align}
+\color{orange}{p(\theta|X,Y)}=\frac{\color{blue}{p(Y|X,\theta)}\color{green}{p(\theta)}}{\color{red}{\int p(Y|X,\theta)p(\theta)\,d\theta}}
+\end{align}$$</span><!-- Has MathJax -->
+<p>橘色稱為 <strong>posterior distribution</strong>, 藍色為 <strong>likelihood</strong>, 而綠色為 <strong>prior distribution</strong>. 注意到紅色的期望值基本算不出來, 在這種情況下, 我們要怎麼得到 posterior?</p>
+<h4 id="MLE"><a href="#MLE" class="headerlink" title="MLE"></a>MLE</h4><p>MLE (Maximum Likelihood Estimation) 的想法是, 既然 posterior 算不出來, 那乾脆直接用一個 $\theta^*$ 代表整個 $p(\theta|X,Y)$ 分布算了. 至於要找哪一點呢, 就找對 likelihood 最大的那點吧! 數學這麼寫:</p>
+<span>$$\begin{align}
+\theta_{MLE}=\arg\max_\theta p(Y|X,\theta)
+\end{align}$$</span><!-- Has MathJax -->
+<p>既然已經用一個點來代表整個 posterior 了, 因此原來的 testing (2) 就不需要積分了, testing stage 直接就是:</p>
+<span>$$\begin{align}
+p(y^*|x^*,\theta_{MLE})
+\end{align}$$</span><!-- Has MathJax -->
+<h4 id="MAP"><a href="#MAP" class="headerlink" title="MAP"></a>MAP</h4><p>MAP (Maximum A Posterior) estimation 跟 MLE 相同, 也使用一個點來代表整個 posterior:</p>
+<span>$$\begin{align}
+\theta_{MP}=\arg\max_\theta p(\theta|X,Y)
+\end{align}$$</span><!-- Has MathJax -->
+<p>意思是 MAP 直接使用 mode 來代表整個 posterior. 因此 testing stage 也如同 MLE 情形:</p>
+<span>$$\begin{align}
+p(y^*|x^*,\theta_{MP})
+\end{align}$$</span><!-- Has MathJax -->
+<p>不過聰明的讀者應該會覺得很疑惑, posterior 不是很難計算, 或根本算不出來, 這樣怎麼可能找的到 mode? 是的, 一般情形下是找不出來, 但有一個特殊情況叫做 <a href="https://en.wikipedia.org/wiki/Conjugate_prior" target="_blank" rel="external">conjugate prior</a>. conjugate prior 指的是 prior 與 posterior 屬於同一個 distribution family, 等於是告訴我們 posterior 是什麼樣的 distribution, 因此算不出來的紅色期望值(式(4))也根本沒必要去計算, 只不過是個 normalization constant. 因此明確知道 posterior 是什麼樣的 distribution, 找 mode 就容易多了.</p>
+<p>所以對於 MAP 來說有哪些 distribution 是互為 conjugate 變得很重要. 我們可以從 wiki 上查到明確資料. 基本上 exponential family 都是.</p>
+<hr>
+<h3 id="完全避掉紅色積分項了嗎"><a href="#完全避掉紅色積分項了嗎" class="headerlink" title="完全避掉紅色積分項了嗎?"></a>完全避掉紅色積分項了嗎?</h3><p>很多模型都具有 latent variable (一般都用 $z$ 表示) 的形式</p>
+<blockquote>
+<p>稍微說明下, 一般說的 latent variable 會隨著 data 變大而變大, 而 parameter $\theta$ 不會. 以 GMM 為例子, latent variable 指每一個 observation 是哪一個 Gaussian 產生出來的那個 index, 而 parameter 是 Gaussian components 的 mean, var, 和 mixture weights 集合.</p>
+</blockquote>
+<p>可以使用 EM algorithm 來找出 MLE 或 MAP . 其中 E-step 為 “令 $q(z)$ 等於 $p(z|x,\theta^{odd})$”, 這又回到如同式 (1) 求 posterior 會遇到分母積分項的問題. 如果我們的 $z$ 的值有限個的 (如 GMM, $z$ 的值就是 component 的 index), $p(z|x,\theta^{odd})$ 可以直接算出來. 但複雜一點就不行了, 所以情況又變得跟原來的 Bayesian learning 一樣, 兩種選擇:</p>
+<ol>
+<li>使用 <a href="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/" target="_blank" rel="external">Variational Inference</a>, 這時稱為 <em>Variational EM</em>.</li>
+<li>使用 sampling 方法. Sampling 通常採用 <a href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo" target="_blank" rel="external">MCMC</a> 方式, 這時稱為 <em>MCMC EM</em>.</li>
+</ol>
+<hr>
+<h3 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h3><p>擷取自 Coursera 的 <a href="https://www.coursera.org/learn/bayesian-methods-in-machine-learning/home/welcome" target="_blank" rel="external">Bayesian Methods for Machine Learning</a> 課程投影片如下: (圖中的 $T$ 指的是 latent variable)</p>
+<p><img src="/2018/12/20/Bayesian-Learning-Notes/summary.png" width="80%" height="80%"></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2018/12/20/Bayesian-Learning-Notes/" title="Bayesian Learning Notes">http://yoursite.com/2018/12/20/Bayesian-Learning-Notes/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Bayesian-Learning/" rel="tag"># Bayesian Learning</a>
+          
+            <a href="/tags/Conjugate-Prior/" rel="tag"># Conjugate Prior</a>
+          
+            <a href="/tags/MLE/" rel="tag"># MLE</a>
+          
+            <a href="/tags/MAP/" rel="tag"># MAP</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/" rel="next" title="Gaussian Process used in Bayesian Optimization">
+                <i class="fa fa-chevron-left"></i> Gaussian Process used in Bayesian Optimization
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">39</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Bayesian-Learning"><span class="nav-number">1.</span> <span class="nav-text">Bayesian Learning</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MLE-and-MAP"><span class="nav-number">2.</span> <span class="nav-text">MLE and MAP</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#MLE"><span class="nav-number">2.1.</span> <span class="nav-text">MLE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MAP"><span class="nav-number">2.2.</span> <span class="nav-text">MAP</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#完全避掉紅色積分項了嗎"><span class="nav-number">3.</span> <span class="nav-text">完全避掉紅色積分項了嗎?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Summary"><span class="nav-number">4.</span> <span class="nav-text">Summary</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("7mUJ3jkWeU7Rh7soYrUvDcuh-gzGzoHsz", "SWNPybUfqj8qALtwiKRiv7Rh");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
