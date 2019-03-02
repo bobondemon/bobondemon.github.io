@@ -1,0 +1,1021 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="LCMV,Frost,MVDR," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="這是 far field 筆記系列第二篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 Microphone Array Signal Processing Ch4 和 Frost’s algorithm
+上一篇最後雖然使用 fixed beamformer 得到了 response-invariant beamformer, 但這個方法限制是 filter 一旦設計好就寫死了, 沒">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Far Field Notes (2) LCMV filter and Frost's algorithm">
+<meta property="og:url" content="http://yoursite.com/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="這是 far field 筆記系列第二篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 Microphone Array Signal Processing Ch4 和 Frost’s algorithm
+上一篇最後雖然使用 fixed beamformer 得到了 response-invariant beamformer, 但這個方法限制是 filter 一旦設計好就寫死了, 沒">
+<meta property="og:image" content="http://yoursite.com/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/frost-structure.png">
+<meta property="og:image" content="http://yoursite.com/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/varOrder.png">
+<meta property="og:updated_time" content="2019-03-02T13:59:13.628Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Far Field Notes (2) LCMV filter and Frost's algorithm">
+<meta name="twitter:description" content="這是 far field 筆記系列第二篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 Microphone Array Signal Processing Ch4 和 Frost’s algorithm
+上一篇最後雖然使用 fixed beamformer 得到了 response-invariant beamformer, 但這個方法限制是 filter 一旦設計好就寫死了, 沒">
+<meta name="twitter:image" content="http://yoursite.com/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/frost-structure.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/"/>
+
+
+
+
+
+  <title> Far Field Notes (2) LCMV filter and Frost's algorithm | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Far Field Notes (2) LCMV filter and Frost's algorithm
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2019-03-02T17:36:58+08:00">
+                2019-03-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SP/" itemprop="url" rel="index">
+                    <span itemprop="name">SP</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/" class="leancloud_visitors" data-flag-title="Far Field Notes (2) LCMV filter and Frost's algorithm">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">閱讀次數 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>這是 far field 筆記系列第二篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 <a href="https://www.springer.com/in/book/9783540786115" target="_blank" rel="external">Microphone Array Signal Processing</a> Ch4 和 <a href="http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=1450747" target="_blank" rel="external">Frost’s algorithm</a></p>
+<p><a href="https://bobondemon.github.io/2019/02/26/Far-Field-Notes-1-Beampattern/" target="_blank" rel="external">上一篇</a>最後雖然使用 fixed beamformer 得到了 response-invariant beamformer, 但這個方法限制是 filter 一旦設計好就寫死了, 沒辦法自己 update (所以才叫 “fixed” beamformer). 這引入一個問題是, 如果剛好有一個 inteference noise 在衰減不那麼大的角度時, 就無法壓得很好. 而這篇要介紹的 LCMV (Linear Constrained minimum variance) filter 以及 Frost’s beamformer 能針對給定的方向抽取訊號, 並且對其他方向的 inteference nosie 壓抑的最好. 注意 sound source 方向必須給定, LCMV 求得的 weights 會想辦法對其他方向的 inteference 壓抑.</p>
+<p>如同 LCMV 字面上的意思一樣. 會將整個問題轉換成 minimize variance subject to some linear constraints. 另外相當經典的 Frost’s beamformer (1972年呢!) 則將 filter 的 optimal 求解改成使用 stochastic gradient descent 方式, 所以非常適合實際的 real time 系統, 這些下文會詳細說明.</p>
+<a id="more"></a>
+<hr>
+<h3 id="架構設定和-Signal-Model"><a href="#架構設定和-Signal-Model" class="headerlink" title="架構設定和 Signal Model"></a>架構設定和 Signal Model</h3><p>架構如下圖 (圖片來源:<a href="http://www.labbookpages.co.uk/audio/beamforming/frost.html" target="_blank" rel="external">ref</a>), 第一步是一個 delay stage, 這相當於是針對一個 steering direction 補償每個 mic 之間的 time delay (訊號對齊好). 第二步才是 beamformer, 我們知道 time domain 使用 delay-and-sum 架構, 如果是 frequency domain 則使用拆頻的架構. 忘了可參考<a href="https://bobondemon.github.io/2019/02/26/Far-Field-Notes-1-Beampattern/" target="_blank" rel="external">第一篇</a>.</p>
+<p><img src="/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/frost-structure.png" width="80%" height="80%"></p>
+<p>本文通通以 filter-and-sum 來筆記, 另外 signal model 以下推導將會使用 anechoic model, <a href="https://bobondemon.github.io/2019/02/26/Far-Field-Notes-1-Beampattern/" target="_blank" rel="external">第一篇</a>有定義可回去查閱.</p>
+<hr>
+<h3 id="Notations"><a href="#Notations" class="headerlink" title="Notations"></a>Notations</h3><p>一些 notations 我們先定義起來. $N$ 是麥克風數量, $L$ 是 filter tap 數量, 我們 aligned 好的 anechoic model 如下:<br><span>$$\begin{align}
+\mathbf{y}(k)=s(k)\mathbf{\alpha}+\mathbf{v}(k)
+\end{align}$$</span><!-- Has MathJax -->其中<br><span>$$\begin{align}
+\mathbf{y}(k)=[y_1(k),...,y_N(k)]^T \\
+\mathbf{v}(k)=[v_1(k),...,v_N(k)]^T \\
+\mathbf{\alpha}=[\alpha_1,\alpha_2,...,\alpha_N]^T
+\end{align}$$</span><!-- Has MathJax --><br>注意到由於我們先 align 好 delay 了, 所以原先的 anechoic model 可以簡化成上面的表達.</p>
+<p>考慮到 filter-and-sum 架構, 我們將整個 $N$ 個 mic 每個 mic 都有 $L$ 個值以下圖(圖片來源:<a href="http://www.labbookpages.co.uk/audio/beamforming/frost.html" target="_blank" rel="external">ref</a>)的順序串成一個 $NL$ vector<br><img src="/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/varOrder.png" width="30%" height="30%"><br>因此我們得到這些向量<br><span>$$\begin{align}
+\mathbf{y}_{NL}(k)=[\mathbf{y}^T(k), \mathbf{y}^T(k-1), ..., \mathbf{y}^T(k-L+1)]^T \\
+\mathbf{x}_{NL}(k)=[s(k)\mathbf{\alpha}^T, s(k-1)\mathbf{\alpha}^T, ..., s(k-L+1)\mathbf{\alpha}^T]^T \\
+\mathbf{v}_{NL}(k)=[\mathbf{v}^T(k), \mathbf{v}^T(k-1), \mathbf{v}^T(k-L+1)]^T
+\end{align}$$</span><!-- Has MathJax -->所以整體的 signal model 改寫 (1) 後可得:<br><span>$$\begin{align}
+\mathbf{y}_{NL}(k)=\mathbf{x}_{NL}(k) + \mathbf{v}_{NL}(k)
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>Delay-and-sum 的 filter $\mathbf{h}$ 也用這個順序定義如下, 因此是一個長度為 $NL$ 的向量<br><span>$$\begin{align}
+\mathbf{h}=[\mathbf{h}_0^T, \mathbf{h}_1^T, \mathbf{h}_{L-1}^T]^T
+\end{align}$$</span><!-- Has MathJax --><br>最後整個 beamformer 的輸出 $z(k)$ 就可以這麼寫<br><span>$$\begin{align}
+z(k)=\mathbf{h}^T\mathbf{y}_{NL}(k) =
+\color{orange}{
+\mathbf{h}^T\mathbf{x}_{NL}(k)
+} + 
+\color{blue}{
+\mathbf{h}^T\mathbf{v}_{NL}(k)
+}
+\end{align}$$</span><!-- Has MathJax --></p>
+<hr>
+<h3 id="Problem-Definition"><a href="#Problem-Definition" class="headerlink" title="Problem Definition"></a>Problem Definition</h3><p>LCMV 的主要想法就圍繞在 (10) 的橘色和藍色兩個部分上面: <strong>我們希望橘色部分能夠還原出原始訊號 $s(k)$ 且藍色部分能夠愈小愈好 (代表著 noise 愈小愈好)</strong>.</p>
+<ol>
+<li><p>首先我們將橘色部分作如下推導:</p>
+<span>$$\begin{align}
+\color{orange}{
+\mathbf{h}^T\mathbf{x}_{NL}(k)
+}
+=\mathbf{h}^T
+\left[
+\begin{array}{clr}
+s(k)\mathbf{\alpha} \\
+s(k-1)\mathbf{\alpha} \\
+\vdots \\
+s(k-L+1)\mathbf{\alpha}
+\end{array}
+\right]
+= sum\left(
+\left[
+\begin{array}{clr}
+\mathbf{h}_0^T\mathbf{\alpha}\cdot s(k) \\
+\mathbf{h}_1^T\mathbf{\alpha}\cdot s(k-1) \\
+\vdots \\
+\mathbf{h}_{L-1}^T\mathbf{\alpha}\cdot s(k-L+1)
+\end{array}
+\right]
+\right) \\
+=
+sum\left(
+\color{red}{
+\left[
+\begin{array}{clr}
+u_0\cdot s(k) \\
+u_1\cdot s(k-1) \\
+\vdots \\
+u_{L-1}\cdot s(k-L+1)
+\end{array}
+\right]
+}
+\right)
+\end{align}$$</span><!-- Has MathJax -->
+<p>(12) 為引入的條件, 藉由這樣的條件來還原原始訊號.<br><strong>$u$ ($L$長度的向量) 定義了我們希望在時間 $k$ 的還原結果, 是原始訊號的權重和</strong><br>定義一個 matrix 如下:</p>
+<span>$$\begin{align}
+\mathbf{C}_{\mathbf{\alpha}}=
+\left[
+\begin{array}{clr}
+\mathbf{\alpha} &amp; \mathbf{0} &amp; \cdots &amp; \mathbf{0} \\
+\mathbf{0} &amp; \mathbf{\alpha} &amp; \cdots &amp; \mathbf{0} \\
+\vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
+\mathbf{0} &amp; \mathbf{0} &amp; \cdots &amp; \mathbf{\alpha} \\
+\end{array}
+\right]
+= \left[
+\begin{array}{clr}
+\mathbf{c}_{\alpha,0} &amp; \mathbf{c}_{\alpha,1} &amp; \cdots &amp; \mathbf{c}_{\alpha,N-1} \\
+\end{array}
+\right]
+\end{align}$$</span><!-- Has MathJax -->
+<p>觀察 (11) and (12) 並利用 $\mathbf{C_{\alpha}}$ 可以將 constraint 明確寫出如下:</p>
+<span>$$\begin{align}
+\mathbf{C_{\alpha}}^T\mathbf{h}=\mathbf{\mathbf{u}}
+\end{align}$$</span><!-- Has MathJax -->
+</li>
+<li><p>藍色部分代表最後的 noise 成分, 希望愈小愈好<br>計算藍色部分的能量為</p>
+<span>$$\begin{align}
+\mathbf{h}^T\mathbf{v}_{NL}(k)\mathbf{v}_{NL}^T(k)\mathbf{h}=\mathbf{h}^T\mathbf{R}_{\mathbf{v},\mathbf{v}}\mathbf{h}
+\end{align}$$</span><!-- Has MathJax -->
+<p>但關鍵是我們無法得知實際的 noise signal, 我們有的只有 observation $\mathbf{y}_{NL}(k)$, 那該怎麼辦呢?<br>LCMV 很厲害的一點是, 由於上面剛提到的 constraints, 導致橘色部分的能量是 constant, 因此以下兩個問題是等價的</p>
+<span>$$\begin{align}
+\min_{\mathbf{h}}{ \mathbf{h}^T\mathbf{R}_{\mathbf{v},\mathbf{v}}\mathbf{h} } \equiv \min_{\mathbf{h}}{ \mathbf{h}^T\mathbf{R}_{\mathbf{y},\mathbf{y}}\mathbf{h} }
+\end{align}$$</span><!-- Has MathJax -->
+</li>
+</ol>
+<p>到這裡我們可以寫出完整的最佳化問題<br><span>$$\begin{align}
+\begin{array}{clr}
+\color{blue}{
+\min_{\mathbf{h}}{ \mathbf{h}^T\mathbf{R}_{\mathbf{y},\mathbf{y}}\mathbf{h} }
+} \\
+\color{orange}{
+\mbox{subject to  }\mathbf{C_{\alpha}}^T\mathbf{h}=\mathbf{\mathbf{u}}
+}
+\end{array}
+\end{align}$$</span><!-- Has MathJax --></p>
+<hr>
+<h3 id="Optimal-Solution"><a href="#Optimal-Solution" class="headerlink" title="Optimal Solution"></a>Optimal Solution</h3><p>要解問題 (17), 基本上使用 Lagrange function 求解就可以, 解如下:<br><span>$$\begin{align}
+\mathbf{h}=\mathbf{R}_{\mathbf{y},\mathbf{y}}^{-1}\mathbf{C_{\alpha}}
+\left(
+\mathbf{C_{\alpha}}^T  \mathbf{R}_{\mathbf{y},\mathbf{y}}^{-1}  \mathbf{C_{\alpha}}
+\right)^{-1}
+\mathbf{u}
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>但是重點來了, 以上這些推導全部都假設是 stationary, 實際情況一定是 non-stationary 怎麼辦? 最直覺的想法就是, 我們每隔一段時間就用 (18) 重新算一下 $\mathbf{h}$. 但很明顯這非常沒效率 (covariance估計, inverse運算) 根本不可行. 因此必須改成 iteratively update $\mathbf{h}$ 的方式.<br><strong><a href="http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=1450747" target="_blank" rel="external">Frost’s algorithm</a> 的一個重要貢獻也就是在這, 使用 stochastic gradient descent 方式 update $\mathbf{h}$!</strong></p>
+<hr>
+<h3 id="Frost’s-Algorithm"><a href="#Frost’s-Algorithm" class="headerlink" title="Frost’s Algorithm"></a>Frost’s Algorithm</h3><p>待續 … </p>
+<hr>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
+<li><a href="https://www.springer.com/in/book/9783540786115" target="_blank" rel="external">Microphone Array Signal Processing</a> by Jocab Benesty</li>
+<li><a href="http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=1450747" target="_blank" rel="external">Frost’s algorithm</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/" title="Far Field Notes (2) LCMV filter and Frost's algorithm">http://yoursite.com/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/LCMV/" rel="tag"># LCMV</a>
+          
+            <a href="/tags/Frost/" rel="tag"># Frost</a>
+          
+            <a href="/tags/MVDR/" rel="tag"># MVDR</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/02/26/Far-Field-Notes-1-Beampattern/" rel="next" title="Far Field Notes (1), Beampattern">
+                <i class="fa fa-chevron-left"></i> Far Field Notes (1), Beampattern
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">41</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">69</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#架構設定和-Signal-Model"><span class="nav-number">1.</span> <span class="nav-text">架構設定和 Signal Model</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Notations"><span class="nav-number">2.</span> <span class="nav-text">Notations</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Problem-Definition"><span class="nav-number">3.</span> <span class="nav-text">Problem Definition</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Optimal-Solution"><span class="nav-number">4.</span> <span class="nav-text">Optimal Solution</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Frost’s-Algorithm"><span class="nav-number">5.</span> <span class="nav-text">Frost’s Algorithm</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">6.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("7mUJ3jkWeU7Rh7soYrUvDcuh-gzGzoHsz", "SWNPybUfqj8qALtwiKRiv7Rh");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

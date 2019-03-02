@@ -87,14 +87,14 @@
 
 
 
-<meta name="description" content="這是 far field 筆記系列第一篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 Optimum Array Processing Ch2 以及 [Microphone Array Signal Processing] Ch3.
-Beampattern 就是希望能得到如下圖 [ref Fig3.3] 的表示, 說明經過一個麥克風陣列的處理後, 每個角度所得到的增益情形. 因此可">
+<meta name="description" content="這是 far field 筆記系列第一篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 Optimum Array Processing Ch2 以及 Microphone Array Signal Processing Ch3.
+Beampattern 就是希望能得到如下圖 [ref Fig3.3] 的表示, 說明經過一個麥克風陣列的處理後, 每個角度所得到的增益情形. 因此可以看">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Far Field Notes (1), Beampattern">
 <meta property="og:url" content="http://yoursite.com/2019/02/26/Far-Field-Notes-1-Beampattern/index.html">
 <meta property="og:site_name" content="棒棒生">
-<meta property="og:description" content="這是 far field 筆記系列第一篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 Optimum Array Processing Ch2 以及 [Microphone Array Signal Processing] Ch3.
-Beampattern 就是希望能得到如下圖 [ref Fig3.3] 的表示, 說明經過一個麥克風陣列的處理後, 每個角度所得到的增益情形. 因此可">
+<meta property="og:description" content="這是 far field 筆記系列第一篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 Optimum Array Processing Ch2 以及 Microphone Array Signal Processing Ch3.
+Beampattern 就是希望能得到如下圖 [ref Fig3.3] 的表示, 說明經過一個麥克風陣列的處理後, 每個角度所得到的增益情形. 因此可以看">
 <meta property="og:image" content="http://yoursite.com/2019/02/26/Far-Field-Notes-1-Beampattern/cover.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/26/Far-Field-Notes-1-Beampattern/geometry.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/26/Far-Field-Notes-1-Beampattern/AnechoicModel.png">
@@ -115,11 +115,11 @@ Beampattern 就是希望能得到如下圖 [ref Fig3.3] 的表示, 說明經過�
 <meta property="og:image" content="http://yoursite.com/2019/02/26/Far-Field-Notes-1-Beampattern/FixedBeamformer1.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/26/Far-Field-Notes-1-Beampattern/FixedBeamformer_def.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/26/Far-Field-Notes-1-Beampattern/FixedBeamformer_sol.png">
-<meta property="og:updated_time" content="2019-02-26T14:42:16.985Z">
+<meta property="og:updated_time" content="2019-03-02T09:47:48.906Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Far Field Notes (1), Beampattern">
-<meta name="twitter:description" content="這是 far field 筆記系列第一篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 Optimum Array Processing Ch2 以及 [Microphone Array Signal Processing] Ch3.
-Beampattern 就是希望能得到如下圖 [ref Fig3.3] 的表示, 說明經過一個麥克風陣列的處理後, 每個角度所得到的增益情形. 因此可">
+<meta name="twitter:description" content="這是 far field 筆記系列第一篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 Optimum Array Processing Ch2 以及 Microphone Array Signal Processing Ch3.
+Beampattern 就是希望能得到如下圖 [ref Fig3.3] 的表示, 說明經過一個麥克風陣列的處理後, 每個角度所得到的增益情形. 因此可以看">
 <meta name="twitter:image" content="http://yoursite.com/2019/02/26/Far-Field-Notes-1-Beampattern/cover.png">
 
 
@@ -402,7 +402,7 @@ Beampattern 就是希望能得到如下圖 [ref Fig3.3] 的表示, 說明經過�
 </script>
 
 <hr>
-<p>這是 far field 筆記系列第一篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 <a href="https://www.amazon.com/Optimum-Array-Processing-Estimation-Modulation/dp/0471093904" target="_blank" rel="external">Optimum Array Processing</a> Ch2 以及 [Microphone Array Signal Processing] Ch3.</p>
+<p>這是 far field 筆記系列第一篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 <a href="https://www.amazon.com/Optimum-Array-Processing-Estimation-Modulation/dp/0471093904" target="_blank" rel="external">Optimum Array Processing</a> Ch2 以及 <a href="https://www.springer.com/in/book/9783540786115" target="_blank" rel="external">Microphone Array Signal Processing</a> Ch3.</p>
 <p>Beampattern 就是希望能得到如下圖 [<a href="https://www.springer.com/in/book/9783540786115" target="_blank" rel="external">ref</a> Fig3.3] 的表示, 說明經過一個麥克風陣列的處理後, 每個角度所得到的增益情形. 因此可以看出主要保留哪些方向的訊號, 以及抑制哪些方向的訊號.</p>
 <p><img src="/2019/02/26/Far-Field-Notes-1-Beampattern/cover.png" width="80%" height="80%"></p>
 <a id="more"></a>
@@ -415,9 +415,6 @@ Beampattern 就是希望能得到如下圖 [ref Fig3.3] 的表示, 說明經過�
 <p>我們以下的介紹都是基於 Anechoic Model, 並且先做如下的簡化</p>
 <h4 id="Reverberant-Model"><a href="#Reverberant-Model" class="headerlink" title="Reverberant Model"></a>Reverberant Model</h4><p><img src="/2019/02/26/Far-Field-Notes-1-Beampattern/ReverberantModel.png" width="50%" height="50%"></p>
 <p>相當於將 attenuation factor $\alpha$ 改成 impulse response, 所以相乘改成 convolution.</p>
-<span>$$\begin{align}
-p(\theta|X,Y)=\frac{p(Y|X,\theta)p(\theta)}{\color{red}{\int p(Y|X,\theta)p(\theta)\,d\theta}}
-\end{align}$$</span><!-- Has MathJax -->
 <hr>
 <h3 id="Time-Delay"><a href="#Time-Delay" class="headerlink" title="Time Delay"></a>Time Delay</h3><p>為了方便推導麥克風之間的 time delay, 我們先將 Anechoic Model 做如下簡化</p>
 <p><img src="/2019/02/26/Far-Field-Notes-1-Beampattern/IdealCase.png" width="50%" height="50%"></p>
@@ -457,13 +454,13 @@ e^{-j\omega\tau_{N-1}}
 <p>實際架構圖如下:<br>一樣符號有點不同, 這是因為圖是採用另一本書 <a href="https://www.springer.com/in/book/9783540786115" target="_blank" rel="external">Microphone Array Signal Processing</a></p>
 <p><img src="/2019/02/26/Far-Field-Notes-1-Beampattern/FrequencyDoamin2.png" width="60%" height="60%"></p>
 <hr>
-<h3 id="Frequency-wavenumber-Response-Function"><a href="#Frequency-wavenumber-Response-Function" class="headerlink" title="Frequency-wavenumber Response Function"></a>Frequency-wavenumber Response Function</h3><p>針對 frequency domain 的 array processing, 我們可以帶入先前推得的 (2) 得到如下:</p>
+<h3 id="Frequency-wavenumber-Response-Function"><a href="#Frequency-wavenumber-Response-Function" class="headerlink" title="Frequency-wavenumber Response Function"></a>Frequency-wavenumber Response Function</h3><p>針對 frequency domain 的 array processing, 我們可以帶入先前推得的 (1) 得到如下:</p>
 <p><img src="/2019/02/26/Far-Field-Notes-1-Beampattern/FrequencyWavenumberResponseFunction.png" width="60%" height="60%"></p>
-<p>所以 $\Upsilon(\omega,\mathbf{k})$ 物理意義就是針對 frequency $\omega$ 和 wavenumber $\mathbf{k}$ (控制了聲源入射角度 $\theta$ 等等的物理量) 的 frequency response.</p>
+<p>所以 $\Upsilon(\omega,\mathbf{k})$ 物理意義就是針對 frequency $\omega$ 和 wavenumber $\mathbf{k}$ (控制了聲源入射角度 $\theta$ 等等的物理量) 的 response.</p>
 <hr>
 <h3 id="Beampattern"><a href="#Beampattern" class="headerlink" title="Beampattern"></a>Beampattern</h3><p>wavenumber $\mathbf{k}$ 比較抽象, 如果我們換成角度 $\theta$, $\phi$ 就會直觀很多, 而 beampattern 只是針對 $\Upsilon(\omega,\mathbf{k})$ 換成用角度而已.</p>
 <p><img src="/2019/02/26/Far-Field-Notes-1-Beampattern/Beampattern.png" width="50%" height="50%"></p>
-<p>所以 $B(\omega:\theta,\phi)$ 物理意義就是針對 frequency $\omega$ 和入射角度 $\theta$, $\phi$ 的 frequency response.</p>
+<p>所以 $B(\omega:\theta,\phi)$ 物理意義就是針對 frequency $\omega$ 和入射角度 $\theta$, $\phi$ 的 response.</p>
 <hr>
 <h3 id="Delay-and-sum-Beampattern"><a href="#Delay-and-sum-Beampattern" class="headerlink" title="Delay-and-sum Beampattern"></a>Delay-and-sum Beampattern</h3><p>Delay-and-sum 想法很簡單, 就是補償每個 mic 的 time delay 而已. 因此所需要的 filter $H(\omega)$ 就是 array manifold vector 的 conjugate 即可. 如下圖:</p>
 <p><img src="/2019/02/26/Far-Field-Notes-1-Beampattern/DS-Beampattern1.png" width="80%" height="80%"></p>
@@ -555,6 +552,10 @@ e^{-j\omega\tau_{N-1}}
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/" rel="prev" title="Far Field Notes (2) LCMV filter and Frost's algorithm">
+                Far Field Notes (2) LCMV filter and Frost's algorithm <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -625,7 +626,7 @@ e^{-j\omega\tau_{N-1}}
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">40</span>
+                <span class="site-state-item-count">41</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -647,7 +648,7 @@ e^{-j\omega\tau_{N-1}}
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">66</span>
+                <span class="site-state-item-count">69</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>
