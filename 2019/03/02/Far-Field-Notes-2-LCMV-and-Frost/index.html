@@ -97,7 +97,7 @@
 上一篇最後雖然使用 fixed beamformer 得到了 response-invariant beamformer, 但這個方法限制是 filter 一旦設計好就寫死了, 沒">
 <meta property="og:image" content="http://yoursite.com/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/frost-structure.png">
 <meta property="og:image" content="http://yoursite.com/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/varOrder.png">
-<meta property="og:updated_time" content="2019-03-02T13:59:13.628Z">
+<meta property="og:updated_time" content="2019-03-03T02:42:39.738Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Far Field Notes (2) LCMV filter and Frost's algorithm">
 <meta name="twitter:description" content="這是 far field 筆記系列第二篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 Microphone Array Signal Processing Ch4 和 Frost’s algorithm
@@ -391,7 +391,7 @@
 <hr>
 <h3 id="架構設定和-Signal-Model"><a href="#架構設定和-Signal-Model" class="headerlink" title="架構設定和 Signal Model"></a>架構設定和 Signal Model</h3><p>架構如下圖 (圖片來源:<a href="http://www.labbookpages.co.uk/audio/beamforming/frost.html" target="_blank" rel="external">ref</a>), 第一步是一個 delay stage, 這相當於是針對一個 steering direction 補償每個 mic 之間的 time delay (訊號對齊好). 第二步才是 beamformer, 我們知道 time domain 使用 delay-and-sum 架構, 如果是 frequency domain 則使用拆頻的架構. 忘了可參考<a href="https://bobondemon.github.io/2019/02/26/Far-Field-Notes-1-Beampattern/" target="_blank" rel="external">第一篇</a>.</p>
 <p><img src="/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/frost-structure.png" width="80%" height="80%"></p>
-<p>本文通通以 filter-and-sum 來筆記, 另外 signal model 以下推導將會使用 anechoic model, <a href="https://bobondemon.github.io/2019/02/26/Far-Field-Notes-1-Beampattern/" target="_blank" rel="external">第一篇</a>有定義可回去查閱.</p>
+<p>本文以 filter-and-sum 來筆記, 另外 signal model 以下推導將會使用 anechoic model, <a href="https://bobondemon.github.io/2019/02/26/Far-Field-Notes-1-Beampattern/" target="_blank" rel="external">第一篇</a>有定義可回去查閱.</p>
 <hr>
 <h3 id="Notations"><a href="#Notations" class="headerlink" title="Notations"></a>Notations</h3><p>一些 notations 我們先定義起來. $N$ 是麥克風數量, $L$ 是 filter tap 數量, 我們 aligned 好的 anechoic model 如下:<br><span>$$\begin{align}
 \mathbf{y}(k)=s(k)\mathbf{\alpha}+\mathbf{v}(k)
@@ -459,7 +459,7 @@ u_{L-1}\cdot s(k-L+1)
 }
 \right)
 \end{align}$$</span><!-- Has MathJax -->
-<p>(12) 為引入的條件, 藉由這樣的條件來還原原始訊號.<br><strong>$u$ ($L$長度的向量) 定義了我們希望在時間 $k$ 的還原結果, 是原始訊號的權重和</strong><br>定義一個 matrix 如下:</p>
+<p>(12) 為引入的條件, 藉由這樣的條件來還原原始訊號.<br><strong>$u$ ($L$長度的向量) 定義了我們希望在時間 $k$ 的還原結果, 是原始訊號的權重和</strong><br>定義一個 matrix (size of $NL\times L$) 如下:</p>
 <span>$$\begin{align}
 \mathbf{C}_{\mathbf{\alpha}}=
 \left[
@@ -472,7 +472,7 @@ u_{L-1}\cdot s(k-L+1)
 \right]
 = \left[
 \begin{array}{clr}
-\mathbf{c}_{\alpha,0} &amp; \mathbf{c}_{\alpha,1} &amp; \cdots &amp; \mathbf{c}_{\alpha,N-1} \\
+\mathbf{c}_{\alpha,0} &amp; \mathbf{c}_{\alpha,1} &amp; \cdots &amp; \mathbf{c}_{\alpha,L-1} \\
 \end{array}
 \right]
 \end{align}$$</span><!-- Has MathJax -->
@@ -483,7 +483,7 @@ u_{L-1}\cdot s(k-L+1)
 </li>
 <li><p>藍色部分代表最後的 noise 成分, 希望愈小愈好<br>計算藍色部分的能量為</p>
 <span>$$\begin{align}
-\mathbf{h}^T\mathbf{v}_{NL}(k)\mathbf{v}_{NL}^T(k)\mathbf{h}=\mathbf{h}^T\mathbf{R}_{\mathbf{v},\mathbf{v}}\mathbf{h}
+\mathbf{h}^T \mathbb{E} \left[ \mathbf{v}_{NL}(k)\mathbf{v}_{NL}^T(k) \right] \mathbf{h}=\mathbf{h}^T\mathbf{R}_{\mathbf{v},\mathbf{v}}\mathbf{h}
 \end{align}$$</span><!-- Has MathJax -->
 <p>但關鍵是我們無法得知實際的 noise signal, 我們有的只有 observation $\mathbf{y}_{NL}(k)$, 那該怎麼辦呢?<br>LCMV 很厲害的一點是, 由於上面剛提到的 constraints, 導致橘色部分的能量是 constant, 因此以下兩個問題是等價的</p>
 <span>$$\begin{align}
@@ -511,7 +511,36 @@ u_{L-1}\cdot s(k-L+1)
 \end{align}$$</span><!-- Has MathJax --></p>
 <p>但是重點來了, 以上這些推導全部都假設是 stationary, 實際情況一定是 non-stationary 怎麼辦? 最直覺的想法就是, 我們每隔一段時間就用 (18) 重新算一下 $\mathbf{h}$. 但很明顯這非常沒效率 (covariance估計, inverse運算) 根本不可行. 因此必須改成 iteratively update $\mathbf{h}$ 的方式.<br><strong><a href="http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=1450747" target="_blank" rel="external">Frost’s algorithm</a> 的一個重要貢獻也就是在這, 使用 stochastic gradient descent 方式 update $\mathbf{h}$!</strong></p>
 <hr>
-<h3 id="Frost’s-Algorithm"><a href="#Frost’s-Algorithm" class="headerlink" title="Frost’s Algorithm"></a>Frost’s Algorithm</h3><p>待續 … </p>
+<h3 id="Frost’s-Algorithm"><a href="#Frost’s-Algorithm" class="headerlink" title="Frost’s Algorithm"></a>Frost’s Algorithm</h3><p>問題 (17) 的 Lagrange function 如下:<br><span>$$\begin{align}
+\mathcal{L}(\mathbf{h},\mathbf{\lambda}) = \frac{1}{2} \mathbf{h}^T\mathbf{R}_{\mathbf{y},\mathbf{y}}\mathbf{h} + \mathbf{\lambda}^T(\mathbf{C_{\alpha}}^T\mathbf{h}-\mathbf{\mathbf{u}})
+\end{align}$$</span><!-- Has MathJax -->因此 gradient 如下:<br><span>$$\begin{align}
+\nabla_{\mathbf{h}}\mathcal{L} = \mathbf{R}_{\mathbf{y},\mathbf{y}}\mathbf{h} + \mathbf{C_{\alpha}}\mathbf{\lambda}
+\end{align}$$</span><!-- Has MathJax -->gradient descent update 式子如下:<br><span>$$\begin{align}
+\mathbf{h}_{t+1} = \mathbf{h}_{t} - \mu \left( \mathbf{R}_{\mathbf{y},\mathbf{y}}\mathbf{h}_t + \mathbf{C_{\alpha}}\mathbf{\lambda}_t \right)
+\end{align}$$</span><!-- Has MathJax -->由於有 constraint, 必須滿足 update 後仍然滿足條件, 因此:<br><span>$$\begin{align}
+\mathbf{u}=\mathbf{C_{\alpha}}^T\mathbf{h}_{t+1}
+\end{align}$$</span><!-- Has MathJax -->將(21)帶入(22)整理得到$\lambda_t$, 接著再將$\lambda_t$帶回(21)得到結果如下, 並不困難只是一些代數運算:<br><span>$$\begin{align}
+\mathbf{h}_{t+1} = \mathbf{h}_{t} - \mu \left[ \mathbf{I} - \mathbf{C}(\mathbf{C}^T\mathbf{C})^{-1}\mathbf{C}^T \right] \mathbf{R}_{\mathbf{y},\mathbf{y}} \mathbf{h}_{t} + \mathbf{C}(\mathbf{C}^T\mathbf{C})^{-1} \left[ \mathbf{u}-\mathbf{C}^T\mathbf{h}_t \right]
+\end{align}$$</span><!-- Has MathJax -->定義兩個 matrix $\mathbf{A}$, $\mathbf{B}$ 如下 (注意到這兩個 matrix 是事先計算好的):<br><span>$$\begin{align}
+\mathbf{A} \triangleq \mathbf{C}(\mathbf{C}^T\mathbf{C})^{-1}\mathbf{u} \\
+\mathbf{B} \triangleq \mathbf{I} - \mathbf{C}(\mathbf{C}^T\mathbf{C})^{-1}\mathbf{C}^T
+\end{align}$$</span><!-- Has MathJax -->因此可以改寫(23)如下:<br><span>$$\begin{align}
+\mathbf{h}_{t+1} = \mathbf{B}[\mathbf{h}_t - \mu \mathbf{R}_{\mathbf{y},\mathbf{y}} \mathbf{h}_t] + \mathbf{A}
+\end{align}$$</span><!-- Has MathJax -->由於使用 stochastic 方式, 因此 expectation 使用最新的一次 sample 即可:<br><span>$$\begin{align}
+\mathbf{R}_{\mathbf{y},\mathbf{y}} = \mathbb{E} \left[ \mathbf{y}_{NL}(t)\mathbf{y}_{NL}^T(t) \right]
+\thickapprox
+\color{green}{
+\mathbf{y}_{NL}(t)\mathbf{y}_{NL}^T(t)
+}
+\end{align}$$</span><!-- Has MathJax -->將(27)帶入(26)並用(10)替換一下, 我們得到最終的 update 式子:<br><span>$$\begin{align}
+\color{red}{
+\mathbf{h}_{t+1} = \mathbf{B}[\mathbf{h}_t - \mu z(t)\mathbf{y}_{NL}(t)] + \mathbf{A}
+}
+\end{align}$$</span><!-- Has MathJax -->由於 $\mathbf{A}$ 和 $\mathbf{B}$ 是固定的, 跟原來的 optimal 解比較 (18), 可以明顯知道速度上會快非常多.<br>另外 $\mathbf{h}_0$ 只需要選擇一個 trivial 的 feasible point 即可:<br><span>$$\begin{align}
+\mathbf{h}_{0} = \mathbf{A}
+\end{align}$$</span><!-- Has MathJax --></p>
+<hr>
+<h3 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h3><p>本篇記錄了 delay-and-sum 架構的 beamformer, LCMV 的問題和其最佳解. LCMV 可以針對給定的一個方向, 找出 filter $\mathbf{h}$ 使得抽取看的方向的訊號同時壓抑其他方向的訊號.<br>實作上直接套用最佳解太慢不可行, 而 Frost’s algorithm 提供了一個 stochastic gradeint update 方法更新 $\mathbf{h}$, 這使得 real-time system 變得可行.</p>
 <hr>
 <h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
 <li><a href="https://www.springer.com/in/book/9783540786115" target="_blank" rel="external">Microphone Array Signal Processing</a> by Jocab Benesty</li>
@@ -715,7 +744,7 @@ u_{L-1}\cdot s(k-L+1)
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#架構設定和-Signal-Model"><span class="nav-number">1.</span> <span class="nav-text">架構設定和 Signal Model</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Notations"><span class="nav-number">2.</span> <span class="nav-text">Notations</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Problem-Definition"><span class="nav-number">3.</span> <span class="nav-text">Problem Definition</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Optimal-Solution"><span class="nav-number">4.</span> <span class="nav-text">Optimal Solution</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Frost’s-Algorithm"><span class="nav-number">5.</span> <span class="nav-text">Frost’s Algorithm</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">6.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#架構設定和-Signal-Model"><span class="nav-number">1.</span> <span class="nav-text">架構設定和 Signal Model</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Notations"><span class="nav-number">2.</span> <span class="nav-text">Notations</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Problem-Definition"><span class="nav-number">3.</span> <span class="nav-text">Problem Definition</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Optimal-Solution"><span class="nav-number">4.</span> <span class="nav-text">Optimal Solution</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Frost’s-Algorithm"><span class="nav-number">5.</span> <span class="nav-text">Frost’s Algorithm</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#結論"><span class="nav-number">6.</span> <span class="nav-text">結論</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">7.</span> <span class="nav-text">Reference</span></a></li></ol></div>
             
 
           </div>
