@@ -97,7 +97,7 @@
 上一篇最後雖然使用 fixed beamformer 得到了 response-invariant beamformer, 但這個方法限制是 filter 一旦設計好就寫死了, 沒">
 <meta property="og:image" content="http://yoursite.com/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/frost-structure.png">
 <meta property="og:image" content="http://yoursite.com/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/varOrder.png">
-<meta property="og:updated_time" content="2019-03-03T02:42:39.738Z">
+<meta property="og:updated_time" content="2019-03-06T14:44:08.821Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Far Field Notes (2) LCMV filter and Frost's algorithm">
 <meta name="twitter:description" content="這是 far field 筆記系列第二篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 Microphone Array Signal Processing Ch4 和 Frost’s algorithm
@@ -391,7 +391,7 @@
 <hr>
 <h3 id="架構設定和-Signal-Model"><a href="#架構設定和-Signal-Model" class="headerlink" title="架構設定和 Signal Model"></a>架構設定和 Signal Model</h3><p>架構如下圖 (圖片來源:<a href="http://www.labbookpages.co.uk/audio/beamforming/frost.html" target="_blank" rel="external">ref</a>), 第一步是一個 delay stage, 這相當於是針對一個 steering direction 補償每個 mic 之間的 time delay (訊號對齊好). 第二步才是 beamformer, 我們知道 time domain 使用 delay-and-sum 架構, 如果是 frequency domain 則使用拆頻的架構. 忘了可參考<a href="https://bobondemon.github.io/2019/02/26/Far-Field-Notes-1-Beampattern/" target="_blank" rel="external">第一篇</a>.</p>
 <p><img src="/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/frost-structure.png" width="80%" height="80%"></p>
-<p>本文以 filter-and-sum 來筆記, 另外 signal model 以下推導將會使用 anechoic model, <a href="https://bobondemon.github.io/2019/02/26/Far-Field-Notes-1-Beampattern/" target="_blank" rel="external">第一篇</a>有定義可回去查閱.</p>
+<p>本文以 filter-and-sum 來筆記, 另外 signal model 以下推導將會使用 anechoic model, <a href="https://bobondemon.github.io/2019/02/26/Far-Field-Notes-1-Beampattern/" target="_blank" rel="external">第一篇</a>有定義可回去查閱. 同時本文接下來的 notation 會與圖中的不同. 上圖只是用來顯示 filter-and-sum 架構.</p>
 <hr>
 <h3 id="Notations"><a href="#Notations" class="headerlink" title="Notations"></a>Notations</h3><p>一些 notations 我們先定義起來. $N$ 是麥克風數量, $L$ 是 filter tap 數量, 我們 aligned 好的 anechoic model 如下:<br><span>$$\begin{align}
 \mathbf{y}(k)=s(k)\mathbf{\alpha}+\mathbf{v}(k)
@@ -399,7 +399,7 @@
 \mathbf{y}(k)=[y_1(k),...,y_N(k)]^T \\
 \mathbf{v}(k)=[v_1(k),...,v_N(k)]^T \\
 \mathbf{\alpha}=[\alpha_1,\alpha_2,...,\alpha_N]^T
-\end{align}$$</span><!-- Has MathJax --><br>注意到由於我們先 align 好 delay 了, 所以原先的 anechoic model 可以簡化成上面的表達.</p>
+\end{align}$$</span><!-- Has MathJax --> $s(k)$ 是時間 $k$ 的聲源訊號, $\alpha$ 是 $N\times 1$ 的 attenuation factors, $\mathbf{v}(k)$ 是時間 $k$ 的 $N\times 1$ noise 訊號向量, 因此 $\mathbf{y}(k)$ 是時間 $k$ 的 $N\times 1$ 麥克風收到的訊號向量. 注意到由於我們先 align 好 delay 了, 所以原先的 anechoic model 可以簡化成上面的表達.</p>
 <p>考慮到 filter-and-sum 架構, 我們將整個 $N$ 個 mic 每個 mic 都有 $L$ 個值以下圖(圖片來源:<a href="http://www.labbookpages.co.uk/audio/beamforming/frost.html" target="_blank" rel="external">ref</a>)的順序串成一個 $NL$ vector<br><img src="/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/varOrder.png" width="30%" height="30%"><br>因此我們得到這些向量<br><span>$$\begin{align}
 \mathbf{y}_{NL}(k)=[\mathbf{y}^T(k), \mathbf{y}^T(k-1), ..., \mathbf{y}^T(k-L+1)]^T \\
 \mathbf{x}_{NL}(k)=[s(k)\mathbf{\alpha}^T, s(k-1)\mathbf{\alpha}^T, ..., s(k-L+1)\mathbf{\alpha}^T]^T \\
