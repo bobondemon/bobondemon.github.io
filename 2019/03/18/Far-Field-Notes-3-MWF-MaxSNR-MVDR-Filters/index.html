@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Deep Learning,Udacity," />
+  <meta name="keywords" content="MVDR,MWF," />
 
 
 
@@ -87,27 +87,19 @@
 
 
 
-<meta name="description" content="Udacity SDC term 3 第二個 Project 做的是使用 Deep Learning 學習識別 pixel 等級的路面區域. 簡單講就是有如下的 ground truth data, 標示出哪邊是正確的路面, 然後用 Fully Convolutional Network 去對每個 pixel 做識別.">
+<meta name="description" content="這是 far field 筆記系列第三篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 Microphone Array Signal Processing Ch6 和 Speech Processing in Modern Communication: Challenges and Perspectives Ch9.3.4
+在 narrow-band 的情形下, Multi-cha">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Udacity-Semantic-Segmentation">
-<meta property="og:url" content="http://yoursite.com/2018/03/06/Udacity-Semantic-Segmentation/index.html">
+<meta property="og:title" content="Far Field Notes (3) Equivalence of MWF, MaxSNR, and MVDR Filters">
+<meta property="og:url" content="http://yoursite.com/2019/03/18/Far-Field-Notes-3-MWF-MaxSNR-MVDR-Filters/index.html">
 <meta property="og:site_name" content="棒棒生">
-<meta property="og:description" content="Udacity SDC term 3 第二個 Project 做的是使用 Deep Learning 學習識別 pixel 等級的路面區域. 簡單講就是有如下的 ground truth data, 標示出哪邊是正確的路面, 然後用 Fully Convolutional Network 去對每個 pixel 做識別.">
-<meta property="og:image" content="http://yoursite.com/2018/03/06/Udacity-Semantic-Segmentation/gt1.png">
-<meta property="og:image" content="http://yoursite.com/2018/03/06/Udacity-Semantic-Segmentation/gt2.png">
-<meta property="og:image" content="http://yoursite.com/2018/03/06/Udacity-Semantic-Segmentation/FCN4SementicSegmentation.png">
-<meta property="og:image" content="http://yoursite.com/2018/03/06/Udacity-Semantic-Segmentation/pic1.png">
-<meta property="og:image" content="http://yoursite.com/2018/03/06/Udacity-Semantic-Segmentation/pic2.png">
-<meta property="og:image" content="http://yoursite.com/2018/03/06/Udacity-Semantic-Segmentation/pic3.png">
-<meta property="og:image" content="http://yoursite.com/2018/03/06/Udacity-Semantic-Segmentation/pic4.png">
-<meta property="og:image" content="http://yoursite.com/2018/03/06/Udacity-Semantic-Segmentation/pic5.png">
-<meta property="og:image" content="http://yoursite.com/2018/03/06/Udacity-Semantic-Segmentation/pic6.png">
-<meta property="og:image" content="http://yoursite.com/2018/03/06/Udacity-Semantic-Segmentation/compare_regularization.png">
-<meta property="og:updated_time" content="2018-03-06T12:41:53.065Z">
+<meta property="og:description" content="這是 far field 筆記系列第三篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 Microphone Array Signal Processing Ch6 和 Speech Processing in Modern Communication: Challenges and Perspectives Ch9.3.4
+在 narrow-band 的情形下, Multi-cha">
+<meta property="og:updated_time" content="2019-03-19T12:48:37.053Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Udacity-Semantic-Segmentation">
-<meta name="twitter:description" content="Udacity SDC term 3 第二個 Project 做的是使用 Deep Learning 學習識別 pixel 等級的路面區域. 簡單講就是有如下的 ground truth data, 標示出哪邊是正確的路面, 然後用 Fully Convolutional Network 去對每個 pixel 做識別.">
-<meta name="twitter:image" content="http://yoursite.com/2018/03/06/Udacity-Semantic-Segmentation/gt1.png">
+<meta name="twitter:title" content="Far Field Notes (3) Equivalence of MWF, MaxSNR, and MVDR Filters">
+<meta name="twitter:description" content="這是 far field 筆記系列第三篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 Microphone Array Signal Processing Ch6 和 Speech Processing in Modern Communication: Challenges and Perspectives Ch9.3.4
+在 narrow-band 的情形下, Multi-cha">
 
 
 
@@ -135,13 +127,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/03/06/Udacity-Semantic-Segmentation/"/>
+  <link rel="canonical" href="http://yoursite.com/2019/03/18/Far-Field-Notes-3-MWF-MaxSNR-MVDR-Filters/"/>
 
 
 
 
 
-  <title> Udacity-Semantic-Segmentation | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  <title> Far Field Notes (3) Equivalence of MWF, MaxSNR, and MVDR Filters | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
@@ -280,7 +272,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/06/Udacity-Semantic-Segmentation/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/18/Far-Field-Notes-3-MWF-MaxSNR-MVDR-Filters/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -301,7 +293,7 @@
             
             
               
-                Udacity-Semantic-Segmentation
+                Far Field Notes (3) Equivalence of MWF, MaxSNR, and MVDR Filters
               
             
           </h1>
@@ -316,8 +308,8 @@
               
                 <span class="post-meta-item-text">發表於</span>
               
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2018-03-06T19:59:13+08:00">
-                2018-03-06
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2019-03-18T20:33:46+08:00">
+                2019-03-18
               </time>
             
 
@@ -339,8 +331,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ML/" itemprop="url" rel="index">
-                    <span itemprop="name">ML</span>
+                  <a href="/categories/SP/" itemprop="url" rel="index">
+                    <span itemprop="name">SP</span>
                   </a>
                 </span>
 
@@ -356,7 +348,7 @@
 
           
           
-             <span id="/2018/03/06/Udacity-Semantic-Segmentation/" class="leancloud_visitors" data-flag-title="Udacity-Semantic-Segmentation">
+             <span id="/2019/03/18/Far-Field-Notes-3-MWF-MaxSNR-MVDR-Filters/" class="leancloud_visitors" data-flag-title="Far Field Notes (3) Equivalence of MWF, MaxSNR, and MVDR Filters">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -389,23 +381,94 @@
 </script>
 
 <hr>
-<p>Udacity SDC term 3 第二個 Project 做的是使用 Deep Learning 學習識別 pixel 等級的路面區域. 簡單講就是有如下的 ground truth data, 標示出哪邊是正確的路面, 然後用 Fully Convolutional Network 去對每個 pixel 做識別.</p>
-<p><img src="/2018/03/06/Udacity-Semantic-Segmentation/gt1.png" width="100%" height="100%"><br><img src="/2018/03/06/Udacity-Semantic-Segmentation/gt2.png" width="100%" height="100%"></p>
+<p>這是 far field 筆記系列第三篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 <a href="https://www.springer.com/in/book/9783540786115" target="_blank" rel="external">Microphone Array Signal Processing</a> Ch6 和 <a href="https://www.springer.com/la/book/9783642111297" target="_blank" rel="external">Speech Processing in Modern Communication: Challenges and Perspectives</a> Ch9.3.4</p>
+<p>在 narrow-band 的情形下, Multi-channel Wiener Filter (MWF), maximum SNR 和 Minimum Variance Distortionless Response (MVDR) 三者求出來的 filter 解只差在 norm 大小不同. 但反應在最後的 full-bank 行為仍然不同. 這部分可看書. 本篇主要紀錄 narrow-bank 下三者為何 equivalent. 算是書本的摘要筆記吧.</p>
 <a id="more"></a>
 <hr>
-<h3 id="Fully-Convolutional-Network-FCN"><a href="#Fully-Convolutional-Network-FCN" class="headerlink" title="Fully-Convolutional-Network (FCN)"></a>Fully-Convolutional-Network (FCN)</h3><p>主要是實作這篇論文 “<a href="https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf" target="_blank" rel="external">Fully Convolutional Networks for Semantic Segmentation</a>“</p>
-<p>換言之, 全部都是 convolution layers, 包含使用 1x1 convolution 替換掉原來 Convnet 的 fully-connected-layer, 和使用 deconvolution 做 upsampling. 架構圖如下:</p>
-<p><img src="/2018/03/06/Udacity-Semantic-Segmentation/FCN4SementicSegmentation.png" width="80%" height="80%"></p>
-<p>分成 Encoder 和 Decoder 部分. Encoder 使用 pre-trained 好的 VGG16 network, 負責做特徵抽取. 抽取出來的特徵後, 接上 deconvolution layers (需訓練) 搭建而成的 decoder part. 有一個特別之處是使用了 skip 方法. 這個方法是在 decoder 做 upsampling 時, 會加上當初相對應大小的 Encoder layer 資訊. 這樣做論文裡提到會增加整個識別效果.</p>
+<h3 id="Signal-Model"><a href="#Signal-Model" class="headerlink" title="Signal Model"></a>Signal Model</h3><p>在 frequency doamin 下, 我們有如下的關係</p>
+<span>$$\begin{align}
+Y_n(j\omega)=G_n(j\omega)S(j\omega)+V_n(j\omega) \\
+=X_n(j\omega)+V_n(j\omega)\mbox{,   }n=1,2,...,N \\
+\end{align}$$</span><!-- Has MathJax --> $N$ 是麥克風數量, $S(j\omega)$ 是原始訊號, $G_n(j\omega)$ 是聲源到 mic $n$ 的 impluse response, $V_n(j\omega)$ 是 noise, 而 $X_n(j\omega)$ 是 mic $n$ 的訊號. <strong>我們希望還原的是 $X_1(j\omega)$ 而不是 $S(j\omega)$.</strong><br>排成 vector 形式如下<br><br><span>$$\begin{align}
+Z(j\omega)=\mathbf{h}^H(j\omega)\mathbf{y}(j\omega) \\
+=\mathbf{h}^H(j\omega)[\mathbf{x}(j\omega)+\mathbf{v}(j\omega)] \\
+\end{align}$$</span><!-- Has MathJax --> 其中<br><br><span>$$\begin{align}
+\mathbf{y}(j\omega)=[Y_1(j\omega),Y_2(j\omega),...,Y_N(j\omega)]^T \\
+\mathbf{x}(j\omega)=S(j\omega)[G_1(j\omega),G_2(j\omega),...,G_N(j\omega)]^T=S(j\omega)\mathbf{g}(j\omega) \\
+\mathbf{v}(j\omega)=[V_1(j\omega),V_2(j\omega),...,V_N(j\omega)]^T \\
+\mathbf{h}(j\omega)=[H_1(j\omega),H_2(j\omega),...,H_N(j\omega)]^T \\
+\end{align}$$</span><!-- Has MathJax --> 注意到<br><br><span>$$\begin{align}
+\Phi_{xx}(j\omega)=\mathbb{E}\left[\mathbf{x}(j\omega)\mathbf{x}^H(j\omega)\right]=\phi_{ss}(j\omega)\mathbf{g}(j\omega)\mathbf{g}^H(j\omega)
+\end{align}$$</span><!-- Has MathJax -->
 <hr>
-<h3 id="Results"><a href="#Results" class="headerlink" title="Results"></a>Results</h3><p>效果有點讓我小驚豔, 因為只使用少少的 289 張圖片去訓練而已. 跑出來的測試結果如下:</p>
-<p><img src="/2018/03/06/Udacity-Semantic-Segmentation/pic1.png" width="100%" height="100%"><br><img src="/2018/03/06/Udacity-Semantic-Segmentation/pic2.png" width="100%" height="100%"><br><img src="/2018/03/06/Udacity-Semantic-Segmentation/pic3.png" width="100%" height="100%"><br><img src="/2018/03/06/Udacity-Semantic-Segmentation/pic4.png" width="100%" height="100%"><br><img src="/2018/03/06/Udacity-Semantic-Segmentation/pic5.png" width="100%" height="100%"><br><img src="/2018/03/06/Udacity-Semantic-Segmentation/pic6.png" width="100%" height="100%"></p>
-<p>另外還有一點是縱使已經有 dropout 了, 如果沒有加上 l2 regularization 的話, 會 train 不好! (l2 regularization 真讓我第一次看到有這麼重要), 同樣設定下, 有和沒有 l2 regularization 的差別:</p>
-<p><img src="/2018/03/06/Udacity-Semantic-Segmentation/compare_regularization.png" width="100%" height="100%"></p>
+<h3 id="MWF"><a href="#MWF" class="headerlink" title="MWF"></a>MWF</h3><p>將 error term 寫出來</p>
+<span>$$\begin{align}
+\mathcal{E}(j\omega)=Z(j\omega)-X_1(j\omega) \\
+=\mathbf{h}^H(j\omega)\mathbf{v}(j\omega)+[\mathbf{h}(j\omega)-\mathbf{u}]^H\mathbf{x}(j\omega)\\
+=\color{orange}{\mathcal{E}_v(j\omega)}+\color{blue}{\mathcal{E}_x(j\omega)} \\
+\end{align}$$</span><!-- Has MathJax --> 其中 $\mathbf{u}$ 是一個 $N\times 1$ 的 vector, 只有第一個是1, 其他是0. Error term 可以拆成兩項, 分別對應了 noise reduction 程度和 speech distortion 程度<br>MWF 的目標函式如下:<br><span>$$\begin{align}
+J_{MWF}[\mathbf{h}(j\omega)]=\mathbb{E}\left[| \mathcal{E}(j\omega) |^2\right]\\
+=
+\color{orange}{
+\mathbb{E}\left[| \mathcal{E}_v(j\omega) |^2\right]
+}
++
+\color{blue}{
+\mathbb{E}\left[| \mathcal{E}_x(j\omega) |^2\right]
+}
+\end{align}$$</span><!-- Has MathJax -->
+<p>可以看成 noise reduction 和 speech distortion 同等重要情況下去求解最好的 $\mathbf{h}$<br>微分等於零求解得到如下:<br><span>$$\begin{align}
+\Phi_{yy}(j\omega)\mathbf{h}_W(j\omega)=\Phi_{yx}(j\omega)\mathbf{u}=\Phi_{xx}(j\omega)\mathbf{u}
+\end{align}$$</span><!-- Has MathJax --><br>上式最後推導是由於 $x$ and $v$ 是 independent. 因此最後的 MWF 解為:<br><span>$$\begin{align}
+\mathbf{h}_W(j\omega)=\Phi_{yy}^{-1}(j\omega)\Phi_{xx}(j\omega)\mathbf{u} \\
+=\left[ \mathbf{I}_{N\times N} - \Phi_{yy}^{-1}(j\omega)\Phi_{vv}(j\omega) \right]\mathbf{u}
+\end{align}$$</span><!-- Has MathJax --></p>
+<hr>
+<h3 id="MVDR"><a href="#MVDR" class="headerlink" title="MVDR"></a>MVDR</h3><p>MVDR 要解的問題如下:<br><span>$$\min \color{orange}{ \mathbb{E}\left[| \mathcal{E}_v(j\omega) |^2\right] }\\
+\mbox{subject to } \color{blue}{\mathbb{E}\left[| \mathcal{E}_x(j\omega) |^2\right]}=0$$</span><!-- Has MathJax --> 這也可以看出 MVDR 為什麼叫 MVDR (同時這個解也是上一篇 LCMV 的形式).<br>由 (11) 知, 我們可以將 constraint 部分改寫成:<br><span>$\left[\mathbf{u}-\mathbf{h}(j\omega)\right]^H\mathbf{x}(j\omega)=0 \\$</span><!-- Has MathJax --> 並利用 $\mathbf{x}(j\omega)=S(j\omega)\mathbf{g}(j\omega)$ 可得到<br><span>$\mathbf{h}^H(j\omega)\mathbf{g}(j\omega)=G_1(j\omega)$</span><!-- Has MathJax --><br>因此 MVDR 問題的通常如下表達:<br><span>$$\min \mathbf{h}^H(j\omega) \Phi_{vv}(j\omega) \mathbf{h}(j\omega) \\
+\mbox{subject to } \mathbf{h}^H(j\omega)\mathbf{g}(j\omega)=G_1(j\omega) \\$$</span><!-- Has MathJax --><br>用 Lagrange multipliers 求解得到<br><span>$$\begin{align}
+\mathbf{h}_{MVDR}(j\omega)=G_1^{\ast}(j\omega)\frac{\Phi_{vv}^{-1}(j\omega)\mathbf{g}(j\omega)}{\mathbf{g}^H(j\omega)\Phi_{vv}^{-1}(j\omega)\mathbf{g}(j\omega)}
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>對 (18) 進一步推導, 為了精簡以下 ${j\omega}$ 省略不寫<br><span>$$\begin{align}
+\mathbf{h}_{MVDR}=\frac{\Phi_{vv}^{-1}\phi_{ss}\mathbf{g}G_1^{\ast}}{tr\left[\Phi_{vv}^{-1}\phi_{ss}\mathbf{g}\mathbf{g}^H\right]}=\frac{\Phi_{vv}^{-1}\phi_{ss}\mathbf{g}\mathbf{g}^H\mathbf{u}}{tr\left[\Phi_{vv}^{-1}\phi_{ss}\mathbf{g}\mathbf{g}^H\right]} \\
+=\frac{ \Phi_{vv}^{-1}\Phi_{xx}\mathbf{u} }{ tr\left[\Phi_{vv}^{-1}\Phi_{xx}\right] } \\
+=\frac{ \Phi_{vv}^{-1}(\Phi_{yy}-\Phi_{vv})\mathbf{u} }{ tr\left[ \Phi_{vv}^{-1}(\Phi_{yy}-\Phi_{vv}) \right] } \\
+=\frac{ (\Phi_{vv}^{-1}\Phi_{yy}-\mathbf{I})\mathbf{u} }{ tr\left[\Phi_{vv}^{-1}\Phi_{yy}\right]-N }
+\end{align}$$</span><!-- Has MathJax --> (19) 到 (20) 使用了 (9).<br>(22) 的形式書本說很重要, 因為避免了很難估計的 $\mathbf{g}$, 取而代之的是我們要估計出 $\Phi_{vv}$</p>
+<hr>
+<h3 id="MWF-與-MVDR-等價情形"><a href="#MWF-與-MVDR-等價情形" class="headerlink" title="MWF 與 MVDR 等價情形"></a>MWF 與 MVDR 等價情形</h3><p>同樣為了精簡以下 ${j\omega}$ 省略不寫, 首先我們知道<br><span>$$\begin{align}
+\Phi_{yy}=\Phi_{vv} + \phi_{ss}\mathbf{g}\mathbf{g}^H
+\end{align}$$</span><!-- Has MathJax --> 使用 Woodbury’s identity 可得:<br><span>$$\begin{align}
+\Phi_{yy}^{-1}=\Phi_{vv}^{-1}-\frac{ \Phi_{vv}^{-1}\Phi_{xx}\Phi_{vv}^{-1} }{ 1+tr\left[\Phi_{vv}^{-1}\Phi_{xx}\right] }
+\end{align}$$</span><!-- Has MathJax --> 將 (24) 帶入到 (17) 並經過一些代數替換我們得到<br><span>$$\begin{align}
+\mathbf{h}_{W}=\frac{ \Phi_{vv}^{-1}\Phi_{xx} }{ 1+tr\left[\Phi_{vv}^{-1}\Phi_{xx}\right] }\mathbf{u}
+\end{align}$$</span><!-- Has MathJax --> 這個式子與 MVDR 的 (20) 比較一下我們發現<br><span>$$\begin{align}
+\mathbf{h}_{W}(j\omega)=c(\omega)\mathbf{h}_{MVDR}(j\omega)
+\end{align}$$</span><!-- Has MathJax --> 其中 $c(\omega)$ 是與 $\omega$ 相關的一個 scalar. 因此 MWF 與 MVDR 解只差在一個 $\omega$ 相關的常數項</p>
+<hr>
+<h3 id="Maximum-SNR-MSNR"><a href="#Maximum-SNR-MSNR" class="headerlink" title="Maximum SNR (MSNR)"></a>Maximum SNR (MSNR)</h3><p>同樣為了精簡以下 ${j\omega}$ 省略不寫, output SNR 定義為:<br><span>$$\begin{align}
+\mbox{oSNR}\left[\mathbf{h}\right]=\frac{ \mathbf{h}^H \Phi_{xx} \mathbf{h} }{ \mathbf{h}^H \Phi_{vv} \mathbf{h} }
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>這個等同於 generalized eigenvalue problem.<br><span>$$\begin{align}
+\Phi_{xx}\mathbf{h}=\lambda\Phi_{vv}\mathbf{h}
+\end{align}$$</span><!-- Has MathJax --> 所以<br><span>$\mathbf{h}_{MSNR}\mbox{ is eigenvector w.r.t max eigenvalue of matrix  } \Phi_{vv}^{-1}\Phi_{xx}$</span><!-- Has MathJax --><br>eigenvector 乘上一個 scalar 仍然是 eigenvector, 因此通常都會將 $\mathbf{h}_{MSNR}$ 的 norm 定為 1</p>
+<p>接著我們說明 $\mathbf{h}$ 的解具有以下形式:<br><span>$$\begin{align}
+\mathbf{h}\propto\Phi_{vv}^{-1}\mathbf{g}
+\end{align}$$</span><!-- Has MathJax --> 先假定 (29) 為等式:<br><span>$$\begin{align}
+\mathbf{h}=\Phi_{vv}^{-1}\mathbf{g}
+\end{align}$$</span><!-- Has MathJax --> 利用 (9) 和 (30) 得到以下的推導<br><span>$$\begin{align}
+\Phi_{vv}^{-1}\Phi_{xx}\mathbf{h}=\Phi_{vv}^{-1} \phi_{ss}\mathbf{g}\mathbf{g}^H \mathbf{h}=\left(\Phi_{vv}^{-1}\mathbf{g}\right)\left(\phi_{ss}\mathbf{g}^H\mathbf{h}\right)=\mathbf{h}\lambda
+\end{align}$$</span><!-- Has MathJax --> 我們發現 $\mathbf{h}$ 如有 (30) 的形式, 則為 maximum SNR (27) 的解. 當然 eigenvector 乘上 scalar 仍然是 eigenvector, 所以 (29) 為 maximum SNR 的解.<br>最後由於 $\Phi_{xx}$ 為 rank 1 所以只會有一個 nonzero eigenvalue, 因此 maximum SNR 所有解的形式必然為 (29) 的形式.</p>
+<hr>
+<h3 id="MVDR-與-MSNR-等價情形"><a href="#MVDR-與-MSNR-等價情形" class="headerlink" title="MVDR 與 MSNR 等價情形"></a>MVDR 與 MSNR 等價情形</h3><p>檢查下 (18) 的 MVDR 解, 很快就發現滿足 (29) MSNR 的解的形式, 因此<br><span>$$\begin{align}
+\mathbf{h}_{MVDR}(j\omega)=d(\omega)\mathbf{h}_{MSNR}(j\omega)
+\end{align}$$</span><!-- Has MathJax --></p>
+<hr>
+<h4 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h4><p>MWF, MVDR, MSNR 三個問題的解在 narrowband 上只差在 scalar. 但以 fullband 來說, 表現還是不同的.</p>
 <hr>
 <h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
-<li><a href="https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf" target="_blank" rel="external">Fully Convolutional Networks for Semantic Segmentation</a></li>
-<li>Source code <a href="https://github.com/bobondemon/Udacity-Semantic-Segmentation" target="_blank" rel="external">github</a></li>
+<li><a href="https://www.springer.com/in/book/9783540786115" target="_blank" rel="external">Microphone Array Signal Processing</a> by Jocab Benesty</li>
+<li><a href="https://www.springer.com/la/book/9783642111297" target="_blank" rel="external">Speech Processing in Modern Communication: Challenges and Perspectives</a></li>
 </ol>
 
       
@@ -435,7 +498,7 @@
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2018/03/06/Udacity-Semantic-Segmentation/" title="Udacity-Semantic-Segmentation">http://yoursite.com/2018/03/06/Udacity-Semantic-Segmentation/</a>
+      <a href="http://yoursite.com/2019/03/18/Far-Field-Notes-3-MWF-MaxSNR-MVDR-Filters/" title="Far Field Notes (3) Equivalence of MWF, MaxSNR, and MVDR Filters">http://yoursite.com/2019/03/18/Far-Field-Notes-3-MWF-MaxSNR-MVDR-Filters/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>
@@ -451,9 +514,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Deep-Learning/" rel="tag"># Deep Learning</a>
+            <a href="/tags/MVDR/" rel="tag"># MVDR</a>
           
-            <a href="/tags/Udacity/" rel="tag"># Udacity</a>
+            <a href="/tags/MWF/" rel="tag"># MWF</a>
           
         </div>
       
@@ -466,8 +529,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/02/11/Mixtures-of-Factor-Analyzers/" rel="next" title="Mixtures of Factor Analyzers">
-                <i class="fa fa-chevron-left"></i> Mixtures of Factor Analyzers
+              <a href="/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/" rel="next" title="Far Field Notes (2) LCMV filter and Frost's algorithm">
+                <i class="fa fa-chevron-left"></i> Far Field Notes (2) LCMV filter and Frost's algorithm
               </a>
             
           </div>
@@ -475,10 +538,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/04/15/ROS-in-Self-driving-Car-system/" rel="prev" title="ROS in Self-driving Car system">
-                ROS in Self-driving Car system <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -607,7 +666,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Fully-Convolutional-Network-FCN"><span class="nav-number">1.</span> <span class="nav-text">Fully-Convolutional-Network (FCN)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Results"><span class="nav-number">2.</span> <span class="nav-text">Results</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">3.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Signal-Model"><span class="nav-number">1.</span> <span class="nav-text">Signal Model</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MWF"><span class="nav-number">2.</span> <span class="nav-text">MWF</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MVDR"><span class="nav-number">3.</span> <span class="nav-text">MVDR</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MWF-與-MVDR-等價情形"><span class="nav-number">4.</span> <span class="nav-text">MWF 與 MVDR 等價情形</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Maximum-SNR-MSNR"><span class="nav-number">5.</span> <span class="nav-text">Maximum SNR (MSNR)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MVDR-與-MSNR-等價情形"><span class="nav-number">6.</span> <span class="nav-text">MVDR 與 MSNR 等價情形</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#結論"><span class="nav-number">6.1.</span> <span class="nav-text">結論</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">7.</span> <span class="nav-text">Reference</span></a></li></ol></div>
             
 
           </div>
