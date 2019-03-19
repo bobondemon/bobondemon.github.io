@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="MVDR,MWF," />
+  <meta name="keywords" content="MVDR,MWF,MSNR," />
 
 
 
@@ -95,7 +95,7 @@
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="這是 far field 筆記系列第三篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 Microphone Array Signal Processing Ch6 和 Speech Processing in Modern Communication: Challenges and Perspectives Ch9.3.4
 在 narrow-band 的情形下, Multi-cha">
-<meta property="og:updated_time" content="2019-03-19T12:48:37.053Z">
+<meta property="og:updated_time" content="2019-03-19T13:01:24.507Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Far Field Notes (3) Equivalence of MWF, MaxSNR, and MVDR Filters">
 <meta name="twitter:description" content="這是 far field 筆記系列第三篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 Microphone Array Signal Processing Ch6 和 Speech Processing in Modern Communication: Challenges and Perspectives Ch9.3.4
@@ -382,7 +382,7 @@
 
 <hr>
 <p>這是 far field 筆記系列第三篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 <a href="https://www.springer.com/in/book/9783540786115" target="_blank" rel="external">Microphone Array Signal Processing</a> Ch6 和 <a href="https://www.springer.com/la/book/9783642111297" target="_blank" rel="external">Speech Processing in Modern Communication: Challenges and Perspectives</a> Ch9.3.4</p>
-<p>在 narrow-band 的情形下, Multi-channel Wiener Filter (MWF), maximum SNR 和 Minimum Variance Distortionless Response (MVDR) 三者求出來的 filter 解只差在 norm 大小不同. 但反應在最後的 full-bank 行為仍然不同. 這部分可看書. 本篇主要紀錄 narrow-bank 下三者為何 equivalent. 算是書本的摘要筆記吧.</p>
+<p>在 narrow-band 的情形下, Multi-channel Wiener Filter (MWF), maximum SNR (MSNR) 和 Minimum Variance Distortionless Response (MVDR) 三者求出來的 filter 解只差在 norm 大小不同. 但反應在最後的 full-bank 行為仍然不同. 這部分可看書. 本篇主要紀錄 narrow-bank 下三者為何 equivalent. 算是書本的摘要筆記吧.</p>
 <a id="more"></a>
 <hr>
 <h3 id="Signal-Model"><a href="#Signal-Model" class="headerlink" title="Signal Model"></a>Signal Model</h3><p>在 frequency doamin 下, 我們有如下的關係</p>
@@ -425,8 +425,8 @@ J_{MWF}[\mathbf{h}(j\omega)]=\mathbb{E}\left[| \mathcal{E}(j\omega) |^2\right]\\
 \end{align}$$</span><!-- Has MathJax --></p>
 <hr>
 <h3 id="MVDR"><a href="#MVDR" class="headerlink" title="MVDR"></a>MVDR</h3><p>MVDR 要解的問題如下:<br><span>$$\min \color{orange}{ \mathbb{E}\left[| \mathcal{E}_v(j\omega) |^2\right] }\\
-\mbox{subject to } \color{blue}{\mathbb{E}\left[| \mathcal{E}_x(j\omega) |^2\right]}=0$$</span><!-- Has MathJax --> 這也可以看出 MVDR 為什麼叫 MVDR (同時這個解也是上一篇 LCMV 的形式).<br>由 (11) 知, 我們可以將 constraint 部分改寫成:<br><span>$\left[\mathbf{u}-\mathbf{h}(j\omega)\right]^H\mathbf{x}(j\omega)=0 \\$</span><!-- Has MathJax --> 並利用 $\mathbf{x}(j\omega)=S(j\omega)\mathbf{g}(j\omega)$ 可得到<br><span>$\mathbf{h}^H(j\omega)\mathbf{g}(j\omega)=G_1(j\omega)$</span><!-- Has MathJax --><br>因此 MVDR 問題的通常如下表達:<br><span>$$\min \mathbf{h}^H(j\omega) \Phi_{vv}(j\omega) \mathbf{h}(j\omega) \\
-\mbox{subject to } \mathbf{h}^H(j\omega)\mathbf{g}(j\omega)=G_1(j\omega) \\$$</span><!-- Has MathJax --><br>用 Lagrange multipliers 求解得到<br><span>$$\begin{align}
+\mbox{subject to } \color{blue}{\mathbb{E}\left[| \mathcal{E}_x(j\omega) |^2\right]}=0$$</span><!-- Has MathJax --> 這也可以看出 MVDR 為什麼叫 MVDR.<br>首先先將 constraint 改寫成 (改寫 speech distortion error term, 定義在 (11), (12)):<br><span>$\left[\mathbf{u}-\mathbf{h}(j\omega)\right]^H\mathbf{x}(j\omega)=0 \\$</span><!-- Has MathJax --> 並利用 $\mathbf{x}(j\omega)=S(j\omega)\mathbf{g}(j\omega)$ 可得到<br><span>$\mathbf{h}^H(j\omega)\mathbf{g}(j\omega)=G_1(j\omega)$</span><!-- Has MathJax --><br>因此 MVDR 問題的通常如下表達:<br><span>$$\min \mathbf{h}^H(j\omega) \Phi_{vv}(j\omega) \mathbf{h}(j\omega) \\
+\mbox{subject to } \mathbf{h}^H(j\omega)\mathbf{g}(j\omega)=G_1(j\omega) \\$$</span><!-- Has MathJax --> 這個最佳化問題正好就是上一篇的 LCMV, 所以說 MVDR 是 LCMV 的一種 case.<br>用 Lagrange multipliers 求解得到<br><span>$$\begin{align}
 \mathbf{h}_{MVDR}(j\omega)=G_1^{\ast}(j\omega)\frac{\Phi_{vv}^{-1}(j\omega)\mathbf{g}(j\omega)}{\mathbf{g}^H(j\omega)\Phi_{vv}^{-1}(j\omega)\mathbf{g}(j\omega)}
 \end{align}$$</span><!-- Has MathJax --></p>
 <p>對 (18) 進一步推導, 為了精簡以下 ${j\omega}$ 省略不寫<br><span>$$\begin{align}
@@ -517,6 +517,8 @@ J_{MWF}[\mathbf{h}(j\omega)]=\mathbb{E}\left[| \mathcal{E}(j\omega) |^2\right]\\
             <a href="/tags/MVDR/" rel="tag"># MVDR</a>
           
             <a href="/tags/MWF/" rel="tag"># MWF</a>
+          
+            <a href="/tags/MSNR/" rel="tag"># MSNR</a>
           
         </div>
       
@@ -631,7 +633,7 @@ J_{MWF}[\mathbf{h}(j\omega)]=\mathbb{E}\left[| \mathcal{E}(j\omega) |^2\right]\\
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">70</span>
+                <span class="site-state-item-count">71</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>
