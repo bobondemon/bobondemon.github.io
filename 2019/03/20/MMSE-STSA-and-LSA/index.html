@@ -93,7 +93,7 @@
 <meta property="og:url" content="http://yoursite.com/2019/03/20/MMSE-STSA-and-LSA/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="記錄一下單通道降噪的一個經典方法, MMSE-STSA, MMSE-LSA, 已經是 1984 左右的文章了. 單通道降噪 OMLSA 也從這衍生出來的. 我們先從 MMSE-STSA 說起, 全名是 minimum mean-square error short time spectral amplitude.$y(t)=x(t)+d(t),0\leq t\leq T$$x$, $d$,">
-<meta property="og:updated_time" content="2019-03-20T15:06:00.954Z">
+<meta property="og:updated_time" content="2019-03-21T13:38:15.492Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="懷舊篇, 單通道降噪, MMSE-STSA, MMSE-LSA 方法">
 <meta name="twitter:description" content="記錄一下單通道降噪的一個經典方法, MMSE-STSA, MMSE-LSA, 已經是 1984 左右的文章了. 單通道降噪 OMLSA 也從這衍生出來的. 我們先從 MMSE-STSA 說起, 全名是 minimum mean-square error short time spectral amplitude.$y(t)=x(t)+d(t),0\leq t\leq T$$x$, $d$,">
@@ -381,12 +381,13 @@
 <p>記錄一下單通道降噪的一個經典方法, MMSE-STSA, MMSE-LSA, 已經是 1984 左右的文章了. 單通道降噪 OMLSA 也從這衍生出來的. 我們先從 MMSE-STSA 說起, 全名是 minimum mean-square error short time spectral amplitude.<br><span>$y(t)=x(t)+d(t),0\leq t\leq T$</span><!-- Has MathJax --><br>$x$, $d$, $y$ 分別是 speech, noise, 和收到的 noisy signal, 其中 $x$, $d$ 相互獨立. 相對應的第 $k$ 個 frequency bin 如下:<br><span>$$X_k=A_k\exp(j\alpha_k) \\
 D_k \\
 Y_k=R_k\exp(j\theta_k)$$</span><!-- Has MathJax --></p>
+<a id="more"></a>
 <hr>
-<h3 id="MMSE-STSA-1"><a href="#MMSE-STSA-1" class="headerlink" title="MMSE-STSA [1]"></a>MMSE-STSA [1]</h3><p>目標函式為<br><span>$$\begin{align}
+<h3 id="MMSE-STSA-1"><a href="#MMSE-STSA-1" class="headerlink" title="MMSE-STSA $^{[1]}$"></a>MMSE-STSA $^{[1]}$</h3><p>目標函式為<br><span>$$\begin{align}
 \arg\min_{\hat{A}_k}{\mathbb{E}\left[\left(A_k-\hat{A}_k\right)^2\vert y(t),0\leq t\leq T\right]}
 \end{align}$$</span><!-- Has MathJax --> 最佳解為<br><span>$$\begin{align}
 \hat{A}_k=\mathbb{E}\left[A_k\vert y(t),0\leq t \leq T\right]
-\end{align}$$</span><!-- Has MathJax --> 但關鍵是我們不知道 clean speech 的 amplitude $A_k$, 那該怎麼估呢?<br><a id="more"></a></p>
+\end{align}$$</span><!-- Has MathJax --> 但關鍵是我們不知道 clean speech 的 amplitude $A_k$, 那該怎麼估呢?</p>
 <p><strong>首先我們對每個 frequency bin 的分布假設為 Gaussian distribution (complex).</strong></p>
 <blockquote>
 <p>引用原文 “Since the Fourier coefficient is, after all, a weighted sum (or integral) of random variables resulting from the random process samples”, 在一個短時的 frame 中大致上是 stationary, 因此可以看作是一個 WSS 的 ramdom process, 再加上 cental limit theorem, 就當作高斯分布吧.</p>
@@ -418,7 +419,7 @@ p(a_k,\alpha_k)=\frac{1}{\pi\lambda_x (k)}\exp\left[-\frac{a_k^2}{\lambda_x (k)}
 <p>現在就算傳統方法一般也很少使用 MMSE-STSA, 至少會使用 LSA 取代. LSA 有近似的計算方式, 因此我們也不糾結 (12) 到底怎麼算出來.</p>
 </blockquote>
 <hr>
-<h3 id="MMSE-LSA-2"><a href="#MMSE-LSA-2" class="headerlink" title="MMSE-LSA [2]"></a>MMSE-LSA [2]</h3><p>大致想法跟流程跟上面一樣(<del>只是我算不出來</del>), 只是目標函數針對 log 值來計算<br><span>$$\begin{align}
+<h3 id="MMSE-LSA-2"><a href="#MMSE-LSA-2" class="headerlink" title="MMSE-LSA $^{[2]}$"></a>MMSE-LSA $^{[2]}$</h3><p>大致想法跟流程跟上面一樣(<del>只是我算不出來</del>), 只是目標函數針對 log 值來計算<br><span>$$\begin{align}
 \arg\min_{\hat{A}_k}{\mathbb{E}\left[\left(\log A_k-\log\hat{A}_k\right)^2\vert y(t),0\leq t\leq T\right]}
 \end{align}$$</span><!-- Has MathJax --> 同樣經過不是人類的計算後得到:<br><span>$$\begin{align}
 \hat{A}_k=\frac{\xi_k}{1+\xi_k}\exp\left[\frac{1}{2}\int_{\upsilon_k}^{\infty}\frac{e^{-t}}{t}dt\right]R_k
@@ -429,7 +430,7 @@ p(a_k,\alpha_k)=\frac{1}{\pi\lambda_x (k)}\exp\left[-\frac{a_k^2}{\lambda_x (k)}
 -1.544\log_{10}(\upsilon_k)+0.166\mbox{ for }0.1\leq\upsilon_k\leq 1 \\
 10^{-(0.52\upsilon_k+0.26)}\mbox{ for }\upsilon_k&gt;1 \\
 \end{array}\right.
-\end{align}$$</span><!-- Has MathJax --> 另外還有 optimally-modified log-spectral amplitude (OMLSA) [4] 方法, 作者有提供 MATLAB codes. 這算後單通道降噪標配了, 但實驗結果對聽覺有幫助, 對 WER 不一定降低. 總之不管哪一種方法, 都必須很好的估出 prior/posterior SNR.</p>
+\end{align}$$</span><!-- Has MathJax --> 另外還有 optimally-modified log-spectral amplitude (OMLSA) [4] 方法, 作者有提供 MATLAB codes. 這算後單通道降噪標配了, 但實驗結果對聽覺有幫助, 對 WER 不一定降低. 總之不管哪一種方法, 都必須很好的估出 prior / posterior SNR.</p>
 <hr>
 <h3 id="MCRA-Prior-Posterior-SNR-估計"><a href="#MCRA-Prior-Posterior-SNR-估計" class="headerlink" title="MCRA Prior/Posterior SNR 估計"></a>MCRA Prior/Posterior SNR 估計</h3><p>待續…</p>
 <hr>
@@ -639,7 +640,7 @@ p(a_k,\alpha_k)=\frac{1}{\pi\lambda_x (k)}\exp\left[-\frac{a_k^2}{\lambda_x (k)}
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#MMSE-STSA-1"><span class="nav-number">1.</span> <span class="nav-text">MMSE-STSA [1]</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MMSE-LSA-2"><span class="nav-number">2.</span> <span class="nav-text">MMSE-LSA [2]</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MCRA-Prior-Posterior-SNR-估計"><span class="nav-number">3.</span> <span class="nav-text">MCRA Prior/Posterior SNR 估計</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">4.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#MMSE-STSA-1"><span class="nav-number">1.</span> <span class="nav-text">MMSE-STSA $^{[1]}$</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MMSE-LSA-2"><span class="nav-number">2.</span> <span class="nav-text">MMSE-LSA $^{[2]}$</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MCRA-Prior-Posterior-SNR-估計"><span class="nav-number">3.</span> <span class="nav-text">MCRA Prior/Posterior SNR 估計</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">4.</span> <span class="nav-text">Reference</span></a></li></ol></div>
             
 
           </div>

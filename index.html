@@ -383,12 +383,6 @@
 <p>記錄一下單通道降噪的一個經典方法, MMSE-STSA, MMSE-LSA, 已經是 1984 左右的文章了. 單通道降噪 OMLSA 也從這衍生出來的. 我們先從 MMSE-STSA 說起, 全名是 minimum mean-square error short time spectral amplitude.<br><span>$y(t)=x(t)+d(t),0\leq t\leq T$</span><!-- Has MathJax --><br>$x$, $d$, $y$ 分別是 speech, noise, 和收到的 noisy signal, 其中 $x$, $d$ 相互獨立. 相對應的第 $k$ 個 frequency bin 如下:<br><span>$$X_k=A_k\exp(j\alpha_k) \\
 D_k \\
 Y_k=R_k\exp(j\theta_k)$$</span><!-- Has MathJax --></p>
-<hr>
-<h3 id="MMSE-STSA-1"><a href="#MMSE-STSA-1" class="headerlink" title="MMSE-STSA [1]"></a>MMSE-STSA [1]</h3><p>目標函式為<br><span>$$\begin{align}
-\arg\min_{\hat{A}_k}{\mathbb{E}\left[\left(A_k-\hat{A}_k\right)^2\vert y(t),0\leq t\leq T\right]}
-\end{align}$$</span><!-- Has MathJax --> 最佳解為<br><span>$$\begin{align}
-\hat{A}_k=\mathbb{E}\left[A_k\vert y(t),0\leq t \leq T\right]
-\end{align}$$</span><!-- Has MathJax --> 但關鍵是我們不知道 clean speech 的 amplitude $A_k$, 那該怎麼估呢?<br></p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2019/03/20/MMSE-STSA-and-LSA/#more" rel="contents">
