@@ -93,7 +93,7 @@
 <meta property="og:url" content="http://yoursite.com/2019/03/20/MMSE-STSA-and-LSA/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="記錄一下單通道降噪的一個經典方法, MMSE-STSA, MMSE-LSA, 已經是 1984 左右的文章了. 單通道降噪 OMLSA 也從這衍生出來的. 我們先從 MMSE-STSA 說起, 全名是 minimum mean-square error short time spectral amplitude.$y(t)=x(t)+d(t),0\leq t\leq T$$x$, $d$,">
-<meta property="og:updated_time" content="2019-03-21T13:38:15.492Z">
+<meta property="og:updated_time" content="2019-03-22T14:52:10.339Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="懷舊篇, 單通道降噪, MMSE-STSA, MMSE-LSA 方法">
 <meta name="twitter:description" content="記錄一下單通道降噪的一個經典方法, MMSE-STSA, MMSE-LSA, 已經是 1984 左右的文章了. 單通道降噪 OMLSA 也從這衍生出來的. 我們先從 MMSE-STSA 說起, 全名是 minimum mean-square error short time spectral amplitude.$y(t)=x(t)+d(t),0\leq t\leq T$$x$, $d$,">
@@ -430,9 +430,24 @@ p(a_k,\alpha_k)=\frac{1}{\pi\lambda_x (k)}\exp\left[-\frac{a_k^2}{\lambda_x (k)}
 -1.544\log_{10}(\upsilon_k)+0.166\mbox{ for }0.1\leq\upsilon_k\leq 1 \\
 10^{-(0.52\upsilon_k+0.26)}\mbox{ for }\upsilon_k&gt;1 \\
 \end{array}\right.
-\end{align}$$</span><!-- Has MathJax --> 另外還有 optimally-modified log-spectral amplitude (OMLSA) [4] 方法, 作者有提供 MATLAB codes. 這算後單通道降噪標配了, 但實驗結果對聽覺有幫助, 對 WER 不一定降低. 總之不管哪一種方法, 都必須很好的估出 prior / posterior SNR.</p>
+\end{align}$$</span><!-- Has MathJax --> 另外還有 optimally-modified log-spectral amplitude (OMLSA) [4] 方法, 作者有提供 MATLAB codes. 這算單通道降噪標配了, 但實驗結果對聽覺有幫助, 對 WER 不一定降低. 總之不管哪一種方法, 都必須很好的估出 prior and posterior SNR.</p>
 <hr>
-<h3 id="MCRA-Prior-Posterior-SNR-估計"><a href="#MCRA-Prior-Posterior-SNR-估計" class="headerlink" title="MCRA Prior/Posterior SNR 估計"></a>MCRA Prior/Posterior SNR 估計</h3><p>待續…</p>
+<h3 id="MCRA-Prior-Posterior-SNR-估計"><a href="#MCRA-Prior-Posterior-SNR-估計" class="headerlink" title="MCRA Prior/Posterior SNR 估計"></a>MCRA Prior/Posterior SNR 估計</h3><p>針對 STFT 時間 $l$, frequency bin $k$ 來說, 假設我們已估出來 speech presence probability $p(k,l)$, 我們可以這麼 update noise 的 variance:<br><span>$$\begin{align}
+\hat{\lambda}_d(k,l+1)=\hat{\lambda}_d(k,l)p(k,l)+\left[\alpha_d\hat{\lambda}_d(k,l)+(1-\alpha_d)|Y(k,l)|^2\right](1-p(k,l))
+\end{align}$$</span><!-- Has MathJax --> 這很好理解, 如果有 speech 的話, noise variance 就沿用原來舊的, 而如果沒有 speech, nosie vaiance 就要用當前 frame 透過 $\alpha_d$ 平滑地更新一下 (就稱這樣的平滑為 $\alpha$ 平滑).</p>
+<p>估計 $p(k,l)$ 之前, 文章的做法是都先針對 time and frequency 做平滑. frequency 可選用一個 window (可用類似 Gaussian window), 而時間上的平滑可使用 $\alpha$ 平滑. 令 $S(k,l)$ 為我們平滑後的 spectrum power, 然後對每個 bin 都 tracking 一小段時間的最小值, 令為 $S’(k,l)$. 則很明顯如果 $S(k,l)&gt;\delta S’(k,l)$, 我們就可以認為有 speech, 機率為 1, 否則為 0. 這樣的 speech 機率過了 $\alpha$ 平滑的結果就是 $p(k,l)$. 明確一點寫下為:<br><span>$$\begin{align}
+p(k,l)=\alpha_p p(k,l-1)+(1-\alpha_p)\mathbf{I}[S(k,l)&gt;\delta S&apos;(k,l)]
+\end{align}$$</span><!-- Has MathJax --> 其中 $\mathbf{I}[.]$ 為 indicator function</p>
+<hr>
+<h3 id="MCRA-有哪些調整的參數"><a href="#MCRA-有哪些調整的參數" class="headerlink" title="MCRA 有哪些調整的參數"></a>MCRA 有哪些調整的參數</h3><p>實際情形有一些需要調整的參數, 列在下面</p>
+<ul>
+<li>$\alpha_d$: noise variance smoothing</li>
+<li>$\alpha_p$: speech probability smoothing</li>
+<li>STFT 的 time and frequency smoothing 參數</li>
+<li>$\delta$: 判斷當前 frame and bin 是否為 speech 的 threshold</li>
+<li>tracking minimal power $S’(k,l)$ 的參數, 譬如要用多少個 frame 來找 minimum</li>
+</ul>
+<p>待做些實驗才會知道效果…</p>
 <hr>
 <h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
 <li><a href="">Speech Enhancement Using a Minimum Mean-Square Error Short-Time Spectral Amplitude Estimator</a> by Yariv Ephraim and David Malah</li>
@@ -640,7 +655,7 @@ p(a_k,\alpha_k)=\frac{1}{\pi\lambda_x (k)}\exp\left[-\frac{a_k^2}{\lambda_x (k)}
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#MMSE-STSA-1"><span class="nav-number">1.</span> <span class="nav-text">MMSE-STSA $^{[1]}$</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MMSE-LSA-2"><span class="nav-number">2.</span> <span class="nav-text">MMSE-LSA $^{[2]}$</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MCRA-Prior-Posterior-SNR-估計"><span class="nav-number">3.</span> <span class="nav-text">MCRA Prior/Posterior SNR 估計</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">4.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#MMSE-STSA-1"><span class="nav-number">1.</span> <span class="nav-text">MMSE-STSA $^{[1]}$</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MMSE-LSA-2"><span class="nav-number">2.</span> <span class="nav-text">MMSE-LSA $^{[2]}$</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MCRA-Prior-Posterior-SNR-估計"><span class="nav-number">3.</span> <span class="nav-text">MCRA Prior/Posterior SNR 估計</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MCRA-有哪些調整的參數"><span class="nav-number">4.</span> <span class="nav-text">MCRA 有哪些調整的參數</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">5.</span> <span class="nav-text">Reference</span></a></li></ol></div>
             
 
           </div>
