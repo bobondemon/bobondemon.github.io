@@ -97,7 +97,7 @@
 上一篇最後雖然使用 fixed beamformer 得到了 response-invariant beamformer, 但這個方法限制是 filter 一旦設計好就寫死了, 沒">
 <meta property="og:image" content="http://yoursite.com/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/frost-structure.png">
 <meta property="og:image" content="http://yoursite.com/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/varOrder.png">
-<meta property="og:updated_time" content="2019-03-06T14:44:08.821Z">
+<meta property="og:updated_time" content="2019-04-12T13:11:09.946Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Far Field Notes (2) LCMV filter and Frost's algorithm">
 <meta name="twitter:description" content="這是 far field 筆記系列第二篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 Microphone Array Signal Processing Ch4 和 Frost’s algorithm
@@ -389,7 +389,7 @@
 <p>如同 LCMV 字面上的意思一樣. 會將整個問題轉換成 minimize variance subject to some linear constraints. 另外相當經典的 Frost’s beamformer (1972年呢!) 則將 filter 的 optimal 求解改成使用 stochastic gradient descent 方式, 所以非常適合實際的 real time 系統, 這些下文會詳細說明.</p>
 <a id="more"></a>
 <hr>
-<h3 id="架構設定和-Signal-Model"><a href="#架構設定和-Signal-Model" class="headerlink" title="架構設定和 Signal Model"></a>架構設定和 Signal Model</h3><p>架構如下圖 (圖片來源:<a href="http://www.labbookpages.co.uk/audio/beamforming/frost.html" target="_blank" rel="external">ref</a>), 第一步是一個 delay stage, 這相當於是針對一個 steering direction 補償每個 mic 之間的 time delay (訊號對齊好). 第二步才是 beamformer, 我們知道 time domain 使用 delay-and-sum 架構, 如果是 frequency domain 則使用拆頻的架構. 忘了可參考<a href="https://bobondemon.github.io/2019/02/26/Far-Field-Notes-1-Beampattern/" target="_blank" rel="external">第一篇</a>.</p>
+<h3 id="架構設定和-Signal-Model"><a href="#架構設定和-Signal-Model" class="headerlink" title="架構設定和 Signal Model"></a>架構設定和 Signal Model</h3><p>架構如下圖 (圖片來源:<a href="http://www.labbookpages.co.uk/audio/beamforming/frost.html" target="_blank" rel="external">ref</a>), 第一步是一個 delay stage, 這相當於是針對一個 steering direction 補償每個 mic 之間的 time delay (訊號對齊好). 第二步才是 beamformer, 我們知道 time domain 使用 filter-and-sum 架構, 如果是 frequency domain 則使用拆頻的架構. 忘了可參考<a href="https://bobondemon.github.io/2019/02/26/Far-Field-Notes-1-Beampattern/" target="_blank" rel="external">第一篇</a>.</p>
 <p><img src="/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/frost-structure.png" width="80%" height="80%"></p>
 <p>本文以 filter-and-sum 來筆記, 另外 signal model 以下推導將會使用 anechoic model, <a href="https://bobondemon.github.io/2019/02/26/Far-Field-Notes-1-Beampattern/" target="_blank" rel="external">第一篇</a>有定義可回去查閱. 同時本文接下來的 notation 會與圖中的不同. 上圖只是用來顯示 filter-and-sum 架構.</p>
 <hr>
@@ -407,7 +407,7 @@
 \end{align}$$</span><!-- Has MathJax -->所以整體的 signal model 改寫 (1) 後可得:<br><span>$$\begin{align}
 \mathbf{y}_{NL}(k)=\mathbf{x}_{NL}(k) + \mathbf{v}_{NL}(k)
 \end{align}$$</span><!-- Has MathJax --></p>
-<p>Delay-and-sum 的 filter $\mathbf{h}$ 也用這個順序定義如下, 因此是一個長度為 $NL$ 的向量<br><span>$$\begin{align}
+<p>Filter-and-sum 的 filter $\mathbf{h}$ 也用這個順序定義如下, 因此是一個長度為 $NL$ 的向量<br><span>$$\begin{align}
 \mathbf{h}=[\mathbf{h}_0^T, \mathbf{h}_1^T, \mathbf{h}_{L-1}^T]^T
 \end{align}$$</span><!-- Has MathJax --><br>最後整個 beamformer 的輸出 $z(k)$ 就可以這麼寫<br><span>$$\begin{align}
 z(k)=\mathbf{h}^T\mathbf{y}_{NL}(k) =
@@ -540,7 +540,7 @@ u_{L-1}\cdot s(k-L+1)
 \mathbf{h}_{0} = \mathbf{A}
 \end{align}$$</span><!-- Has MathJax --></p>
 <hr>
-<h3 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h3><p>本篇記錄了 delay-and-sum 架構的 beamformer, LCMV 的問題和其最佳解. LCMV 可以針對給定的一個方向, 找出 filter $\mathbf{h}$ 使得抽取看的方向的訊號同時壓抑其他方向的訊號.<br>實作上直接套用最佳解太慢不可行, 而 Frost’s algorithm 提供了一個 stochastic gradeint update 方法更新 $\mathbf{h}$, 這使得 real-time system 變得可行.</p>
+<h3 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h3><p>本篇記錄了 filter-and-sum 架構的 beamformer, LCMV 的問題和其最佳解. LCMV 可以針對給定的一個方向, 找出 filter $\mathbf{h}$ 使得抽取看的方向的訊號同時壓抑其他方向的訊號.<br>實作上直接套用最佳解太慢不可行, 而 Frost’s algorithm 提供了一個 stochastic gradeint update 方法更新 $\mathbf{h}$, 這使得 real-time system 變得可行.</p>
 <hr>
 <h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
 <li><a href="https://www.springer.com/in/book/9783540786115" target="_blank" rel="external">Microphone Array Signal Processing</a> by Jocab Benesty</li>
