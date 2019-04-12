@@ -1,0 +1,911 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="CGMM,Spatial," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="這是 far field 筆記系列第四篇, 寫這篇是因為做 CGMM-MVDR 時, 很好奇為何 spatial features 聚類的結果可以對應不同方向的聲源. 因此記錄下自己想法和一點實驗結論.
+假設我們有 $M$ 個麥克風, 則在 stft (short-time fourier transform) 上來說, $\mathbf{f}_{\omega,t}$ 表示一個頻率 $\o">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Far Field Notes (4) How Spatial Feature Clusters">
+<meta property="og:url" content="http://yoursite.com/2019/04/12/Far-Field-Notes-4-How-Spatial-Feature-Clusters/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="這是 far field 筆記系列第四篇, 寫這篇是因為做 CGMM-MVDR 時, 很好奇為何 spatial features 聚類的結果可以對應不同方向的聲源. 因此記錄下自己想法和一點實驗結論.
+假設我們有 $M$ 個麥克風, 則在 stft (short-time fourier transform) 上來說, $\mathbf{f}_{\omega,t}$ 表示一個頻率 $\o">
+<meta property="og:image" content="http://yoursite.com/2019/04/12/Far-Field-Notes-4-How-Spatial-Feature-Clusters/CircularlySymmetricGaussian.png">
+<meta property="og:updated_time" content="2019-04-12T14:46:33.994Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Far Field Notes (4) How Spatial Feature Clusters">
+<meta name="twitter:description" content="這是 far field 筆記系列第四篇, 寫這篇是因為做 CGMM-MVDR 時, 很好奇為何 spatial features 聚類的結果可以對應不同方向的聲源. 因此記錄下自己想法和一點實驗結論.
+假設我們有 $M$ 個麥克風, 則在 stft (short-time fourier transform) 上來說, $\mathbf{f}_{\omega,t}$ 表示一個頻率 $\o">
+<meta name="twitter:image" content="http://yoursite.com/2019/04/12/Far-Field-Notes-4-How-Spatial-Feature-Clusters/CircularlySymmetricGaussian.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/04/12/Far-Field-Notes-4-How-Spatial-Feature-Clusters/"/>
+
+
+
+
+
+  <title> Far Field Notes (4) How Spatial Feature Clusters | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/12/Far-Field-Notes-4-How-Spatial-Feature-Clusters/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Far Field Notes (4) How Spatial Feature Clusters
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2019-04-12T21:36:17+08:00">
+                2019-04-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SP/" itemprop="url" rel="index">
+                    <span itemprop="name">SP</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2019/04/12/Far-Field-Notes-4-How-Spatial-Feature-Clusters/" class="leancloud_visitors" data-flag-title="Far Field Notes (4) How Spatial Feature Clusters">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">閱讀次數 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>這是 far field 筆記系列第四篇, 寫這篇是因為做 CGMM-MVDR 時, 很好奇為何 spatial features 聚類的結果可以對應不同方向的聲源. 因此記錄下自己想法和一點實驗結論.</p>
+<p>假設我們有 $M$ 個麥克風, 則在 stft (short-time fourier transform) 上來說, $\mathbf{f}_{\omega,t}$ 表示一個頻率 $\omega$, 時間 $t$ 的 $M$ 維向量. 對於某一個 $\theta$ 方向的 narrowband 訊號, ideally 我們可以這麼表示</p>
+<span>$$\begin{align}
+\mathbf{f}_{\omega,t}^{\theta}=f(\omega)\mathbf{\upsilon}(\theta)=f(\omega)
+\left[
+\begin{array}{clr}
+e^{-j\omega\tau_0} \\
+e^{-j\omega\tau_1} \\
+\vdots \\
+e^{-j\omega\tau_{M-1}}
+\end{array}
+\right]
+\end{align}$$</span><!-- Has MathJax -->
+<a id="more"></a>
+<p>$\tau_i$ 表示由 $\theta$ 產生的第 $i$ 個 mic 的 time delay. 因此 <strong>spatial feature 每個維度之間的 phase offset 關係是固定的</strong>, 由 $\mathbf{\upsilon}(\theta)$ 決定. 所有如果有兩個方向 $\theta_1$ and $\theta_2$ 的聲源, phase offset 關係各自是 $\mathbf{\upsilon}(\theta_1)$ 和 $\mathbf{\upsilon}(\theta_2)$. 問題是要用什麼樣的 cluster 能對相同 phase offset 關係的 complex vector 聚類在一起, 而對不同 phase offset 關係能分開呢?</p>
+<p>關鍵的答案就是 <strong><a href="https://www.ee.iitb.ac.in/~sarva/courses/EE703/2013/Slides/CircularlySymmetricGaussian.pdf" target="_blank" rel="external">Circularly Symmetric Gaussian Distribution</a></strong></p>
+<hr>
+<h3 id="Circularly-Symmetric-Gaussian-Distribution"><a href="#Circularly-Symmetric-Gaussian-Distribution" class="headerlink" title="Circularly Symmetric Gaussian Distribution"></a>Circularly Symmetric Gaussian Distribution</h3><p>直接引用 slides 裡的一段定義</p>
+<blockquote>
+<p>A complex Gaussian random vector $Z$ is circularly symmetric if $e^{j\phi}Z$ has the same distribution as $Z$ for all real $\phi$.</p>
+</blockquote>
+<p>意思就是如果我們乘上固定的 phase offset $\phi$ (聲源有 time delay), 這相當於不改變維度之間的 phase offset 關係 (不改變聲源方向 $\theta$), 這樣的話它們會是同一個機率分佈, 而這種特性完全符合我們的需求!</p>
+<p>我們直接擷取 slide 中的 Circularly Symmetric Gaussian Distribution 的定義:</p>
+<p><img src="/2019/04/12/Far-Field-Notes-4-How-Spatial-Feature-Clusters/CircularlySymmetricGaussian.png" width="80%" height="70%"></p>
+<p>詳細請見 [1] 的 slides.</p>
+<hr>
+<h3 id="實驗驗證"><a href="#實驗驗證" class="headerlink" title="實驗驗證"></a>實驗驗證</h3><p>使用 CGMM 對真實錄製的 6mics 訊號實驗, 想法是這樣: 如果我們改變 phase offset 的關係, 則求出來的 covariance matrix $R$ 應該會跟原來有很大的差異. 而如果我們只是乘上固定的 phase offset $\phi$, 這樣的話不改變 phase offset 關係, 則 $R$ 應該不會有太大的變化. stft 的 phase offset 程式碼片段如下:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># ========== [Experiment]: multiply exp(-jw)</span></div><div class="line"><span class="comment"># Random shift w.r.t. channels: Can be regarded as changing the sound direction</span></div><div class="line"><span class="comment"># Change R significantly! means that we got different distributions!</span></div><div class="line">rand_scale = <span class="number">1.23</span></div><div class="line">stft_rand_shift = np.array(stft_mat)</div><div class="line"><span class="keyword">for</span> c <span class="keyword">in</span> range(ch_num):</div><div class="line">  stft_rand_shift[c,...] = stft_mat[c,...]*np.exp(-np.random.rand()*rand_scale*<span class="number">1.0j</span>)</div><div class="line"></div><div class="line"><span class="comment"># Constant shift to all channels: This means that we mantian the sound direction</span></div><div class="line"><span class="comment"># Doesn't change R! means that we still have the same distribution!</span></div><div class="line">const_scale = <span class="number">1.23</span></div><div class="line">stft_const_shift = stft_mat*np.exp(-const_scale*<span class="number">1.0j</span>)</div><div class="line"><span class="comment"># ========== [END Experiment]</span></div></pre></td></tr></table></figure>
+<p>驗證了幾組 <code>rand_scale</code> 和 <code>const_scale</code>, 發現都有如上的推論.</p>
+<hr>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
+<li><a href="https://www.ee.iitb.ac.in/~sarva/courses/EE703/2013/Slides/CircularlySymmetricGaussian.pdf" target="_blank" rel="external">Circularly Symmetric Gaussian Random Vectors</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2019/04/12/Far-Field-Notes-4-How-Spatial-Feature-Clusters/" title="Far Field Notes (4) How Spatial Feature Clusters">http://yoursite.com/2019/04/12/Far-Field-Notes-4-How-Spatial-Feature-Clusters/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/CGMM/" rel="tag"># CGMM</a>
+          
+            <a href="/tags/Spatial/" rel="tag"># Spatial</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/20/MMSE-STSA-and-LSA/" rel="next" title="懷舊篇, 單通道降噪, MMSE-STSA, MMSE-LSA 方法">
+                <i class="fa fa-chevron-left"></i> 懷舊篇, 單通道降噪, MMSE-STSA, MMSE-LSA 方法
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">44</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Circularly-Symmetric-Gaussian-Distribution"><span class="nav-number">1.</span> <span class="nav-text">Circularly Symmetric Gaussian Distribution</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#實驗驗證"><span class="nav-number">2.</span> <span class="nav-text">實驗驗證</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">3.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("7mUJ3jkWeU7Rh7soYrUvDcuh-gzGzoHsz", "SWNPybUfqj8qALtwiKRiv7Rh");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
