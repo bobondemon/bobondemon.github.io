@@ -380,7 +380,7 @@
 </script>
 
 <hr>
-<p>這是 far field 筆記系列第四篇, 寫這篇是因為做 CGMM-MVDR 時, 很好奇為何 spatial features 聚類的結果可以對應不同方向的聲源. 因此記錄下自己想法和一點實驗結論.</p>
+<p>這是 far field 筆記系列第四篇, 寫這篇是因為做 CGMM-MVDR 時, 很好奇為何 spatial features 聚類的結果可以對應不同方向的聲源. 因此記錄下自己的一點想法.</p>
 <p>假設我們有 $M$ 個麥克風, 則在 stft (short-time fourier transform) 上來說, $\mathbf{f}_{\omega,t}$ 表示一個頻率 $\omega$, 時間 $t$ 的 $M$ 維向量. 對於某一個 $\theta$ 方向的 narrowband 訊號, ideally 我們可以這麼表示</p>
 <span>$$\begin{align}
 \mathbf{f}_{\omega,t}^{\theta}=f(\omega)\mathbf{\upsilon}(\theta)=f(\omega)

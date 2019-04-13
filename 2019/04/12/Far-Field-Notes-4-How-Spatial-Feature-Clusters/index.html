@@ -87,20 +87,20 @@
 
 
 
-<meta name="description" content="這是 far field 筆記系列第四篇, 寫這篇是因為做 CGMM-MVDR 時, 很好奇為何 spatial features 聚類的結果可以對應不同方向的聲源. 因此記錄下自己想法和一點實驗結論.
-假設我們有 $M$ 個麥克風, 則在 stft (short-time fourier transform) 上來說, $\mathbf{f}_{\omega,t}$ 表示一個頻率 $\o">
+<meta name="description" content="這是 far field 筆記系列第四篇, 寫這篇是因為做 CGMM-MVDR 時, 很好奇為何 spatial features 聚類的結果可以對應不同方向的聲源. 因此記錄下自己的一點想法.
+假設我們有 $M$ 個麥克風, 則在 stft (short-time fourier transform) 上來說, $\mathbf{f}_{\omega,t}$ 表示一個頻率 $\omega">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Far Field Notes (4) How Spatial Feature Clusters">
 <meta property="og:url" content="http://yoursite.com/2019/04/12/Far-Field-Notes-4-How-Spatial-Feature-Clusters/index.html">
 <meta property="og:site_name" content="棒棒生">
-<meta property="og:description" content="這是 far field 筆記系列第四篇, 寫這篇是因為做 CGMM-MVDR 時, 很好奇為何 spatial features 聚類的結果可以對應不同方向的聲源. 因此記錄下自己想法和一點實驗結論.
-假設我們有 $M$ 個麥克風, 則在 stft (short-time fourier transform) 上來說, $\mathbf{f}_{\omega,t}$ 表示一個頻率 $\o">
+<meta property="og:description" content="這是 far field 筆記系列第四篇, 寫這篇是因為做 CGMM-MVDR 時, 很好奇為何 spatial features 聚類的結果可以對應不同方向的聲源. 因此記錄下自己的一點想法.
+假設我們有 $M$ 個麥克風, 則在 stft (short-time fourier transform) 上來說, $\mathbf{f}_{\omega,t}$ 表示一個頻率 $\omega">
 <meta property="og:image" content="http://yoursite.com/2019/04/12/Far-Field-Notes-4-How-Spatial-Feature-Clusters/CircularlySymmetricGaussian.png">
-<meta property="og:updated_time" content="2019-04-12T14:46:33.994Z">
+<meta property="og:updated_time" content="2019-04-13T13:10:19.841Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Far Field Notes (4) How Spatial Feature Clusters">
-<meta name="twitter:description" content="這是 far field 筆記系列第四篇, 寫這篇是因為做 CGMM-MVDR 時, 很好奇為何 spatial features 聚類的結果可以對應不同方向的聲源. 因此記錄下自己想法和一點實驗結論.
-假設我們有 $M$ 個麥克風, 則在 stft (short-time fourier transform) 上來說, $\mathbf{f}_{\omega,t}$ 表示一個頻率 $\o">
+<meta name="twitter:description" content="這是 far field 筆記系列第四篇, 寫這篇是因為做 CGMM-MVDR 時, 很好奇為何 spatial features 聚類的結果可以對應不同方向的聲源. 因此記錄下自己的一點想法.
+假設我們有 $M$ 個麥克風, 則在 stft (short-time fourier transform) 上來說, $\mathbf{f}_{\omega,t}$ 表示一個頻率 $\omega">
 <meta name="twitter:image" content="http://yoursite.com/2019/04/12/Far-Field-Notes-4-How-Spatial-Feature-Clusters/CircularlySymmetricGaussian.png">
 
 
@@ -383,7 +383,7 @@
 </script>
 
 <hr>
-<p>這是 far field 筆記系列第四篇, 寫這篇是因為做 CGMM-MVDR 時, 很好奇為何 spatial features 聚類的結果可以對應不同方向的聲源. 因此記錄下自己想法和一點實驗結論.</p>
+<p>這是 far field 筆記系列第四篇, 寫這篇是因為做 CGMM-MVDR 時, 很好奇為何 spatial features 聚類的結果可以對應不同方向的聲源. 因此記錄下自己的一點想法.</p>
 <p>假設我們有 $M$ 個麥克風, 則在 stft (short-time fourier transform) 上來說, $\mathbf{f}_{\omega,t}$ 表示一個頻率 $\omega$, 時間 $t$ 的 $M$ 維向量. 對於某一個 $\theta$ 方向的 narrowband 訊號, ideally 我們可以這麼表示</p>
 <span>$$\begin{align}
 \mathbf{f}_{\omega,t}^{\theta}=f(\omega)\mathbf{\upsilon}(\theta)=f(\omega)
@@ -408,10 +408,6 @@ e^{-j\omega\tau_{M-1}}
 <p>我們直接擷取 slide 中的 Circularly Symmetric Gaussian Distribution 的定義:</p>
 <p><img src="/2019/04/12/Far-Field-Notes-4-How-Spatial-Feature-Clusters/CircularlySymmetricGaussian.png" width="80%" height="70%"></p>
 <p>詳細請見 [1] 的 slides.</p>
-<hr>
-<h3 id="實驗驗證"><a href="#實驗驗證" class="headerlink" title="實驗驗證"></a>實驗驗證</h3><p>使用 CGMM 對真實錄製的 6mics 訊號實驗, 想法是這樣: 如果我們改變 phase offset 的關係, 則求出來的 covariance matrix $R$ 應該會跟原來有很大的差異. 而如果我們只是乘上固定的 phase offset $\phi$, 這樣的話不改變 phase offset 關係, 則 $R$ 應該不會有太大的變化. stft 的 phase offset 程式碼片段如下:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># ========== [Experiment]: multiply exp(-jw)</span></div><div class="line"><span class="comment"># Random shift w.r.t. channels: Can be regarded as changing the sound direction</span></div><div class="line"><span class="comment"># Change R significantly! means that we got different distributions!</span></div><div class="line">rand_scale = <span class="number">1.23</span></div><div class="line">stft_rand_shift = np.array(stft_mat)</div><div class="line"><span class="keyword">for</span> c <span class="keyword">in</span> range(ch_num):</div><div class="line">  stft_rand_shift[c,...] = stft_mat[c,...]*np.exp(-np.random.rand()*rand_scale*<span class="number">1.0j</span>)</div><div class="line"></div><div class="line"><span class="comment"># Constant shift to all channels: This means that we mantian the sound direction</span></div><div class="line"><span class="comment"># Doesn't change R! means that we still have the same distribution!</span></div><div class="line">const_scale = <span class="number">1.23</span></div><div class="line">stft_const_shift = stft_mat*np.exp(-const_scale*<span class="number">1.0j</span>)</div><div class="line"><span class="comment"># ========== [END Experiment]</span></div></pre></td></tr></table></figure>
-<p>驗證了幾組 <code>rand_scale</code> 和 <code>const_scale</code>, 發現都有如上的推論.</p>
 <hr>
 <h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
 <li><a href="https://www.ee.iitb.ac.in/~sarva/courses/EE703/2013/Slides/CircularlySymmetricGaussian.pdf" target="_blank" rel="external">Circularly Symmetric Gaussian Random Vectors</a></li>
@@ -612,7 +608,7 @@ e^{-j\omega\tau_{M-1}}
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Circularly-Symmetric-Gaussian-Distribution"><span class="nav-number">1.</span> <span class="nav-text">Circularly Symmetric Gaussian Distribution</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#實驗驗證"><span class="nav-number">2.</span> <span class="nav-text">實驗驗證</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">3.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Circularly-Symmetric-Gaussian-Distribution"><span class="nav-number">1.</span> <span class="nav-text">Circularly Symmetric Gaussian Distribution</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">2.</span> <span class="nav-text">Reference</span></a></li></ol></div>
             
 
           </div>
