@@ -89,7 +89,7 @@
 
 <meta name="description" content="上一篇說明了 time domain 的 adaptive filters, 由於是 sample-by-sample 處理, 因此太慢了不可用, 真正可用的都是基於 frequency domain. 不過在深入之前, 一定要先了解 convolution 在 input 為 block-by-block 的情況下如何加速. 本文內容主要參考 Partitioned convolutio">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Adaptive Filters 簡介 (2) Fast Convolution">
+<meta property="og:title" content="Adaptive Filters 簡介 (2) Fast Convolution and Frequency Domain">
 <meta property="og:url" content="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="上一篇說明了 time domain 的 adaptive filters, 由於是 sample-by-sample 處理, 因此太慢了不可用, 真正可用的都是基於 frequency domain. 不過在深入之前, 一定要先了解 convolution 在 input 為 block-by-block 的情況下如何加速. 本文內容主要參考 Partitioned convolutio">
@@ -103,9 +103,9 @@
 <meta property="og:image" content="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/fast_conv_ols.png">
 <meta property="og:image" content="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/FDAF.png">
 <meta property="og:image" content="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/upols.png">
-<meta property="og:updated_time" content="2019-06-09T13:51:36.477Z">
+<meta property="og:updated_time" content="2019-06-09T14:02:36.291Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Adaptive Filters 簡介 (2) Fast Convolution">
+<meta name="twitter:title" content="Adaptive Filters 簡介 (2) Fast Convolution and Frequency Domain">
 <meta name="twitter:description" content="上一篇說明了 time domain 的 adaptive filters, 由於是 sample-by-sample 處理, 因此太慢了不可用, 真正可用的都是基於 frequency domain. 不過在深入之前, 一定要先了解 convolution 在 input 為 block-by-block 的情況下如何加速. 本文內容主要參考 Partitioned convolutio">
 <meta name="twitter:image" content="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/classes_of_convolution_algo.png">
 
@@ -141,7 +141,7 @@
 
 
 
-  <title> Adaptive Filters 簡介 (2) Fast Convolution | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  <title> Adaptive Filters 簡介 (2) Fast Convolution and Frequency Domain | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
@@ -301,7 +301,7 @@
             
             
               
-                Adaptive Filters 簡介 (2) Fast Convolution
+                Adaptive Filters 簡介 (2) Fast Convolution and Frequency Domain
               
             
           </h1>
@@ -356,7 +356,7 @@
 
           
           
-             <span id="/2019/06/08/Adaptive-Filters-Notes-2/" class="leancloud_visitors" data-flag-title="Adaptive Filters 簡介 (2) Fast Convolution">
+             <span id="/2019/06/08/Adaptive-Filters-Notes-2/" class="leancloud_visitors" data-flag-title="Adaptive Filters 簡介 (2) Fast Convolution and Frequency Domain">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -466,7 +466,7 @@
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/" title="Adaptive Filters 簡介 (2) Fast Convolution">http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/</a>
+      <a href="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/" title="Adaptive Filters 簡介 (2) Fast Convolution and Frequency Domain">http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>
