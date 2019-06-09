@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="AEC,LMS,NLMS,PBFDAF," />
+  <meta name="keywords" content="Adaptive Filters,AEC,LMS,NLMS," />
 
 
 
@@ -87,22 +87,25 @@
 
 
 
-<meta name="description" content="粗略筆記 time domain adaptive filters, frequency domain adaptive filters 會在下一篇筆記. 應用以 Acoustic Echo Cancellation (AEC) 來說明.">
+<meta name="description" content="粗略筆記 time domain adaptive filters, frequency domain adaptive filters 會在下一篇筆記. 應用以 Acoustic Echo Cancellation (AEC) 來說明.
+Motivation直接使用 wiki. AEC 要解決的是如下的情形">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Adaptive Filters 簡介 (1) Time Domain">
 <meta property="og:url" content="http://yoursite.com/2019/05/14/Adaptive-Filters-Notes/index.html">
 <meta property="og:site_name" content="棒棒生">
-<meta property="og:description" content="粗略筆記 time domain adaptive filters, frequency domain adaptive filters 會在下一篇筆記. 應用以 Acoustic Echo Cancellation (AEC) 來說明.">
+<meta property="og:description" content="粗略筆記 time domain adaptive filters, frequency domain adaptive filters 會在下一篇筆記. 應用以 Acoustic Echo Cancellation (AEC) 來說明.
+Motivation直接使用 wiki. AEC 要解決的是如下的情形">
 <meta property="og:image" content="http://yoursite.com/2019/05/14/Adaptive-Filters-Notes/AEC_senario.png">
 <meta property="og:image" content="http://yoursite.com/2019/05/14/Adaptive-Filters-Notes/Wiener1.png">
 <meta property="og:image" content="http://yoursite.com/2019/05/14/Adaptive-Filters-Notes/tLMS.png">
 <meta property="og:image" content="http://yoursite.com/2019/05/14/Adaptive-Filters-Notes/NewtonUpdate.png">
 <meta property="og:image" content="http://yoursite.com/2019/05/14/Adaptive-Filters-Notes/tNLMS.png">
 <meta property="og:image" content="http://yoursite.com/2019/05/14/Adaptive-Filters-Notes/EMSE.png">
-<meta property="og:updated_time" content="2019-06-08T05:27:49.635Z">
+<meta property="og:updated_time" content="2019-06-09T05:38:13.353Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Adaptive Filters 簡介 (1) Time Domain">
-<meta name="twitter:description" content="粗略筆記 time domain adaptive filters, frequency domain adaptive filters 會在下一篇筆記. 應用以 Acoustic Echo Cancellation (AEC) 來說明.">
+<meta name="twitter:description" content="粗略筆記 time domain adaptive filters, frequency domain adaptive filters 會在下一篇筆記. 應用以 Acoustic Echo Cancellation (AEC) 來說明.
+Motivation直接使用 wiki. AEC 要解決的是如下的情形">
 <meta name="twitter:image" content="http://yoursite.com/2019/05/14/Adaptive-Filters-Notes/AEC_senario.png">
 
 
@@ -386,10 +389,9 @@
 
 <hr>
 <p>粗略筆記 time domain adaptive filters, frequency domain adaptive filters 會在下一篇筆記. 應用以 Acoustic Echo Cancellation (AEC) 來說明.</p>
-<a id="more"></a>
-<hr>
 <h3 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h3><p>直接使用 wiki. AEC 要解決的是如下的情形</p>
 <p><img src="/2019/05/14/Adaptive-Filters-Notes/AEC_senario.png" width="70%" height="70%"></p>
+<a id="more"></a>
 <p>各個訊號關聯如下:</p>
 <span>$$\begin{align}
 y(n)=h(n)\ast x(n) \\
@@ -472,13 +474,13 @@ e(n)=d(n)-\hat{y}(n)
       
         <div class="post-tags">
           
+            <a href="/tags/Adaptive-Filters/" rel="tag"># Adaptive Filters</a>
+          
             <a href="/tags/AEC/" rel="tag"># AEC</a>
           
             <a href="/tags/LMS/" rel="tag"># LMS</a>
           
             <a href="/tags/NLMS/" rel="tag"># NLMS</a>
-          
-            <a href="/tags/PBFDAF/" rel="tag"># PBFDAF</a>
           
         </div>
       
@@ -500,6 +502,10 @@ e(n)=d(n)-\hat{y}(n)
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/06/08/Adaptive-Filters-Notes-2/" rel="prev" title="Adaptive Filters 簡介 (2) Fast Convolution">
+                Adaptive Filters 簡介 (2) Fast Convolution <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -571,7 +577,7 @@ e(n)=d(n)-\hat{y}(n)
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">45</span>
+                <span class="site-state-item-count">46</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -593,7 +599,7 @@ e(n)=d(n)-\hat{y}(n)
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">81</span>
+                <span class="site-state-item-count">85</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>
