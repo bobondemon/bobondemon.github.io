@@ -101,8 +101,9 @@
 <meta property="og:image" content="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/fast_conv.png">
 <meta property="og:image" content="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/fast_conv_ola.png">
 <meta property="og:image" content="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/fast_conv_ols.png">
+<meta property="og:image" content="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/FDAF.png">
 <meta property="og:image" content="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/upols.png">
-<meta property="og:updated_time" content="2019-06-09T05:42:52.865Z">
+<meta property="og:updated_time" content="2019-06-09T09:21:24.848Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Adaptive Filters 簡介 (2) Fast Convolution">
 <meta name="twitter:description" content="上一篇說明了 time domain 的 adaptive filters, 由於是 sample-by-sample 處理, 因此太慢了不可用, 真正可用的都是基於 frequency domain. 不過在深入之前, 一定要先了解 convolution 在 input 為 block-by-block 的情況下如何加速. 本文內容主要參考 Partitioned convolutio">
@@ -422,17 +423,21 @@
 <p>Input signal 不是 padding zeros, 而是在左邊 padding 之前的 input 訊號 (參考本篇上面的 OLS 段落), 用這樣的 padding 方式來看 circular convolution 的話, 每一次我們就 “save” output 的最後 $B$ 個結果即可.</p>
 <p>在實作上通常會將 $B=N$, 並且設定 $K=2B=2N$, 這樣我們每一次只需要保留前一次的 input block, 並且 padding 給新來的 input block.</p>
 <hr>
+<h3 id="Frequncy-Domain-Adaptive-Filter"><a href="#Frequncy-Domain-Adaptive-Filter" class="headerlink" title="Frequncy Domain Adaptive Filter"></a>Frequncy Domain Adaptive Filter</h3><p>Frequency Domain Adaptive Filter (FDAF) 請參考 <a href="http://www.cs.tut.fi/~tabus/course/ASP/SGN2206LectureNew6.pdf" target="_blank" rel="external">ref</a>, 整理的非常好, 所以這裡就不多描述, 完全可以照著實作出來! 我們會發現其實它採用的是我們上面說過的 Fast Convolution with OLS 架構, 只是 filter 必須 adaptive 更新.<br><img src="/2019/06/08/Adaptive-Filters-Notes-2/FDAF.png" width="90%" height="90%"></p>
+<hr>
 <h3 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h3><p>我們介紹了針對 input 是 block-by-block 給定時, 計算 linear convolution 的兩種架構: OLA, OLS.</p>
 <p>而如何加速 linear convolution 我們則介紹了使用 circular convolution 來等價地完成 linear convolution. Circular convolution 可以利用頻域相乘來加快速度 (得益於 FFT 的效率).</p>
 <p>除了對 input 切 block 之外, 我們也還可以對 filter $h$ 切 block, 這樣的好處是計算量可以在更低, 且 latency 也會降低. 這部分請參考書的 Ch5, 附上一張書本裡的架構圖:</p>
 <p><img src="/2019/06/08/Adaptive-Filters-Notes-2/upols.png" width="100%" height="100%"></p>
-<p>這種方式其實很重要, 原因是 webrtc 中的 AEC 採用的是 Partitioned Block Frequency Domain Adaptive Filter (PBFDAF), 就是 filter 也是 uniformly partitioned.</p>
-<p>下一篇我們將介紹 Frequency Domain Adaptive Filter (FDAF), 我們會發現其實它採用的是我們上面說過的 Fast Convolution with OLS 架構, 只是 filter 必須 adaptive 更新.</p>
+<p>這種方式其實很重要, 原因是 webrtc 中的 AEC 採用的是 Partitioned Block Frequency Domain Adaptive Filter (PBFDAF) [3], 就是 filter 也是 uniformly partitioned.</p>
+<p>最後我們利用 OLA 和 fast convolution, 列出來 frequency domain AF 的架構圖. 同時如果想要進一步降低 latency 則需使用 PBFDAF[3] (filter 也 partition).</p>
 <hr>
 <h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
 <li><a href="https://dl.acm.org/citation.cfm?id=2834400" target="_blank" rel="external">Partitioned convolution algorithms for real-time auralization</a> by Frank Wefers</li>
+<li><a href="http://www.cs.tut.fi/~tabus/course/ASP/SGN2206LectureNew6.pdf" target="_blank" rel="external">Block Adaptive Filters and Frequency Domain Adaptive Filters</a></li>
+<li><a href="https://www.sciencedirect.com/science/article/pii/016516849290077A" target="_blank" rel="external">On the implementation of a partitioned block frequency domain adaptive filter (PBFDAF) for long acoustic echo cancellation</a></li>
 </ol>
-<!-- more -->
+
       
     </div>
 
@@ -634,7 +639,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#OLA"><span class="nav-number">1.</span> <span class="nav-text">OLA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#OLS"><span class="nav-number">2.</span> <span class="nav-text">OLS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何有效率的做-linear-convolution"><span class="nav-number">3.</span> <span class="nav-text">如何有效率的做 linear convolution?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fast-Conv-with-OLA"><span class="nav-number">4.</span> <span class="nav-text">Fast Conv with OLA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fast-Conv-with-OLS"><span class="nav-number">5.</span> <span class="nav-text">Fast Conv with OLS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Summary"><span class="nav-number">6.</span> <span class="nav-text">Summary</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">7.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#OLA"><span class="nav-number">1.</span> <span class="nav-text">OLA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#OLS"><span class="nav-number">2.</span> <span class="nav-text">OLS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何有效率的做-linear-convolution"><span class="nav-number">3.</span> <span class="nav-text">如何有效率的做 linear convolution?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fast-Conv-with-OLA"><span class="nav-number">4.</span> <span class="nav-text">Fast Conv with OLA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fast-Conv-with-OLS"><span class="nav-number">5.</span> <span class="nav-text">Fast Conv with OLS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Frequncy-Domain-Adaptive-Filter"><span class="nav-number">6.</span> <span class="nav-text">Frequncy Domain Adaptive Filter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Summary"><span class="nav-number">7.</span> <span class="nav-text">Summary</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">8.</span> <span class="nav-text">Reference</span></a></li></ol></div>
             
 
           </div>
