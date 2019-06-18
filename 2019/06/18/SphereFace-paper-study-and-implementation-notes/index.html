@@ -1,0 +1,964 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="SphereFace,Angular softmax loss,Modified softmax loss," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="SphereFace: Deep Hypersphere Embedding for Face Recognition 使得訓練出來的 embeddings 可以很好的使用 cosine similarity 做 verification/identification. 可以先網路上搜尋一下其他人的筆記和討論, 當然直接看論文最好.一般來說我們對訓練集的每個人用 classificatio">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SphereFace Paper Study and Implementation Notes">
+<meta property="og:url" content="http://yoursite.com/2019/06/18/SphereFace-paper-study-and-implementation-notes/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="SphereFace: Deep Hypersphere Embedding for Face Recognition 使得訓練出來的 embeddings 可以很好的使用 cosine similarity 做 verification/identification. 可以先網路上搜尋一下其他人的筆記和討論, 當然直接看論文最好.一般來說我們對訓練集的每個人用 classificatio">
+<meta property="og:image" content="http://yoursite.com/2019/06/18/SphereFace-paper-study-and-implementation-notes/openset.png">
+<meta property="og:image" content="http://yoursite.com/2019/06/18/SphereFace-paper-study-and-implementation-notes/softmaxloss.png">
+<meta property="og:image" content="http://yoursite.com/2019/06/18/SphereFace-paper-study-and-implementation-notes/msoftmaxloss.png">
+<meta property="og:image" content="http://yoursite.com/2019/06/18/SphereFace-paper-study-and-implementation-notes/decisionbd_msoftmax.png">
+<meta property="og:image" content="http://yoursite.com/2019/06/18/SphereFace-paper-study-and-implementation-notes/geometry.png">
+<meta property="og:image" content="http://yoursite.com/2019/06/18/SphereFace-paper-study-and-implementation-notes/asoftmaxloss1.png">
+<meta property="og:image" content="http://yoursite.com/2019/06/18/SphereFace-paper-study-and-implementation-notes/decisionbd_asoftmax.png">
+<meta property="og:image" content="http://yoursite.com/2019/06/18/SphereFace-paper-study-and-implementation-notes/asoftmaxloss2.png">
+<meta property="og:image" content="http://yoursite.com/2019/06/18/SphereFace-paper-study-and-implementation-notes/psi.png">
+<meta property="og:image" content="http://yoursite.com/2019/06/18/SphereFace-paper-study-and-implementation-notes/asoftmax-implement.png">
+<meta property="og:image" content="http://yoursite.com/2019/06/18/SphereFace-paper-study-and-implementation-notes/psi_m4.png">
+<meta property="og:updated_time" content="2019-06-18T15:16:58.797Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SphereFace Paper Study and Implementation Notes">
+<meta name="twitter:description" content="SphereFace: Deep Hypersphere Embedding for Face Recognition 使得訓練出來的 embeddings 可以很好的使用 cosine similarity 做 verification/identification. 可以先網路上搜尋一下其他人的筆記和討論, 當然直接看論文最好.一般來說我們對訓練集的每個人用 classificatio">
+<meta name="twitter:image" content="http://yoursite.com/2019/06/18/SphereFace-paper-study-and-implementation-notes/openset.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/06/18/SphereFace-paper-study-and-implementation-notes/"/>
+
+
+
+
+
+  <title> SphereFace Paper Study and Implementation Notes | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/18/SphereFace-paper-study-and-implementation-notes/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                SphereFace Paper Study and Implementation Notes
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2019-06-18T21:13:46+08:00">
+                2019-06-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2019/06/18/SphereFace-paper-study-and-implementation-notes/" class="leancloud_visitors" data-flag-title="SphereFace Paper Study and Implementation Notes">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">閱讀次數 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p><a href="https://arxiv.org/pdf/1704.08063.pdf" target="_blank" rel="external">SphereFace: Deep Hypersphere Embedding for Face Recognition</a> 使得訓練出來的 embeddings 可以很好的使用 cosine similarity 做 verification/identification. 可以先網路上搜尋一下其他人的筆記和討論, 當然直接看論文最好.<br>一般來說我們對訓練集的每個人用 classification 的方式訓練出 embeddings, 然後在測試的時候可以對比兩個人的 embeddings 來判斷是否為同一個人. 使用 verification 當例子, 實用上測試的人不會出現在訓練集中, 此情形稱為 openset 設定.</p>
+<p><img src="/2019/06/18/SphereFace-paper-study-and-implementation-notes/openset.png" width="70%" height="70%"></p>
+<a id="more"></a>
+<p>注意到 embedding 是使用 classification 方式訓練出來, 也就是說, 如果訓練集有 1000 個人, 最後一層的 softmax 就有 1000 個 nodes. 然後 embedding 一般取 softmax 前一層 (前兩層也可).<br>測試時常見的做法就是計算兩個 embeddings 的 cosine similarity, 直觀上相同的人他們的 embedding 會接近, 因此夾角小 (cosine 大), 而不同的人夾角大 (cosine 小).<br>但問題來了, 當初訓練 embedding 時並沒有針對 classification 用夾角來分類, 也就不能保證 softmax loss 對於使用 cosine similarity 是最有效的.</p>
+<p>Modified softmax loss (M-softmax loss) 和 Angular softmax loss (A-softmax loss) 就能針對這種情形 (測試時使用 cosine similarity) 計算 loss. A-softmax loss 比 M-softmax loss 條件更嚴苛, 除了希望針對 angular 做分類外, 還希望同一類的夾角能聚再一起, 不同類的夾角能盡量分開.</p>
+<p>下面就說明一下 softmax loss, M-softmax loss and A-softmax loss, 然後以 tensorflow 的實作來說明</p>
+<hr>
+<h3 id="Softmax-Loss"><a href="#Softmax-Loss" class="headerlink" title="Softmax Loss"></a>Softmax Loss</h3><p>其實沒什麼好說明的, 公式如下</p>
+<p><img src="/2019/06/18/SphereFace-paper-study-and-implementation-notes/softmaxloss.png" width="50%" height="50%"></p>
+<p>Decision boundary 以兩類來看如下:</p>
+<span>$$\begin{align}
+(W_1 - W_2)x+b_1 - b_2=0
+\end{align}$$</span><!-- Has MathJax -->
+<hr>
+<h3 id="M-Softmax-Loss"><a href="#M-Softmax-Loss" class="headerlink" title="M-Softmax Loss"></a>M-Softmax Loss</h3><p>如果我們將 $W_j$ 的 norm 限制為 1, 且去掉 biases, $b_j=0$, 則原來的 softmax loss 變成如下:</p>
+<p><img src="/2019/06/18/SphereFace-paper-study-and-implementation-notes/msoftmaxloss.png" width="50%" height="50%"></p>
+<p>Decision boundary 以兩類來看如下:</p>
+<span>$$\begin{align}
+\parallel x \parallel (\cos \theta_1 - \cos \theta_2)=0 \Rightarrow \cos \theta_1 = \cos \theta_2
+\end{align}$$</span><!-- Has MathJax -->
+<p>我們可以發現 decision boundary 完全由夾角來決定了!</p>
+<p>論文使用 toy example 來說明 M-softmax loss 造成的現象:</p>
+<p><img src="/2019/06/18/SphereFace-paper-study-and-implementation-notes/decisionbd_msoftmax.png" width="100%" height="100%"></p>
+<hr>
+<h3 id="A-Softmax-Loss"><a href="#A-Softmax-Loss" class="headerlink" title="A-Softmax Loss"></a>A-Softmax Loss</h3><p>以兩類來說明, M-softmax loss 將 $x$ 分類成 class 1 的條件為 $\cos \theta_1 &gt; \cos \theta_2$, 也就是 $\theta_1 &lt; \theta_2$. A-softmax loss 則讓這個條件更嚴格, 它希望 $m$ 倍的 $\theta_1$ 都還小於 $\theta_2$, 因此條件為 $\cos m\theta_1 &gt; \cos \theta_2$. 論文中以幾何的方式說明很清楚:</p>
+<p><img src="/2019/06/18/SphereFace-paper-study-and-implementation-notes/geometry.png" width="60%" height="60%"></p>
+<p>因此 A-softmax loss 如下:</p>
+<p><img src="/2019/06/18/SphereFace-paper-study-and-implementation-notes/asoftmaxloss1.png" width="70%" height="70%"></p>
+<p>論文使用 toy example 來說明 A-softmax loss 造成的現象:</p>
+<p><img src="/2019/06/18/SphereFace-paper-study-and-implementation-notes/decisionbd_asoftmax.png" width="100%" height="100%"></p>
+<p>可以看到相比於 M-softmax loss, A-softmax loss 會使得 margin 增大</p>
+<blockquote>
+<p>這種 within class 靠近, between class 拉遠就如同 LDA 的概念. A-softmax 也能造成這種效果且是在 angular 的 measure 下. 而常見的情形都是針對 euclidean distance, 例如使用 triplet loss (推薦這篇 <a href="http://lawlite.me/2018/10/16/Triplet-Loss%E5%8E%9F%E7%90%86%E5%8F%8A%E5%85%B6%E5%AE%9E%E7%8E%B0/" target="_blank" rel="external">blog</a> 說明具體且 tensorflow 實現非常厲害).</p>
+</blockquote>
+<p>原則上我們希望與 class $i$ 的夾角 $\theta_i$ 愈小, 所算出來的 logits 也就是 $\cos\theta_i$ 要愈大, 所以放大 $m$ 倍的夾角所算出來的 logits, $\cos m\theta_i$ 必須要變小.<br>但由於 $\cos$ 是 periodic function, 一旦 $m\theta_i$ 超過 $2\pi$ 就反而可能使得 logits 變大, 這就適得其反了. 精確來說 $\cos m\theta_i &lt; \cos\theta_i$ 只會在 $\theta_i$ 屬於 $[0,\pi/m]$ 區間範圍內成立. 因此我們必須對 A-softmax loss 作如下改動:</p>
+<p><img src="/2019/06/18/SphereFace-paper-study-and-implementation-notes/asoftmaxloss2.png" width="70%" height="70%"> 其中</p>
+<span>$$\begin{align}
+\psi(\theta)=(-1)^k \cos(m\theta)-2k\\
+\mbox{where  }\theta\in[\frac{k\pi}{m},\frac{(k+1)\pi}{m}]\mbox{  and  }k\in[0,m-1]
+\end{align}$$</span><!-- Has MathJax -->
+<p>我們將 $\psi$ 畫出來:</p>
+<p><img src="/2019/06/18/SphereFace-paper-study-and-implementation-notes/psi.png" width="50%" height="50%"></p>
+<p>兩個觀察:</p>
+<ol>
+<li>首先 $\psi$ 的確會隨著角度變大而變小, 這符合我們要的 logits 的行為.</li>
+<li>再來要計算出正確的 $\psi(\theta)$ 必須要先知道 $k$, 也就是需要知道 $\theta$ 落在哪個區間才行.</li>
+</ol>
+<p>第二點可能比較棘手, 我們思考一下怎麼在 tensorflow 的 graph 中實現 ….</p>
+<p>hmm…. 好像有點麻煩</p>
+<hr>
+<h3 id="Tensorflow-Implementation-A-softmax-Loss"><a href="#Tensorflow-Implementation-A-softmax-Loss" class="headerlink" title="Tensorflow Implementation A-softmax Loss"></a>Tensorflow Implementation A-softmax Loss</h3><p>其實網路上就很多 tensorflow 的實現了, 不看還好, 一看才發現 A-softmax loss 的 $\psi$ 實現步驟如下:</p>
+<p><img src="/2019/06/18/SphereFace-paper-study-and-implementation-notes/asoftmax-implement.png" width="70%" height="70%"></p>
+<p>這什麼操作?! 怎麼跟原來理解的 (3) and (4) 長相差這麼多! 網路上幾乎大家都直接拿來用, 也沒什麼說明. 不過我們仔細分析一下, 還是能發現端倪.<br>首先注意到這樣的實現是<strong>基於 $m=4$ 做的</strong>. (論文的實驗最後在這個設定有不錯的效果) 因此將 $m=4$ 套入 (3)(4) 得:</p>
+<span>$$\begin{align}
+\psi(\theta)=(-1)^k \cos(\color{red}{4}\theta)-2k\\
+\mbox{where  }\theta\in[\frac{k\pi}{\color{red}{4}},\frac{(k+1)\pi}{\color{red}{4}}]\mbox{  and  }k\in[0,\color{red}{3}]
+\end{align}$$</span><!-- Has MathJax -->
+<p>接著我們作如下分析:</p>
+<p><img src="/2019/06/18/SphereFace-paper-study-and-implementation-notes/psi_m4.png" width="90%" height="90%"></p>
+<p>發現 $s3=(-1)^k$ 和 $s4=-2k$, 因此</p>
+<span>$$\begin{align}
+\psi(\theta)=\color{green}{(-1)^k} \cos(4\theta)\color{blue}{-2k} = \color{green}{s3}[1-8\cos^2\theta +8\cos^4\theta]\color{blue}{+s4}
+\end{align}$$</span><!-- Has MathJax -->
+<p>而 $\cos\theta$ 則因為 weights $W$ 的 norm 限制為 1, 所以只需要 $Wx$ 再除以 $x$ 的 norm 即可. 到這裡最麻煩的實作問題分析完畢, 依樣畫葫蘆也可以做出 $m=2$, $m=3$.</p>
+<hr>
+<h3 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h3><p>Take home messages:</p>
+<ul>
+<li>M-softmax loss 算出來的 embeddings 在 test 階段可以直接用 cosine measure</li>
+<li>A-softmax loss 更進一步使得各類別之間的角度拉更開, 達到 large margin 效果</li>
+<li>A-softmax loss 實作上不好訓練, 可以使用論文中提到的訓練方法, 一開始偏向原來的 softmax loss, 然後漸漸偏向 A-softmax loss</li>
+<li>M-softmax loss 簡單實用, 經過 weight norm = 1 的條件, 論文中說明能去掉 prior 分布</li>
+</ul>
+<hr>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
+<li><a href="https://arxiv.org/pdf/1704.08063.pdf" target="_blank" rel="external">SphereFace: Deep Hypersphere Embedding for Face Recognition</a></li>
+<li><a href="http://lawlite.me/2018/10/16/Triplet-Loss%E5%8E%9F%E7%90%86%E5%8F%8A%E5%85%B6%E5%AE%9E%E7%8E%B0/" target="_blank" rel="external">Blog: Triplet loss</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2019/06/18/SphereFace-paper-study-and-implementation-notes/" title="SphereFace Paper Study and Implementation Notes">http://yoursite.com/2019/06/18/SphereFace-paper-study-and-implementation-notes/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/SphereFace/" rel="tag"># SphereFace</a>
+          
+            <a href="/tags/Angular-softmax-loss/" rel="tag"># Angular softmax loss</a>
+          
+            <a href="/tags/Modified-softmax-loss/" rel="tag"># Modified softmax loss</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/08/Adaptive-Filters-Notes-2/" rel="next" title="Adaptive Filters 簡介 (2) Fast Convolution and Frequency Domain">
+                <i class="fa fa-chevron-left"></i> Adaptive Filters 簡介 (2) Fast Convolution and Frequency Domain
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">47</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">88</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Softmax-Loss"><span class="nav-number">1.</span> <span class="nav-text">Softmax Loss</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#M-Softmax-Loss"><span class="nav-number">2.</span> <span class="nav-text">M-Softmax Loss</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#A-Softmax-Loss"><span class="nav-number">3.</span> <span class="nav-text">A-Softmax Loss</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tensorflow-Implementation-A-softmax-Loss"><span class="nav-number">4.</span> <span class="nav-text">Tensorflow Implementation A-softmax Loss</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Summary"><span class="nav-number">5.</span> <span class="nav-text">Summary</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">6.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("7mUJ3jkWeU7Rh7soYrUvDcuh-gzGzoHsz", "SWNPybUfqj8qALtwiKRiv7Rh");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
