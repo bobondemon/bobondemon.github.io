@@ -1,0 +1,932 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Entropy,Candidate sampling,Sampled softmax loss," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="NN 做分類最後一層通常使用 softmax loss, 但如果類別數量很大會導致計算 softmax 的 cost 太高, 這樣會讓訓練變得很慢. 假如總共的 class 數量是 10000 個, candidate sampling 的想法就是對於一個 input $x$ 採樣出一個 subset (當然需要包含正確的 label), 譬如只用 50 個 classes, 扣掉正確的那">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TF Notes (6), Candidate Sampling, Sampled Softmax Loss">
+<meta property="og:url" content="http://yoursite.com/2019/07/02/TF-Notes-Candidate-Sampling/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="NN 做分類最後一層通常使用 softmax loss, 但如果類別數量很大會導致計算 softmax 的 cost 太高, 這樣會讓訓練變得很慢. 假如總共的 class 數量是 10000 個, candidate sampling 的想法就是對於一個 input $x$ 採樣出一個 subset (當然需要包含正確的 label), 譬如只用 50 個 classes, 扣掉正確的那">
+<meta property="og:updated_time" content="2019-07-02T14:51:38.793Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="TF Notes (6), Candidate Sampling, Sampled Softmax Loss">
+<meta name="twitter:description" content="NN 做分類最後一層通常使用 softmax loss, 但如果類別數量很大會導致計算 softmax 的 cost 太高, 這樣會讓訓練變得很慢. 假如總共的 class 數量是 10000 個, candidate sampling 的想法就是對於一個 input $x$ 採樣出一個 subset (當然需要包含正確的 label), 譬如只用 50 個 classes, 扣掉正確的那">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/07/02/TF-Notes-Candidate-Sampling/"/>
+
+
+
+
+
+  <title> TF Notes (6), Candidate Sampling, Sampled Softmax Loss | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/02/TF-Notes-Candidate-Sampling/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                TF Notes (6), Candidate Sampling, Sampled Softmax Loss
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2019-07-02T20:34:12+08:00">
+                2019-07-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2019/07/02/TF-Notes-Candidate-Sampling/" class="leancloud_visitors" data-flag-title="TF Notes (6), Candidate Sampling, Sampled Softmax Loss">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">閱讀次數 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>NN 做分類最後一層通常使用 softmax loss, 但如果類別數量很大會導致計算 softmax 的 cost 太高, 這樣會讓訓練變得很慢. 假如總共的 class 數量是 10000 個, candidate sampling 的想法就是對於一個 input $x$ 採樣出一個 subset (當然需要包含正確的 label), 譬如只用 50 個 classes, 扣掉正確的那個 class, 剩下的 49 個 classes 從 9999 個採樣出來. 然後計算 softmax 只在那 50 個計算. 那麼問題來了, 這樣的採樣方式最終訓練出來的 logits 會是對的嗎? 它與未採樣前 (full set) 的 logtis 有何對應關係?</p>
+<a id="more"></a>
+<p>採用 candidate sampling 方式的 softmax loss 在 tensorflow 中已經直接有 op 了, 參考 <a href="https://www.tensorflow.org/api_docs/python/tf/nn/sampled_softmax_loss" target="_blank" rel="external">tf.nn.sampled_softmax_loss</a>. <a href="https://www.tensorflow.org/extras/candidate_sampling.pdf" target="_blank" rel="external">文檔</a>裡最終推導得到如下的一個式子:</p>
+<span>$$\begin{align}
+\log(P(y|x_i,C_i))=\log(P(y|x_i))-\log(Q(y|x_i))+K&apos;(x_i,C_i)
+\end{align}$$</span><!-- Has MathJax -->
+<p>推導過程自行看文檔就可以, 重要的是了解式子的物理意義.<br>$C_i$ 是對 input $x_i$ 採樣出的 subset, 包含了 <em>一個正確的類別標籤</em> 和 <em>其他採樣出的類別 $S_i$</em>. $Q(y|x_i)$ 是基於 input $x_i$, label $y$ 被選中成為 $S_i$ 的機率. $K’$ 是跟 $y$ 無關的, 所以對於式子來說是 constant. 注意到式子的變數是 $y$ 代表了是 softmax 的哪一個 output node.</p>
+<p>式 (1) 的解釋為: <u>“在 candidate set $C_i$ 下的 logits 結果”</u> 等於 <u>“在 full set 下的 logtis 結果減去 $\log Q(y|x_i)$”</u>, $K’$ 會直接被 $\log P(y|x_i)$ 吸收, 因為 logits 加上 constant 對於 softmax 來說會分子分母消掉, 所以不影響.</p>
+<p>以下我們順便複習一下, 為什麼 logits 可以寫成 “$\mbox{const}+\log P(y|x)$” 這種形式. (包含複習 Entropy, cross-entropy, softmax loss)</p>
+<hr>
+<h3 id="Entropy-定義"><a href="#Entropy-定義" class="headerlink" title="Entropy 定義"></a>Entropy 定義</h3><span>$$\begin{align}
+\sum_i{q(x_i)\log{\frac{1}{q(x_i)}}}
+\end{align}$$</span><!-- Has MathJax -->
+<p>對於 input $x_i$, 其機率為 $q(x_i)$, 若我們使用 $\log{\frac{1}{q(x_i)}}$ 這麼多 bits 的數量來 encode 它的話, 則上面的 entropy 代表了 encode 所有 input 所需要的平均 bits 數, 而這個數是<strong>最小</strong>的.</p>
+<hr>
+<h3 id="用錯誤的-encoding-方式"><a href="#用錯誤的-encoding-方式" class="headerlink" title="用錯誤的 encoding 方式"></a>用錯誤的 encoding 方式</h3><p>我們假設用 $\log{\frac{1}{p(x_i)}}$ 這麼多 bits 的數量來 encode 的話, 則平均 encode bits 數為:</p>
+<span>$$\begin{align}
+\sum_i{q(x_i)\log{\frac{1}{p(x_i)}}}
+\end{align}$$</span><!-- Has MathJax -->
+<p>這個數量一定會比 entropy 來的大, 而大出來的值就是我們使用錯誤的 encoding 造成的代價 (cross-entropoy).</p>
+<hr>
+<h3 id="Cross-entropy"><a href="#Cross-entropy" class="headerlink" title="Cross-entropy"></a>Cross-entropy</h3><p>如上面所說, 錯誤的 encoding 方式造成的代價如下:</p>
+<span>$$\begin{align}
+\mbox{Xent}(p,q)\triangleq\sum_i{q(x_i)\log{\frac{1}{p(x_i)}}} - \sum_i{q(x_i)\log{\frac{1}{q(x_i)}}} \\
+=\sum_i{q(x_i)\log{\frac{q(x_i)}{p(x_i)}}} \\
+\end{align}$$</span><!-- Has MathJax -->
+<hr>
+<h3 id="Sparse-softmax-loss"><a href="#Sparse-softmax-loss" class="headerlink" title="Sparse softmax loss"></a>Sparse softmax loss</h3><p>最常見的情形為當只有 $q(x_j)=1$ 而其他 $x\neq x_j$ 時 $q(x)=0$ 的話 ($q$ 變成 one-hot), 上面的 corss-entropy 變成:</p>
+<span>$$\begin{align}
+\mbox{SparseSoftmaxLoss}\triangleq\mbox{Xent}(p,q\mbox{ is one-hot})=-\log p(x_j) \\
+=-\log\frac{e^{z_j}}{\sum_i{e^{z_i}}}=-\log e^{z_j} + \log\sum_i{e^{z_i}} \\
+=-z_j + \log\sum_i{e^{z_i}}
+\end{align}$$</span><!-- Has MathJax -->
+<p>其中 $z_i$ 表示 i-th logtis, 參考 <a href="https://www.tensorflow.org/api_docs/python/tf/nn/sparse_softmax_cross_entropy_with_logits" target="_blank" rel="external">tf.nn.sparse_softmax_cross_entropy_with_logits</a></p>
+<hr>
+<h3 id="Logits-的解釋"><a href="#Logits-的解釋" class="headerlink" title="Logits 的解釋"></a>Logits 的解釋</h3><p>j-th logtis $z_j$ 可解釋為 “const + class $j$ 的 log probability”.</p>
+<span>$$\begin{align}
+z_j = \mbox{cosnt} + \log p(j)
+\end{align}$$</span><!-- Has MathJax -->
+<p>為什麼呢? 這是因為 logtis 經過 softmax 後會變成機率, 我們假設經過 softmax 後 node $j$ 的機率為 $p’(j)$, 計算一下這個值:</p>
+<span>$$\begin{align}
+p&apos;(j)=\frac{e^{z_j}}{\sum_i e^{z_i}} \\
+=\frac{e^{\log p(j)}e^{\mbox{const}}}{e^{\mbox{const}}\sum_i e^{\log p(i)}} \\
+=\frac{p(j)}{\sum_i p(i)} \\
+=p(j)
+\end{align}$$</span><!-- Has MathJax -->
+<p>這時候我們再回去對照開始的式 (1), 就能清楚的解釋 candidate sampling 的 logtis 和 full set 的 logits 之間的關係了.</p>
+<hr>
+<h3 id="Sampled-softmax-loss"><a href="#Sampled-softmax-loss" class="headerlink" title="Sampled softmax loss"></a>Sampled softmax loss</h3><p>由式 (1) 我們已經知道 candidate sampling 的 logtis 和 full set 的 logits 之間的關係. 因此在訓練的時候, 正常 forward propagation 到 logits 時, 這時候的 logits 是 full set 的. 但由於我們計算 softmax 只會在 candidate set 上. 因此要把 full set logits 減去 $\log Q(y|x_i)$, 減完後才會是正確的 candiadtes logits.</p>
+<p>對於 inference 部分, 則完全照舊, 因為原本 forward propagation 的結果就是 full set logits 了. 這也是 tf 官網範例這麼寫的原因:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> mode == <span class="string">"train"</span>:</div><div class="line">  loss = tf.nn.sampled_softmax_loss(</div><div class="line">      weights=weights,</div><div class="line">      biases=biases,</div><div class="line">      labels=labels,</div><div class="line">      inputs=inputs,</div><div class="line">      ...,</div><div class="line">      partition_strategy=<span class="string">"div"</span>)</div><div class="line"><span class="keyword">elif</span> mode == <span class="string">"eval"</span>:</div><div class="line">  logits = tf.matmul(inputs, tf.transpose(weights))</div><div class="line">  logits = tf.nn.bias_add(logits, biases)</div><div class="line">  labels_one_hot = tf.one_hot(labels, n_classes)</div><div class="line">  loss = tf.nn.softmax_cross_entropy_with_logits(</div><div class="line">      labels=labels_one_hot,</div><div class="line">      logits=logits)</div></pre></td></tr></table></figure>
+<hr>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
+<li><a href="https://www.tensorflow.org/api_docs/python/tf/nn/sampled_softmax_loss" target="_blank" rel="external">tf.nn.sampled_softmax_loss</a></li>
+<li><a href="https://www.tensorflow.org/extras/candidate_sampling.pdf" target="_blank" rel="external">Candidate Sampling</a></li>
+<li><a href="https://www.tensorflow.org/api_docs/python/tf/nn/sparse_softmax_cross_entropy_with_logits" target="_blank" rel="external">tf.nn.sparse_softmax_cross_entropy_with_logits</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2019/07/02/TF-Notes-Candidate-Sampling/" title="TF Notes (6), Candidate Sampling, Sampled Softmax Loss">http://yoursite.com/2019/07/02/TF-Notes-Candidate-Sampling/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Entropy/" rel="tag"># Entropy</a>
+          
+            <a href="/tags/Candidate-sampling/" rel="tag"># Candidate sampling</a>
+          
+            <a href="/tags/Sampled-softmax-loss/" rel="tag"># Sampled softmax loss</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/18/SphereFace-paper-study-and-implementation-notes/" rel="next" title="SphereFace Paper Study and Implementation Notes">
+                <i class="fa fa-chevron-left"></i> SphereFace Paper Study and Implementation Notes
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">48</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">91</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Entropy-定義"><span class="nav-number">1.</span> <span class="nav-text">Entropy 定義</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#用錯誤的-encoding-方式"><span class="nav-number">2.</span> <span class="nav-text">用錯誤的 encoding 方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Cross-entropy"><span class="nav-number">3.</span> <span class="nav-text">Cross-entropy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sparse-softmax-loss"><span class="nav-number">4.</span> <span class="nav-text">Sparse softmax loss</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Logits-的解釋"><span class="nav-number">5.</span> <span class="nav-text">Logits 的解釋</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sampled-softmax-loss"><span class="nav-number">6.</span> <span class="nav-text">Sampled softmax loss</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">7.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("7mUJ3jkWeU7Rh7soYrUvDcuh-gzGzoHsz", "SWNPybUfqj8qALtwiKRiv7Rh");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
