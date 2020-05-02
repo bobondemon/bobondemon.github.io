@@ -1,0 +1,998 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Entropy,Conditional Entropy,Cross Entropy,Mutual Information," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="整理下 entropy 的一些東西, 不然久沒看老是忘記.
+
+Entropy of a r.v. $X$: $H(X)$
+Conditional Entropy of $Y$ given $X$: $H(Y|X)$
+Cross(Relative) Entropy of two pdf, $p$ and $q$: $D(p\Vert q)$
+Mutual Information of two">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Notes for (conditional/cross-)Entropy, Mutual-information, ...">
+<meta property="og:url" content="http://yoursite.com/2020/05/02/Notes-for-conditional-cross-Entropy-Mutual-information/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="整理下 entropy 的一些東西, 不然久沒看老是忘記.
+
+Entropy of a r.v. $X$: $H(X)$
+Conditional Entropy of $Y$ given $X$: $H(Y|X)$
+Cross(Relative) Entropy of two pdf, $p$ and $q$: $D(p\Vert q)$
+Mutual Information of two">
+<meta property="og:image" content="http://yoursite.com/2020/05/02/Notes-for-conditional-cross-Entropy-Mutual-information/Entropy-mutual-information-relative-entropy-relation-diagram.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/02/Notes-for-conditional-cross-Entropy-Mutual-information/Entropy-mutual-information-relative-entropy-relation-diagram.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/02/Notes-for-conditional-cross-Entropy-Mutual-information/conditional_entropy_less_than_entropy.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/02/Notes-for-conditional-cross-Entropy-Mutual-information/14.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/02/Notes-for-conditional-cross-Entropy-Mutual-information/16_17.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/02/Notes-for-conditional-cross-Entropy-Mutual-information/18.png">
+<meta property="og:updated_time" content="2020-05-02T08:34:52.839Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Notes for (conditional/cross-)Entropy, Mutual-information, ...">
+<meta name="twitter:description" content="整理下 entropy 的一些東西, 不然久沒看老是忘記.
+
+Entropy of a r.v. $X$: $H(X)$
+Conditional Entropy of $Y$ given $X$: $H(Y|X)$
+Cross(Relative) Entropy of two pdf, $p$ and $q$: $D(p\Vert q)$
+Mutual Information of two">
+<meta name="twitter:image" content="http://yoursite.com/2020/05/02/Notes-for-conditional-cross-Entropy-Mutual-information/Entropy-mutual-information-relative-entropy-relation-diagram.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/05/02/Notes-for-conditional-cross-Entropy-Mutual-information/"/>
+
+
+
+
+
+  <title> Notes for (conditional/cross-)Entropy, Mutual-information, ... | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/02/Notes-for-conditional-cross-Entropy-Mutual-information/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Notes for (conditional/cross-)Entropy, Mutual-information, ...
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2020-05-02T11:37:12+08:00">
+                2020-05-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2020/05/02/Notes-for-conditional-cross-Entropy-Mutual-information/" class="leancloud_visitors" data-flag-title="Notes for (conditional/cross-)Entropy, Mutual-information, ...">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">閱讀次數 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>整理下 entropy 的一些東西, 不然久沒看老是忘記.</p>
+<ul>
+<li>Entropy of a r.v. $X$: $H(X)$</li>
+<li>Conditional Entropy of $Y$ given $X$: $H(Y|X)$</li>
+<li>Cross(Relative) Entropy of two pdf, $p$ and $q$: $D(p\Vert q)$</li>
+<li>Mutual Information of two r.v.s: $I(X;Y)$</li>
+</ul>
+<p>文章會明確定義每一項, 然後在推導它們之間關係的同時會解釋其物理意義.</p>
+<p>最後其實就可以整理成類似集合關係的圖 (<a href="https://en.wikipedia.org/wiki/Mutual_information" target="_blank" rel="external">wiki</a>)</p>
+<p><img src="/2020/05/02/Notes-for-conditional-cross-Entropy-Mutual-information/Entropy-mutual-information-relative-entropy-relation-diagram.png" width="50%" height="50%"></p>
+<a id="more"></a>
+<hr>
+<h3 id="Entropy"><a href="#Entropy" class="headerlink" title="Entropy"></a>Entropy</h3><span>$$\begin{align}
+H(X) = \sum_{x\in X}{p(x)\log{\frac{1}{p(x)}}}
+\end{align}$$</span><!-- Has MathJax -->
+<p>一個 r.v. $X$ 假設配給他的 pdf 為 $p$, 則可以算出相對應的 entropy $H(X)$, 所以我們其實可以看成是 $H(p)$.<br>可以知道當 $p$ 是 uniform distribution 時 entropy 達到最大 (後面再證明). 同時該定義可以很容易看出 $H(X)\geq 0$.</p>
+<p><strong>直觀解釋:</strong></p>
+<ol>
+<li>因為 uniform distribution 時最大 (最無法確定哪一個 outcome 最有可能), 另一個極端為 $X$ 為 constant (r.v. 只有一個 outcome) 所以我們可以理解為 entropy 為量測一個 r.v. $X$ 的<strong>不確定性</strong></li>
+<li>如果要對每一個 outcome 決定要用多少 bit 來代表, 我們希望平均花的 bits 數能最小, 直觀上機率愈大的 outcome 用愈小的 bits 來表達. 因此 outcome $x_i$ 我們用 $\log{\frac{1}{p(x_i)}}$ 這麼多 bits 表示, 則 entropy 代表了 encode 所有 outcome 所需要的平均 bits 數, 則這個數是<strong>最小</strong>的. (這可以從下面的 cross entropy 得到證明)</li>
+<li>我們可以用 entropy 來表示該 r.v. 所包含的<strong>資訊量</strong>. 因為比 entropy 更多的資訊量都是 reduandant 的 (由上一點可看出)</li>
+</ol>
+<p>為了方便我們會交叉使用 <strong>資訊量</strong> 或是 <strong>encode 的最小平均 bits 數</strong> 來表示 entropy 的物理意義.</p>
+<hr>
+<h3 id="Cross-Relative-Entropy"><a href="#Cross-Relative-Entropy" class="headerlink" title="Cross(Relative) Entropy"></a>Cross(Relative) Entropy</h3><p>為量測兩個 pdfs, $p(x)$ and $q(x)$ 之間的 “divergence”, 也稱為 KL divergence. 注意 divergence 不需滿足三角不等式也不需滿足對稱性, 因此不是一個 “metric”. 但也足夠當成是某種”距離”來看待 (不是指數學上的 norm)</p>
+<span>$$\begin{align}
+D(p\Vert q) = \sum_x{p(x)\log{\frac{p(x)}{q(x)}}}
+\end{align}$$</span><!-- Has MathJax -->
+<p>由 <a href="https://en.wikipedia.org/wiki/Jensen%27s_inequality" target="_blank" rel="external">Jensen’s inequality</a> 可以推得 $D(p\Vert q) \geq 0$, 另外 $D(p\Vert q)=0$ iff $p=q$</p>
+<blockquote>
+<span>$$\begin{align}
+D(p\Vert q) = - \sum_x{p(x)\log{\frac{q(x)}{p(x)}}} \\
+\text{by Jensen&apos;s inequality:  } \geq \log\sum_x{p(x)\frac{q(x)}{p(x)}} = 0
+\end{align}$$</span><!-- Has MathJax -->
+</blockquote>
+<p>重寫一下 (2):<br><span>$$\begin{align}
+0\leq D(p\Vert q) = \sum_x{p(x)\log{\frac{1}{q(x)}}} - H(p)
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>這說明了對於 outcome $x_i$ (true distribution 為 $p(x)$) 我們用 $\log{\frac{1}{\color{red}{q}(x_i)}}$ 這麼多 bits 表示是浪費的. 所以證明了上面 Entropy 第二種解釋.</p>
+<p><strong>直觀解釋:</strong></p>
+<ul>
+<li>$D(p\Vert q)$ 表示使用錯誤的 distribution $q$ 來 encode 要多花的平均 bits 數量</li>
+</ul>
+<hr>
+<h3 id="Conditional-Entropy"><a href="#Conditional-Entropy" class="headerlink" title="Conditional Entropy"></a>Conditional Entropy</h3><span>$$\begin{align}
+H(Y|X) = \sum_{x\in X}{p(x)H(Y|x=X)} \\
+=\sum_x{p(x)\sum_y{p(y|x)\log{\frac{1}{p(y|x)}}}}
+\end{align}$$</span><!-- Has MathJax -->
+<p>$H(Y|x=X)$ 解釋為 given $x$ encode $Y$ 的最小平均 bits 數 (就是 entropy 只是又重複說了一次), 但是每一個 $x$ 有自己的機率, 因此對 $x$ 再取一次平均.</p>
+<ul>
+<li><p>case 1:<br>如果 $Y$ 完全可以由 $X$ 決定, 因此一旦給定 $x$, $Y$ 就是一個 constant, 所以 $H(Y|x=X)=0$. 再對 $X$ 算期望值仍然是 0.</p>
+</li>
+<li><p>case 2:<br>如果 $X$ and $Y$ independent.</p>
+<span>$$\begin{align}
+(7)=\sum_x{p(x)\sum_y{p(y)\log{\frac{1}{p(y)}}}}=\sum_x{p(x)H(Y)}=H(Y)
+\end{align}$$</span><!-- Has MathJax -->
+<p>得到結論 $H(Y|X)=H(Y)$</p>
+</li>
+</ul>
+<p>Case 1 and 2 說明了 $X$ and $Y$ 在完全依賴和完全無關時 $H(Y|X)$ 分別為 $0$ and $H(Y)$. 直覺上我們可以認為 $0\leq H(Y|X) \leq H(Y)$, 因為剛好是兩個極端情形. 但直覺是不夠的, 我們證明一下.</p>
+<p>使用定義, 我們可以很容易推導出</p>
+<span>$$\begin{align}
+\color{orange}{I(X;Y)\equiv}H(Y)-H(Y|X)=\sum_{x,y}{p(x,y)\log{\frac{p(x,y)}{p(x)p(y)}}} \\
+=D(p(x,y)\Vert p(x)p(y)) \geq 0
+\end{align}$$</span><!-- Has MathJax -->
+<p>我們這裡先偷跑出了 mutual information $I(X;Y)$ 的定義, 下面會再詳細講.</p>
+<p><strong>直觀解釋:</strong><br>$H(Y|X)$ 表示給了 $X$ 的資訊後, $Y$ <strong>剩下的資訊量</strong>. 其中 $0\leq H(Y|X) \leq H(Y)$</p>
+<hr>
+<h3 id="Chain-Rule-for-Entropy"><a href="#Chain-Rule-for-Entropy" class="headerlink" title="Chain Rule for Entropy"></a>Chain Rule for Entropy</h3><p>我們在把 (7) 做個運算:</p>
+<span>$$\begin{align}
+H(Y|X)=(7)=-\sum_x{p(x)\sum_y{p(y|x)\log{p(y|x)}}} \\
+=-\sum_{x,y}{p(x,y)\log{\frac{p(x,y)}{p(x)}}} \\
+=-\sum_{x,y}{p(x,y)\log{p(x,y)}}+\sum_{x,y}{p(x,y)\log{p(x)}} \\
+=H(X,Y) - H(X)
+\end{align}$$</span><!-- Has MathJax -->
+<p><strong>直觀解釋:</strong><br>給定 $X$ 後 $Y$ 剩下的資訊量 ($H(Y|X)$) 就等於 $X,Y$ 整體的資訊量扣掉單獨 $X$ 部分的資訊量</p>
+<hr>
+<h3 id="Mutual-Information"><a href="#Mutual-Information" class="headerlink" title="Mutual Information"></a>Mutual Information</h3><p>(9) 已經先給出了定義, 我們這裡重複一次:</p>
+<span>$$\begin{align}
+I(X;Y)\equiv\sum_{x,y}{p(x,y)\log{\frac{p(x,y)}{p(x)p(y)}}} =D(p(x,y)\Vert p(x)p(y))\\
+\text{(用 entropy 定義得到) }=H(Y)-H(Y|X) \\
+\text{(用 entropy 定義得到) }=H(X)-H(X|Y)
+\end{align}$$</span><!-- Has MathJax -->
+<p>在用 Chain Rule for Entropy: $H(Y)=H(X,Y)-H(X|Y)$ 代進 (16) 得到</p>
+<span>$$\begin{align}
+I(X;Y)=H(X,Y)-H(Y|X)-H(X|Y)
+\end{align}$$</span><!-- Has MathJax -->
+<p>我知道這麼多式子一定眼花了….好在完全可以用集合的 <a href="https://en.wikipedia.org/wiki/Venn_diagram" target="_blank" rel="external">Venn diagram</a> 表示!</p>
+<hr>
+<h3 id="所有式子的直觀表達"><a href="#所有式子的直觀表達" class="headerlink" title="所有式子的直觀表達"></a>所有式子的直觀表達</h3><p><img src="/2020/05/02/Notes-for-conditional-cross-Entropy-Mutual-information/Entropy-mutual-information-relative-entropy-relation-diagram.png" width="50%" height="50%"></p>
+<p><img src="/2020/05/02/Notes-for-conditional-cross-Entropy-Mutual-information/conditional_entropy_less_than_entropy.png" width="30%" height="30%"></p>
+<p><img src="/2020/05/02/Notes-for-conditional-cross-Entropy-Mutual-information/14.png" width="50%" height="50%"></p>
+<p><img src="/2020/05/02/Notes-for-conditional-cross-Entropy-Mutual-information/16_17.png" width="35%" height="35%"></p>
+<p><img src="/2020/05/02/Notes-for-conditional-cross-Entropy-Mutual-information/18.png" width="50%" height="50%"></p>
+<hr>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
+<li><a href="https://en.wikipedia.org/wiki/Mutual_information" target="_blank" rel="external">wiki mutual information</a></li>
+<li><a href="https://www2.isye.gatech.edu/~yxie77/ece587/Lecture1.pdf" target="_blank" rel="external">Dr. Yao Xie, ECE587, Information Theory, Duke University</a> 本篇內容只是 lecture 1 ~ 4 的範圍</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2020/05/02/Notes-for-conditional-cross-Entropy-Mutual-information/" title="Notes for (conditional/cross-)Entropy, Mutual-information, ...">http://yoursite.com/2020/05/02/Notes-for-conditional-cross-Entropy-Mutual-information/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Entropy/" rel="tag"># Entropy</a>
+          
+            <a href="/tags/Conditional-Entropy/" rel="tag"># Conditional Entropy</a>
+          
+            <a href="/tags/Cross-Entropy/" rel="tag"># Cross Entropy</a>
+          
+            <a href="/tags/Mutual-Information/" rel="tag"># Mutual Information</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/07/15/Determinant-of-Covariance-Matrix/" rel="next" title="Determinant of Covariance Matrix">
+                <i class="fa fa-chevron-left"></i> Determinant of Covariance Matrix
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">50</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">97</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Entropy"><span class="nav-number">1.</span> <span class="nav-text">Entropy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Cross-Relative-Entropy"><span class="nav-number">2.</span> <span class="nav-text">Cross(Relative) Entropy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Conditional-Entropy"><span class="nav-number">3.</span> <span class="nav-text">Conditional Entropy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Chain-Rule-for-Entropy"><span class="nav-number">4.</span> <span class="nav-text">Chain Rule for Entropy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mutual-Information"><span class="nav-number">5.</span> <span class="nav-text">Mutual Information</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#所有式子的直觀表達"><span class="nav-number">6.</span> <span class="nav-text">所有式子的直觀表達</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">7.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("7mUJ3jkWeU7Rh7soYrUvDcuh-gzGzoHsz", "SWNPybUfqj8qALtwiKRiv7Rh");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
