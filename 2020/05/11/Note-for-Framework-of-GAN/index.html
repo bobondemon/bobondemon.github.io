@@ -1,0 +1,1047 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="GAN,fGAN,WGAN,infoGAN,VAE-GAN,ADDA," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="說來汗顏, 自從17年三月筆記完 WGAN 後, 就沒再碰 GAN 相關的東西了. 惡補了一下 李宏毅GAN 的課程和其他相關資料, 因此筆記一下.
+MMGAN(最原始的GAN), NSGAN(跟MMGAN差別在 G 的 update 目標函式有點不同), f-GAN, WGAN, ADDA (Adversarial Discriminative Domain Adaptation), i">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Framework of GAN">
+<meta property="og:url" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="說來汗顏, 自從17年三月筆記完 WGAN 後, 就沒再碰 GAN 相關的東西了. 惡補了一下 李宏毅GAN 的課程和其他相關資料, 因此筆記一下.
+MMGAN(最原始的GAN), NSGAN(跟MMGAN差別在 G 的 update 目標函式有點不同), f-GAN, WGAN, ADDA (Adversarial Discriminative Domain Adaptation), i">
+<meta property="og:image" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/f-divergence.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/Fenchel_conjugate.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/Fenchel_conjugate2.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/f-divergence_f_functions.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/f-divergence_fstar_functions.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/domain_adversarial_training.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/adda.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/infoGAN1.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/infoGAN2.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/VAEGAN.png">
+<meta property="og:updated_time" content="2020-05-13T15:28:55.586Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Framework of GAN">
+<meta name="twitter:description" content="說來汗顏, 自從17年三月筆記完 WGAN 後, 就沒再碰 GAN 相關的東西了. 惡補了一下 李宏毅GAN 的課程和其他相關資料, 因此筆記一下.
+MMGAN(最原始的GAN), NSGAN(跟MMGAN差別在 G 的 update 目標函式有點不同), f-GAN, WGAN, ADDA (Adversarial Discriminative Domain Adaptation), i">
+<meta name="twitter:image" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/f-divergence.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/"/>
+
+
+
+
+
+  <title> Framework of GAN | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Framework of GAN
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2020-05-11T20:29:12+08:00">
+                2020-05-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2020/05/11/Note-for-Framework-of-GAN/" class="leancloud_visitors" data-flag-title="Framework of GAN">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">閱讀次數 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>說來汗顏, 自從17年三月筆記完 WGAN 後, 就沒再碰 GAN 相關的東西了. 惡補了一下 <a href="https://www.youtube.com/playlist?list=PLJV_el3uVTsMq6JEFPW35BCiOQTsoqwNw" target="_blank" rel="external">李宏毅GAN</a> 的課程和其他相關資料, 因此筆記一下.</p>
+<p>MMGAN(最原始的GAN), NSGAN(跟MMGAN差別在 G 的 update 目標函式有點不同), f-GAN, WGAN, ADDA (Adversarial Discriminative Domain Adaptation), infoGAN, VAE-GAN 等… 這些全部都是 follow 下面這樣的 framework:</p>
+<span>$$\begin{align}
+Div\left(P_d\|P_G\right) = \max_D\left[ E_{x\sim P_d} D(x) - E_{x\sim P_G}f^*(D(x)) \right] \\
+G^*=\arg\min_G{Div\left(P_d\|P_G\right)} + reg(G) \\
+\end{align}$$</span><!-- Has MathJax -->
+<p>其中 $P_d$ 為 real data pdf, $P_G$ 為 generator 產生的 data pdf. $f^*$ 帶入不同的定義會產生不同的 divergence, 這之後會再說明.</p>
+<p>(1) 定義了 $P_G$ 與 $P_d$ 的 divergence, 其中這個 divergence 的值為藉由解這個最佳化問題求得的.</p>
+<p>(2) 表示要找的 $G$ 就是 divergence 最小的那個. Divergence 最小 ($=0$) 同時也表示 $P_G=P_d$ (生成器鍊成). 如果同時考慮 regularization term, $reg(G)$, 則會有很多變化產生, 如 ADDA, infoGAN, VAE-GAN…</p>
+<p>我們接著來看 MMGAN, NSGAN, f-GAN, WGAN, ADDA, infoGAN, VAE-GAN 這些怎麼 fit 進這個框架.</p>
+<a id="more"></a>
+<hr>
+<h3 id="MMGAN"><a href="#MMGAN" class="headerlink" title="MMGAN"></a>MMGAN</h3><p>MMGAN 是 MinMax GAN 的縮寫, 指的是最原始的 GAN.</p>
+<p>將 (1) 中的 $D(x)$ 使用 $\log D(x)$ 替換, 並且 $f^*(t)=-\log(1-exp(t))$ 替換得到如下式子:</p>
+<span>$$\begin{align}
+Div\left(P_d\|P_G\right) = \max_D\left[ E_{x\sim P_d} \log D(x) - E_{x\sim P_G}[-\log(1-D(x))]  \right] \\
+\end{align}$$</span><!-- Has MathJax -->
+<p>稍微再整理一下:</p>
+<span>$$\begin{align}
+Div\left(P_d\|P_G\right) = \max_D\left[ E_{x\sim P_d} \log D(x) + E_{x\sim P_G}[\log(1-D(G(z)))]  \right] \\
+\end{align}$$</span><!-- Has MathJax -->
+<p>這就是 GAN discriminator 原始的式子.</p>
+<p>而我們知道給定 $G$ 上述的最佳解為 \( D_G^*(x) = \frac{P_d(x)}{P_d(x)+P_G(x)} \), 並帶入 (4) 我們得到:</p>
+<span>$$\begin{align}
+Div\left(P_d\|P_G\right) = -\log4+KL(p_d\vert\frac{p_d+p_g}{2})+KL(p_g\vert\frac{p_d+p_g}{2}) \\
+=-\log4+2JSD(p_d \vert p_g)
+\end{align}$$</span><!-- Has MathJax -->
+<p>因此 discriminator 的最大化目的是計算出 JS divergence. 而 generator $G$ 求解沒什麼好說, 直接對 (3) 最小化:</p>
+<span>$$\begin{align}
+G^*=\arg\min_G E_{x\sim P_G}[\log(1-D(x))]
+\end{align}$$</span><!-- Has MathJax -->
+<p>注意到與 (2) 對比, MMGAN 只是沒有 regularization term 而已.</p>
+<hr>
+<h3 id="NSGAN"><a href="#NSGAN" class="headerlink" title="NSGAN"></a>NSGAN</h3><p>NSGAN 為 Non-Saturating GAN 縮寫, 與 MMGAN 只差在 generator $G$ 求解式子不同, 原本是希望在一開始 generator 比較差的情形下用 (7) 算的 gradient 會太小, 因此改成下式, 使得 gradient 能在一開始的時候比較大, 讓 update 動起來.</p>
+<p>NSGAN generator $G$ 為:</p>
+<span>$$\begin{align}
+G^*=\arg\min_G E_{x\sim P_G}[-\log(D(x))]
+\end{align}$$</span><!-- Has MathJax -->
+<p>如果我們將 \( D_G^*(x) = \frac{P_d(x)}{P_d(x)+P_G(x)} \) 帶入並整理, 我們會發現:</p>
+<span>$$\begin{align}
+G^*=\arg\min_G E_{x\sim P_G}[-\log(D^*(x))] \\
+=\arg\min_G \left[ KL(P_G\|P_d)-2JSD(P_d\|P_G)  \right]
+\end{align}$$</span><!-- Has MathJax -->
+<p>產生了兩個互相 trade-off 的 objective funtion… 這造成了矛盾</p>
+<p>詳細推導請參考 <a href="https://zhuanlan.zhihu.com/p/25071913" target="_blank" rel="external">令人拍案叫绝的Wasserstein GAN</a> 一文, 非常棒的文章. 引用文章內的說明:</p>
+<blockquote>
+<p>一句话概括：最小化第二种生成器loss函数，会等价于最小化一个不合理的距离衡量，导致两个问题，一是梯度不稳定，二是collapse mode即多样性不足。</p>
+</blockquote>
+<hr>
+<h3 id="f-GAN"><a href="#f-GAN" class="headerlink" title="f-GAN"></a>f-GAN</h3><p>我們在 MMGAN 時提到 “將 (1) 中的 $D(x)$ 使用 $\log D(x)$ 替換, 並且 $f^*(t)=-\log(1-exp(t))$ 替換” 則會得到 discriminator 就是在求解 JS divergence. 那麼有沒有其他設定會產生其他 divergence 呢? 有的, 藉由 f-GAN 的定義可以囊括各式各樣的 divergence.</p>
+<p>使用李老師的說明流程筆記: 首先定義 f-divergence, 可以發現 JSD, KL, reverse-KL, Chi square 等等都屬於其中的特例. 接著說明 convex function 的 conjugate function. 最後才說明怎麼跟 GAN 產生關聯 (神奇的連結).</p>
+<h4 id="f-divergence"><a href="#f-divergence" class="headerlink" title="f-divergence"></a>f-divergence</h4><span>$$\begin{align}
+Div_f(P\|Q)=\int_x q(x)f\left( \frac{p(x)}{q(x)} \right) dx \\
+\text{where  } f \text{  is }\color{orange}{convex} \text{ and } f(1)=0
+\end{align}$$</span><!-- Has MathJax -->
+<p>明顯知道 $p(x)=q(x)$ 時 $Div_f(P|Q)=0$, 同時可以證明 $Div_f(P|Q)\geq 0$, 因此滿足 divergence 定義(search “Divergence (statistics) wiki” for definition):</p>
+<span>$$\begin{align}
+Div_f(P\|Q)=\int_x q(x)f\left( \frac{p(x)}{q(x)} \right) dx \\
+\geq f\left( \int_x q(x)\frac{p(x)}{q(x)} dx \right)=f(1)=0 \\
+\end{align}$$</span><!-- Has MathJax -->
+<p>$f$ 是 convex 這點很重要, 才能將 (13) 到 (14) 使用 Jensen’s inequality. 定義不同 $f$ 會產生不同 divergence, 常見的為(李老師slide):</p>
+<p><img src="/2020/05/11/Note-for-Framework-of-GAN/f-divergence.png" width="50%" height="50%" align="center"></p>
+<p>由於 $f$ 是 convex, 而每一個 convex function 都會有一個 conjugate function $f^*$ (它也是 convex), 利用這個特性最後可以跟 GAN 連起來. 因此以下先說明 conjugate function.</p>
+<h4 id="Fenchel-Conjugate"><a href="#Fenchel-Conjugate" class="headerlink" title="Fenchel Conjugate"></a>Fenchel Conjugate</h4><p>Every convex function $f$ has a conjugate function $f^*$:</p>
+<span>$$\begin{align}
+f^*(t)=\max_{x\in dom(f)}\{xt-f(x)\}
+\end{align}$$</span><!-- Has MathJax -->
+<p>老師的投影片非常形象的表示出 $f$ 與 $f^*$ 的關係L</p>
+<p><img src="/2020/05/11/Note-for-Framework-of-GAN/Fenchel_conjugate.png" width="50%" height="50%" align="center"></p>
+<p>還具體舉了個當 $f(x)=x\log x$ 的例子:</p>
+<p><img src="/2020/05/11/Note-for-Framework-of-GAN/Fenchel_conjugate2.png" width="50%" height="50%" align="center"></p>
+<h4 id="與-GAN-的關聯"><a href="#與-GAN-的關聯" class="headerlink" title="與 GAN 的關聯"></a>與 GAN 的關聯</h4><p>這是我覺得非常厲害的地方. 首先 $f^*$ 的 conjugate 就變回 $f$ 了, 它們互為 conjugate.</p>
+<span>$$\begin{align}
+f^*(t)=\max_{x\in dom(f)}\{xt-f(x)\}\longleftrightarrow f(x)=\max_{t\in dom(f^*)}\{xt-f^*(t)\}
+\end{align}$$</span><!-- Has MathJax -->
+<p>將 (11) 利用 conjugate 的關係重新表示一下</p>
+<span>$$\begin{align}
+Div_f(P\|Q)=\int_x q(x)f\left( \frac{p(x)}{q(x)} \right) dx \\
+=\int_x q(x) \left( \max_{t\in dom(f^*)} \left[ \frac{p(x)}{q(x)}t - f^*(t) \right] \right) dx
+\end{align}$$</span><!-- Has MathJax -->
+<p>厲害的地方來了…. 假設我們有一個 function $D$ 可以直接幫我們解出 (18) 的那個 $t$ 是什麼, 也就是:</p>
+<span>$$\begin{align}
+D(x)=\hat{t}=\arg\max_{t\in dom(f^*)} \left[ \frac{p(x)}{q(x)}t - f^*(t) \right]
+\end{align}$$</span><!-- Has MathJax -->
+<p>那麼 $Div_f(P||Q)$ 直接就是</p>
+<span>$$\begin{align}
+Div_f(P||Q)=\int_x q(x) \left[ \frac{p(x)}{q(x)}\hat{t} - f^*(\hat{t})) \right] dx
+\end{align}$$</span><!-- Has MathJax -->
+<p>實作上 $D$ 的表達能力有限, 同時讓我們找到最準的那個叫做 $\hat{D}$, 因此只能求得一個下界並整理一下得到:</p>
+<span>$$\begin{align}
+Div_f(P||Q)\geq \int_x q(x) \left[ \frac{p(x)}{q(x)}\hat{D}(x) - f^*(\hat{D}(x))) \right] dx \\
+\approx \int_x q(x) \left[ \frac{p(x)}{q(x)}\hat{D}(x) - f^*(\hat{D}(x))) \right] dx \\
+= \int_x {p(x)\hat{D}(x)}dx - \int_x{q(x)f^*(\hat{D}(x))} dx \\
+= E_{x\sim P}\left[ \hat{D}(x) \right] - E_{x\sim Q}\left[ f^*( \hat{D}(x) ) \right] \\
+= \max_D \left[ E_{x\sim P}\left[ D(x) \right] - E_{x\sim Q}\left[ f^*( D(x) ) \right] \right] \\
+\end{align}$$</span><!-- Has MathJax -->
+<p>請把 (25) 跟 (1) 比較, 其實就一模一樣.</p>
+<p><strong>因此, 只要 $f$ 是 convex function , 且 $f(1)=0$, discriminator $D$ 的最佳化問題 ((1) 用 $f$ 的 conjugate, $f^*$, 帶入) 就是在計算兩個分布的 f-divergence.</strong></p>
+<p>論文直接給出各種 f-divergence 的 $f$ and $f^*$</p>
+<p><img src="/2020/05/11/Note-for-Framework-of-GAN/f-divergence_f_functions.png" width="50%" height="50%" align="center"></p>
+<p><img src="/2020/05/11/Note-for-Framework-of-GAN/f-divergence_fstar_functions.png" width="50%" height="50%" align="center"></p>
+<p>因此我們可以發現 MMGAN 和 LSGAN 都是 f-GAN 的一種特例.</p>
+<hr>
+<h3 id="WGAN"><a href="#WGAN" class="headerlink" title="WGAN"></a>WGAN</h3><p>具體請參考之前自己筆記的<a href="https://bobondemon.github.io/2017/03/17/WGAN-Part-2/" target="_blank" rel="external">文章</a></p>
+<p>李老師的講義對於 Earth Mover’s Distance (或稱 Wasserstein distance) 講解得很清楚, 其中的一個<a href="https://vincentherrmann.github.io/blog/wasserstein/" target="_blank" rel="external">參考連結</a>更解釋了 Wasserstein distance 如何轉換成求解 $\max_D$ 且 $D$ 必須限制在 Lipschitz 條件下.</p>
+<p>總之這裡要說的是, Wasserstein distance 不屬於 f-divergence, 但也完全 follow 我們一開始說的 (1) &amp; (2) 的架構:</p>
+<p>令 $f^*(x)=x$ 同時多一個限制是 $D\in k-Lipschitz$</p>
+<span>$$\begin{align}
+Div\left(P_d\|P_G\right) = \max_{D\in k-Lipschitz}\left[ E_{x\sim P_d} D(x) - E_{x\sim P_G}D(x) \right] \\
+\end{align}$$</span><!-- Has MathJax -->
+<p><strong>求解 discriminator 的最佳化問題其實就是在估算兩個分布的 divergence</strong>.</p>
+<p>原始論文針對 $D\in k-Lipschitz$ 的限制直接用很暴力的 weight clipping 方法解掉. 因此後面有一篇 WGAN-GP (Gradient Panelty) 的方式補強. 這裡不展開討論, 因為我也沒什麼研究, 簡單帶過一點待讀的論文. 另外有一篇 SN-GAN “<a href="https://arxiv.org/abs/1802.05957" target="_blank" rel="external">Spectral Normalization for Generative Adversarial Networks</a>“ 看起來是一種主流訓練 WGAN 的方式, 事先就將 gradient 都限制 norm&lt;=1. 這篇文章大致整理各種變體, <a href="https://zhuanlan.zhihu.com/p/58184683" target="_blank" rel="external">參考連結</a>.</p>
+<hr>
+<h3 id="關於-regularization-term-reg-G"><a href="#關於-regularization-term-reg-G" class="headerlink" title="關於 regularization term, $reg(G)$"></a>關於 regularization term, $reg(G)$</h3><h4 id="Adversarial-Domain-Adaptation"><a href="#Adversarial-Domain-Adaptation" class="headerlink" title="Adversarial Domain Adaptation"></a>Adversarial Domain Adaptation</h4><p>我們先說 <a href="https://arxiv.org/abs/1505.07818" target="_blank" rel="external">Domain-Adversarial Training of Neural Networks</a> 這篇經典的文章. Generator 現在做的是 feature extractor 的工作, 而我們希望 target domain 的 feature 能跟 source domain 的 feature 分佈一樣, 這樣在 source domain (有 label) 訓練好的 model, 就能直接在 target domain (無 label) 上作用.</p>
+<p>要做到無法區分出這個 feature 是 source or target domain 這件事情….正好就可以用 GAN 的方式達到.</p>
+<p><img src="/2020/05/11/Note-for-Framework-of-GAN/domain_adversarial_training.png" width="50%" height="50%" align="center"></p>
+<p>不看 Label Predictor 的部分的話, 就是一個典型的 GAN. 作用就是把 source and target 的 feature 投影到共同的空間, 並且分不開. 但缺少 Label Predictor 有可能造成 feature extractor 產生 trivial solution (例如全部 map 到 constant) 這樣也能使 discriminator 分不開.</p>
+<p>因此加上 Label Predictor 除了避免這件事外, 也保證在 source domain 能夠很好的完成我們的分類任務. 注意, 因為 label 只有在 source domain, 因此 label predictor 只能保證 source domain 的分類. 但由於我們把 feature 用 GAN 消除了 domain 之間的差異, 因此我們才能期望這時候的 source domain classifier 也能作用在 target domain.</p>
+<p>論文使用了一個叫做 Gradient Reversal Layer (GRL), 其實我們可以忽略這件事情, 因為這只是 discriminator and generator 一個 maximize 另一個 minimize, 而使得要 update generator 時當時算的 discriminator gradient 要取負號. 我們照正常的 GAN training 就可以了.</p>
+<p>Label Predictor 的 loss 具體就是 (2) 的 regularization term, $reg(G)$. <strong>這是希望我們 train $G$ 的時候除了要欺騙 $D$, 同時要能降低 $reg(G)$ (prediction loss)</strong>.</p>
+<p>後續有一篇 <a href="https://arxiv.org/abs/1702.05464" target="_blank" rel="external">Advesarial Discriminative Domain Adaptation</a> 算是豐富了這種架構. 論文裡對 source and target 的 feature extractor 使用不同的 neural networks. 並且一開始的 source domain feature extractor 是事先訓練好的. 然後後面的 GAN 部分訓練的時候, target domain 的 feature extractor 要去匹配 source domain 的. 這樣做的好處是至少一邊的分佈是固定住的, 比較容易訓練. 同時也簡化了訓練流程, 見下圖:</p>
+<p><img src="/2020/05/11/Note-for-Framework-of-GAN/adda.png" width="70%" height="70%" align="center"></p>
+<h4 id="infoGAN"><a href="#infoGAN" class="headerlink" title="infoGAN"></a>infoGAN</h4><p>詳細就不解釋了, 事實上推導較複雜但實作上卻異常容易, 之後有機會再記錄一下. 總之在原始 GAN 架構上多了一個 Decoder, 用來還原 generator input 中所指定的部分($c$). Decoder 希望能將 $c$ 無損的還原, 那麼什麼叫無損? 指的就是 Mutual Information of $c$ and $\hat{c}$ 最大. 其中 $\hat{c}$ 表示由 Decoder 還原出來的結果.</p>
+<p>還原的 loss term 基本就是 $reg(G)$, 同樣的理解, $G$ 除了要騙過 $D$ 之外, 多了一個任務就是使得還原的 loss 愈小愈好.</p>
+<p>附上李宏毅教授課程的兩張圖片:</p>
+<p><img src="/2020/05/11/Note-for-Framework-of-GAN/infoGAN1.png" width="60%" height="60%" align="center"><br><img src="/2020/05/11/Note-for-Framework-of-GAN/infoGAN2.png" width="60%" height="60%" align="center"></p>
+<h4 id="VAE-GAN"><a href="#VAE-GAN" class="headerlink" title="VAE-GAN"></a>VAE-GAN</h4><p>直接上老師的 slides</p>
+<p><img src="/2020/05/11/Note-for-Framework-of-GAN/VAEGAN.png" width="60%" height="60%" align="center"></p>
+<ul>
+<li><p>以 GAN 的角度來看, $G$ 除了要欺騙 $D$ 之外, 還多了 VAE 的 loss ($reg(G)$) 用來 reconstruct 原本的 input image. 對 GAN 來說是有好處的, 因為 GAN 雖然能夠產生夠真的 image, 但是會自己”捏造”, 因此多了 VAE 的 $reg(G)$ 會讓捏造的情況降低.</p>
+</li>
+<li><p>以 VAE 的角度來看, GAN 的 loss 變成了 regularization term 了. 也就是說 VAE 除了要產生跟原本接近的 image (pixel-level), 還要能騙過 $D$. 這是為了補足 VAE 的缺點, 原始 VAE 的目標函式是 pixel-level 的 l2-norm, 這跟人類認為的真實不真實不一致, 因此 AVE 會產生模糊的 image. 用 GAN 的 loss 當成 regularization term 則補足了 VAE 這點.</p>
+</li>
+</ul>
+<p>因此 VAE-GAN 這是個互惠的結構, 很漂亮. 這個結構新的一篇 <a href="https://arxiv.org/abs/2004.04467" target="_blank" rel="external">Adversarial Latent Autoencoders</a> 粗略講也是 VAE-GAN 架構, 只是 reconstruction 不是再 image, 而是在 latent space. 論文結果十分驚艷, <a href="https://github.com/podgorskiy/ALAE" target="_blank" rel="external">github</a>.</p>
+<hr>
+<h3 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h3><p>本篇開頭說明的 framework 基本可以解釋了上述各種 GAN. 但由於本魯才疏學淺, 還有一大堆沒看的變種, EBGAN, BEGAN, CycleGAN, …etc. 只能說之後讀到的時候, 看看能否試著這麼解釋. GAN 實在太多了, 可以看看 <a href="https://github.com/hindupuravinash/the-gan-zoo" target="_blank" rel="external">GAN Zoo</a> 有多少用 GAN 來命名的架構(似乎停止更新).</p>
+<hr>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
+<li><a href="https://www.youtube.com/playlist?list=PLJV_el3uVTsMq6JEFPW35BCiOQTsoqwNw" target="_blank" rel="external">李宏毅GAN</a></li>
+<li><a href="https://arxiv.org/abs/1606.00709" target="_blank" rel="external">f-GAN: Training Generative Neural Samplers using Variational Divergence Minimization</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/25071913" target="_blank" rel="external">令人拍案叫绝的Wasserstein GAN</a></li>
+<li><a href="https://bobondemon.github.io/2017/03/17/WGAN-Part-2/" target="_blank" rel="external">WGAN筆記</a></li>
+<li><a href="https://vincentherrmann.github.io/blog/wasserstein/" target="_blank" rel="external">Wasserstein GAN and the Kantorovich-Rubinstein Duality</a></li>
+<li><a href="https://arxiv.org/abs/1802.05957" target="_blank" rel="external">Spectral Normalization for Generative Adversarial Networks</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/58184683" target="_blank" rel="external">GAN论文阅读笔记3：WGAN的各种变体</a> by 林小北</li>
+<li><a href="https://arxiv.org/abs/1606.03657" target="_blank" rel="external">InfoGAN: Interpretable Representation Learning by Information Maximizing Generative Adversarial Nets</a></li>
+<li><a href="https://arxiv.org/abs/1505.07818" target="_blank" rel="external">Domain-Adversarial Training of Neural Networks</a></li>
+<li><a href="https://arxiv.org/abs/1702.05464" target="_blank" rel="external">Advesarial Discriminative Domain Adaptation</a></li>
+<li><a href="https://arxiv.org/abs/1512.09300" target="_blank" rel="external">Autoencoding beyond pixels using a learned similarity metric</a></li>
+<li><a href="https://arxiv.org/abs/2004.04467" target="_blank" rel="external">Adversarial Latent Autoencoders</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/" title="Framework of GAN">http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/GAN/" rel="tag"># GAN</a>
+          
+            <a href="/tags/fGAN/" rel="tag"># fGAN</a>
+          
+            <a href="/tags/WGAN/" rel="tag"># WGAN</a>
+          
+            <a href="/tags/infoGAN/" rel="tag"># infoGAN</a>
+          
+            <a href="/tags/VAE-GAN/" rel="tag"># VAE-GAN</a>
+          
+            <a href="/tags/ADDA/" rel="tag"># ADDA</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/05/02/Notes-for-conditional-cross-Entropy-Mutual-information/" rel="next" title="Notes for (conditional/cross-)Entropy, Mutual-information, ...">
+                <i class="fa fa-chevron-left"></i> Notes for (conditional/cross-)Entropy, Mutual-information, ...
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">104</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#MMGAN"><span class="nav-number">1.</span> <span class="nav-text">MMGAN</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSGAN"><span class="nav-number">2.</span> <span class="nav-text">NSGAN</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#f-GAN"><span class="nav-number">3.</span> <span class="nav-text">f-GAN</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#f-divergence"><span class="nav-number">3.1.</span> <span class="nav-text">f-divergence</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Fenchel-Conjugate"><span class="nav-number">3.2.</span> <span class="nav-text">Fenchel Conjugate</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#與-GAN-的關聯"><span class="nav-number">3.3.</span> <span class="nav-text">與 GAN 的關聯</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WGAN"><span class="nav-number">4.</span> <span class="nav-text">WGAN</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#關於-regularization-term-reg-G"><span class="nav-number">5.</span> <span class="nav-text">關於 regularization term, $reg(G)$</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Adversarial-Domain-Adaptation"><span class="nav-number">5.1.</span> <span class="nav-text">Adversarial Domain Adaptation</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#infoGAN"><span class="nav-number">5.2.</span> <span class="nav-text">infoGAN</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#VAE-GAN"><span class="nav-number">5.3.</span> <span class="nav-text">VAE-GAN</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#結論"><span class="nav-number">6.</span> <span class="nav-text">結論</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">7.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("7mUJ3jkWeU7Rh7soYrUvDcuh-gzGzoHsz", "SWNPybUfqj8qALtwiKRiv7Rh");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
