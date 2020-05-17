@@ -1,0 +1,929 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="GAN,ADDA," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Domain Adaptation 是希望在 source domain 有 label 但是 target domain 無 label 的情況下, 能針對 target domain (或同時也能對 source domain) 進行分類任務. “Adversarial” 的意思是利用 GAN 的 “對抗” 想法: Label predictor 雖然只能保證 source domai">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Exp of Adversarial Domain Adaptation">
+<meta property="og:url" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="Domain Adaptation 是希望在 source domain 有 label 但是 target domain 無 label 的情況下, 能針對 target domain (或同時也能對 source domain) 進行分類任務. “Adversarial” 的意思是利用 GAN 的 “對抗” 想法: Label predictor 雖然只能保證 source domai">
+<meta property="og:image" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/domain_adversarial_training.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/mnist_m.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/before_dann.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/gan_too_weak.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/gan_too_strong.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/recog_results.png">
+<meta property="og:image" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/dann.png">
+<meta property="og:updated_time" content="2020-05-17T11:01:17.224Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Exp of Adversarial Domain Adaptation">
+<meta name="twitter:description" content="Domain Adaptation 是希望在 source domain 有 label 但是 target domain 無 label 的情況下, 能針對 target domain (或同時也能對 source domain) 進行分類任務. “Adversarial” 的意思是利用 GAN 的 “對抗” 想法: Label predictor 雖然只能保證 source domai">
+<meta name="twitter:image" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/domain_adversarial_training.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/"/>
+
+
+
+
+
+  <title> Exp of Adversarial Domain Adaptation | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Exp of Adversarial Domain Adaptation
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2020-05-17T17:15:21+08:00">
+                2020-05-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/" class="leancloud_visitors" data-flag-title="Exp of Adversarial Domain Adaptation">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">閱讀次數 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>Domain Adaptation 是希望在 source domain 有 label 但是 target domain 無 label 的情況下, 能針對 target domain (或同時也能對 source domain) 進行分類任務. “Adversarial” 的意思是利用 GAN 的 “對抗” 想法: Label predictor 雖然只能保證 source domain 的分類. 但由於我們<strong>把 feature 用 GAN 消除了 domain 之間的差異</strong>, 因此我們才能期望這時候的 source domain classifier 也能作用在 target domain.</p>
+<p>這篇文章 <a href="https://medium.com/deep-learning-domain-adaptation-on-image-segmentat/introduction-2b44dd49ea05" target="_blank" rel="external">張文彥</a>, 開頭的圖傳達的意思很精確, 請點進去參考.</p>
+<a id="more"></a>
+<p><a href="https://bobondemon.github.io/2020/05/11/Note-for-Framework-of-GAN/" target="_blank" rel="external">上一篇</a>說明 GAN 的 framework:</p>
+<span>$$\begin{align}
+Div\left(P_d\|P_G\right) = \max_D\left[ E_{x\sim P_d} D(x) - E_{x\sim P_G}f^*(D(x)) \right] \\
+G^*=\arg\min_G{Div\left(P_d\|P_G\right)} + reg(G) \\
+\end{align}$$</span><!-- Has MathJax -->
+<p>對於 Adversarial Domain Adaptation 來說只要在正常 GAN 的 training 流程中, update $G$ 時多加一個 regularization term $reg(G)$ 就可以了. 而 $reg(G)$ 就是 Label Predictor 的 loss, 作用就是 train $G$ 時除了要欺騙 $D$, 同時要能降低 prediction error.</p>
+<p>複現了一次 <a href="https://arxiv.org/abs/1505.07818" target="_blank" rel="external">Domain-Adversarial Training of Neural Networks</a> 的 mnist(source) to mnist_m(target) 的實驗.</p>
+<hr>
+<h3 id="實驗"><a href="#實驗" class="headerlink" title="實驗"></a>實驗</h3><p><img src="/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/domain_adversarial_training.png" width="70%" height="70%" align="center"></p>
+<p>source domain 為標準的 mnist, 而 target domain 是 modified mnist, 如何產生可以參考<a href="https://github.com/Daipuwei/DANN-MNIST" target="_blank" rel="external">Daipuwei/DANN-MNIST</a>.</p>
+<p>下圖是 mnist_m 的一些範例:</p>
+<p><img src="/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/mnist_m.png" width="70%" height="70%" align="center"></p>
+<p>我們先來看一下分佈, 藍色的點是 mnist, 紅色是 mnist_m, 用 tSNE 跑出來的結果明顯看到兩個 domain 分佈不同:</p>
+<p><img src="/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/before_dann.png" width="50%" height="50%" align="center"></p>
+<p>我們之前說過, 不用管 GRL (Gradient Reversal Layer), 就一般的 GAN 架構, 加上 regularization term 就可以. 聽起來很容易, 我就隨手自己用了幾個 CNN 在 generator, 幾層 fully connected layers 給 classifier 和 discriminator 就做了起來. 發現怎麼弄都<strong>訓練不起來</strong>! 產生下面兩種情形:</p>
+<ol>
+<li><p>GAN too weak:<br><img src="/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/gan_too_weak.png" width="60%" height="60%" align="center"><br>重新調整了一下 $reg(G)$ 的比重後….</p>
+</li>
+<li><p>GAN too strong:<br><img src="/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/gan_too_strong.png" width="70%" height="70%" align="center"><br>兩個 domain 的 features 幾乎完全 overlap, 然後 classifier 幾乎無作用 (也看不出有10個分群). 話說, 這圖很像腦的紋路? 貪食蛇? 迷宮? 肚子裡的蛔蟲?</p>
+</li>
+</ol>
+<p>後來在嘗試調了幾個參數後仍然訓練不起來. 這讓我感到很挫折. 實在受不了後, 參考了網路上的做法改成以下幾點:</p>
+<ol>
+<li>WGAN 改成用 MMGAN</li>
+<li><code>RMSProp(1e-4)</code> 改成 <code>Adam(1e-3)</code></li>
+<li>使用網路上一個更簡單的架構 <a href="https://github.com/lancerane/Adversarial-domain-adaptation/blob/master/Domain%20adaptation%2C%20TF2.0.ipynb" target="_blank" rel="external">github</a></li>
+<li>改成用 MMGAN 後, 去掉 BN layer 就能訓練起來</li>
+</ol>
+<p>然後就可以訓練起來了(翻桌xN), 訓練後的結果如下:</p>
+<p><img src="/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/recog_results.png" width="70%" height="70%" align="center"></p>
+<p><strong>可以看到在 mnist 辨識率 ~99% 的情形下, mnist_m 能夠有 83.6% 的辨識率 (沒做 adaptation 只有約50%)</strong></p>
+<p>Feature 的分布如下圖 (藍色的點是 mnist, 紅色是 mnist_m):</p>
+<p><img src="/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/dann.png" width="80%" height="80%" align="center"></p>
+<p>雖然還有一些 feature 沒有完全 match 到, 但已經很重疊了. 同時我們也能明顯到到 10 群的分類.</p>
+<hr>
+<h3 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h3><p>雖然理論上的理解很容易, 但實作起來卻發現很難調整. GAN 就是那麼難搞阿….</p>
+<hr>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
+<li><a href="https://bobondemon.github.io/2020/05/11/Note-for-Framework-of-GAN/" target="_blank" rel="external">GAN framework</a></li>
+<li><a href="https://arxiv.org/abs/1505.07818" target="_blank" rel="external">Domain-Adversarial Training of Neural Networks</a></li>
+<li>參考產生 mnist_m 的 codes <a href="https://github.com/Daipuwei/DANN-MNIST" target="_blank" rel="external">Daipuwei/DANN-MNIST</a></li>
+<li>Domain-Adversarial Training of Neural Networks with TF2.0: <a href="https://github.com/lancerane/Adversarial-domain-adaptation" target="_blank" rel="external">lancerane/Adversarial-domain-adaptation</a></li>
+<li><a href="https://medium.com/deep-learning-domain-adaptation-on-image-segmentat/introduction-2b44dd49ea05" target="_blank" rel="external">張文彥 Domain-adaptation-on-segmentation</a></li>
+<li><a href="dann_cs.ipynb">自己實驗的 jupyter notebook</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/" title="Exp of Adversarial Domain Adaptation">http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/GAN/" rel="tag"># GAN</a>
+          
+            <a href="/tags/ADDA/" rel="tag"># ADDA</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/05/11/Note-for-Framework-of-GAN/" rel="next" title="Framework of GAN">
+                <i class="fa fa-chevron-left"></i> Framework of GAN
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">52</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">103</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#實驗"><span class="nav-number">1.</span> <span class="nav-text">實驗</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#結論"><span class="nav-number">2.</span> <span class="nav-text">結論</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">3.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("7mUJ3jkWeU7Rh7soYrUvDcuh-gzGzoHsz", "SWNPybUfqj8qALtwiKRiv7Rh");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
