@@ -382,6 +382,8 @@
 <hr>
 <p>Domain Adaptation 是希望在 source domain 有 label 但是 target domain 無 label 的情況下, 能針對 target domain (或同時也能對 source domain) 進行分類任務. “Adversarial” 的意思是利用 GAN 的 “對抗” 想法: Label predictor 雖然只能保證 source domain 的分類. 但由於我們<strong>把 feature 用 GAN 消除了 domain 之間的差異</strong>, 因此我們才能期望這時候的 source domain classifier 也能作用在 target domain.</p>
 <p>這篇文章 <a href="https://medium.com/deep-learning-domain-adaptation-on-image-segmentat/introduction-2b44dd49ea05">張文彥</a>, 開頭的圖傳達的意思很精確, 請點進去參考.</p>
+<p><img src="/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/cover.jpg" width="60%" height="60%" align="center"></p>
+<p>接著嘗試複現了一次 <a href="https://arxiv.org/abs/1505.07818">Domain-Adversarial Training of Neural Networks</a> 的 mnist(source) to mnist_m(target) 的實驗.</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/#more" rel="contents">
@@ -890,7 +892,11 @@ G^*=\arg\min_G{Div\left(P_d\|P_G\right)} + reg(G) \\
 <span>$$\begin{align}
 det(R)=\prod_i \lambda_i \leq \prod_i r_{ii}
 \end{align}$$</span><!-- Has MathJax -->
-<p>$\lambda_i$ 是 i-th eingenvalue.<br>以下筆記論文中證明 $det(R)$ 的 upper bound, 從這個 bound 我們也能看出物理意義.</p>
+<p>$\lambda_i$ 是 i-th eingenvalue.</p>
+<blockquote>
+<p>事實上只要 $R$ 是 <strong>square matrix</strong>, 則 $|det(R)|$ 等於用每個 row vector 做出來的 “平行六面體” 的體積 [<a href="http://textbooks.math.gatech.edu/ila/determinants-volumes.html">ref</a>]</p>
+</blockquote>
+<p>以下筆記論文中證明 $det(R)$ 的 upper bound, 從這個 bound 我們也能看出物理意義.</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2019/07/15/Determinant-of-Covariance-Matrix/#more" rel="contents">

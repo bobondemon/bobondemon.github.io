@@ -93,6 +93,7 @@
 <meta property="og:url" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="Domain Adaptation 是希望在 source domain 有 label 但是 target domain 無 label 的情況下, 能針對 target domain (或同時也能對 source domain) 進行分類任務. “Adversarial” 的意思是利用 GAN 的 “對抗” 想法: Label predictor 雖然只能保證 source domai">
+<meta property="og:image" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/cover.jpg">
 <meta property="og:image" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/domain_adversarial_training.png">
 <meta property="og:image" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/mnist_m.png">
 <meta property="og:image" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/before_dann.png">
@@ -100,11 +101,11 @@
 <meta property="og:image" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/gan_too_strong.png">
 <meta property="og:image" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/recog_results.png">
 <meta property="og:image" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/dann.png">
-<meta property="og:updated_time" content="2020-05-17T11:01:17.224Z">
+<meta property="og:updated_time" content="2020-05-18T12:56:56.275Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Exp of Adversarial Domain Adaptation">
 <meta name="twitter:description" content="Domain Adaptation 是希望在 source domain 有 label 但是 target domain 無 label 的情況下, 能針對 target domain (或同時也能對 source domain) 進行分類任務. “Adversarial” 的意思是利用 GAN 的 “對抗” 想法: Label predictor 雖然只能保證 source domai">
-<meta name="twitter:image" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/domain_adversarial_training.png">
+<meta name="twitter:image" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/cover.jpg">
 
 
 
@@ -388,6 +389,8 @@
 <hr>
 <p>Domain Adaptation 是希望在 source domain 有 label 但是 target domain 無 label 的情況下, 能針對 target domain (或同時也能對 source domain) 進行分類任務. “Adversarial” 的意思是利用 GAN 的 “對抗” 想法: Label predictor 雖然只能保證 source domain 的分類. 但由於我們<strong>把 feature 用 GAN 消除了 domain 之間的差異</strong>, 因此我們才能期望這時候的 source domain classifier 也能作用在 target domain.</p>
 <p>這篇文章 <a href="https://medium.com/deep-learning-domain-adaptation-on-image-segmentat/introduction-2b44dd49ea05" target="_blank" rel="external">張文彥</a>, 開頭的圖傳達的意思很精確, 請點進去參考.</p>
+<p><img src="/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/cover.jpg" width="60%" height="60%" align="center"></p>
+<p>接著嘗試複現了一次 <a href="https://arxiv.org/abs/1505.07818" target="_blank" rel="external">Domain-Adversarial Training of Neural Networks</a> 的 mnist(source) to mnist_m(target) 的實驗.</p>
 <a id="more"></a>
 <p><a href="https://bobondemon.github.io/2020/05/11/Note-for-Framework-of-GAN/" target="_blank" rel="external">上一篇</a>說明 GAN 的 framework:</p>
 <span>$$\begin{align}
@@ -395,7 +398,6 @@ Div\left(P_d\|P_G\right) = \max_D\left[ E_{x\sim P_d} D(x) - E_{x\sim P_G}f^*(D(
 G^*=\arg\min_G{Div\left(P_d\|P_G\right)} + reg(G) \\
 \end{align}$$</span><!-- Has MathJax -->
 <p>對於 Adversarial Domain Adaptation 來說只要在正常 GAN 的 training 流程中, update $G$ 時多加一個 regularization term $reg(G)$ 就可以了. 而 $reg(G)$ 就是 Label Predictor 的 loss, 作用就是 train $G$ 時除了要欺騙 $D$, 同時要能降低 prediction error.</p>
-<p>複現了一次 <a href="https://arxiv.org/abs/1505.07818" target="_blank" rel="external">Domain-Adversarial Training of Neural Networks</a> 的 mnist(source) to mnist_m(target) 的實驗.</p>
 <hr>
 <h3 id="實驗"><a href="#實驗" class="headerlink" title="實驗"></a>實驗</h3><p><img src="/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/domain_adversarial_training.png" width="70%" height="70%" align="center"></p>
 <p>source domain 為標準的 mnist, 而 target domain 是 modified mnist, 如何產生可以參考<a href="https://github.com/Daipuwei/DANN-MNIST" target="_blank" rel="external">Daipuwei/DANN-MNIST</a>.</p>

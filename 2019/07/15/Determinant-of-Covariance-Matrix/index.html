@@ -96,7 +96,7 @@
 <meta property="og:description" content="筆記 covariance matrix $R$ 的 determinant 意義以及他的 bound. 這是在讀 Time-delay estimation via linear interpolation and cross correlation 時的 appendix 證明. 覺得有用就筆記下來.
 開門見山, $det(R)$ 可以想成 volumn (等於所有 eigenvalu">
 <meta property="og:image" content="http://yoursite.com/2019/07/15/Determinant-of-Covariance-Matrix/corr.png">
-<meta property="og:updated_time" content="2019-07-15T15:57:16.201Z">
+<meta property="og:updated_time" content="2020-05-18T13:11:41.534Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Determinant of Covariance Matrix">
 <meta name="twitter:description" content="筆記 covariance matrix $R$ 的 determinant 意義以及他的 bound. 這是在讀 Time-delay estimation via linear interpolation and cross correlation 時的 appendix 證明. 覺得有用就筆記下來.
@@ -388,7 +388,11 @@
 <span>$$\begin{align}
 det(R)=\prod_i \lambda_i \leq \prod_i r_{ii}
 \end{align}$$</span><!-- Has MathJax -->
-<p>$\lambda_i$ 是 i-th eingenvalue.<br>以下筆記論文中證明 $det(R)$ 的 upper bound, 從這個 bound 我們也能看出物理意義.</p>
+<p>$\lambda_i$ 是 i-th eingenvalue.</p>
+<blockquote>
+<p>事實上只要 $R$ 是 <strong>square matrix</strong>, 則 $|det(R)|$ 等於用每個 row vector 做出來的 “平行六面體” 的體積 [<a href="http://textbooks.math.gatech.edu/ila/determinants-volumes.html" target="_blank" rel="external">ref</a>]</p>
+</blockquote>
+<p>以下筆記論文中證明 $det(R)$ 的 upper bound, 從這個 bound 我們也能看出物理意義.</p>
 <a id="more"></a>
 <hr>
 <h3 id="Upper-bound-of-the-determinant-of-positive-definite-matrix"><a href="#Upper-bound-of-the-determinant-of-positive-definite-matrix" class="headerlink" title="Upper bound of the determinant of positive definite matrix"></a>Upper bound of the determinant of positive definite matrix</h3><p>[Theorem]: 令 $H$ 為 $L$ by $L$ 正定矩陣, 則<br><span>$$\begin{align}
@@ -409,15 +413,10 @@ det(H)\leq h_{LL}det(\tilde{H})
 <hr>
 <h3 id="Determinant-of-covariance-matrix"><a href="#Determinant-of-covariance-matrix" class="headerlink" title="Determinant of covariance matrix"></a>Determinant of covariance matrix</h3><p>我們知道 covariance matrix $R$ 是正定 (嚴格上為半正定, 如果沒有兩個完全 linear depedent 的維度的話, 就是正定), 因此符合 upper bound (2).</p>
 <p>觀察當 coordinate 之間為 independent 時, 表示非對角項都是 $0$, 只剩下對角項 (每個維度的 variance). 這時 (2) 的不等式變成等式, 對角項相乘意義相當於算 volumn</p>
-<p>此時如果我們對 data point 套上一個 rotation matrix $M$ 的話, 則<br><span>$$\begin{align}
-R&apos;=MRM^T
-\end{align}$$</span><!-- Has MathJax --> 我們知道 rotation matrix 是 orthogonal matrix, 其 $det(M)$ 為 $1$ 或 $-1$, 因此 $det(R’)=det(R)$, 所以有如下式子<br><span>$$\begin{align}
-det(R&apos;)=det(R)=\prod_i{r_{ii}}\leq\prod_i{r&apos;_{ii}}
-\end{align}$$</span><!-- Has MathJax --><br>可以看出三點結論</p>
+<p>可以看出兩點結論</p>
 <ul>
-<li>rotation 不影響 covariance matrix 的 $det$ 的結果, 因此 $det(R)$ 看作是 volumn 很合理</li>
 <li>covariance matrix 對角項的相乘總是會比 $det$ 大</li>
-<li>covariance matrix 對角項的相乘會等於 $det$ 是發生在 coordinate 之間是 independent</li>
+<li>coordinate 之間是 independent 則 covariance matrix 對角項的相乘會等於 $det$</li>
 </ul>
 <h4 id="Correlation-matrix"><a href="#Correlation-matrix" class="headerlink" title="Correlation matrix"></a>Correlation matrix</h4><p>我們知道 <a href="https://en.wikipedia.org/wiki/Covariance_matrix" target="_blank" rel="external">correlation matrix</a> 對角項都是 $1$, 且是正定<br><img src="/2019/07/15/Determinant-of-Covariance-Matrix/corr.png" width="50%" height="50%"><br>根據以上的討論知道:<br><span>$$\begin{align}
 0\leq det(\mbox{corr}(X))\leq 1
@@ -425,14 +424,15 @@ det(R&apos;)=det(R)=\prod_i{r_{ii}}\leq\prod_i{r&apos;_{ii}}
 <hr>
 <h3 id="Take-Home-Messages"><a href="#Take-Home-Messages" class="headerlink" title="Take Home Messages"></a>Take Home Messages</h3><p>令 $R$ 為 covariance matrix, $\tilde{R}$ 是 correlation matrix</p>
 <ol>
-<li>$det(R)$ 可以看作是 volumn</li>
 <li>$R$ 對角項的相乘總是會比 $det(R)$ 大</li>
-<li>$R$ 對角項的相乘等於 $det(R)$ 發生在 coordinate 之間是 independent</li>
+<li>coordinate 之間是 independent 則 $R$ 對角項的相乘等於 $det(R)$</li>
 <li>$det(\tilde{R})$ 在 0 和 1 之間 (包含)</li>
 </ol>
+<p>令 $A$ 為 square matrix, 則 $|det(A)|$ 等於以每個 row vector 做出來的 “平行六面體” 的體積 [<a href="http://textbooks.math.gatech.edu/ila/determinants-volumes.html" target="_blank" rel="external">ref</a>]</p>
 <hr>
 <h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
 <li><a href="https://ieeexplore.ieee.org/document/1323087" target="_blank" rel="external">Time-delay estimation via linear interpolation and cross correlation</a></li>
+<li><a href="http://textbooks.math.gatech.edu/ila/determinants-volumes.html" target="_blank" rel="external">Determinants and Volumes</a></li>
 </ol>
 
       
