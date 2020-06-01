@@ -96,7 +96,7 @@
 <meta property="og:description" content="CTC model 是一個 decoder 部分為簡單的 (independent) linear classifer 的 seq2seq model. 因此 input frame 有 $T$ 個, 就會有 $T$ 個 output distribution vectors.
 正常來說 (ex: ASR) output token 數量 $N&amp;lt;T$, 所以會有 alignment">
 <meta property="og:image" content="http://yoursite.com/2020/05/31/CTC-Model-and-Loss/cover.png">
-<meta property="og:updated_time" content="2020-05-31T10:27:30.099Z">
+<meta property="og:updated_time" content="2020-06-01T15:34:00.063Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="CTC Model and Loss">
 <meta name="twitter:description" content="CTC model 是一個 decoder 部分為簡單的 (independent) linear classifer 的 seq2seq model. 因此 input frame 有 $T$ 個, 就會有 $T$ 個 output distribution vectors.
@@ -389,13 +389,12 @@
 <p>RNN-T 是另一種比 CTC 更有彈性的 alignment 表達方式.</p>
 </blockquote>
 <p>CTC 的 gradient 可以非常有效率的用 dynamic programming 求得 (forward/backward 演算法, 下圖). 因此採用 gradient-based optimization 方法就很合適.</p>
-<p><img src="/2020/05/31/CTC-Model-and-Loss/cover.png" width="70%" height="70%" align="center"></p>
+<p><img src="/2020/05/31/CTC-Model-and-Loss/cover.png" width="60%" height="60%" align="center"></p>
 <p>本文會詳細介紹上面提到的幾點. Decoding 部分不介紹.</p>
 <a id="more"></a>
 <p>CTC Model and Loss:</p>
 <ul>
 <li>PDF Slide 連結 <a href="ctc_model_and_loss(cschen20200531).pdf">Link PDF</a></li>
-<li>PPTX Slide 連結 <a href="ctc_model_and_loss(cschen20200531).pptx">Link PPTX</a></li>
 </ul>
 
       
