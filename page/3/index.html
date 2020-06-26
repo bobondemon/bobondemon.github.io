@@ -267,6 +267,170 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/30/TF-Notes-GRU-in-Tensorflow/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2018/07/30/TF-Notes-GRU-in-Tensorflow/" itemprop="url">
+                  TF Notes (5), GRU in Tensorflow
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2018-07-30T23:29:01+08:00">
+                2018-07-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018/07/30/TF-Notes-GRU-in-Tensorflow/" class="leancloud_visitors" data-flag-title="TF Notes (5), GRU in Tensorflow">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">閱讀次數 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>小筆記. Tensorflow 裡實作的 GRU 跟 <a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/">Colah’s blog</a> 描述的 GRU 有些不太一樣. 所以做了一下 TF 的 GRU 結構. 圖比較醜, 我盡力了… XD</p>
+<h2 id="TF-的-GRU-結構"><a href="#TF-的-GRU-結構" class="headerlink" title="TF 的 GRU 結構"></a>TF 的 GRU 結構</h2><p><img src="/2018/07/30/TF-Notes-GRU-in-Tensorflow/GRU_in_tf.png" width="80%" height="80%"></p>
+<p><code>u</code> 可以想成是原來 LSTM 的 forget gate, 而 <code>c</code> 表示要在 memory cell 中需要<strong>記住</strong>的內容. 這個要記住的內容簡單講是用一個 gate (<code>r</code>) 來控制之前的 <code>state</code> 有多少比例保留, concate <code>input</code> 後做 activation transform 後得到. 可以對照下面 tf source codes.</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/07/30/TF-Notes-GRU-in-Tensorflow/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1751,180 +1915,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/11/14/Notes-for-KKT-Conditions/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chih-Sheng Chen">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="棒棒生">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/11/14/Notes-for-KKT-Conditions/" itemprop="url">
-                  Notes for KKT Conditions
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2017-11-14T21:36:40+08:00">
-                2017-11-14
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分類於</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Optimization/" itemprop="url" rel="index">
-                    <span itemprop="name">Optimization</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/2017/11/14/Notes-for-KKT-Conditions/" class="leancloud_visitors" data-flag-title="Notes for KKT Conditions">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">閱讀次數 </span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-<hr>
-<p>2011年自己做的筆記, 放上來以免檔案丟失, 也方便隨時參考. 參考自 “Numerical Optimization” by Jorge Nocedal and Stephen J. Wright. 但是打算只用 Lagrange Multiplier Theorem 理解 KKT. :)</p>
-<p>就像是一般微積分裡學到的一樣, 對於一個函式 $f(x)$ 若 $x^\ast$ 為一 minimal/maximum point, 則必要條件為 $f’(x^\ast)=0$. 而在 <strong>constraint optimization 版本必要條件變成 KKT conditions</strong>. 說更清楚一點就是, 若 $x^\ast$ 為一 minimal/maximum point (+滿足某些神秘條件) , 則必要條件為在 $x^\ast$ 滿足 KKT Conditions.</p>
-<blockquote>
-<p>神秘條件稱為 Constraint Qualifications, 常見的為 LICQ, 在 Convex opt 裡為 Slater’s condition. <a href="https://en.wikipedia.org/wiki/Karush%E2%80%93Kuhn%E2%80%93Tucker_conditions">wiki KKT</a></p>
-</blockquote>
-<p>具體來說，我們要探討的是對於以下的問題，如果 $x^\ast$ 為一 minimal point 且滿足式 (2) 的條件, 則會發生什麼事情 (我們找的是<strong>必要條件</strong>)</p>
-<span>$$\begin{align} 
-\min f(x) \\
-\mbox{subject to } \begin{array}{rcl}
-c_i(x)=0,i \in \mathbf{E} \\
-c_i(x)\geq 0, i \in \mathbf{I} \\
-\end{array}
-\end{align}$$</span><!-- Has MathJax -->
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017/11/14/Notes-for-KKT-Conditions/#more" rel="contents">
-              閱讀全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1974,7 +1964,7 @@ c_i(x)\geq 0, i \in \mathbf{I} \\
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">53</span>
+                <span class="site-state-item-count">54</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
