@@ -1,0 +1,929 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Asymmetric Quantization,Quantization Aware Training (QAT),PyTorch,Symmetric Quantization," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="NN 在做 quantization 時採用的是非對稱的方式, real ($r$) 和 quantized ($q$) values 對應關係如下:
+
+其中 zero point $Z$ 會跟 $q$ 相同 type, 例如 int8, 而 scaling value $S$ 則會跟 $r$ 相同, 例如 float. 以 uint3 (0~7) 做 quantization, 如下圖所">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Quantization 的那些事">
+<meta property="og:url" content="http://yoursite.com/2020/10/03/Quantization-的那些事/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="NN 在做 quantization 時採用的是非對稱的方式, real ($r$) 和 quantized ($q$) values 對應關係如下:
+
+其中 zero point $Z$ 會跟 $q$ 相同 type, 例如 int8, 而 scaling value $S$ 則會跟 $r$ 相同, 例如 float. 以 uint3 (0~7) 做 quantization, 如下圖所">
+<meta property="og:image" content="http://yoursite.com/2020/10/03/Quantization-的那些事/asymmetric_quantization_def.png">
+<meta property="og:image" content="http://yoursite.com/2020/10/03/Quantization-的那些事/uint3_exp.png">
+<meta property="og:image" content="http://yoursite.com/2020/10/03/Quantization-的那些事/Integer_op1.png">
+<meta property="og:image" content="http://yoursite.com/2020/10/03/Quantization-的那些事/Integer_op2.png">
+<meta property="og:image" content="http://yoursite.com/2020/10/03/Quantization-的那些事/Integer_op3.png">
+<meta property="og:image" content="http://yoursite.com/2020/10/03/Quantization-的那些事/fractional_multiplication.png">
+<meta property="og:image" content="http://yoursite.com/2020/10/03/Quantization-的那些事/matrix_multiplication_op.png">
+<meta property="og:updated_time" content="2020-10-03T13:58:12.607Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Quantization 的那些事">
+<meta name="twitter:description" content="NN 在做 quantization 時採用的是非對稱的方式, real ($r$) 和 quantized ($q$) values 對應關係如下:
+
+其中 zero point $Z$ 會跟 $q$ 相同 type, 例如 int8, 而 scaling value $S$ 則會跟 $r$ 相同, 例如 float. 以 uint3 (0~7) 做 quantization, 如下圖所">
+<meta name="twitter:image" content="http://yoursite.com/2020/10/03/Quantization-的那些事/asymmetric_quantization_def.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/10/03/Quantization-的那些事/"/>
+
+
+
+
+
+  <title> Quantization 的那些事 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/03/Quantization-的那些事/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Quantization 的那些事
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2020-10-03T09:35:24+08:00">
+                2020-10-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2020/10/03/Quantization-的那些事/" class="leancloud_visitors" data-flag-title="Quantization 的那些事">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">閱讀次數 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>NN 在做 quantization 時採用的是非對稱的方式, real ($r$) 和 quantized ($q$) values 對應關係如下:</p>
+<p><img src="/2020/10/03/Quantization-的那些事/asymmetric_quantization_def.png" width="50%" height="50%" align="center"></p>
+<p>其中 zero point $Z$ 會跟 $q$ 相同 type, 例如 <code>int8</code>, 而 scaling value $S$ 則會跟 $r$ 相同, 例如 <code>float</code>. 以 <code>uint3</code> (0~7) 做 quantization, 如下圖所示:</p>
+<p><img src="/2020/10/03/Quantization-的那些事/uint3_exp.png" width="75%" height="75%" align="center"></p>
+<p>本篇討論以下兩點:</p>
+<ol>
+<li>如何在不同的 $Z$/$S$ 做轉換, e.g.: $q_1$ 如何對應到 $q_2$</li>
+<li>PyTorch 的 Quantization Aware Training (QAT) 討論</li>
+</ol>
+<p>在不同 $Z$/$S$ 轉換有兩個常見理由: 在做 NN 的 quantization 時候, 每個 layer 的 output domain 都不同, 這導致了使用不同的 $Z$/$S$. 又或者丟給 NN 做 inference 之前, mfcc/mfb 需要先轉換到 NN input 的 $Z$/$S$ quantized domain 上.</p>
+<a id="more"></a>
+<p>額外提一點 PyTorch 的 quantized Tensor 其實就只是比原本的 Tensor 多了 $Z$ and $S$. 例如給定 $Z$ and $S$, <code>torch.quantize_per_tensor</code> 會將一個正常的 tensor 從 $r$ 轉成 $q$, <a href="https://pytorch.org/docs/stable/generated/torch.quantize_per_tensor.html#torch.quantize_per_tensor" target="_blank" rel="external">官網範例</a>:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>torch.quantize_per_tensor(torch.tensor([<span class="number">-1.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">2.0</span>]), <span class="number">0.1</span>, <span class="number">10</span>, torch.quint8)</div><div class="line">tensor([<span class="number">-1.</span>,  <span class="number">0.</span>,  <span class="number">1.</span>,  <span class="number">2.</span>], size=(<span class="number">4</span>,), dtype=torch.quint8,</div><div class="line">       quantization_scheme=torch.per_tensor_affine, scale=<span class="number">0.1</span>, zero_point=<span class="number">10</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>torch.quantize_per_tensor(torch.tensor([<span class="number">-1.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">2.0</span>]), <span class="number">0.1</span>, <span class="number">10</span>, torch.quint8).int_repr()</div><div class="line">tensor([ <span class="number">0</span>, <span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>], dtype=torch.uint8)</div></pre></td></tr></table></figure>
+<p>以下我們都以 <code>uint8</code> 當作 quantized 的 type, real value 以 <code>float</code> (4 bytes) 為準. 而 <code>int</code> 為 4 bytes.</p>
+<hr>
+<h3 id="先使用-Float-轉換"><a href="#先使用-Float-轉換" class="headerlink" title="先使用 Float 轉換"></a>先使用 Float 轉換</h3><p>要將第一個 domain ($Z_1$/$S_1$) 的數值轉換到第二個 domain ($Z_2$/$S_2$) 最簡單的方法就是先把第一個 domain 的 r_1 算出來, 再利用第二個 domain 的 $Z_2$/$S_2$ 求得 $q_2$</p>
+<span>$$\begin{align}
+\color{orange}{r_1}=(float)\left( \left( (int32)q_1-Z_1 \right)*S_1 \right) \\
+q_2=\text{uint8_saturated_round}\left( \frac{\color{orange}{r_2}}{S_2}+Z_2 \right)
+\end{align}$$</span><!-- Has MathJax -->
+<p>由於 $r_2=r_1$ 因此 (2) 可計算出 q_2. 但這樣計算還是用到 float, 其實我們可以完全使用 integer 運算來達成.</p>
+<hr>
+<h3 id="純用-Integer-運算"><a href="#純用-Integer-運算" class="headerlink" title="純用 Integer 運算"></a>純用 Integer 運算</h3><p><img src="/2020/10/03/Quantization-的那些事/Integer_op1.png" width="50%" height="50%" align="center"></p>
+<p>其中 $M&gt;1.0$ 是沒有意義的, e.g. $S_1&gt;S_2$. 如下圖舉例來說, data domain 分布只會在 8 個點位置上, 使用更細的 resolution 去存沒意義.</p>
+<p><img src="/2020/10/03/Quantization-的那些事/Integer_op2.png" width="75%" height="75%" align="center"></p>
+<p><img src="/2020/10/03/Quantization-的那些事/Integer_op3.png" width="50%" height="50%" align="center"></p>
+<p>$M_0$ 很明顯可以用 Q0.31 的 int32 來保存, 所以 $M_0$ 與 $(q_1-Z_1)$ 相乘的時候使用 <strong>fractional multiplication</strong>, 最後 $2^{-n}$ 使用 shift 即可.</p>
+<p>什麼是 fractional multiplication? 一張圖表示就知道:</p>
+<p><img src="/2020/10/03/Quantization-的那些事/fractional_multiplication.png" width="50%" height="50%" align="center"></p>
+<p>最後我們要驗證的話其實可以跟上一段講的 Float 版本對比就可以.</p>
+<hr>
+<h3 id="矩陣運算的-Quantization-轉換"><a href="#矩陣運算的-Quantization-轉換" class="headerlink" title="矩陣運算的 Quantization 轉換"></a>矩陣運算的 Quantization 轉換</h3><p>其實 convolution 裡的矩陣運算只是原來的 $r_2=r_1$ 變成 $r_3=r_1r_2$ 的關係而已, 其餘都相同. 貼一張論文的內容即可.</p>
+<p><img src="/2020/10/03/Quantization-的那些事/matrix_multiplication_op.png" width="50%" height="50%" align="center"></p>
+<p>更多內容可以參考論文 ref [<a href="https://arxiv.org/abs/1712.05877" target="_blank" rel="external">1</a>], 例如使用 ReLU6 替代 ReLU, 因為如果我們使用 uint8 的話由於 ReLU6 將 domain 限制在 [0,6] 之間, 這樣 8 bits 可以用 $Z=0$, $S=1.0/2^5=0.03125$ 來表示. 同時最後再轉換成 quantization model 時可以直接拿掉 ReLU6 (因為直接使用 quantization 就好)</p>
+<hr>
+<h3 id="Symmetric-Fixed-Point"><a href="#Symmetric-Fixed-Point" class="headerlink" title="Symmetric Fixed Point"></a>Symmetric Fixed Point</h3><p>傳統上常見的 fixed point 採用的是 symmetric quantization, 例如 Q4.3 這種 int8 的表示方式 (-8.0 ~ 7.875). 但它其實只是 asymmetric quantization 的特例.</p>
+<p>Q4.3 基本上就是 $Z=0$ 和 $S=1.0/2^3=0.125$ 的 asymmetric quantization.</p>
+<hr>
+<h3 id="PyTorch-的-Quantization-Aware-Training-QAT-筆記"><a href="#PyTorch-的-Quantization-Aware-Training-QAT-筆記" class="headerlink" title="PyTorch 的 Quantization Aware Training (QAT) 筆記"></a>PyTorch 的 Quantization Aware Training (QAT) 筆記</h3><p>一開始要先對你的 NN Module 先作如下改動:</p>
+<ol>
+<li>在自己定義的 NN Module 裡, 所有用到 <code>torch.nn.functional</code> 的 op 都轉換成 <code>torch.nn.Module</code></li>
+<li>在自己定義的 NN Module 裡, <code>forward</code> 時先將 input 過 <code>QuantStub()</code>, 然後最後 output 過 <code>DeQuantStub()</code>. <code>QuantStub()</code> 會將正常的 input tensor 變成 quantized tensor (裡面包含 $Z$/$S$), 然後 <code>DeQuantStub()</code> 會將 quantized tensor 轉換成正常的 tensor.</li>
+<li>在自己定義的 NN Module 裡, 使用 <code>torch.quantization.fuse_modules</code> 定義你的 <code>fuse_model</code> function. 目前 PyTorch 只支援有限種 modules fusion (see function <code>fuse_known_modules</code> in <a href="https://github.com/pytorch/pytorch/blob/master/torch/quantization/fuse_modules.py" target="_blank" rel="external">fuse_modules.py</a>).</li>
+</ol>
+<p>接著 QAT 為以下幾個步驟:</p>
+<ol>
+<li>將 NN 的 object (<code>net</code>) 設定為 <code>net.train()</code> (如果只是做 post-quantization 則用 <code>net.eval()</code>).<br>這是因為 <strong>QAT 要在 training 時模擬 inference 的 quantization precision loss</strong>, 所以要插入很多 fake-quantization 的 op. 可以參考論文 ref [<a href="https://arxiv.org/abs/1712.05877" target="_blank" rel="external">1</a>] 的 Figure C.4 到 Figure C.8. 而如果只是 post-quantization 則在原來正常的 floating trianing 完後, 將 <code>net.eval()</code> 設定好直接就 fuse model 了 (<code>torch.quantization.fuse_modules</code> 對是 train or eval 有不同的 fuse 行為).</li>
+<li>呼叫 <code>net.fuse_model()</code>.<br>例如假設我們要 fuse <code>[&#39;conv1&#39;, &#39;bn1&#39;, &#39;relu1&#39;]</code>, PyTorch 會將第一個 Module 變成 fused Module, 剩下的兩個為 <code>Identity()</code> Module</li>
+<li>將 <code>net</code> 設定 attribute <code>qconfig</code>.<br>例如: <code>net.qconfig=</code> <code>torch.quantization.get_default_qat_qconfig(&#39;fbgemm&#39;)</code></li>
+<li>呼叫 <code>torch.quantization.prepare(net, inplace=True)</code>.<br>此 function 主要幫你做兩件事情:<br> a. propagate qconfig: 對所有子 Module 設定相對應的 qconfig (因為步驟3我們只針對 root Module 設定 qconfig)<br> b. add observer/fake-quantization: observer 為簡單的 min/max 線性量化方式(或 histogram 方式等). 將圖需要 quantization 的地方安插好這些 observer/fake-quantization.</li>
+<li>執行一般 training 流程.<br>在 training 的過程中就會順便統計好對應的 min/max 等, 然後每個 tensor 的 $Z$/$S$ 也會對應得到 (通常用 moving average 方式做 smoothing).</li>
+<li>最後轉換成 quantized model <code>torch.quantization.convert(net, inplace=True)</code></li>
+</ol>
+<p>以上一個最小範例如下:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> torch</div><div class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</div><div class="line"><span class="keyword">from</span> torch.quantization <span class="keyword">import</span> QuantStub, DeQuantStub</div><div class="line"><span class="keyword">import</span> torch.quantization</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Net</span><span class="params">(nn.Module)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        super(Net, self).__init__()</div><div class="line">        self.conv1 = nn.Conv2d(<span class="number">3</span>, <span class="number">6</span>, <span class="number">5</span>)</div><div class="line">        self.bn1 = nn.BatchNorm2d(<span class="number">6</span>)</div><div class="line">        self.relu1 = nn.ReLU()</div><div class="line"></div><div class="line">        self.quant = QuantStub()</div><div class="line">        self.dequant = DeQuantStub()</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span><span class="params">(self, x)</span>:</span></div><div class="line">        x = self.quant(x)</div><div class="line">        x = self.relu1(self.bn1(self.conv1(x)))</div><div class="line">        x = self.dequant(x)</div><div class="line">        <span class="keyword">return</span> x</div><div class="line"></div><div class="line">    <span class="comment"># Fuse Conv+BN and Conv+BN+Relu modules prior to quantization</span></div><div class="line">    <span class="comment"># This operation does not change the numerics</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">fuse_model</span><span class="params">(self)</span>:</span></div><div class="line">        torch.quantization.fuse_modules(self, [<span class="string">'conv1'</span>, <span class="string">'bn1'</span>, <span class="string">'relu1'</span>], inplace=<span class="keyword">True</span>)</div><div class="line"></div><div class="line"></div><div class="line">net = Net()</div><div class="line">print(<span class="string">'===== Before fuse_model:'</span>)</div><div class="line">print(net)</div><div class="line"></div><div class="line">print(<span class="string">'===== After fuse_model:'</span>)</div><div class="line">net.train()</div><div class="line">net.fuse_model()</div><div class="line">print(net)</div><div class="line"></div><div class="line">print(<span class="string">'===== Setting qconfig:'</span>)</div><div class="line"><span class="comment"># Specify quantization configuration</span></div><div class="line"><span class="comment"># Start with simple min/max range estimation and per-tensor quantization of weights</span></div><div class="line">net.qconfig = torch.quantization.get_default_qat_qconfig(<span class="string">'fbgemm'</span>)</div><div class="line">print(net.qconfig)</div><div class="line"></div><div class="line">print(<span class="string">'===== After torch.quantization.prepare:'</span>)</div><div class="line">torch.quantization.prepare(net, inplace=<span class="keyword">True</span>)</div><div class="line">print(net)</div><div class="line"></div><div class="line">print(<span class="string">'===== After torch.quantization.convert:'</span>)</div><div class="line">torch.quantization.convert(net, inplace=<span class="keyword">True</span>)</div><div class="line">print(net)</div></pre></td></tr></table></figure>
+<hr>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
+<li><a href="https://arxiv.org/abs/1712.05877" target="_blank" rel="external">Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference</a></li>
+<li><a href="https://pytorch.org/tutorials/advanced/static_quantization_tutorial.html" target="_blank" rel="external">(BETA) STATIC QUANTIZATION WITH EAGER MODE IN PYTORCH</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2020/10/03/Quantization-的那些事/" title="Quantization 的那些事">http://yoursite.com/2020/10/03/Quantization-的那些事/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Asymmetric-Quantization/" rel="tag"># Asymmetric Quantization</a>
+          
+            <a href="/tags/Quantization-Aware-Training-QAT/" rel="tag"># Quantization Aware Training (QAT)</a>
+          
+            <a href="/tags/PyTorch/" rel="tag"># PyTorch</a>
+          
+            <a href="/tags/Symmetric-Quantization/" rel="tag"># Symmetric Quantization</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/06/26/TF-Notes-some-TF2-x-eager-mode-practices/" rel="next" title="TF Notes (7), Some TF2.x Eager Mode Practices">
+                <i class="fa fa-chevron-left"></i> TF Notes (7), Some TF2.x Eager Mode Practices
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">55</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">107</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#先使用-Float-轉換"><span class="nav-number">1.</span> <span class="nav-text">先使用 Float 轉換</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#純用-Integer-運算"><span class="nav-number">2.</span> <span class="nav-text">純用 Integer 運算</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#矩陣運算的-Quantization-轉換"><span class="nav-number">3.</span> <span class="nav-text">矩陣運算的 Quantization 轉換</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Symmetric-Fixed-Point"><span class="nav-number">4.</span> <span class="nav-text">Symmetric Fixed Point</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PyTorch-的-Quantization-Aware-Training-QAT-筆記"><span class="nav-number">5.</span> <span class="nav-text">PyTorch 的 Quantization Aware Training (QAT) 筆記</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">6.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("7mUJ3jkWeU7Rh7soYrUvDcuh-gzGzoHsz", "SWNPybUfqj8qALtwiKRiv7Rh");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
