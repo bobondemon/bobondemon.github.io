@@ -359,12 +359,12 @@
 
 <hr>
 <p>NN 在做 quantization 時採用的是非對稱的方式, real ($r$) 和 quantized ($q$) values 對應關係如下:</p>
-<p><img src="/2020/10/03/Quantization-的那些事/asymmetric_quantization_def.png" width="50%" height="50%" align="center"></p>
+<p><img src="/2020/10/03/Quantization-的那些事/asymmetric_quantization_def.png" width="40%" height="40%" align="center"></p>
 <p>其中 zero point $Z$ 會跟 $q$ 相同 type, 例如 <code>int8</code>, 而 scaling value $S$ 則會跟 $r$ 相同, 例如 <code>float</code>. 以 <code>uint3</code> (0~7) 做 quantization, 如下圖所示:</p>
 <p><img src="/2020/10/03/Quantization-的那些事/uint3_exp.png" width="75%" height="75%" align="center"></p>
 <p>本篇討論以下兩點:</p>
 <ol>
-<li>如何在不同的 $Z$/$S$ 做轉換, e.g.: $q_1$ 如何對應到 $q_2$</li>
+<li>同一個 real 值如何在不同的 $Z$/$S$ 做轉換, e.g.: $q_1$ with ($Z_1$/$S_1$) 如何對應到 $q_2$ with ($Z_2$/$S_2$)</li>
 <li>PyTorch 的 Quantization Aware Training (QAT) 討論</li>
 </ol>
 <p>在不同 $Z$/$S$ 轉換有兩個常見理由: 在做 NN 的 quantization 時候, 每個 layer 的 output domain 都不同, 這導致了使用不同的 $Z$/$S$. 又或者丟給 NN 做 inference 之前, mfcc/mfb 需要先轉換到 NN input 的 $Z$/$S$ quantized domain 上.</p>
