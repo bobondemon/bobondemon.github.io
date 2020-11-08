@@ -105,7 +105,7 @@ MMGAN(最原始的GAN), NSGAN(跟MMGAN差別在 G 的 update 目標函式有點�
 <meta property="og:image" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/infoGAN1.png">
 <meta property="og:image" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/infoGAN2.png">
 <meta property="og:image" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/VAEGAN.png">
-<meta property="og:updated_time" content="2020-05-13T15:28:55.586Z">
+<meta property="og:updated_time" content="2020-11-08T10:41:10.074Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Framework of GAN">
 <meta name="twitter:description" content="說來汗顏, 自從17年三月筆記完 WGAN 後, 就沒再碰 GAN 相關的東西了. 惡補了一下 李宏毅GAN 的課程和其他相關資料, 因此筆記一下.
@@ -399,8 +399,8 @@ Div\left(P_d\|P_G\right) = \max_D\left[ E_{x\sim P_d} D(x) - E_{x\sim P_G}f^*(D(
 G^*=\arg\min_G{Div\left(P_d\|P_G\right)} + reg(G) \\
 \end{align}$$</span><!-- Has MathJax -->
 <p>其中 $P_d$ 為 real data pdf, $P_G$ 為 generator 產生的 data pdf. $f^*$ 帶入不同的定義會產生不同的 divergence, 這之後會再說明.</p>
-<p>(1) 定義了 $P_G$ 與 $P_d$ 的 divergence, 其中這個 divergence 的值為藉由解這個最佳化問題求得的.</p>
-<p>(2) 表示要找的 $G$ 就是 divergence 最小的那個. Divergence 最小 ($=0$) 同時也表示 $P_G=P_d$ (生成器鍊成). 如果同時考慮 regularization term, $reg(G)$, 則會有很多變化產生, 如 ADDA, infoGAN, VAE-GAN…</p>
+<p>式 (1) 定義了 $P_G$ 與 $P_d$ 的 divergence, 其中這個 divergence 的值為藉由解這個最佳化問題求得的.</p>
+<p>式 (2) 表示要找的 $G$ 就是 divergence 最小的那個. Divergence 最小 ($=0$) 同時也表示 $P_G=P_d$ (生成器鍊成). 如果同時考慮 regularization term, $reg(G)$, 則會有很多變化產生, 如 ADDA, infoGAN, VAE-GAN…</p>
 <p>我們接著來看 MMGAN, NSGAN, f-GAN, WGAN, ADDA, infoGAN, VAE-GAN 這些怎麼 fit 進這個框架.</p>
 <a id="more"></a>
 <hr>
