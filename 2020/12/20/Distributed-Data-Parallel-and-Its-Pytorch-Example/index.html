@@ -1,0 +1,1012 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Distributed Data Parallel (DDP),PyTorch," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="訓練時候的平行化可分為:
+
+Model Parallel: 所有 GPUs 跑同一個 batch 但是各自跑模型不同部分
+Data Parallel: GPUs 跑不同的 batches, 但跑同一個完整的模型
+
+
+由於 Data Parallel 跑同一個完整模型且各 GPU 都用自己複製的一份, 在 update 參數時要如何確保更新一致? 可分為 synchronous 和 asyn">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Distributed Data Parallel and Its Pytorch Example">
+<meta property="og:url" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="訓練時候的平行化可分為:
+
+Model Parallel: 所有 GPUs 跑同一個 batch 但是各自跑模型不同部分
+Data Parallel: GPUs 跑不同的 batches, 但跑同一個完整的模型
+
+
+由於 Data Parallel 跑同一個完整模型且各 GPU 都用自己複製的一份, 在 update 參數時要如何確保更新一致? 可分為 synchronous 和 asyn">
+<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/model_data_parallel.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/sync_and_asnyc_data_parallelism.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/distributed_data_results.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/Async_case1.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/Async_case2.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/parameter_server.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/ring_allreduce.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/chunks.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/scatter_reduce_itr1.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/scatter_reduce_itr2.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/scatter_reduce_itr3.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/scatter_reduce_itr4.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/scatter_reduce_done.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_itr1.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_itr2.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_itr3.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_itr4.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_done.png">
+<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/lightning_example.png">
+<meta property="og:updated_time" content="2020-12-20T09:37:46.426Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Distributed Data Parallel and Its Pytorch Example">
+<meta name="twitter:description" content="訓練時候的平行化可分為:
+
+Model Parallel: 所有 GPUs 跑同一個 batch 但是各自跑模型不同部分
+Data Parallel: GPUs 跑不同的 batches, 但跑同一個完整的模型
+
+
+由於 Data Parallel 跑同一個完整模型且各 GPU 都用自己複製的一份, 在 update 參數時要如何確保更新一致? 可分為 synchronous 和 asyn">
+<meta name="twitter:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/model_data_parallel.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/"/>
+
+
+
+
+
+  <title> Distributed Data Parallel and Its Pytorch Example | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Distributed Data Parallel and Its Pytorch Example
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2020-12-20T12:19:38+08:00">
+                2020-12-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/" class="leancloud_visitors" data-flag-title="Distributed Data Parallel and Its Pytorch Example">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">閱讀次數 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>訓練時候的平行化可分為:</p>
+<ul>
+<li>Model Parallel: 所有 GPUs 跑同一個 batch 但是各自跑模型不同部分</li>
+<li>Data Parallel: GPUs 跑不同的 batches, 但跑同一個完整的模型</li>
+</ul>
+<p><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/model_data_parallel.png" width="50%" height="50%" align="center"></p>
+<p>由於 Data Parallel 跑同一個完整模型且各 GPU 都用自己複製的一份, 在 update 參數時要如何確保更新一致? 可分為 synchronous 和 asynchronous update. (文章後面會詳細討論)</p>
+<p><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/sync_and_asnyc_data_parallelism.png" width="75%" height="75%" align="center"></p>
+<blockquote>
+<p>本文討論 <em>Data Parallel with asynchronous update</em>.</p>
+</blockquote>
+<p>既然要做 data parallel, 第一件事情便是如何對不同 GPU 分派不同的 batches, 接下來我們就使用 PyTorch 做這件事.</p>
+<a id="more"></a>
+<hr>
+<h3 id="指派不同-Batch-給不同-GPU"><a href="#指派不同-Batch-給不同-GPU" class="headerlink" title="指派不同 Batch 給不同 GPU"></a>指派不同 Batch 給不同 GPU</h3><p>直接上一個 toy example (minimal_distributed_data_example.py)</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># file: minimal_distributed_data_example.py</span></div><div class="line"><span class="keyword">import</span> ...</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">SimpleDataset</span><span class="params">(torch.utils.data.Dataset)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, start, end)</span>:</span></div><div class="line">        <span class="keyword">assert</span>(start &lt; end)</div><div class="line">        self.start, self.end, self.data_num = start, end, end - start</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__len__</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">return</span> self.data_num</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__getitem__</span><span class="params">(self, idx)</span>:</span></div><div class="line">        <span class="keyword">return</span> idx + self.start</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    <span class="comment"># ===== Distributed Settings</span></div><div class="line">    world_size = int(os.environ.get(<span class="string">'WORLD_SIZE'</span>, <span class="number">1</span>))</div><div class="line">    local_rank = <span class="number">0</span></div><div class="line">    is_distributed = world_size &gt; <span class="number">1</span></div><div class="line">    <span class="keyword">if</span> is_distributed:</div><div class="line">        torch.distributed.init_process_group(backend=<span class="string">'nccl'</span>)</div><div class="line">        local_rank = torch.distributed.get_rank()</div><div class="line">    torch.cuda.set_device(local_rank)</div><div class="line">    device = torch.device(<span class="string">"cuda"</span>, local_rank)</div><div class="line">    <span class="comment"># ===== Dataset/DataLoader Settings</span></div><div class="line">    dataset = SimpleDataset(<span class="number">0</span>, <span class="number">4</span>*<span class="number">6</span>)</div><div class="line">    sampler = DistributedSampler(range(<span class="number">4</span>*<span class="number">6</span>), shuffle=<span class="keyword">False</span>, seed=<span class="number">1111</span>)	<span class="comment"># Shuffle here (set True) if needed rather than in DataLoader</span></div><div class="line">    print(f<span class="string">'========== device:&#123;device&#125;'</span>)</div><div class="line">    data_parallel_dl = DataLoader(dataset, batch_size=<span class="number">4</span>, num_workers=<span class="number">8</span>, shuffle=<span class="keyword">False</span>, sampler=sampler)	<span class="comment"># since we use sampler, so we set shuffle to False (default) in DataLoader</span></div><div class="line">    <span class="comment"># ===== Traverse All Data</span></div><div class="line">    arr = []</div><div class="line">    <span class="keyword">for</span> sample_batch <span class="keyword">in</span> data_parallel_dl:</div><div class="line">        arr += sample_batch.tolist()</div><div class="line">        t = np.random.randint(<span class="number">100</span>)/<span class="number">100.0</span></div><div class="line">        sample_batch.to(device)</div><div class="line">        print(<span class="string">'sleep &#123;:.2f&#125;; device:&#123;&#125;\t&#123;&#125;'</span>.format(t, device, sample_batch))</div><div class="line">        time.sleep(t)</div><div class="line">    print(f<span class="string">'device:&#123;device&#125;\n&#123;np.sort(np.array(arr))&#125;'</span>)</div></pre></td></tr></table></figure>
+<p><strong>[Line 23~27 有關 Dataset/DataLoader]</strong></p>
+<ul>
+<li>Line 24 <code>dataset</code> 只是一個 0 到 23 的 int list.</li>
+<li>Line 27 <code>DataLoader</code> 在分配 batches 給不同 GPUs 時只需要將 sampler 使用 <code>DistributedSampler</code> 創建就可以. <code>DistributedSampler</code> 在分配一個 batch 除了會指定資料是那些 index 之外, 還會指定該筆 batch 是要分到哪個 gpu.</li>
+</ul>
+<p><strong>[Line 14~22 有關 Distributed Settings]</strong><br>在執行這個檔案的時候, 我們會使用 <code>torch.distributed.launch</code>, 範例指令如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">CUDA_VISIBLE_DEVICES=2,3 python -m torch.distributed.launch --nproc_per_node=2 --use_env minimal_distributed_data_example.py</div></pre></td></tr></table></figure>
+<p>此時 PyTorch 會<strong>開啟兩個 processes</strong> 去執行你的 .py, 這裡注意不是 threads, 這是因為 python <a href="https://en.wikipedia.org/wiki/Global_interpreter_lock" target="_blank" rel="external">Global Interpreter Lock (GIL)</a> 的原因, 使用 thread 效率會不高.</p>
+<p>另外使用 <code>--use_env</code> 則會在各自的 process 裡設定環境變數:</p>
+<ul>
+<li><code>WORLD_SIZE</code> (範例 = 2)</li>
+<li><code>LOCAL_RANK</code> (範例 = 0 or 1)</li>
+</ul>
+<p>因此 line 17 我們便可藉由 <code>world_size</code> 得知是否為 distributed 環境. 是的話 line 20 就可以拿到這個 process 的 <code>local_rank</code> (可以想成是 worker 的編號, 也就是第幾個平行的單位), 接著 line 21, 22 就可以根據 <code>local_rank</code> 設置 gpu.</p>
+<p><strong>[Line 28~36 有關 go through all data]</strong></p>
+<p>在執行時, 各個 process 會拿到相對應個 batches. Line 35 模擬處理該筆資料所花的時間. Line 36 為確認自己這個 process 總共拿到那些 batches. 以範例來說, 兩個 gpus 應該要拿到 exclusive 的兩個 sets 其聯集是 {0,1, …, 23}. 結果如下:</p>
+<p><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/distributed_data_results.png" width="75%" height="75%" align="center"></p>
+<p>Good Job! 現在我們會把每個 GPU 都分配不同的 batches 了, 不過還有一個關鍵的問題: 該怎麼各自計算 gradients 然後 update?</p>
+<p>這就開始討論 update 的兩種 case, synchronous and asynchronous update.</p>
+<hr>
+<h3 id="Asynchronous-Update"><a href="#Asynchronous-Update" class="headerlink" title="Asynchronous Update"></a>Asynchronous Update</h3><ul>
+<li>Synchronous: 每一次模型 update 要等到所有 device 的 batch 都結束, 統合後 update</li>
+<li>Asynchronous: 每個 device 算完自己的 batch 後即可直接 update</li>
+</ul>
+<p>可以想像非同步的化可以更新的比較有效率, 但可能效果會不如同步的方式.<br>Asynchronous 會遇到的狀況是算完 gradient 後要 update parameters 時, parameters 已經被其他 process update 過了, 那為什麼還可以 work?</p>
+<h4 id="Asynchronous-狀況-1"><a href="#Asynchronous-狀況-1" class="headerlink" title="Asynchronous 狀況 1"></a>Asynchronous 狀況 1</h4><p>範例假設兩個 GPU (1&amp;2) 其參數空間都在 $\theta_a$.</p>
+<p>Step 1. 假設 GPU2 先算完 $\Delta P_2(\theta_a)$ 並且 update 到 $\theta_b$:</p>
+<span>$$\begin{align}
+\theta_b = \theta_a + \Delta P_2(\theta_a)
+\end{align}$$</span><!-- Has MathJax -->
+<p>Step2. 這時候 GPU1 算完 gradient 了, 由於當時算 gradient 是基於 $\theta_a$, 因此 gradient 為 $\Delta P_1(\theta_a)$, 但是要 update 的時候由於已經被 GPU2 更新到 $\theta_b$ 了, 所以會更新到 $\theta_c$:</p>
+<span>$$\begin{align}
+\theta_c = \theta_b + \Delta P_1(\theta_a)
+\end{align}$$</span><!-- Has MathJax -->
+<p><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/Async_case1.png" width="30%" height="30%" align="center"></p>
+<p>這裡讀者可能會疑問, 計算 gradient 與 update 時根據的參數是不同, 這樣 update 會不會出問題? 以上面這個例子來說, 還剛好沒事. 原因是其實等同於 synchronous update:</p>
+<span>$$\begin{align}
+\theta_c = \theta_a + \left[ \Delta P_2(\theta_a) + \Delta P_1(\theta_a) \right]
+\end{align}$$</span><!-- Has MathJax -->
+<p>那可能會繼續問, 這只是剛好, 如果一個 GPU 比另一個慢很多, 會怎樣? 我們看看 case 2</p>
+<h4 id="Asynchronous-狀況-2"><a href="#Asynchronous-狀況-2" class="headerlink" title="Asynchronous 狀況 2"></a>Asynchronous 狀況 2</h4><p>GPU2 太快了… 已經 update 好幾輪</p>
+<p><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/Async_case2.png" width="60%" height="60%" align="center"></p>
+<p>好吧… 想成類似有 momentum 效果吧</p>
+<p>實務上會在幾次的 update 過後強制 synchronize update 一次, 可以想像如果一些條件成立 (譬如 gradients 是 bounded), 應該能保證收斂 (這邊我沒做功課阿, 純粹猜測)</p>
+<hr>
+<h3 id="Synchronous-Update"><a href="#Synchronous-Update" class="headerlink" title="Synchronous Update"></a>Synchronous Update</h3><p>每個 gpu 都算完各自 batch 的 gradients 後, 統一整理 update parameters, 常見兩種方式:</p>
+<ol>
+<li><p>Parameter Server<br><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/parameter_server.png" width="60%" height="60%" align="center"></p>
+</li>
+<li><p>Ring Allreduce<br><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/ring_allreduce.png" width="60%" height="60%" align="center"></p>
+</li>
+</ol>
+<blockquote>
+<p>接著介紹的這兩種方法圖片主要從 Baidu: Bringing HPC techniques to deep learning [<a href="https://andrew.gibiansky.com/blog/machine-learning/baidu-allreduce/" target="_blank" rel="external">Andrew Gibiansky</a>] 筆記下來.</p>
+</blockquote>
+<h4 id="Parameter-Server-的-Synchronous-Update"><a href="#Parameter-Server-的-Synchronous-Update" class="headerlink" title="Parameter Server 的 Synchronous Update"></a>Parameter Server 的 Synchronous Update</h4><p>一次 Update 分兩步驟</p>
+<ol>
+<li>GPU 0 全部都拿到 GPU 1~4 的 Gradients 後, 更新 parameters</li>
+<li>GPU 0 把 model 發送給 GPU 1~4</li>
+</ol>
+<p>假設有 $N$ 個 GPU, 通信一次花費時間 $K$, 則 PS 方法成本為:</p>
+<ul>
+<li>Gradients passing: $(N-1)K$</li>
+<li>Model passing: $(N-1)K$</li>
+</ul>
+<p>Total $2K(\color{orange}{N}-1)$, <strong>跟 GPU 數量正比</strong></p>
+<p>Ring Allreduce 比較多圖, 特別拉出一個 section 說明</p>
+<hr>
+<h3 id="Ring-Allreduce-的-Synchronous-Update"><a href="#Ring-Allreduce-的-Synchronous-Update" class="headerlink" title="Ring Allreduce 的 Synchronous Update"></a>Ring Allreduce 的 Synchronous Update</h3><p>每一個 GPU 都分別有一個傳送和接收的對象 GPU, 分配起來正好形成一個環. 假設每個 GPUs 都算好 gradients 了, 並且我們將 gradients 分成跟 GPU 數量一樣的 $N$ 個 chunks:</p>
+<p><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/chunks.png" width="100%" height="100%" align="center"></p>
+<p>這方法分兩步驟:</p>
+<ol>
+<li>Scatter Reduce</li>
+<li>All Gather</li>
+</ol>
+<h4 id="1-Scatter-Reduce"><a href="#1-Scatter-Reduce" class="headerlink" title="1. Scatter Reduce"></a>1. Scatter Reduce</h4><p><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/scatter_reduce_itr1.png" width="70%" height="70%" align="center"><br><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/scatter_reduce_itr2.png" width="70%" height="70%" align="center"><br><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/scatter_reduce_itr3.png" width="70%" height="70%" align="center"><br><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/scatter_reduce_itr4.png" width="70%" height="70%" align="center"><br><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/scatter_reduce_done.png" width="70%" height="70%" align="center"></p>
+<p>做完 $N-1$ 次 iteration 後可以發現每張 GPU 都會有一個是完整的 chunk.</p>
+<h4 id="2-All-Gather"><a href="#2-All-Gather" class="headerlink" title="2. All Gather"></a>2. All Gather</h4><p><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_itr1.png" width="70%" height="70%" align="center"><br><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_itr2.png" width="70%" height="70%" align="center"><br><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_itr3.png" width="70%" height="70%" align="center"><br><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_itr4.png" width="70%" height="70%" align="center"><br><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_done.png" width="70%" height="70%" align="center"></p>
+<p>做完 $N-1$ 次 iteration 後可以發現每張 GPU 都拿到所有完整的 chunk.</p>
+<p>All Gather 流程跟 Scatter Reduce 是一樣, 只是將累加行為變成取代而已.</p>
+<h4 id="成本"><a href="#成本" class="headerlink" title="成本"></a>成本</h4><p>每個 GPUs 都得到統合後的 gradients, 因此 各個 GPU 上的 model 可以各自 update (gradients 相同, 所以 update 後的 models 也相同)</p>
+<p>假設有 $N$ 個 GPU,則成本為:</p>
+<ul>
+<li>通信一次花費時間 $K/N$ (因為我們分成 $N$ 個 chunks 同時傳輸)</li>
+<li>Scatter reduce:  $(N-1)K/N$</li>
+<li>All gather: $(N-1)K/N$</li>
+</ul>
+<p>Total $2K(\color{orange}{N}-1)/\color{orange}{N}$, <strong>跟 GPU 數量無關</strong></p>
+<hr>
+<h3 id="PyTorch-Model-with-DDP"><a href="#PyTorch-Model-with-DDP" class="headerlink" title="PyTorch: Model with DDP"></a>PyTorch: Model with DDP</h3><p>還記得最開頭的範例嗎? 我們做到了把每個 GPU 都分配不同的 batches, 但還不會將各自計算 gradients 統合然後 update.</p>
+<p>其實我們只需要針對上面範例的 minimal_distributed_data_example.py 做點修改就可以.</p>
+<p>針對 model 作如下改動:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[local_rank], output_device=local_rank)</div></pre></td></tr></table></figure>
+<p>這樣就使得 model 的 backward() 成為 sync op. 也就是在呼叫 loss.backward() 會等到每張 GPU 的 gradient 都算完且 sync 了 (PS or All Gather 都可以) 才會接下去執行.</p>
+<h4 id="注意事項"><a href="#注意事項" class="headerlink" title="注意事項"></a>注意事項</h4><ol>
+<li>由於每個 process 都有自己的 optimizer(scheduler), 而 momentum 會根據當前的 gradient update, 如何確保每個 optimizers 都相同?<br>Ans: 由於 .backward() 是 sync op, 因此 opt.step() 時每個 processes 的 gradients 已經同步了, 所以 momentum 會根據相同的 gradient update</li>
+<li>Batch-norm 的 statistics 同步?<br>Ans: See <a href="https://pytorch.org/docs/stable/generated/torch.nn.SyncBatchNorm.html" target="_blank" rel="external">torch.nn.SyncBatchNorm</a></li>
+<li>Save checkpoint 時在一張卡上存就可以 (通常用 LOCAL_RANK=0 的那個 process)</li>
+<li>怎麼確保每個 process 上的 model random initial 相同的 weights?<br>Ans: <code>DistributedDataParallel</code> 在 init 時就會確保 parameters/buffers sync 過了, see <a href="https://github.com/pytorch/pytorch/blob/ee0033af9b7531ba0a453844dc621f8cfa140c20/torch/nn/parallel/distributed.py#L420" target="_blank" rel="external">here</a></li>
+<li>model 經過 <code>DistributedDataParallel</code> 包過後 name 會多一個前綴 <code>module.</code>, 如果訓練和加載模型一個使用 DDP 一個沒有 <code>load_state_dict</code> 有可能會因此出錯, 需自行處理</li>
+<li>一些 metrics 如 accuracy/loss 由於在各個 GPUs 計算, 可以利用 <code>torch.distributed.all_reduce</code>, <code>torch.distributed.all_gather</code> 等來 sync<br>See <a href="https://pytorch.org/docs/stable/distributed.html#synchronous-and-asynchronous-collective-operations" target="_blank" rel="external">DISTRIBUTED COMMUNICATION PACKAGE - TORCH.DISTRIBUTED</a></li>
+</ol>
+<p>有一個不錯的 DDP 範例 [<a href="https://coke24h.net/pytorch-distributed-training/" target="_blank" rel="external">2</a>]</p>
+<p>如果可以的話, 推薦使用 <a href="https://github.com/PyTorchLightning/pytorch-lightning" target="_blank" rel="external">PyTorch Lightning</a>, 直接幫你把這些繁瑣的細節包好, 告訴它要用幾張 GPUs 就結束了.</p>
+<p><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/lightning_example.png" width="60%" height="60%" align="center"></p>
+<hr>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><p>[1] <a href="https://andrew.gibiansky.com/blog/machine-learning/baidu-allreduce/" target="_blank" rel="external">Bringing HPC Techniques to Deep Learning</a><br>[2] <a href="https://coke24h.net/pytorch-distributed-training/" target="_blank" rel="external">A good example of DDP in PyTorch</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/" title="Distributed Data Parallel and Its Pytorch Example">http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Distributed-Data-Parallel-DDP/" rel="tag"># Distributed Data Parallel (DDP)</a>
+          
+            <a href="/tags/PyTorch/" rel="tag"># PyTorch</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/10/03/Quantization-的那些事/" rel="next" title="Quantization 的那些事">
+                <i class="fa fa-chevron-left"></i> Quantization 的那些事
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">56</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">108</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#指派不同-Batch-給不同-GPU"><span class="nav-number">1.</span> <span class="nav-text">指派不同 Batch 給不同 GPU</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Asynchronous-Update"><span class="nav-number">2.</span> <span class="nav-text">Asynchronous Update</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Asynchronous-狀況-1"><span class="nav-number">2.1.</span> <span class="nav-text">Asynchronous 狀況 1</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Asynchronous-狀況-2"><span class="nav-number">2.2.</span> <span class="nav-text">Asynchronous 狀況 2</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Synchronous-Update"><span class="nav-number">3.</span> <span class="nav-text">Synchronous Update</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Parameter-Server-的-Synchronous-Update"><span class="nav-number">3.1.</span> <span class="nav-text">Parameter Server 的 Synchronous Update</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Ring-Allreduce-的-Synchronous-Update"><span class="nav-number">4.</span> <span class="nav-text">Ring Allreduce 的 Synchronous Update</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-Scatter-Reduce"><span class="nav-number">4.1.</span> <span class="nav-text">1. Scatter Reduce</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-All-Gather"><span class="nav-number">4.2.</span> <span class="nav-text">2. All Gather</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#成本"><span class="nav-number">4.3.</span> <span class="nav-text">成本</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PyTorch-Model-with-DDP"><span class="nav-number">5.</span> <span class="nav-text">PyTorch: Model with DDP</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#注意事項"><span class="nav-number">5.1.</span> <span class="nav-text">注意事項</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">6.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("7mUJ3jkWeU7Rh7soYrUvDcuh-gzGzoHsz", "SWNPybUfqj8qALtwiKRiv7Rh");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
