@@ -100,7 +100,7 @@
 <meta property="og:image" content="http://yoursite.com/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/Represnetation_network.jpg">
 <meta property="og:image" content="http://yoursite.com/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/MLE_NCE_Representation_network.jpg">
 <meta property="og:image" content="http://yoursite.com/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/NCE_paper_Th1.png">
-<meta property="og:updated_time" content="2021-06-05T10:10:31.500Z">
+<meta property="og:updated_time" content="2021-06-05T10:13:04.886Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Noise Contrastive Estimation (NCE) 筆記">
 <meta name="twitter:description" content="之前聽人介紹 wav2vec [3] 或是看其他人的文章大部分都只有介紹作法, 直到有一天自己去看論文才發現看不懂 CPC [2] (wav2vec 使用 CPC 方法). 因此才決定好好讀一下並記錄.
@@ -391,6 +391,7 @@
 <p>先將這些方法關係梳理一下, NCE –&gt; CPC (infoNCE) –&gt; wav2vec. 此篇筆記主要紀錄 NCE (Noise Contrastive Estimation)</p>
 <p>在做 ML 時常常需要估計手上 training data 的 distribution $p<em>d(x)$ . 我們通常會使用 $p</em>\theta(x)$, 希望能找到最佳的 $\theta$ 來跟 $p_d(x)$ 一樣.<br>在現在 DNN 統治的年代可能會說, 不然就用一個 NN 來訓練吧, 如下圖:</p>
 <p><img src="/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/MLE_network.jpg" width="80%" height="80%" align="center"></p>
+<a id="more"></a>
 <p>給 input $x$, 丟給 NN 希望直接吐出 $p_\theta(x)$. 上圖的架構是 $x$ 先丟給參數為 $\theta_f$ 的 NN, 該 NN 最後一層的 outputs 再丟給參數為 $w$ 的 linear layer 最後吐出一個 scalar 值, 該值就是我們要的機率.<br>而訓練的話就使用 MLE (Maximum Likelihood Estimation) 來求參數 $\theta$.</p>
 <p>恩, 問題似乎很單純但真正實作起來卻困難重重. 一個問題是 NN outputs 若要保持 p.d.f. 則必須過 softmax, 確保 sum 起來是 1 (也就是要算 $Z_\theta$).</p>
 <span>$$\begin{align}
@@ -404,7 +405,6 @@ p_\theta(x)=\frac{u_\theta(x)}{Z_\theta}=\frac{e^{G(x;\theta)}}{Z_\theta} \\
 <p>不過就算我們真的能算出 $Z_\theta$, 我們也不知道 ground truth $p_d(x)$, 所以想透過 MLE 求解也不可行.</p>
 <p><strong>NCE 巧妙的將此 MLE 問題轉化成 binary classification 問題, 從而得到我們要的 MLE 解.</strong></p>
 <p>不過在此之前, 我們先來看看 MLE 的 gradient 長什麼樣.</p>
-<a id="more"></a>
 <hr>
 <h3 id="MLE-求解"><a href="#MLE-求解" class="headerlink" title="MLE 求解"></a>MLE 求解</h3><p>寫出 likelihood:</p>
 <span>$$\begin{align}
