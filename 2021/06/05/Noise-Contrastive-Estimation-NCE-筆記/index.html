@@ -100,7 +100,7 @@
 <meta property="og:image" content="http://yoursite.com/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/Represnetation_network.jpg">
 <meta property="og:image" content="http://yoursite.com/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/MLE_NCE_Representation_network.jpg">
 <meta property="og:image" content="http://yoursite.com/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/NCE_paper_Th1.png">
-<meta property="og:updated_time" content="2021-06-05T10:18:22.409Z">
+<meta property="og:updated_time" content="2021-06-05T10:58:39.095Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Noise Contrastive Estimation (NCE) 筆記">
 <meta name="twitter:description" content="之前聽人介紹 wav2vec [3] 或是看其他人的文章大部分都只有介紹作法, 直到有一天自己去看論文才發現看不懂 CPC [2] (wav2vec 使用 CPC 方法). 因此才決定好好讀一下並記錄.
@@ -402,7 +402,6 @@ p_\theta(x)=\frac{u_\theta(x)}{Z_\theta}=\frac{e^{G(x;\theta)}}{Z_\theta} \\
 <p>式 (1) 為 energy-based model, 在做 NN classification 時, NN 的 output 就是 $G(x;θ)$, 也就是常看到的 logit, 經過 softmax 就等同於式 (1) 在做的事</p>
 </blockquote>
 <p>而做這件事情在 $x$ 是 discrete space 但數量很多, 例如 NLP 中 LM vocabulary 很大時, 計算資源會消耗過大.<br>或是 $x$ 是 continuous space 但是算 $Z_\theta$ 的積分沒有公式解的情形會做不下去. (不然就要用 sampling 方法, 如 MCMC)</p>
-<p>不過就算我們真的能算出 $Z_\theta$, 我們也不知道 ground truth $p_d(x)$, 所以想透過 MLE 求解也不可行.</p>
 <p><strong>NCE 巧妙的將此 MLE 問題轉化成 binary classification 問題, 從而得到我們要的 MLE 解.</strong></p>
 <p>不過在此之前, 我們先來看看 MLE 的 gradient 長什麼樣.</p>
 <hr>
@@ -424,7 +423,7 @@ p_\theta(x)=\frac{u_\theta(x)}{Z_\theta}=\frac{e^{G(x;\theta)}}{Z_\theta} \\
 = \mathbb{E}_{x\sim p_d} \nabla_{\theta} \log u_{\theta}(x) - \mathbb{E}_{x \sim p_{\theta}} \nabla_{\theta} \log u_{\theta}(x)\\
 = \sum_x \left[ p_d(x) - p_{\theta}(x) \right] \nabla_{\theta} \log u_{\theta}(x) \\
 \end{align}$$</span><!-- Has MathJax -->
-<p>從 (11) 式可以看到, 估計的 pdf 與 training data 的 pdf 差越大 gradient 愈大, 當兩者相同時 gradient 為 0 不 update.<br>在文章上半段說明了 MLE 求解存在的問題在式 (11) 也能看出來.</p>
+<p>從 (11) 式可以看到, 估計的 pdf 與 training data 的 pdf 差越大 gradient 愈大, 當兩者相同時 gradient 為 0 不 update.</p>
 <hr>
 <h3 id="Sigmoid-or-Logistic-Function"><a href="#Sigmoid-or-Logistic-Function" class="headerlink" title="Sigmoid or Logistic Function"></a>Sigmoid or Logistic Function</h3><p>在說明 NCE 之前先談一下 sigmoid function. 假設現在我們做二分類問題, 兩個類別 $C=1$ or $C=0$. 令 $p$ 是某個 input $x$ 屬於 class 1 的機率 (所以 $1-p$ 就是屬於 class 0 的機率)<br>定義 log-odd 為 (其實也稱為 logit):</p>
 <span>$$\begin{align}
@@ -449,26 +448,26 @@ p(C=0)=1-p(C=1) \\
 <span>$$\begin{align}
 \theta_{nce} = \theta_{mle}
 \end{align}$$</span><!-- Has MathJax -->
-<p>且 NN 計算的 logit 直接就變成 MLE 要算的 $p<em>{\theta}(x)$. 同時藉由換成二分類問題, 也避開了很難計算的 $Z</em>{\theta}$ 問題了.</p>
+<p>且 NN 計算的 logit 直接就變成 MLE 要算的 $p_{\theta}(x)$.</p>
 <blockquote>
-<p>為了不影響閱讀流暢度, 推導過程請參照 Appendix</p>
+<p>同時藉由換成二分類問題, 也避開了很難計算的 $Z_{\theta}$ 問題.<br>為了不影響閱讀流暢度, 推導過程請參照 Appendix</p>
 </blockquote>
 <p>所以我們可以透過引入一個 Noise pdf 來達到估計 training data 的 generative model 了. 這也是為什麼叫做 <em>Noise Contrastive</em> Estimation.</p>
 <hr>
 <h3 id="Representation"><a href="#Representation" class="headerlink" title="Representation"></a>Representation</h3><p>由於透過 NCE 訓練我們可以得到 $\theta$, 此時只需要用 $\theta_f$ 的 NN 來當作 feature extractor 就可以了.</p>
 <p><img src="/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/Represnetation_network.jpg" width="50%" height="50%" align="center"></p>
 <hr>
-<h3 id="總結流程"><a href="#總結流程" class="headerlink" title="總結流程"></a>總結流程</h3><p>最後流程可以總結成下面這張圖:</p>
+<h3 id="總結"><a href="#總結" class="headerlink" title="總結"></a>總結</h3><p>最後流程可以總結成下面這張圖:</p>
 <p><img src="/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/MLE_NCE_Representation_network.jpg" width="100%" height="100%" align="center"></p>
 <p>最後聊一下 CPC (Contrastive Predictive Coding) [<a href="https://arxiv.org/pdf/1807.03748.pdf" target="_blank" rel="external">2</a>]. 我覺得跟 NCE 就兩點不同:</p>
 <ol>
 <li>我們畫的 NCE 圖裡的 $w$, 改成論文裡的 $c_t$, 所以變成 network 是一個 conditioned 的 network</li>
-<li>不是一個二分類問題, 改成 N 選 1 的分類問題, 因此用 categorical cross-entorpy 當 loss</li>
+<li>不是一個二分類問題, 改成 N 選 1 的分類問題 (batch size $N$, 指出哪一個是正例), 因此用 categorical cross-entorpy 當 loss</li>
 </ol>
 <p>所以文章稱這樣的 loss 為 infoNCE loss</p>
 <p>同時 CPC [<a href="https://arxiv.org/pdf/1807.03748.pdf" target="_blank" rel="external">2</a>] 論文中很棒的一點是將這樣的訓練方式也跟 Mutual Information (MI) 連接起來.<br>證明了最小化 infoNCE loss 其實就是在最大化 representation 與正例的 MI (的 lower bound).</p>
-<p>這些背後數學撐起了整個利用 CPC 在 SSL (Self-Supervised Learning) 的基礎. 簡單講就是不需要昂貴的 label 全部都 unsupervised 就能學到很好的 representation.</p>
-<p>自己覺得推導過一遍, 心裡也舒坦多了… Keep going</p>
+<p>這些背後數學撐起了整個利用 CPC 在 SSL (Self-Supervised Learning) 的基礎. 簡單講就是不需要昂貴的 label 全部都 unsupervised 就能學到很好的 representation.<br>而近期 facebook 更利用 SSL 學到的好 representation 結合 GAN 在 ASR 達到了 19 年的 STOA WER. 論文: <a href="https://arxiv.org/abs/2105.11084" target="_blank" rel="external">Unsupervised Speech Recognition</a> or see [<a href="https://ai.facebook.com/blog/wav2vec-unsupervised-speech-recognition-without-supervision/?__cft__[0]=AZUAxLTWfRjjOD1TAbJ_3oo47Rl-9fnz4Gj6gwIYcy89LsLZ6ZkaOV2CtHb27hRSSLjebR7AvG-P4TrWnwj7D_k-_f9teJdTRKoMMfuRMcm7_TYPMlrvix6bAK4Mccze4qs&amp;__tn__=-UK-R" target="_blank" rel="external">9</a>]</p>
+<p>SSL 好東西, 不試試看嗎?</p>
 <hr>
 <h3 id="Appendix"><a href="#Appendix" class="headerlink" title="Appendix"></a>Appendix</h3><p>Prior pdf:<br><span>$$\begin{align}
 p(C=1)=\frac{N_p}{N_p+N_n} \\
@@ -545,6 +544,7 @@ p(C=0|x)=\frac{p(C=0)p(x|C=0)}{p(C=1)p(x|C=1)+p(C=0)p(x|C=0)}=\frac{N_r q(x)}{p_
 <li><a href="https://www.jiqizhixin.com/articles/2018-06-20-9" target="_blank" rel="external">“噪声对比估计”杂谈：曲径通幽之妙</a></li>
 <li><a href="https://zhuanlan.zhihu.com/p/76568362" target="_blank" rel="external">[译] Noise Contrastive Estimation</a></li>
 <li><a href="https://crossminds.ai/video/the-infonce-loss-in-self-supervised-learning-606fef0bf43a7f2f827c1583/" target="_blank" rel="external">The infoNCE loss in self-supervised learning</a></li>
+<li><a href="https://ai.facebook.com/blog/wav2vec-unsupervised-speech-recognition-without-supervision/?__cft__[0]=AZUAxLTWfRjjOD1TAbJ_3oo47Rl-9fnz4Gj6gwIYcy89LsLZ6ZkaOV2CtHb27hRSSLjebR7AvG-P4TrWnwj7D_k-_f9teJdTRKoMMfuRMcm7_TYPMlrvix6bAK4Mccze4qs&amp;__tn__=-UK-R" target="_blank" rel="external">High-performance speech recognition with no supervision at all</a></li>
 </ol>
 
       
@@ -744,7 +744,7 @@ p(C=0|x)=\frac{p(C=0)p(x|C=0)}{p(C=1)p(x|C=1)+p(C=0)p(x|C=0)}=\frac{N_r q(x)}{p_
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#MLE-求解"><span class="nav-number">1.</span> <span class="nav-text">MLE 求解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sigmoid-or-Logistic-Function"><span class="nav-number">2.</span> <span class="nav-text">Sigmoid or Logistic Function</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NCE-的-Network-架構"><span class="nav-number">3.</span> <span class="nav-text">NCE 的 Network 架構</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Representation"><span class="nav-number">4.</span> <span class="nav-text">Representation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#總結流程"><span class="nav-number">5.</span> <span class="nav-text">總結流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Appendix"><span class="nav-number">6.</span> <span class="nav-text">Appendix</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">7.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#MLE-求解"><span class="nav-number">1.</span> <span class="nav-text">MLE 求解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sigmoid-or-Logistic-Function"><span class="nav-number">2.</span> <span class="nav-text">Sigmoid or Logistic Function</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NCE-的-Network-架構"><span class="nav-number">3.</span> <span class="nav-text">NCE 的 Network 架構</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Representation"><span class="nav-number">4.</span> <span class="nav-text">Representation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#總結"><span class="nav-number">5.</span> <span class="nav-text">總結</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Appendix"><span class="nav-number">6.</span> <span class="nav-text">Appendix</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">7.</span> <span class="nav-text">Reference</span></a></li></ol></div>
             
 
           </div>
