@@ -1,0 +1,1043 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Noise Contrastive Estimation,NCE,infoNCE," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="之前聽人介紹 wav2vec [3] 或是看其他人的文章大部分都只有介紹作法, 直到有一天自己去看論文才發現看不懂 CPC [2] (wav2vec 使用 CPC 方法). 因此才決定好好讀一下並記錄.
+先將這些方法關係梳理一下, NCE –&amp;gt; CPC (infoNCE) –&amp;gt; wav2vec. 此篇筆記主要紀錄 NCE (Noise Contrastive Estimatio">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Noise Contrastive Estimation (NCE) 筆記">
+<meta property="og:url" content="http://yoursite.com/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="之前聽人介紹 wav2vec [3] 或是看其他人的文章大部分都只有介紹作法, 直到有一天自己去看論文才發現看不懂 CPC [2] (wav2vec 使用 CPC 方法). 因此才決定好好讀一下並記錄.
+先將這些方法關係梳理一下, NCE –&amp;gt; CPC (infoNCE) –&amp;gt; wav2vec. 此篇筆記主要紀錄 NCE (Noise Contrastive Estimatio">
+<meta property="og:image" content="http://yoursite.com/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/MLE_network.jpg">
+<meta property="og:image" content="http://yoursite.com/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/NCE_network.jpg">
+<meta property="og:image" content="http://yoursite.com/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/Represnetation_network.jpg">
+<meta property="og:image" content="http://yoursite.com/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/MLE_NCE_Representation_network.jpg">
+<meta property="og:image" content="http://yoursite.com/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/NCE_paper_Th1.png">
+<meta property="og:updated_time" content="2021-06-05T10:10:31.500Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Noise Contrastive Estimation (NCE) 筆記">
+<meta name="twitter:description" content="之前聽人介紹 wav2vec [3] 或是看其他人的文章大部分都只有介紹作法, 直到有一天自己去看論文才發現看不懂 CPC [2] (wav2vec 使用 CPC 方法). 因此才決定好好讀一下並記錄.
+先將這些方法關係梳理一下, NCE –&amp;gt; CPC (infoNCE) –&amp;gt; wav2vec. 此篇筆記主要紀錄 NCE (Noise Contrastive Estimatio">
+<meta name="twitter:image" content="http://yoursite.com/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/MLE_network.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/"/>
+
+
+
+
+
+  <title> Noise Contrastive Estimation (NCE) 筆記 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Noise Contrastive Estimation (NCE) 筆記
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2021-06-05T10:15:04+08:00">
+                2021-06-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/" class="leancloud_visitors" data-flag-title="Noise Contrastive Estimation (NCE) 筆記">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">閱讀次數 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>之前聽人介紹 wav2vec [<a href="https://arxiv.org/pdf/1904.05862.pdf" target="_blank" rel="external">3</a>] 或是看其他人的文章大部分都只有介紹作法, 直到有一天自己去看論文才發現看不懂 CPC [<a href="https://arxiv.org/pdf/1807.03748.pdf" target="_blank" rel="external">2</a>] (wav2vec 使用 CPC 方法). 因此才決定好好讀一下並記錄.</p>
+<p>先將這些方法關係梳理一下, NCE –&gt; CPC (infoNCE) –&gt; wav2vec. 此篇筆記主要紀錄 NCE (Noise Contrastive Estimation)</p>
+<p>在做 ML 時常常需要估計手上 training data 的 distribution $p<em>d(x)$ . 我們通常會使用 $p</em>\theta(x)$, 希望能找到最佳的 $\theta$ 來跟 $p_d(x)$ 一樣.<br>在現在 DNN 統治的年代可能會說, 不然就用一個 NN 來訓練吧, 如下圖:</p>
+<p><img src="/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/MLE_network.jpg" width="80%" height="80%" align="center"></p>
+<p>給 input $x$, 丟給 NN 希望直接吐出 $p_\theta(x)$. 上圖的架構是 $x$ 先丟給參數為 $\theta_f$ 的 NN, 該 NN 最後一層的 outputs 再丟給參數為 $w$ 的 linear layer 最後吐出一個 scalar 值, 該值就是我們要的機率.<br>而訓練的話就使用 MLE (Maximum Likelihood Estimation) 來求參數 $\theta$.</p>
+<p>恩, 問題似乎很單純但真正實作起來卻困難重重. 一個問題是 NN outputs 若要保持 p.d.f. 則必須過 softmax, 確保 sum 起來是 1 (也就是要算 $Z_\theta$).</p>
+<span>$$\begin{align}
+p_\theta(x)=\frac{u_\theta(x)}{Z_\theta}=\frac{e^{G(x;\theta)}}{Z_\theta} \\
+\text{where } Z_\theta = \sum_x u_\theta(x)
+\end{align}$$</span><!-- Has MathJax -->
+<blockquote>
+<p>式 (1) 為 energy-based model, 在做 NN classification 時, NN 的 output 就是 $G(x;θ)$, 也就是常看到的 logit, 經過 softmax 就等同於式 (1) 在做的事</p>
+</blockquote>
+<p>而做這件事情在 $x$ 是 discrete space 但數量很多, 例如 NLP 中 LM vocabulary 很大時, 計算資源會消耗過大.<br>或是 $x$ 是 continuous space 但是算 $Z_\theta$ 的積分沒有公式解的情形會做不下去. (不然就要用 sampling 方法, 如 MCMC)</p>
+<p>不過就算我們真的能算出 $Z_\theta$, 我們也不知道 ground truth $p_d(x)$, 所以想透過 MLE 求解也不可行.</p>
+<p><strong>NCE 巧妙的將此 MLE 問題轉化成 binary classification 問題, 從而得到我們要的 MLE 解.</strong></p>
+<p>不過在此之前, 我們先來看看 MLE 的 gradient 長什麼樣.</p>
+<a id="more"></a>
+<hr>
+<h3 id="MLE-求解"><a href="#MLE-求解" class="headerlink" title="MLE 求解"></a>MLE 求解</h3><p>寫出 likelihood:</p>
+<span>$$\begin{align}
+\text{likilhood}=\prod_{x\sim p_d} p_\theta(x)
+\end{align}$$</span><!-- Has MathJax -->
+<p>Loss 就是 negative log-likelihood</p>
+<span>$$\begin{align}
+-\mathcal{L}_{mle}=\mathbb{E}_{x\sim p_d}\log p_{\theta}(x)= \mathbb{E}_{x\sim p_d}\log \frac{u_\theta(x)}{Z_\theta}\\
+\end{align}$$</span><!-- Has MathJax -->
+<p>計算其 gradient:</p>
+<span>$$\begin{align}
+-\nabla_{\theta}\mathcal{L}_{mle}= \mathbb{E}_{x\sim p_d} \left[ \nabla_{\theta}\log{u_\theta(x)} - \color{orange}{\nabla_{\theta}\log{Z_\theta}} \right] \\
+\color{orange}{\nabla_{\theta}\log{Z_\theta}} = \frac{1}{Z_\theta}\nabla_{\theta}Z_\theta = \frac{1}{Z_\theta} \sum_x \nabla_{\theta} e^{G(x;\theta)} \\
+=\frac{1}{Z_\theta} \sum_x e^{G(x;\theta)} \nabla_{\theta}G(x;\theta) = \sum_x \left[ \frac{1}{Z_\theta}e^{G(x;\theta)} \right] \nabla_{\theta}G(x;\theta) \\
+=\sum_x p_{\theta}(x) \nabla_{\theta} \log u_{\theta}(x) = \mathbb{E}_{x \sim p_{\theta}} \nabla_{\theta} \log u_{\theta}(x) \\
+\therefore \text{ } -\nabla_{\theta}\mathcal{L}_{mle} = \mathbb{E}_{x\sim p_d} \left[ \nabla_{\theta} \log u_{\theta}(x) - \color{orange}{\mathbb{E}_{x \sim p_{\theta}} \nabla_{\theta} \log u_{\theta}(x)} \right] \\
+= \mathbb{E}_{x\sim p_d} \nabla_{\theta} \log u_{\theta}(x) - \mathbb{E}_{x \sim p_{\theta}} \nabla_{\theta} \log u_{\theta}(x)\\
+= \sum_x \left[ p_d(x) - p_{\theta}(x) \right] \nabla_{\theta} \log u_{\theta}(x) \\
+\end{align}$$</span><!-- Has MathJax -->
+<p>從 (11) 式可以看到, 估計的 pdf 與 training data 的 pdf 差越大 gradient 愈大, 當兩者相同時 gradient 為 0 不 update.<br>在文章上半段說明了 MLE 求解存在的問題在式 (11) 也能看出來.</p>
+<hr>
+<h3 id="Sigmoid-or-Logistic-Function"><a href="#Sigmoid-or-Logistic-Function" class="headerlink" title="Sigmoid or Logistic Function"></a>Sigmoid or Logistic Function</h3><p>在說明 NCE 之前先談一下 sigmoid function. 假設現在我們做二分類問題, 兩個類別 $C=1$ or $C=0$. 令 $p$ 是某個 input $x$ 屬於 class 1 的機率 (所以 $1-p$ 就是屬於 class 0 的機率)<br>定義 log-odd 為 (其實也稱為 logit):</p>
+<span>$$\begin{align}
+\text{log-odd} = \log \frac{p}{1-p}
+\end{align}$$</span><!-- Has MathJax -->
+<p>我們知道 sigmoid function $\sigma(x)=\frac{1}{1+e^{-x}}$ 將實數 input mapping 到 0 ~ 1 區間的函式. 若我們將 log-odd 代入我們很容易得到:</p>
+<span>$$\begin{align}
+\sigma(\text{log-odd})=...=p
+\end{align}$$</span><!-- Has MathJax -->
+<p>發現 sigmoid 回傳給我們的是 $x$ 屬於 class 1 的機率值, i.e. $\sigma(\text{log-odd})=p(C=1|x)$. 所以在二分類問題上, 我們就是訓練一個 NN 能 predict logit 值.</p>
+<hr>
+<h3 id="NCE-的-Network-架構"><a href="#NCE-的-Network-架構" class="headerlink" title="NCE 的 Network 架構"></a>NCE 的 Network 架構</h3><p>首先 NCE 引入了一個 Noise distribution $q(x)$. 論文提到該 $q$ 只要滿足當 $p_d(x)$ nonzero 則 $q(x)$ 也必須 nonzero 就可以.</p>
+<p>二分類問題為, 假設要取一個正例 (class 1), 就從 training data pdf $p_d(x)$ 取得. 而若要取一個反例 (class 0) 則從 noise pdf $q(x)$ 取得.<br>我們可以取 $N_p$ 個正例以及 $N_n$ 個反例, 代表 prior 為:</p>
+<span>$$\begin{align}
+p(C=1)=\frac{N_p}{N_p+N_n} \\
+p(C=0)=1-p(C=1) \\
+\end{align}$$</span><!-- Has MathJax -->
+<p>因此就可以得到一個 batch 共 $N_p+N_n$ 個 samples, 丟入下圖的 NN structure 做二分類問題:</p>
+<p><img src="/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/NCE_network.jpg" width="100%" height="100%" align="center"></p>
+<p>Network 前半段還是跟原來的 MLE 架構一樣, 只是我們期望 $NN_{\theta}$ 吐出來的是 logit, 由上面一個 section 我們知道經過 sigmoid 得到的會是 $x$ 屬於 class 1 的機率. 因此很容易就用 xent loss 優化.</p>
+<p><strong>神奇的來了, NCE 告訴我們, optimize 這個二分類問題得到的 $\theta$ 等於 MLE 要找的 $\theta$!</strong></p>
+<span>$$\begin{align}
+\theta_{nce} = \theta_{mle}
+\end{align}$$</span><!-- Has MathJax -->
+<p>且 NN 計算的 logit 直接就變成 MLE 要算的 $p<em>{\theta}(x)$. 同時藉由換成二分類問題, 也避開了很難計算的 $Z</em>{\theta}$ 問題了.</p>
+<blockquote>
+<p>為了不影響閱讀流暢度, 推導過程請參照 Appendix</p>
+</blockquote>
+<p>所以我們可以透過引入一個 Noise pdf 來達到估計 training data 的 generative model 了. 這也是為什麼叫做 <em>Noise Contrastive</em> Estimation.</p>
+<hr>
+<h3 id="Representation"><a href="#Representation" class="headerlink" title="Representation"></a>Representation</h3><p>由於透過 NCE 訓練我們可以得到 $\theta$, 此時只需要用 $\theta_f$ 的 NN 來當作 feature extractor 就可以了.</p>
+<p><img src="/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/Represnetation_network.jpg" width="50%" height="50%" align="center"></p>
+<hr>
+<h3 id="總結流程"><a href="#總結流程" class="headerlink" title="總結流程"></a>總結流程</h3><p>最後流程可以總結成下面這張圖:</p>
+<p><img src="/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/MLE_NCE_Representation_network.jpg" width="100%" height="100%" align="center"></p>
+<p>最後聊一下 CPC (Contrastive Predictive Coding) [<a href="https://arxiv.org/pdf/1807.03748.pdf" target="_blank" rel="external">2</a>]. 我覺得跟 NCE 就兩點不同:</p>
+<ol>
+<li>我們畫的 NCE 圖裡的 $w$, 改成論文裡的 $c_t$, 所以變成 network 是一個 conditioned 的 network</li>
+<li>不是一個二分類問題, 改成 N 選 1 的分類問題, 因此用 categorical cross-entorpy 當 loss</li>
+</ol>
+<p>所以文章稱這樣的 loss 為 infoNCE loss</p>
+<p>同時 CPC [<a href="https://arxiv.org/pdf/1807.03748.pdf" target="_blank" rel="external">2</a>] 論文中很棒的一點是將這樣的訓練方式也跟 Mutual Information (MI) 連接起來.<br>證明了最小化 infoNCE loss 其實就是在最大化 representation 與正例的 MI (的 lower bound).</p>
+<p>這些背後數學撐起了整個利用 CPC 在 SSL (Self-Supervised Learning) 的基礎. 簡單講就是不需要昂貴的 label 全部都 unsupervised 就能學到很好的 representation.</p>
+<p>自己覺得推導過一遍, 心裡也舒坦多了… Keep going</p>
+<hr>
+<h3 id="Appendix"><a href="#Appendix" class="headerlink" title="Appendix"></a>Appendix</h3><p>Prior pdf:<br><span>$$\begin{align}
+p(C=1)=\frac{N_p}{N_p+N_n} \\
+p(C=0)=1-p(C=1) \\
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>Generative pdf:<br><span>$$\begin{align}
+p(x|C=1)=p_{\theta}(x) \\
+p(x|C=0)=q(x)
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>因此 Posterior pdf:<br><span>$$\begin{align}
+p(C=1|x)=\frac{p(C=1)p(x|C=1)}{p(C=1)p(x|C=1)+p(C=0)p(x|C=0)}=\frac{p_{\theta}(x)}{p_{\theta}(x)+N_r q(x)} \\
+p(C=0|x)=\frac{p(C=0)p(x|C=0)}{p(C=1)p(x|C=1)+p(C=0)p(x|C=0)}=\frac{N_r q(x)}{p_{\theta}(x)+N_r q(x)} \\
+\end{align}$$</span><!-- Has MathJax --><br>其中 $N_r=\frac{N_n}{N_p}$</p>
+<p>因此 likelihood 為:<br><span>$$\begin{align}
+\text{likilhood}=\prod_{t=1}^{N_p} p(C_t=1|x_t) \cdot \prod_{t=1}^{N_n} p(C_t=0|x_t)
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>Loss 為 negative log-likelihood:<br><span>$$\begin{align}
+- \mathcal{L}_{nce} = \sum_{t=1}^{N_p} \log p(C_t=1|x_t) + \sum_{t=1}^{N_n} \log p(C_t=0|x_t) \\
+= N_p \left[ \frac{1}{N_p} \sum_{t=1}^{N_p} \log p(C_t=1|x_t) \right] + N_n \left[ \frac{1}{N_n} \sum_{t=0}^{N_n} \log p(C_t=0|x_t) \right] \\
+\propto \left[ \frac{1}{N_p} \sum_{t=1}^{N_p} \log p(C_t=1|x_t) \right] + N_r \left[ \frac{1}{N_n} \sum_{t=0}^{N_n} \log p(C_t=0|x_t) \right]
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>當固定 $N_r$ 但是讓 $N_p\rightarrow\infty$ and $N_n\rightarrow\infty$. 意味著我們<strong>固定正負樣本比例, 但取無窮大的 batch</strong>. 重寫上式成:<br><span>$$\begin{align}
+- \mathcal{L}_{nce} = \mathbb{E}_{x\sim p_d} \log p(C=1|x) + N_r \mathbb{E}_{x\sim q} \log p(C=0|x) \\
+\therefore \text{} -\nabla_{\theta}\mathcal{L}_{nce} = \nabla_{\theta}\left[ \mathbb{E}_{x\sim p_d} \log \frac{p_{\theta}(x)}{p_{\theta}(x)+N_rq(x)} + N_r\mathbb{E}_{x\sim q} \log \frac{N_rq(x)}{p_{\theta}(x)+N_rq(x)} \right] \\
+= \mathbb{E}_{x\sim p_d} \color{orange}{\nabla_{\theta} \log \frac{p_{\theta}(x)}{p_{\theta}(x)+N_rq(x)}} + N_r \mathbb{E}_{x\sim q} \color{green}{\nabla_{\theta} \log \frac{N_rq(x)}{p_{\theta}(x)+N_rq(x)} }
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>計算橘色和綠色兩項, 之後再代回來:</p>
+<span>$$\begin{align}
+\color{orange}{\nabla_{\theta} \log \frac{p_{\theta}(x)}{p_{\theta}(x)+N_rq(x)}} = \nabla_{\theta}\log\frac{1}{1+N_r\frac{q(x)}{p_{\theta}(x)}} = -\nabla_{\theta}\log \left( 1+\frac{N_rq(x)}{p_{\theta}(x)} \right) \\
+= -\frac{1}{1+\frac{N_rq(x)}{p_{\theta}(x)}}\nabla_{\theta}\frac{N_rq(x)}{p_{\theta}(x)} = -\frac{N_rq(x)}{1+\frac{N_rq(x)}{p_{\theta}(x)}}\nabla_{\theta}\frac{1}{p_{\theta}(x)} \\
+= -\frac{N_rq(x)}{1+\frac{N_rq(x)}{p_{\theta}(x)}} \frac{-1}{p_{\theta}^2(x)} \nabla_{\theta} p_{\theta}(x) \\
+= \frac{N_rq(x)}{p_{\theta}(x)+N_rq(x)} \left[ \frac{1}{p_{\theta}(x)} \nabla_{\theta} p_{\theta}(x) \right] \\
+= \frac{N_rq(x)}{p_{\theta}(x)+N_rq(x)} \nabla_{\theta} \log p_{\theta}(x)
+\end{align}$$</span><!-- Has MathJax -->
+<span>$$\begin{align}
+\color{green}{\nabla_{\theta} \log \frac{N_rq(x)}{p_{\theta}(x)+N_rq(x)}} = -\nabla_{\theta} \log\left( 1+\frac{p_{\theta}(x)}{N_rq(x)} \right) = -\frac{1}{1+\frac{p_{\theta}(x)}{N_rq(x)}} \nabla_{\theta} \frac{p_{\theta}(x)}{N_rq(x)} \\
+= -\frac{1}{N_rq(x)+p_{\theta}(x)} \nabla_{\theta} p_{\theta}(x) \\
+= -\frac{p_{\theta}(x)}{N_rq(x)+p_{\theta}(x)} \left[ \frac{1}{p_{\theta}(x)} \nabla_{\theta} p_{\theta}(x) \right] \\
+= -\frac{p_{\theta}(x)}{N_rq(x)+p_{\theta}(x)} \nabla_{\theta} \log p_{\theta}(x)
+\end{align}$$</span><!-- Has MathJax -->
+<p>將 (34), (38) 代回去 (29) 得到:</p>
+<span>$$\begin{align}
+- \nabla_{\theta}\mathcal{L}_{nce} = \mathbb{E}_{x\sim p_d} {\color{orange}{\frac{N_rq(x)}{p_{\theta}(x)+N_rq(x)} \nabla_{\theta} \log p_{\theta}(x)}} - N_r \mathbb{E}_{x\sim q} {\color{green}{\frac{p_{\theta}(x)}{N_rq(x)+p_{\theta}(x)} \nabla_{\theta} \log p_{\theta}(x)}} \\
+= \sum_x \left[ p_d(x) \frac{N_rq(x)}{p_{\theta}(x)+N_rq(x)} \nabla_{\theta} \log p_{\theta}(x) \right] - \sum_x \left[ q(x) \frac{N_r p_{\theta}(x)}{N_rq(x)+p_{\theta}(x)} \nabla_{\theta} \log p_{\theta}(x)\right] \\
+= \sum_x \frac{(p_d(x)-p_{\theta}(x))N_rq(x)}{p_{\theta}(x)+N_rq(x)} \nabla_{\theta}\log p_{\theta}(x) \\
+= \sum_x \frac{(p_d(x)-p_{\theta}(x))q(x)}{\frac{p_{\theta}(x)}{N_r}+q(x)} \nabla_{\theta}\log p_{\theta}(x) \\
+\end{align}$$</span><!-- Has MathJax -->
+<p>當 $N_r\rightarrow\infty$ 意味著我們<strong>讓負樣本遠多於正樣本</strong>, 上式變成:<br><span>$$\begin{align}
+\lim_{N_r\rightarrow\infty} - \nabla_{\theta}\mathcal{L}_{nce} = \sum_x \frac{(p_d(x)-p_{\theta}(x))q(x)}{0+q(x)} \nabla_{\theta}\log p_{\theta}(x) \\
+= \sum_x (p_d(x)-p_{\theta}(x)) \nabla_{\theta}\log p_{\theta}(x) \\
+= \sum_x \left[ p_d(x) - p_{\theta}(x) \right] \left( \nabla_{\theta}\log u_{\theta}(x) -\nabla_{\theta}\log Z_{\theta} \right)
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>此時我們發現這 gradient 也與 Noise pdf $q(x)$ 無關了!</p>
+<p>最後我們將 MLE and NCE 的 gradient 拉出來對比一下:<br><span>$$\begin{align}
+-\nabla_{\theta}\mathcal{L}_{mle} = \sum_x \left[ p_d(x) - p_{\theta}(x) \right] \nabla_{\theta} \log u_{\theta}(x) \\
+-\nabla_{\theta}\mathcal{L}_{nce} = \sum_x \left[ p_d(x) - p_{\theta}(x) \right] \left( \nabla_{\theta}\log u_{\theta}(x) -\nabla_{\theta}\log Z_{\theta} \right)
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>我們發現 MLE and NCE 只差在一個 normalization factor (or partition) $Z_{\theta}$.<br><strong>最魔術的地方就在於 NCE 論文 [<a href="http://proceedings.mlr.press/v9/gutmann10a/gutmann10a.pdf" target="_blank" rel="external">1</a>] 證明最佳解本身的 logit 已經是 probability 型式, 因此也不需要 normalize factor.</strong></p>
+<blockquote>
+<p>論文裡說礙於篇幅沒給出證明, 主要是來自 Theorem 1 的結果:<br><img src="/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/NCE_paper_Th1.png" width="50%" height="50%" align="center"></p>
+</blockquote>
+<p>所以我們不妨將 $Z_{\theta}=1$, 結果有:</p>
+<span>$$\begin{align}
+\color{red} {\nabla_{\theta}\mathcal{L}_{mle} = \nabla_{\theta}\mathcal{L}_{nce}} \\
+\color{red} {\Rightarrow \theta_{mle} = \theta_{nce}} \\
+\end{align}$$</span><!-- Has MathJax -->
+<hr>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
+<li>2010: <a href="http://proceedings.mlr.press/v9/gutmann10a/gutmann10a.pdf" target="_blank" rel="external">Noise-contrastive estimation: A new estimation principle for unnormalized statistical models</a></li>
+<li>2019 DeepMind infoNCE/CPC: <a href="https://arxiv.org/pdf/1807.03748.pdf" target="_blank" rel="external">Representation learning with contrastive predictive coding</a></li>
+<li>2019 FB: <a href="https://arxiv.org/pdf/1904.05862.pdf" target="_blank" rel="external">wav2vec: Unsupervised pre-training for speech recognition</a></li>
+<li>2020 MIT &amp; Google: <a href="https://arxiv.org/pdf/1910.10699.pdf" target="_blank" rel="external">Contrastive Representation Distillation</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/334772391" target="_blank" rel="external">Noise Contrastive Estimation 前世今生——从 NCE 到 InfoNCE</a></li>
+<li><a href="https://www.jiqizhixin.com/articles/2018-06-20-9" target="_blank" rel="external">“噪声对比估计”杂谈：曲径通幽之妙</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/76568362" target="_blank" rel="external">[译] Noise Contrastive Estimation</a></li>
+<li><a href="https://crossminds.ai/video/the-infonce-loss-in-self-supervised-learning-606fef0bf43a7f2f827c1583/" target="_blank" rel="external">The infoNCE loss in self-supervised learning</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/" title="Noise Contrastive Estimation (NCE) 筆記">http://yoursite.com/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Noise-Contrastive-Estimation/" rel="tag"># Noise Contrastive Estimation</a>
+          
+            <a href="/tags/NCE/" rel="tag"># NCE</a>
+          
+            <a href="/tags/infoNCE/" rel="tag"># infoNCE</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/" rel="next" title="Distributed Data Parallel and Its Pytorch Example">
+                <i class="fa fa-chevron-left"></i> Distributed Data Parallel and Its Pytorch Example
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">57</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">111</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#MLE-求解"><span class="nav-number">1.</span> <span class="nav-text">MLE 求解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sigmoid-or-Logistic-Function"><span class="nav-number">2.</span> <span class="nav-text">Sigmoid or Logistic Function</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NCE-的-Network-架構"><span class="nav-number">3.</span> <span class="nav-text">NCE 的 Network 架構</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Representation"><span class="nav-number">4.</span> <span class="nav-text">Representation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#總結流程"><span class="nav-number">5.</span> <span class="nav-text">總結流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Appendix"><span class="nav-number">6.</span> <span class="nav-text">Appendix</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">7.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("7mUJ3jkWeU7Rh7soYrUvDcuh-gzGzoHsz", "SWNPybUfqj8qALtwiKRiv7Rh");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
