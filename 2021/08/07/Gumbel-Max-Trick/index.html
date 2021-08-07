@@ -1,0 +1,880 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Gumbel distribution,Gumbel max trick,Gumbel max sampling,Re-parameterization trick," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Gumbel-Max Trick我們在介紹 VAE 的時候有說明到 re-parameterization trick, 大意是這樣的
+
+Loss 對 $\theta$ 偏微分的時候會失敗, 主要是因為:">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Gumbel-Max Trick">
+<meta property="og:url" content="http://yoursite.com/2021/08/07/Gumbel-Max-Trick/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="Gumbel-Max Trick我們在介紹 VAE 的時候有說明到 re-parameterization trick, 大意是這樣的
+
+Loss 對 $\theta$ 偏微分的時候會失敗, 主要是因為:">
+<meta property="og:image" content="http://yoursite.com/2021/08/07/Gumbel-Max-Trick/cover.png">
+<meta property="og:image" content="http://yoursite.com/2021/08/07/Gumbel-Max-Trick/simulation.png">
+<meta property="og:updated_time" content="2021-08-07T11:11:25.860Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Gumbel-Max Trick">
+<meta name="twitter:description" content="Gumbel-Max Trick我們在介紹 VAE 的時候有說明到 re-parameterization trick, 大意是這樣的
+
+Loss 對 $\theta$ 偏微分的時候會失敗, 主要是因為:">
+<meta name="twitter:image" content="http://yoursite.com/2021/08/07/Gumbel-Max-Trick/cover.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2021/08/07/Gumbel-Max-Trick/"/>
+
+
+
+
+
+  <title> Gumbel-Max Trick | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/08/07/Gumbel-Max-Trick/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Gumbel-Max Trick
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2021-08-07T18:41:01+08:00">
+                2021-08-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<h3 id="Gumbel-Max-Trick"><a href="#Gumbel-Max-Trick" class="headerlink" title="Gumbel-Max Trick"></a>Gumbel-Max Trick</h3><p>我們在介紹 <a href="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/" target="_blank" rel="external">VAE</a> 的時候有說明到 re-parameterization trick, 大意是這樣的</p>
+<p><img src="/2021/08/07/Gumbel-Max-Trick/cover.png" width="75%" height="75%"></p>
+<p>Loss 對 $\theta$ 偏微分的時候會失敗, 主要是因為:</p>
+<a id="more"></a>
+<span>$$\begin{align}
+\nabla_\theta L = \nabla_\theta \mathbb{E}_{y\sim\sigma}\left[ \text{NN}_1(a;\theta) \right] \\
+\neq \mathbb{E}_{y\sim\sigma} \left[ \nabla_\theta \text{NN}_1(a;\theta) \right]
+\end{align}$$</span><!-- Has MathJax -->
+<p>微分不能跟 Expectation 互換是因為 sampling 的 distribution $\sigma$ 其實也是 depends on $\theta$.</p>
+<p>因此在 VAE 那邊的假設就是將 $\sigma$ 定義為 Gaussian pdf. 因此可以變成:</p>
+<span>$$\begin{align}
+\nabla_\theta L = \nabla_\theta \mathbb{E}_{y\sim\sigma}\left[ \text{NN}_1(a;\theta) \right] \\
+= \nabla_\theta \mathbb{E}_{\varepsilon\sim N(0,I)}\left[ \text{NN}_1(\mu+\sigma\varepsilon; \theta) \right] \\
+= \mathbb{E}_{\varepsilon\sim N(0,I)}\left[ \nabla_\theta \text{NN}_1(\mu+\sigma\varepsilon; \theta) \right]
+\end{align}$$</span><!-- Has MathJax -->
+<p>採樣變成從一個跟 $\theta$ 無關的分布, 因此微分跟期望值就能互換, 所以可以做 backprob.</p>
+<p>現在的情況是如果是 Gaussian 的情形很好做變換, 但如果是 categorical distribution 該怎麼辦呢?</p>
+<blockquote>
+<p>什麼情況會遇到 categorical distribution? 在 reinforcement learning 時, $\text{NN}_1$ predict 出例如 4 個 actions 的機率, 我們需要隨機採樣一種 action, 然後傳給後面的 NN 去計算 reward.<br>(其實我不熟 RL, 看網路上的文章說的)</p>
+</blockquote>
+<p>Gumbel max trick 就提供了解法!</p>
+<hr>
+<h3 id="Gumbel-Distribution-and-Gumbel-Max-Sampling"><a href="#Gumbel-Distribution-and-Gumbel-Max-Sampling" class="headerlink" title="Gumbel Distribution and Gumbel Max Sampling"></a>Gumbel Distribution and Gumbel Max Sampling</h3><p>這一篇文章 <a href="http://amid.fish/humble-gumbel" target="_blank" rel="external">The Humble Gumbel Distribution</a> 提供了非常清晰的解釋, 十分推薦閱讀</p>
+<p>假設我們經由一個 network 算出 logits $(x<em>k)</em>{k=1}^N$, 一般我們如果要 sampling 的話還必須過 softmax 讓它變成機率 $(\alpha<em>k)</em>{k=1}^N$, 然後在用例如 <code>np.random.choice</code> 根據機率採樣出結果.</p>
+<p>現在 sampling 流程改為:</p>
+<p>先從標準 Gumbel 分佈 (先不管這分佈長什麼樣) 採樣出 $N$ 個值, 令為 $(G<em>k)</em>{k=1}^N$, 讓它跟 logits 相加: $z_k=x_k+G_k$, 然後 $\argmax_k{z_k}$ 就是我們這次的採樣結果</p>
+<p>注意到我們唯一的一個採樣動作完全跟 network 的參數 $\theta$ 無關! 因此 re-parameterization trick 就能用上.</p>
+<p>剩下唯一不確定的就是, 這樣的採樣行為出來的結果, 會跟使用 $(\alpha<em>k)</em>{k=1}^N$ 的機率分佈採樣出來一樣嗎 ?</p>
+<p>換句話說, $\argmax_k{z_k}$ 出來的結果, 其結果的分佈是不是符合 $(\alpha<em>k)</em>{k=1}^N$ ?</p>
+<p>程式驗證可參考 <a href="http://amid.fish/humble-gumbel" target="_blank" rel="external">The Humble Gumbel Distribution</a>, 將最主要的部分修短擷取後如下:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Modified from http://amid.fish/humble-gumbel</span></div><div class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</div><div class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</div><div class="line"></div><div class="line"><span class="comment"># Assign categorical probabilities, for example:</span></div><div class="line">probs = [<span class="number">0.13114754</span>, <span class="number">0.01639344</span>, <span class="number">0.21311475</span>, <span class="number">0.24590164</span>, <span class="number">0.19672131</span>, <span class="number">0.06557377</span>, <span class="number">0.13114754</span>]</div><div class="line">n_classes = len(probs)</div><div class="line">logits = np.log(probs)  <span class="comment"># logits is log probability (with constant offset)</span></div><div class="line">n_samples = <span class="number">10000</span>  <span class="comment"># experimental number of sampling</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">gumbel_sampling</span><span class="params">(logits)</span>:</span></div><div class="line">    noise = np.random.gumbel(size=len(logits))</div><div class="line">    sample = np.argmax(logits + noise)</div><div class="line">    <span class="keyword">return</span> sample</div><div class="line"></div><div class="line">samples_with_gumbel_max_trick = [gumbel_sampling(logits) <span class="keyword">for</span> _ <span class="keyword">in</span> range(n_samples)]</div><div class="line">samples_from_true_distribution = np.random.choice(np.arange(n_classes), size=n_samples , p=probs)</div><div class="line"></div><div class="line"><span class="comment"># Plotting area, comparing `samples_with_gumbel_max_trick` and `samples_from_true_distribution`</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">plot_estimated_probs</span><span class="params">(samples, n_classes)</span>:</span></div><div class="line">    estd_probs, _, _ = plt.hist(samples,</div><div class="line">                                bins=np.arange(n_classes + <span class="number">1</span>),</div><div class="line">                                align=<span class="string">'left'</span>,</div><div class="line">                                edgecolor=<span class="string">'white'</span>,</div><div class="line">                                density=<span class="keyword">True</span>)</div><div class="line">    plt.xlabel(<span class="string">"Category"</span>)</div><div class="line">    plt.ylabel(<span class="string">"Estimated probability"</span>)</div><div class="line">    <span class="keyword">return</span> estd_probs</div><div class="line"></div><div class="line">plt.figure()</div><div class="line">plt.subplot(<span class="number">1</span>, <span class="number">2</span>, <span class="number">1</span>)</div><div class="line">plot_estimated_probs(samples_with_gumbel_max_trick, n_classes)</div><div class="line">plt.title(<span class="string">'Sampling from true pdf'</span>)</div><div class="line">plt.subplot(<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>)</div><div class="line">estd_probs = plot_estimated_probs(samples_from_true_distribution, n_classes)</div><div class="line">plt.title(<span class="string">'Sampling with Gumbel-max trick'</span>)</div><div class="line">plt.tight_layout()</div><div class="line"></div><div class="line">plt.show()</div></pre></td></tr></table></figure>
+<p><img src="/2021/08/07/Gumbel-Max-Trick/simulation.png" width="65%" height="65%"></p>
+<p>可以看到用 Gumbel-max trick 採樣出來的 samples 其分佈跟真實的機率分佈十分接近.</p>
+<p>事實上可以證明會是一樣的, 在下一節我們將證明寫出來.</p>
+<p>再囉嗦一下, 不要忘記了, 使用 <code>np.random.choice</code> 對真實分佈採樣是沒有辦法做 backprob 的 (見 eq (1) (2))</p>
+<p>而透過 Gumbel-max trick 我們可以從一個與要 optimize 的參數 $\theta$ 無關的分佈 (Gumbel distribution) 進行採樣, 才能利用 re-parameterization trick 做 backprob (例如 eq (4) (5) 的概念)</p>
+<hr>
+<h3 id="Proof-of-Gumbel-Max-Trick-for-Discrete-Distributions"><a href="#Proof-of-Gumbel-Max-Trick-for-Discrete-Distributions" class="headerlink" title="Proof of Gumbel-Max Trick for Discrete Distributions"></a>Proof of Gumbel-Max Trick for Discrete Distributions</h3><p>其實完全參考 <a href="https://lips.cs.princeton.edu/the-gumbel-max-trick-for-discrete-distributions/" target="_blank" rel="external">The Gumbel-Max Trick for Discrete Distributions</a>, 但最後一行的推導用看的實在沒看出來, 因此自己補齊完整一點</p>
+<p>Math warning, 很枯燥</p>
+<ul>
+<li>Gumbel PDF:<ul>
+<li>$f(z;\mu)=\exp{-(z-\mu)-\exp{-(z-\mu)}}$</li>
+<li>$f(z;0)=\exp{-z-\exp{-z}}$</li>
+</ul>
+</li>
+<li>Gumbel CDF:<ul>
+<li>$F(z;\mu)=\exp{-\exp{-(z-\mu)}}$</li>
+<li>$F(z;0)=\exp{-\exp{-z}}$</li>
+</ul>
+</li>
+</ul>
+<p>Categorical distribution 例如分成 $N$ 類, NN 通常最後會輸出一個 logits vector, $(x<em>k)</em>{k=1}^N$</p>
+<p>$z_k=x_k+G_k$, 其中 $G_k$ 是一個標準 Gumbel distribution (mean=0, scale=1)</p>
+<span>$$\begin{align}
+\Pr(k\text{ is largest}|\{x_i\},z_k) = \Pr(\max_{i\neq k}z_i&lt;z_k) \\
+=\prod_{i\neq k}\Pr(z_i&lt;z_k) = \prod_{i\neq k}\Pr(x_i+G_i&lt;z_k) \\
+=\prod_{i\neq k}\Pr(G_i&lt;z_k-x_i) \\
+=\prod_{i\neq k}F(z_k-x_i;0) \\
+=\prod_{i\neq k}\exp\{-\exp\{-z_k+x_i\}\}
+\end{align}$$</span><!-- Has MathJax -->
+<span>$$\begin{align}
+\therefore \Pr(k\text{ is largest}|\{x_i\})=\int\Pr(z_k)\Pr(k\text{ is largest}|\{x_i\},z_k)dz_k \\
+= \int f(z_k-x_k;0)\prod_{i\neq k}\exp\{-\exp\{-z_k+x_i\}\} \\
+= \int \left(\exp\{-z_k+x_k-e^{-z_k+x_k}\}\right) \prod_{i\neq k}\exp\{-e^{-z_k+x_i}\} dz_k \\
+=\int \exp\{-z_k+x_k\}\prod_{i=1}^N{ \exp\{-e^{-z_k+x_i}\} } dz_k \\
+= \int \exp\{-z_k+x_k\} \cdot \exp\{-\sum_{i=1}^Ne^{-z_k+x_i}\} dz_k \\
+=\int \exp\{-z_k+x_k-\sum_{i=1}^Ne^{-z_k+x_i} \} dz_k \\
+=\int \exp\{-z_k+x_k-e^{-z_k} {\color{orange}{\sum_{i=1}^Ne^{x_i}}} \} dz_k \\
+=\int \exp\{-z_k+x_k- {\color{orange}A} e^{-z_k} \} dz_k
+\end{align}$$</span><!-- Has MathJax -->
+<p>這裡我們為了方便定義 $A=\sum_{i=1}^N e^{x_i}$</p>
+<span>$$\begin{align}
+=\int \exp\{-z_k+x_k - {\color{orange}{e^{\ln A}}} e^{-z_k}  \} dz_k \\
+= e^{x_k} \int \exp\{-z_k-e^{-z_k + \ln A}\} dz_k \\
+= e^{x_k} \int \exp\{-z_k {\color{orange}{+\ln A-\ln A}} -e^{-z_k + \ln A}\} dz_k \\
+= e^{x_k}\cdot e^{-\ln A} \int \exp\{-(z_k-\ln A)-e^{-(z_k-\ln A)}\} dz_k \\
+= \frac{e^{x_k}}{A} \int f(z_k;\ln A) dz_k \\
+= \frac{e^{x_k}}{\sum_{i=1}^N e^{x_i}}
+\end{align}$$</span><!-- Has MathJax -->
+<hr>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
+<li><a href="http://amid.fish/humble-gumbel" target="_blank" rel="external">The Humble Gumbel Distribution</a></li>
+<li><a href="https://lips.cs.princeton.edu/the-gumbel-max-trick-for-discrete-distributions/" target="_blank" rel="external">The Gumbel-Max Trick for Discrete Distributions</a></li>
+<li><a href="https://casmls.github.io/general/2017/02/01/GumbelSoftmax.html" target="_blank" rel="external">The Gumbel-Softmax Trick for Inference of Discrete Variables</a></li>
+<li><a href="https://blog.csdn.net/weixin_40255337/article/details/83303702" target="_blank" rel="external">【一文学会】Gumbel-Softmax的采样技巧</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2021/08/07/Gumbel-Max-Trick/" title="Gumbel-Max Trick">http://yoursite.com/2021/08/07/Gumbel-Max-Trick/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Gumbel-distribution/" rel="tag"># Gumbel distribution</a>
+          
+            <a href="/tags/Gumbel-max-trick/" rel="tag"># Gumbel max trick</a>
+          
+            <a href="/tags/Gumbel-max-sampling/" rel="tag"># Gumbel max sampling</a>
+          
+            <a href="/tags/Re-parameterization-trick/" rel="tag"># Re-parameterization trick</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/06/05/Noise-Contrastive-Estimation-NCE-筆記/" rel="next" title="Noise Contrastive Estimation (NCE) 筆記">
+                <i class="fa fa-chevron-left"></i> Noise Contrastive Estimation (NCE) 筆記
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">58</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">115</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Gumbel-Max-Trick"><span class="nav-number">1.</span> <span class="nav-text">Gumbel-Max Trick</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Gumbel-Distribution-and-Gumbel-Max-Sampling"><span class="nav-number">2.</span> <span class="nav-text">Gumbel Distribution and Gumbel Max Sampling</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Proof-of-Gumbel-Max-Trick-for-Discrete-Distributions"><span class="nav-number">3.</span> <span class="nav-text">Proof of Gumbel-Max Trick for Discrete Distributions</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">4.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
