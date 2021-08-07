@@ -369,9 +369,18 @@
 </script>
 
 <hr>
-<h3 id="Gumbel-Max-Trick"><a href="#Gumbel-Max-Trick" class="headerlink" title="Gumbel-Max Trick"></a>Gumbel-Max Trick</h3><p>我們在介紹 <a href="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/">VAE</a> 的時候有說明到 re-parameterization trick, 大意是這樣的</p>
-<p><img src="/2021/08/07/Gumbel-Max-Trick/cover.png" width="75%" height="75%"></p>
+<p>我們在介紹 <a href="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/">VAE</a> 的時候有說明到 re-parameterization trick, 大意是這樣的</p>
+<p><img src="/2021/08/07/Gumbel-Max-Trick/cover.png" width="50%" height="50%"></p>
+<p>$y$ 是 sampling from distribution $\alpha$, i.e., $y=\text{Sampling}(\alpha)$, 其中 $\alpha=\text{NN}_1(a;\theta)$<br>由於我們有採樣, 因此 loss 採用期望值. Loss function 為:</p>
+<span>$$\begin{align}
+L = \mathbb{E}_{y\sim\alpha}[\text{NN}_2(y;\nu)]
+\end{align}$$</span><!-- Has MathJax -->
 <p>Loss 對 $\theta$ 偏微分的時候會失敗, 主要是因為:</p>
+<span>$$\begin{align}
+\nabla_\theta L = \nabla_\theta \mathbb{E}_{y\sim\alpha}[\text{NN}_2(y;\nu)] \\
+\neq \mathbb{E}_{y\sim\alpha}[\nabla_\theta \text{NN}_2(y;\nu)]
+\end{align}$$</span><!-- Has MathJax -->
+<p>微分不能跟 Expectation 互換是因為 sampling 的 distribution $\alpha$ 其實也是 depends on $\theta$.</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2021/08/07/Gumbel-Max-Trick/#more" rel="contents">
