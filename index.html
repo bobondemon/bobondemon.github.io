@@ -267,6 +267,167 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/" itemprop="url">
+                  MCMC by Gibbs and Metropolis-Hasting Sampling
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2021-10-27T21:53:41+08:00">
+                2021-10-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>PRML book sampling (chapter 11) 開頭把動機描述得很好, 也引用來當這篇文章的前言.<br>在用 machine learning 很多時候會遇到需要計算某個 function $f(x)$ 的期望值, 當 $x$ follow 某個 distribution $p(x)$ 的情況, i.e. 需計算</p>
+<span>$$\begin{align}
+\mu:=\mathbb{E}_p[f]=\int f(x)p(x)dx
+\end{align}$$</span><!-- Has MathJax -->
+<blockquote>
+<p>例如 EM algorithm 會需要計算 $\mathbb{E}_{p(z|x)}[f(x,z)]$, 參考 <a href="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/">ref</a> 的式 (23), (28)<br>又或者我們要做 Bayesian 的 prediction 時, 參考 <a href="https://bobondemon.github.io/2018/12/20/Bayesian-Learning-Notes/">ref</a> 的式 (2)</p>
+</blockquote>
+<p>這些情況大部分都無法有 analytical form. 不過如果我們能從給定的 distribution $p(x)$ 取 $L$ 個 sample 的話, 式 (1) 就能如下逼近</p>
+<span>$$\begin{align}
+\mathbb{E}_p[f] \approx \hat f:= \frac{1}{L}\sum_{l=1}^L f(x_l)
+\end{align}$$</span><!-- Has MathJax -->
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/08/07/Gumbel-Max-Trick/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1679,166 +1840,6 @@ G^*=\arg\min_G{Div\left(P_d\|P_G\right)} + reg(G) \\
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/15/Determinant-of-Covariance-Matrix/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chih-Sheng Chen">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="棒棒生">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2019/07/15/Determinant-of-Covariance-Matrix/" itemprop="url">
-                  Determinant of Covariance Matrix
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2019-07-15T21:41:13+08:00">
-                2019-07-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分類於</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ML/" itemprop="url" rel="index">
-                    <span itemprop="name">ML</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-<hr>
-<p>筆記 covariance matrix $R$ 的 determinant 意義以及他的 bound. 這是在讀 <a href="https://ieeexplore.ieee.org/document/1323087">Time-delay estimation via linear interpolation and cross correlation</a> 時的 appendix 證明. 覺得有用就筆記下來.</p>
-<p>開門見山, $det(R)$ 可以想成 volumn (等於所有 eigenvalues 相乘), 然後 upper bound 就是所有對角項元素相乘.</p>
-<span>$$\begin{align}
-det(R)=\prod_i \lambda_i \leq \prod_i r_{ii}
-\end{align}$$</span><!-- Has MathJax -->
-<p>$\lambda_i$ 是 i-th eingenvalue.</p>
-<blockquote>
-<p>事實上只要 $R$ 是 <strong>square matrix</strong>, 則 $|det(R)|$ 等於用每個 row vector 做出來的 “平行六面體” 的體積 [<a href="http://textbooks.math.gatech.edu/ila/determinants-volumes.html">ref</a>]</p>
-</blockquote>
-<p>以下筆記論文中證明 $det(R)$ 的 upper bound, 從這個 bound 我們也能看出物理意義.</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/07/15/Determinant-of-Covariance-Matrix/#more" rel="contents">
-              閱讀全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1888,7 +1889,7 @@ det(R)=\prod_i \lambda_i \leq \prod_i r_{ii}
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">58</span>
+                <span class="site-state-item-count">59</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -1910,7 +1911,7 @@ det(R)=\prod_i \lambda_i \leq \prod_i r_{ii}
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">115</span>
+                <span class="site-state-item-count">117</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>

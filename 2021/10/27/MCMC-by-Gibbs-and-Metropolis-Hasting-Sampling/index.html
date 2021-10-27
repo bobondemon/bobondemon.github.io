@@ -1,0 +1,1048 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Coursera,MCMC," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="PRML book sampling (chapter 11) 開頭把動機描述得很好, 也引用來當這篇文章的前言.在用 machine learning 很多時候會遇到需要計算某個 function $f(x)$ 的期望值, 當 $x$ follow 某個 distribution $p(x)$ 的情況, i.e. 需計算
+$$\begin{align}
+\mu:=\mathbb{E}_p">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MCMC by Gibbs and Metropolis-Hasting Sampling">
+<meta property="og:url" content="http://yoursite.com/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="PRML book sampling (chapter 11) 開頭把動機描述得很好, 也引用來當這篇文章的前言.在用 machine learning 很多時候會遇到需要計算某個 function $f(x)$ 的期望值, 當 $x$ follow 某個 distribution $p(x)$ 的情況, i.e. 需計算
+$$\begin{align}
+\mu:=\mathbb{E}_p">
+<meta property="og:image" content="http://yoursite.com/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled.png">
+<meta property="og:image" content="http://yoursite.com/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 1.png">
+<meta property="og:image" content="http://yoursite.com/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 2.png">
+<meta property="og:image" content="http://yoursite.com/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 3.png">
+<meta property="og:image" content="http://yoursite.com/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 4.png">
+<meta property="og:image" content="http://yoursite.com/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 5.png">
+<meta property="og:image" content="http://yoursite.com/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 6.png">
+<meta property="og:image" content="http://yoursite.com/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 7.png">
+<meta property="og:image" content="http://yoursite.com/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 8.png">
+<meta property="og:image" content="http://yoursite.com/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 9.png">
+<meta property="og:image" content="http://yoursite.com/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 10.png">
+<meta property="og:image" content="http://yoursite.com/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 11.png">
+<meta property="og:image" content="http://yoursite.com/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 12.png">
+<meta property="og:image" content="http://yoursite.com/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 13.png">
+<meta property="og:image" content="http://yoursite.com/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 14.png">
+<meta property="og:image" content="http://yoursite.com/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 15.png">
+<meta property="og:image" content="http://yoursite.com/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 16.png">
+<meta property="og:updated_time" content="2021-10-27T15:01:32.643Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MCMC by Gibbs and Metropolis-Hasting Sampling">
+<meta name="twitter:description" content="PRML book sampling (chapter 11) 開頭把動機描述得很好, 也引用來當這篇文章的前言.在用 machine learning 很多時候會遇到需要計算某個 function $f(x)$ 的期望值, 當 $x$ follow 某個 distribution $p(x)$ 的情況, i.e. 需計算
+$$\begin{align}
+\mu:=\mathbb{E}_p">
+<meta name="twitter:image" content="http://yoursite.com/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/"/>
+
+
+
+
+
+  <title> MCMC by Gibbs and Metropolis-Hasting Sampling | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                MCMC by Gibbs and Metropolis-Hasting Sampling
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2021-10-27T21:53:41+08:00">
+                2021-10-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>PRML book sampling (chapter 11) 開頭把動機描述得很好, 也引用來當這篇文章的前言.<br>在用 machine learning 很多時候會遇到需要計算某個 function $f(x)$ 的期望值, 當 $x$ follow 某個 distribution $p(x)$ 的情況, i.e. 需計算</p>
+<span>$$\begin{align}
+\mu:=\mathbb{E}_p[f]=\int f(x)p(x)dx
+\end{align}$$</span><!-- Has MathJax -->
+<blockquote>
+<p>例如 EM algorithm 會需要計算 $\mathbb{E}_{p(z|x)}[f(x,z)]$, 參考 <a href="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/" target="_blank" rel="external">ref</a> 的式 (23), (28)<br>又或者我們要做 Bayesian 的 prediction 時, 參考 <a href="https://bobondemon.github.io/2018/12/20/Bayesian-Learning-Notes/" target="_blank" rel="external">ref</a> 的式 (2)</p>
+</blockquote>
+<p>這些情況大部分都無法有 analytical form. 不過如果我們能從給定的 distribution $p(x)$ 取 $L$ 個 sample 的話, 式 (1) 就能如下逼近</p>
+<span>$$\begin{align}
+\mathbb{E}_p[f] \approx \hat f:= \frac{1}{L}\sum_{l=1}^L f(x_l)
+\end{align}$$</span><!-- Has MathJax -->
+<a id="more"></a>
+<p>我們先來看一下 $\hat f$ 這個估計的期望值是什麼:</p>
+<span>$$\begin{align}
+\mathbb{E}_p[\hat f]=\mathbb{E}_p\left[ \frac{1}{L}\sum_{l=1}^L f(x_l) \right]
+= \frac{1}{L}\sum_{l=1}^L\mathbb{E}_p\left[ f(x_l) \right]
+= {E}_p [f] = \mu
+\end{align}$$</span><!-- Has MathJax -->
+<p>得到一個好消息是我們只要估超多次的話, $\hat f_1, \hat f_2, …$ 這些估計的平均就是我們要的值</p>
+<p>其實這等同於估一次就好, 但用超大的 $L$ 去估計. 問題是 <strong><em>$L$ 要多大才夠 ?</em></strong> 如果變數 $x$ 的維度增加, 需要的 $L$ 是否也要增加才會準確 ? i.e. 會不會有維度爆炸的問題 ? (參考 Curse of dimensionality <a href="https://towardsdatascience.com/curse-of-dimensionality-a-curse-to-machine-learning-c122ee33bfeb" target="_blank" rel="external">[1]</a>)</p>
+<p>我們可以證明 (see Appendix):</p>
+<span>$$\begin{align}
+var[\hat f]=\frac{1}{L}var(f)
+\end{align}$$</span><!-- Has MathJax -->
+<p>這告訴我們, 隨著 sample 數量 $L$ 愈大, 我們估出來的 $\hat f$ 的”變化”會愈來愈小 (成反比). 更重要的是, 這跟 input dimension 無關! 所以不會有維度爆炸的問題.</p>
+<blockquote>
+<p>課本說通常 $L$ 取個 10 個 20 個估出來的 $\hat f$ 就很準了. (其實很好驗證)</p>
+</blockquote>
+<p>所以剩下要解決的問題便是, 要怎麼從一個給定的 distribution 取 sample ?</p>
+<p>本篇正文從這開始</p>
+<ul>
+<li>先說明 1-d 情況下的 r.v. 怎麼 sampling</li>
+<li>再來說明如何用 Markov chain sampling, 也就是大名鼎鼎的 MCMC (Markov Chain Monte Carlo)</li>
+<li>最後介紹兩個實作方法 Gibbs and Metropolis-Hasting sampling.</li>
+</ul>
+<blockquote>
+<p>以下文章內容絕大多數都是從 <a href="https://www.coursera.org/learn/bayesian-methods-in-machine-learning" target="_blank" rel="external">Coursera: Bayesian Methods for Machine Learning</a> 課程來的<br>非常推薦這門課程!</p>
+</blockquote>
+<hr>
+<h2 id="從-1-D-說起"><a href="#從-1-D-說起" class="headerlink" title="從 1-D 說起"></a>從 1-D 說起</h2><h3 id="Discrete-case"><a href="#Discrete-case" class="headerlink" title="Discrete case"></a>Discrete case</h3><p>先討論 discrete distribution 的情形, 我們總是可以取 samples from uniform distribution [0, 1], i.e. $\text{sample} \sim \mathcal{U}[0,1]$<br>所以若要從下圖例子的 discrete distribution 取 samples 其實很容易, 若落在 [0, 0.6) 就 sample $a_1$, 落在 [0.6, 0.7) 取 $a_2$, 落在 [0.7, 1) 取 $a_3$.</p>
+<p><img src="/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled.png" width="50%" height="50%"></p>
+<h3 id="Gaussian-case"><a href="#Gaussian-case" class="headerlink" title="Gaussian case"></a>Gaussian case</h3><p>如果是 continuous distribution 呢?<br>考慮如下的 standard Gaussian distribution $\mathcal{N}(0,1)$</p>
+<p><img src="/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 1.png" width="50%" height="50%"></p>
+<p>可以使用 Central Limit Theorem. 舉例來說我們可以從 $n$ 個 I.I.D. 的 $\mathcal{U}[0,1]$ 取 samples, 然後平均起來. CLT 告訴我們當 $n$ 很大的時候, 結果分布會接近 $\mathcal{N}(0,1)$</p>
+<h3 id="General-continuous-case"><a href="#General-continuous-case" class="headerlink" title="General continuous case"></a>General continuous case</h3><p>那如果是 general case 呢?</p>
+<p><img src="/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 2.png" width="50%" height="50%"></p>
+<p>方法是找一個已知會 sampling 的分布乘上 constant value 使它成為 upper bound<br>例如利用 $2q(x)=2\mathcal{N}(1,9)$ 可以變成 $p(x)$ 的 upper bound</p>
+<p><img src="/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 3.png" width="50%" height="50%"></p>
+<p>因此我們可以 sample $\tilde{x}$ from $2q(x)$, 舉例來說很有可能 $\tilde{x}=0$ 因為在 $0$ 附近的機率最大. 但是對於我們真實想要 samping 的 $p(x)$ 來說, $0$ 反而機率比較小. 因此我們要有一些 <strong>rejection</strong> 機制.</p>
+<p><img src="/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 4.png" width="50%" height="50%"></p>
+<p>所以流程就是, 首先先從已知的 $q(x)$ sample 出 $\tilde{x}$, 由於 $2q(x)$ 是 $p(x)$ 的 upper bound, 因此我們可以根據比例來決定這一次的 $\tilde{x}$ 是否接受. 上圖紅色為 rejection 而綠色為 acception. 因此 acception 機率為:</p>
+<span>$$\begin{align}
+\frac{p(x)}{2q(x)}
+\end{align}$$</span><!-- Has MathJax -->
+<p>我們解釋一下為何這方法可以運作, 首先注意到所有取出來的 $\tilde{x}$ (還沒拒絕之前) 是均勻分布在 $2q(x)$ curve 下的 (見下圖). 而一旦引入我們 rejection 的方法, 取出來的點就是均勻分布在我們要的 $p(x)$ curve 下了.</p>
+<p><img src="/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 5.png" width="50%" height="50%"></p>
+<p><img src="/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 6.png" width="50%" height="50%"></p>
+<p>從上面的說明可以看出, accept 的比例其實就是藍色的比例, 因此 upper bound 愈緊密效果愈好.<br>所以如果 $p(x)\leq Mq(x)$, 則平均 accept $1/M$ points. 這是因為 $p,q$ 都是機率分布, 所以 area under curve 都是 $1$. 因此比例就是 $1/M$.<br>最後, 這個方法可以用在不知道 normalization term $Z$ 的情形. 例如我們只知道 $\hat{p}(x)$, 但我們仍然可以找到一個 distribution $q(x)$ 乘上 constant $\tilde{M}$ 後是 upper bound:</p>
+<span>$$\hat{p}(x) \leq \tilde{M}q(x) \\
+\Longrightarrow p(x)=\frac{\hat{p}(x)}{Z} \leq Mq(x)$$</span><!-- Has MathJax -->
+<p>總解一下此法</p>
+<p><img src="/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 7.png" width="50%" height="50%"></p>
+<p>結論就是雖然對大部分 distribution 都可以用, 但效率不好. 尤其在維度高的時候會大部分都 reject.<br>那有什麼方法可以對付高維度呢? 下面要介紹的 MCMC with Gibbs/Metropolis-Hastings 就能處理.</p>
+<hr>
+<h2 id="Markov-Chains-Monte-Carlo"><a href="#Markov-Chains-Monte-Carlo" class="headerlink" title="Markov Chains Monte Carlo"></a>Markov Chains Monte Carlo</h2><p>這裡假設大家已經熟悉 Markov chain 了, 不多做介紹.<br>使用 Markov chain 的策略為以下幾個步驟:</p>
+<p><img src="/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 8.png" width="50%" height="50%"></p>
+<p>重點在如何設計一個 Markov chain (這裡等同於設計 transition probability $T$), 收斂的 stationary distribution 正好就是我們要的 $p(x)$<br>首先不是每個 Markov chain 都會收斂, 但有一些充分條件如下圖 Theorem:</p>
+<p><img src="/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 9.png" width="50%" height="50%"><br><img src="/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 10.png" width="50%" height="50%"></p>
+<blockquote>
+<p>對照 Stochastic Processes 裡的筆記 (之後補 link), 這裡的 theorem 隱含了此 Markov chain 為 ergodic, i.e. 1-equivalence class, recurrent, and aperiodic. 而 ergodic Markov chain 必定存在 stationary distribution.</p>
+</blockquote>
+<hr>
+<h2 id="Gibbs-sampling"><a href="#Gibbs-sampling" class="headerlink" title="Gibbs sampling"></a>Gibbs sampling</h2><p>上面提到使用 Markov chain 取 sample 的話, 怎麼樣的 $T$ 會讓它收斂到 desired $p(x)$<br>Gibbs sampling 可以想成一種特殊的 $T$ 的設計方法, 可以確保收斂至 $p(x)$<br>假設我們有一個 3-dim 的 P.D.F., 可以不知道 normalization term $Z$:</p>
+<span>$$\begin{align}
+p(x_1,x_2,x_3)=\frac{\hat{p}(x_1,x_2,x_3)}{Z}
+\end{align}$$</span><!-- Has MathJax -->
+<p>從 $(x_1^0, x_2^0, x_3^0)$ 開始, e.g. $(0,0,0)$<br>先對第一維取 sample:</p>
+<span>$$\begin{align}
+x_1^1 \sim p(x_1 | x_2=x_2^0, x_3=x_3^0) \\
+= \frac{\hat{p}(x_1,x_2^0,x_3^0)}{Z_1}
+\end{align}$$</span><!-- Has MathJax -->
+<p>針對 1-d distribution 取 sample 是很容易的, 可以使用上一節的做法<br>接著對第二維取 sample:</p>
+<span>$$\begin{align}
+x_2^1 \sim p(x_2 | x_1=x_1^{\color{red}{1}}, x_3=x_3^0)
+\end{align}$$</span><!-- Has MathJax -->
+<p>最後對第三維取 sample:</p>
+<span>$$\begin{align}
+x_3^1 \sim p(x_3 | x_1=x_1^{\color{red}{1}}, x_2=x_2^{\color{red}{1}})
+\end{align}$$</span><!-- Has MathJax -->
+<p>以上便是一次的 iteration, 所以:</p>
+<p><img src="/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 11.png" width="50%" height="50%"></p>
+<blockquote>
+<p>顯而易見, 這個方法不能 parallel, 之後會說怎麼加速 (利用 Metropolis-Hastings)</p>
+</blockquote>
+<h3 id="證明收斂至-desired-distribution"><a href="#證明收斂至-desired-distribution" class="headerlink" title="證明收斂至 desired distribution"></a>證明收斂至 desired distribution</h3><p>現在要證明這樣的採樣方式定義了一個  Markov chain 且會收斂到 desired distribution $p(x)$, which is stationary!<br>Markov chain 的 states 定義為 $p(x)$ 的 domain, 我們以 $n$-dim 來說就是 $(x_1,x_2,…,x_n)$<br>Transition probabilities $p_T(x\rightarrow x’)$ , i.e. 從 state $x$ 到 $x’$ 的機率, 使用 Gibbs sampling 來定義:</p>
+<span>$$\begin{align}
+p_T(x\rightarrow x&apos;)=p(x_1&apos;|x_2,x_3,...,x_n)p(x_2&apos;|x_1&apos;,x_3,...,x_n)...p(x_n&apos;|x_1&apos;,x_2&apos;,...,x_{n-1}&apos;)
+\end{align}$$</span><!-- Has MathJax -->
+<p>這裡我們做個假設, 令 $p_T(x\rightarrow x’)&gt;0,\forall x,x’$,  則由定理知道此 Markov chain 必 $\exists !$ stationary distribution. 所以現在問題是該 stationary distribution 是我們要的 $p(x)$ 嗎?<br>要證明 $p(x)$ 是 stationary, 我們只需證明:</p>
+<span>$$\begin{align}
+p(x&apos;)=\sum_x p(x\rightarrow x&apos;)p(x)
+\end{align}$$</span><!-- Has MathJax -->
+<p>這表示 $p(x)$ 經過 1-step transition 後, 分布仍然是 $p(x)$<br>所以再來就是用 $p_T(x\rightarrow x’)$ 代入, 驗證看看對不對</p>
+<span>$$\begin{align}
+\sum_x p_T(x\rightarrow x&apos;)p(x) \\
+= \sum_x p(x_1&apos;|x_2,...,x_n)p(x_2&apos;|x_1&apos;,x_3,...,x_n)...p(x_n&apos;|x_1&apos;,x_2&apos;,...,x_{n-1}&apos;) p(x) \\
+=p(x_n&apos;|x_1&apos;,...,x_{n-1}&apos;) \sum_x p(x_1&apos;|x_2,...,x_n)...p(x_{n-1}&apos;|x_1&apos;,...,x_{n-2}&apos;,x_n)p(x) \\
+= p(x_n&apos;|x_1&apos;,...,x_{n-1}&apos;) \sum_{x_2,..,x_n} p(x_1&apos;|x_2,...,x_n)...p(x_{n-1}&apos;|x_1&apos;,...,x_{n-2}&apos;,x_n) \sum_{x_1}p(x) \\
+= p(x_n&apos;|x_1&apos;,...,x_{n-1}&apos;) \sum_{x_2,..,x_n} 
+{\color{orange}{p(x_1&apos;|x_2,...,x_n)}}
+...p(x_{n-1}&apos;|x_1&apos;,...,x_{n-2}&apos;,x_n)
+{\color{orange}{p(x_2,...,x_n)}} \\
+= p(x_n&apos;|x_1&apos;,...,x_{n-1}&apos;)  \sum_{x_2,..,x_n}
+{\color{orange}{p(x_1&apos;,x_2,...,x_n)}}
+p(x_2&apos;|x_1&apos;,x_3,...,x_n)...p(x_{n-1}&apos;|x_1&apos;,...,x_{n-2}&apos;,x_n) \ldots(\star) \\
+= p(x_n&apos;|x_1&apos;,...,x_{n-1}&apos;) \sum_{x_3,..,x_n}
+{\color{orange}{p(x_1&apos;,x_3,...x_n)}}p(x_2&apos;|x_1&apos;,x_3,...,x_n)...p(x_{n-1}&apos;|x_1&apos;,...,x_{n-2}&apos;,x_n) \\
+= p(x_n&apos;|x_1&apos;,...,x_{n-1}&apos;) \sum_{x_3,..,x_n}
+{\color{orange}{p(x_1&apos;,x_2&apos;,x_3,...,x_n)}}p(x_3&apos;|x_1&apos;,x_2&apos;,x_4,...,x_n)...p(x_{n-1}&apos;|x_1&apos;,...,x_{n-2}&apos;,x_n) \ldots(\square)
+\end{align}$$</span><!-- Has MathJax -->
+<p>觀察 $(\star)$ 到 $(\square)$, 是消耗掉 $x_2$ 的 summantion, 同時也消耗掉對 $x_2$ 的 gibbs sampling step. 因此我們可以對 $(\square)$ 做一樣的事情, 去消耗掉 $x_3$ 的 summantion 以及對 $x_3$ 的 gibbs step.<br>重複做會得到:</p>
+<span>$$\begin{align}
+= p(x_n&apos;|x_1&apos;,x_2&apos;,...,x_{n-1}&apos;)\sum_{x_n}p(x_1&apos;,...,x_{n-1} &apos;,x_n) \\
+= p(x_n&apos;|x_1&apos;,x_2&apos;,...,x_{n-1}&apos;) p(x_1&apos;,x_2&apos;,...,x_{n-1}&apos;) \\
+= p(x_1&apos;,x_2&apos;,...,x_n&apos;)=p(x&apos;)
+\end{align}$$</span><!-- Has MathJax -->
+<p>Q.E.D.</p>
+<h3 id="總結"><a href="#總結" class="headerlink" title="總結"></a>總結</h3><p>大致上有兩個前提:</p>
+<ol>
+<li>固定其他維度, 對某一維度取 samples 是很容易的</li>
+<li><span>$p(x_i|x_1,...,x_{i-1}, x_{i+1}, ..., x_n)&gt;0$</span><!-- Has MathJax -->, 這保證了我們透過 Gibbs sampling 產生的 Markov chain 一定收斂到 desired $p(x)$</li>
+</ol>
+<p>優點為:</p>
+<ul>
+<li>將 multi-dimensional sampling 化簡為 1-d sampling</li>
+<li>容易實作</li>
+</ul>
+<p>缺點為:</p>
+<ul>
+<li>Highly correlated samples, 這使得我們跑到 stationary distribution 後, 也不能連續的取 sample 點</li>
+<li>Slow convergence (mixing)</li>
+<li>Not parallel (接下來介紹的 Metropolis Hastings 幫忙可以改善)</li>
+</ul>
+<hr>
+<h2 id="Metropolis-Hastings"><a href="#Metropolis-Hastings" class="headerlink" title="Metropolis-Hastings"></a>Metropolis-Hastings</h2><p>Gibbs sampling 缺點是 samples are too correlated, 且不能平行化. 注意到在 Gibbs sampling 方法裡, 已經定義好某一個特別的 Markov chain 了. Metropolis-Hastings 則可以定義出一個 famliy of Markov chain 都收斂到 desired distribution. 因此可以選擇某一個 Markov chain 可能收斂較快, 或是 less correlated.<br>Metropolis-Hastings 中心想法就是 “apply rejection sampling to Markov chains”</p>
+<h3 id="Algorithm"><a href="#Algorithm" class="headerlink" title="Algorithm"></a>Algorithm</h3><p><img src="/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 12.png" width="50%" height="50%"></p>
+<p>其中 $Q(x^k\rightarrow x)$ 是任意事先給定的一個 transition probabilities (注意到需滿足 $&gt;0,\forall x,x’$, 這樣才能保證唯一收斂)<br>$A(x^k\rightarrow x)$ 表示 given $x^k$ accept $x$ 的機率, 稱為 critic<br>演算法流程為: 先從 $Q(x^k\rightarrow x)$ 取樣出 $x’$, $x’$ 有 $A(x^k\rightarrow x’)$ 的機率被接受, 一旦接受則 $x^{k+1}=x’$ 否則 $x^{k+1}=x^k$, 然後 iterate 下去<br>使用這種方式的話, 我們其實可以算出 transition probability $T(x\rightarrow x’)$, 如上圖<br>所以關鍵就是, 怎麼選擇 $A(x^k\rightarrow x)$ 使得這樣的 Markov chain 可以收斂到 desired probability $\pi(x)$</p>
+<h3 id="怎麼選擇-Critic-A-使得-Markov-chain-收斂到-pi"><a href="#怎麼選擇-Critic-A-使得-Markov-chain-收斂到-pi" class="headerlink" title="怎麼選擇 Critic $A$ 使得 Markov chain 收斂到 $\pi$"></a>怎麼選擇 Critic $A$ 使得 Markov chain 收斂到 $\pi$</h3><p>我們先介紹一個充分條件 (所以有可能 $\pi(x)$ 是 stationary 但是不滿足 detailed balance equation)</p>
+<p><strong>[Detailed Balance Equation]:</strong><br>若 $\pi(x)T(x\rightarrow x’)=\pi(x’)T(x’\rightarrow x), \forall x,x’$, 則 $\pi(x)$ 為 stationary distribution, i.e. <span>$\pi(x&apos;)=\sum_x \pi(x)T(x\rightarrow x&apos;)$</span><!-- Has MathJax --></p>
+<p>[Proof]:</p>
+<span>$$\begin{align}
+\sum_x \pi(x)T(x\rightarrow x&apos;) \\
+\text{by assumption} = \sum_x \pi(x&apos;)T(x&apos;\rightarrow x) \\
+= \pi(x&apos;)\sum_x T(x&apos;\rightarrow x) = \pi(x&apos;)
+\end{align}$$</span><!-- Has MathJax -->
+<p>所以只要選擇的 $A(x\rightarrow x’)$ 能夠讓 $T(x\rightarrow x’)$ 針對 $\pi(x)$ 滿足 detailed balance 特性就能保證 Markov chain 收斂到 $\pi(x)$<br>因此我們計算一下, 只需考慮 $x\neq x’$ 的情形 (因為 $x=x’$ 一定滿足 detailed balance equation, 這不是廢話嗎)</p>
+<span>$$\begin{align}
+\pi(x)T(x\rightarrow x&apos;)=\pi(x&apos;)T(x&apos;\rightarrow x) \\
+\Longleftrightarrow \pi(x)Q(x\rightarrow x&apos;)A(x\rightarrow x&apos;) = \pi(x&apos;)Q(x&apos;\rightarrow x)A(x&apos;\rightarrow x) \\
+\Longleftrightarrow \frac{A(x\rightarrow x&apos;)}{A(x&apos;\rightarrow x)} = \frac{\pi(x&apos;)Q(x&apos;\rightarrow x)}{\pi(x)Q(x\rightarrow x&apos;)} =: \rho
+\end{align}$$</span><!-- Has MathJax -->
+<p>所以當 $\rho&lt;1$ 我們設定</p>
+<span>$$\begin{align}
+\left\{
+\begin{array}{r}
+A(x\rightarrow x&apos;)=\rho \\
+A(x&apos;\rightarrow x)=1
+\end{array}
+\right.
+\end{align}$$</span><!-- Has MathJax -->
+<p>而如果 $\rho&gt;1$ 我們設定</p>
+<span>$$\begin{align}
+\left\{
+\begin{array}{r}
+A(x\rightarrow x&apos;)=1 \\
+A(x&apos;\rightarrow x)=1/\rho
+\end{array}
+\right.
+\end{align}$$</span><!-- Has MathJax -->
+<p>總結來說 $A$ 可以這麼設定</p>
+<span>$$\begin{align}
+A(x\rightarrow x&apos;)=\min\left\{
+1, \frac{\pi(x&apos;)Q(x&apos;\rightarrow x)}{\pi(x)Q(x\rightarrow x&apos;)}
+\right\}
+\end{align}$$</span><!-- Has MathJax -->
+<blockquote>
+<p>注意到 $\rho$ 是可以直接算出來的, 因為 $Q,\pi$ 都是事先給定已知的, 因此我們就能設定出對應的 acceptance distribution $A$.</p>
+</blockquote>
+<p>同時如果我們只有 unnormalized distribution, i.e. $\hat\pi(x)$, 由 $A$ 的設定可以看出不受影響</p>
+<span>$$\begin{align}
+A(x\rightarrow x&apos;)=\min\left\{
+1, \frac{
+{\color{orange}{\hat\pi(x&apos;)}}
+Q(x&apos;\rightarrow x)}{
+{\color{orange}{\hat\pi(x)}}
+Q(x\rightarrow x&apos;)}
+\right\}
+\end{align}$$</span><!-- Has MathJax -->
+<h3 id="怎麼選擇-Q"><a href="#怎麼選擇-Q" class="headerlink" title="怎麼選擇 $Q$"></a>怎麼選擇 $Q$</h3><p>首先需滿足 $Q(x\rightarrow x’)&gt;0,\forall x,x’$. 這樣才會有以上的推論.<br>$Q$ 會希望能走”大步”一點, 也就是 transition 不要只圍繞在相鄰的點. 好處是產生的 sample 會比較無關.<br>但如果走太大步, critic $A$ 就有可能一直 reject (why?) 導致效率太差</p>
+<blockquote>
+<p>想像如果 $x$ 已經在機率很高的地方了, 例如 local maximum point. 如果 $Q$ 走太大步到 $x’$, 則容易 $\pi(x’)&lt;&lt;\pi(x)$, 造成 $A$ 太小容易 reject<br>所以如果 $Q$ 走小步一點, $x’$ 還是圍繞在 $x$ 附近, 相對來說可能機率就不會那麼低</p>
+</blockquote>
+<h3 id="Example-of-Metropolis-Hastings"><a href="#Example-of-Metropolis-Hastings" class="headerlink" title="Example of Metropolis-Hastings"></a>Example of Metropolis-Hastings</h3><p>1-d case toy example</p>
+<p><img src="/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 13.png" width="50%" height="50%"><br><img src="/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 14.png" width="50%" height="50%"><br><img src="/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 15.png" width="50%" height="50%"></p>
+<p>告訴我們 proposal 的 distribution 選擇也是很重要的.</p>
+<p>最後可以使用 Metropolis Hastings 來平行化 Gibbs sampling!<br>我們使用如下圖 “錯誤的” Gibbs sampling 方法, 並將這方法視為 Metropolis Hastings 的 proposal $Q(x\rightarrow x’)$<br>因此可以平行對每個維度取 sample! (好聰明!)</p>
+<p><img src="/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/Untitled 16.png" width="50%" height="50%"></p>
+<hr>
+<h2 id="結語"><a href="#結語" class="headerlink" title="結語"></a>結語</h2><p>MCMC 被譽為 20 世紀十個偉大的演算法發明之一 [<a href="https://archive.siam.org/pdf/news/637.pdf" target="_blank" rel="external">3</a>]. 找知乎的文章可以看到這個討論: 有什么理论复杂但是实现简单的算法？<a href="https://www.zhihu.com/question/27940474#ref_1" target="_blank" rel="external">[4]</a> 果然 MCMC 理論不是一般人能做的.<br>後續對於 Metropolis-Hastings 的改進有一個算法是 Metropolis-adjusted Langevin algorithm <a href="https://en.wikipedia.org/wiki/Metropolis-adjusted_Langevin_algorithm" target="_blank" rel="external">[5]</a> (MALA). 該方法提出使用 Langevin dynamics <a href="https://en.wikipedia.org/wiki/Langevin_dynamics" target="_blank" rel="external">[6]</a> 當作 proposal, 這會使得 random walk 會走向機率比較高的地方, 因此被拒絕機率較低. 但是 MALA 我實在看不懂, 只知道跟 Langevin dynamics sampling <a href="https://www.zhihu.com/question/348483881/answer/871584499" target="_blank" rel="external">[7]</a> 有關</p>
+<blockquote>
+<p>在 Generative Modeling by Estimating Gradients of the Data Distribution <a href="https://yang-song.github.io/blog/2021/score/" target="_blank" rel="external">[8]</a> 的 Langevin dynamics 段落裡提到 MALA 可以只根據 score function ($\nabla_x \log p(x)$) 就從 P.D.F. $p(x)$ 取 samples!</p>
+</blockquote>
+<p>會看到 MALA 是因為除了 GAN 之外最近很熱門的 generative models: DPM <a href="https://lilianweng.github.io/lil-log/2021/07/11/diffusion-models.html" target="_blank" rel="external">[9]</a>), 其核心技術之一用到它.<br>看來要全部融會貫通目前會先卡關在這了. MALA 你等著! 別跑啊, 不要以為我怕了你, 總有一天我 #$@^#@$Q (逃~)</p>
+<hr>
+<h2 id="Appendix"><a href="#Appendix" class="headerlink" title="Appendix"></a>Appendix</h2><p>證明 $var[\hat f]=\frac{1}{L}Var(f)$ 如下:</p>
+<p>首先兩個 independent r.v.s $X,Y$ 我們知道其 covariance 為 $0$:</p>
+<span>$$\begin{align}
+0 = Cov[XY] = \mathbb{E}\left[ (X-\mu_x)(Y-\mu_y) \right] \\
+= \mathbb{E}[XY-X\mu_y-\mu_xY+\mu_x\mu_y]
+= \mathbb{E}[XY] - \mu_x\mu_y \\
+\Rightarrow \mathbb{E}[XY] = \mu_x\mu_y \ldots(\star)
+\end{align}$$</span><!-- Has MathJax -->
+<p>且有 variance 的性質: $Var(X)=\mathbb{E}[X^2]-\mu_x^2\ldots(\star\star)$<br>接著開始計算:</p>
+<span>$$\begin{align}
+Var[\hat f]=\mathbb{E}[(\hat f - \mathbb{E}[\hat f])^2] = \mathbb{E}[(\hat f - \mu)^2] = \mathbb{E}[\hat f^2] - \mu^2 \\
+= \mathbb{E}\left[ \frac{1}{L}\sum_k f(x_k) \frac{1}{L}\sum_m f(x_m) \right] - \mu^2 \\
+= \frac{1}{L^2}\sum_k\sum_m\left[ \mathbb{E}[f(x_k)f(x_m)] - \mu^2 \right] \\
+\text{by }(\star)= \frac{1}{L^2}\sum_k \left[ (\mathbb{E}[f(x_k)^2]-\mu^2)+(L-1)(\mu^2-\mu^2) \right] \\
+\text{by }(\star\star) = \frac{1}{L^2}\sum_k Var(f(x_k)) \\
+= \frac{1}{L} Var(f)
+\end{align}$$</span><!-- Has MathJax -->
+<hr>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
+<li><a href="https://towardsdatascience.com/curse-of-dimensionality-a-curse-to-machine-learning-c122ee33bfeb" target="_blank" rel="external">Curse of Dimensionality — A “Curse” to Machine Learning</a></li>
+<li><a href="https://www.coursera.org/learn/bayesian-methods-in-machine-learning" target="_blank" rel="external">Coursera: Bayesian Methods for Machine Learning</a></li>
+<li><a href="https://archive.siam.org/pdf/news/637.pdf" target="_blank" rel="external">The Best of the 20th Century: Editors Name Top 10 Algorithms</a></li>
+<li><a href="https://www.zhihu.com/question/27940474#ref_1" target="_blank" rel="external">有什么理论复杂但是实现简单的算法？</a></li>
+<li>Metropolis-adjusted Langevin algorithm: <a href="https://en.wikipedia.org/wiki/Metropolis-adjusted_Langevin_algorithm" target="_blank" rel="external">wiki</a></li>
+<li>Langevin dynamics: <a href="https://en.wikipedia.org/wiki/Langevin_dynamics" target="_blank" rel="external">wiki</a></li>
+<li><a href="https://www.zhihu.com/question/348483881/answer/871584499" target="_blank" rel="external">抽样理论中有哪些令人印象深刻(有趣)的结论?</a></li>
+<li><a href="https://yang-song.github.io/blog/2021/score/" target="_blank" rel="external">Generative Modeling by Estimating Gradients of the Data Distribution</a></li>
+<li><a href="https://lilianweng.github.io/lil-log/2021/07/11/diffusion-models.html" target="_blank" rel="external">What are Diffusion Models?</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/" title="MCMC by Gibbs and Metropolis-Hasting Sampling">http://yoursite.com/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Coursera/" rel="tag"># Coursera</a>
+          
+            <a href="/tags/MCMC/" rel="tag"># MCMC</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/08/07/Gumbel-Max-Trick/" rel="next" title="Gumbel-Max Trick">
+                <i class="fa fa-chevron-left"></i> Gumbel-Max Trick
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">59</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">117</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#從-1-D-說起"><span class="nav-number">1.</span> <span class="nav-text">從 1-D 說起</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Discrete-case"><span class="nav-number">1.1.</span> <span class="nav-text">Discrete case</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Gaussian-case"><span class="nav-number">1.2.</span> <span class="nav-text">Gaussian case</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#General-continuous-case"><span class="nav-number">1.3.</span> <span class="nav-text">General continuous case</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Markov-Chains-Monte-Carlo"><span class="nav-number">2.</span> <span class="nav-text">Markov Chains Monte Carlo</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Gibbs-sampling"><span class="nav-number">3.</span> <span class="nav-text">Gibbs sampling</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#證明收斂至-desired-distribution"><span class="nav-number">3.1.</span> <span class="nav-text">證明收斂至 desired distribution</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#總結"><span class="nav-number">3.2.</span> <span class="nav-text">總結</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Metropolis-Hastings"><span class="nav-number">4.</span> <span class="nav-text">Metropolis-Hastings</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Algorithm"><span class="nav-number">4.1.</span> <span class="nav-text">Algorithm</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#怎麼選擇-Critic-A-使得-Markov-chain-收斂到-pi"><span class="nav-number">4.2.</span> <span class="nav-text">怎麼選擇 Critic $A$ 使得 Markov chain 收斂到 $\pi$</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#怎麼選擇-Q"><span class="nav-number">4.3.</span> <span class="nav-text">怎麼選擇 $Q$</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Example-of-Metropolis-Hastings"><span class="nav-number">4.4.</span> <span class="nav-text">Example of Metropolis-Hastings</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#結語"><span class="nav-number">5.</span> <span class="nav-text">結語</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Appendix"><span class="nav-number">6.</span> <span class="nav-text">Appendix</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">6.1.</span> <span class="nav-text">Reference</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
