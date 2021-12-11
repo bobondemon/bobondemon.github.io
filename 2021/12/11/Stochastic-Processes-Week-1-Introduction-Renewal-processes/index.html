@@ -1,0 +1,983 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Coursera,Stochastic Processes,Probability Space,Renewal Process,Counting Process," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識
+Week 1: Introduction &amp;amp; Renewal processes (本文)
+Week 2: Poisson Processes
+Week3: Markov Chains
+Week 4: Gaussian Processes
+Week 5: Station">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Stochastic Processes Week 1 Introduction & Renewal processes">
+<meta property="og:url" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識
+Week 1: Introduction &amp;amp; Renewal processes (本文)
+Week 2: Poisson Processes
+Week3: Markov Chains
+Week 4: Gaussian Processes
+Week 5: Station">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 1.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 2.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 3.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 4.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 5.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 6.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 7.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 8.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 9.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 10.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 11.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 12.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 13.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 14.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 15.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 16.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 17.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 18.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 19.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 20.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 21.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 22.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 23.png">
+<meta property="og:updated_time" content="2021-12-11T14:26:10.428Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Stochastic Processes Week 1 Introduction & Renewal processes">
+<meta name="twitter:description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識
+Week 1: Introduction &amp;amp; Renewal processes (本文)
+Week 2: Poisson Processes
+Week3: Markov Chains
+Week 4: Gaussian Processes
+Week 5: Station">
+<meta name="twitter:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/"/>
+
+
+
+
+
+  <title> Stochastic Processes Week 1 Introduction & Renewal processes | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Stochastic Processes Week 1 Introduction & Renewal processes
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2021-12-11T20:56:53+08:00">
+                2021-12-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p><a href="https://www.coursera.org/learn/stochasticprocesses?" target="_blank" rel="external">Coursera Stochastic Processes</a> 課程筆記, 共九篇:</p>
+<ul>
+<li><a href="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-0-%E4%B8%80%E4%BA%9B%E9%A0%90%E5%82%99%E7%9F%A5%E8%AD%98/" target="_blank" rel="external">Week 0: 一些預備知識</a></li>
+<li><strong>Week 1: Introduction &amp; Renewal processes (本文)</strong></li>
+<li>Week 2: Poisson Processes</li>
+<li>Week3: Markov Chains</li>
+<li>Week 4: Gaussian Processes</li>
+<li>Week 5: Stationarity and Linear filters</li>
+<li>Week 6: Ergodicity, differentiability, continuity</li>
+<li>Week 7: Stochastic integration &amp; Itô formula</li>
+<li>Week 8: Lévy processes </li>
+</ul>
+<a id="more"></a>
+<hr>
+<h2 id="Week-1-2-Difference-between-various-fields-of-stochastics"><a href="#Week-1-2-Difference-between-various-fields-of-stochastics" class="headerlink" title="Week 1.2: Difference between various fields of stochastics"></a>Week 1.2: Difference between various fields of stochastics</h2><p>數學上的 stochastics 跟三個主要學科有關:</p>
+<ol>
+<li>Probability theory</li>
+<li>Mathematical statistics</li>
+<li>stochastic processes</li>
+</ol>
+<p>用一個池子裡面的魚來當例子, 假設我們要分析某個時間點池子裡有多少魚, i.e. $N$ 條魚<br>Probability theory 就是找出這個 $N$ 的機率分布, 然後可以分析其 mean, variance …<br>而 mathematical statistics 是藉由一些統計實驗, 去估計出 $N$</p>
+<p>舉例來說, 抓 $M$ 條魚做記號後放回池子. 然後一次實驗為抓 $n$ 條魚, 若發現有 $m$ 條做過記號, 則這個機率我們可以算出來:<br><span>$\mathcal{P}\{\#\text{marked}=m\}=(C_M^m\cdot C_{N-M}^{n-m})/C_N^n$</span><!-- Has MathJax --></p>
+<p>我們重複這個實驗 $q$ 次, 得到的做過記號的魚的次數為 ${m_1,m_2,…,m_q}$, 因此可以算出 log-likelihood:<br><span>$L(N)=\sum_{k=1}^q \log\mathcal{P}\{\#\text{marked}=m_k\}$</span><!-- Has MathJax --></p>
+<p>所以求解 $\arg\max_N L(N)$<br>對於 stochastic processes 我們也可以問同樣的問題: $N$ 是多少? 不過此時會多考慮 $N$ 隨著時間變化</p>
+<hr>
+<h2 id="Week-1-3-Probability-space"><a href="#Week-1-3-Probability-space" class="headerlink" title="Week 1.3: Probability space"></a>Week 1.3: Probability space</h2><p>建議先閱讀<br>[測度論] Sigma Algebra 與 Measurable function 簡介: <a href="https://ch-hsieh.blogspot.com/2010/04/measurable-function.html" target="_blank" rel="external">https://ch-hsieh.blogspot.com/2010/04/measurable-function.html</a><br>[機率論] 淺談機率公理 與 基本性質: <a href="https://ch-hsieh.blogspot.com/2013/12/blog-post_7.html" target="_blank" rel="external">https://ch-hsieh.blogspot.com/2013/12/blog-post_7.html</a></p>
+<p>課程使用兩個隨機實驗 (如同上面的參考連結):</p>
+<ol>
+<li>從閉區間 $[0,1]$ 之中 任選一個數字</li>
+<li>做 $n$ 次的丟銅板實驗</li>
+</ol>
+<p><img src="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled.png" width="100%" height="100%"><br>我們引用參考連結的定義<br><img src="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 1.png" width="80%" height="80%"><br>$\mathcal{F}$ 是一個 <em>collection</em> of subsets of $\Omega$, 也就是說每一個 element 都是一個 $\Omega$ 的 subset. 除此之外, 還必須是 $\sigma$-algebra.</p>
+<blockquote>
+<p>$\sigma$-algebra 和 topology 定義可參考 <a href="https://www.themathcitadel.com/topologies-and-sigma-algebras/" target="_blank" rel="external">https://www.themathcitadel.com/topologies-and-sigma-algebras/</a></p>
+</blockquote>
+<p>所以一個 “事件” $A$ 是一個 subset of $\Omega$ (i.e. $A\subseteq\Omega$), 也是一個 element of $\mathcal{F}$, (i.e. $A\in\mathcal{F}$).</p>
+<blockquote>
+<p>💡 注意 $A$ 是 subset of $\Omega$, 還不夠. $A$ 還必須從是 $\sigma$-algebra 的 $\mathcal{F}$ 裡面挑.</p>
+</blockquote>
+<p>最後 $\mathcal{P}:\mathcal{F} \rightarrow [0,1]$ 此函數必須滿足以下公理<br><img src="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 2.png" width="80%" height="80%"><br>對比 <a href="https://en.wikipedia.org/wiki/Measure_(mathematics" target="_blank" rel="external">measure 的定義</a>, 相當於多出了一條 $P(\Omega)=1$, 所以 probability measure 是一個特殊的 measure<br>再對比 <a href="https://en.wikipedia.org/wiki/Measure_space" target="_blank" rel="external">measure space 的定義</a>, 差別只在於 probability space 用的 measure 為 probability measure<br><img src="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 3.png" width="40%" height="40%"></p>
+<hr>
+<h2 id="Week-1-4-Definition-of-a-stochastic-function-Types-of-stochastic-functions"><a href="#Week-1-4-Definition-of-a-stochastic-function-Types-of-stochastic-functions" class="headerlink" title="Week 1.4: Definition of a stochastic function. Types of stochastic functions."></a>Week 1.4: Definition of a stochastic function. Types of stochastic functions.</h2><p><img src="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 4.png" width="100%" height="100%"><br>首先 random variables 其實是一個 measurable function $\xi:\Omega\rightarrow\mathbb{R}$, 要搞清楚什麼是 measurable function 之前, 我們先要了解 Borel $\sigma$-algebra, Measurable Space 與 Measurable sets</p>
+<blockquote>
+<p>一樣, 主要參考 <a href="https://ch-hsieh.blogspot.com/2010/04/measurable-function.html" target="_blank" rel="external">[測度論] Sigma Algebra 與 Measurable function 簡介</a></p>
+</blockquote>
+<p><img src="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 5.png" width="70%" height="70%"></p>
+<p>$\sigma(\mathcal{E})$ 表示包含 $\mathcal{E}$ 的最小 $\sigma$-algebra, 且一定存在 (證明請參考該文章)<br><img src="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 6.png" width="70%" height="70%"><br>令 $X:=\mathbb{R}$, 則我們可以取所有 open sets 產生 Borel $\sigma$-algebra, 記做 $\mathcal{B}(\mathbb{R})$</p>
+<blockquote>
+<p>$\mathcal{B}(\mathbb{R})$ 可以想成實數軸上包含所有 open sets 的最小 $\sigma$-algebra, 由 $\sigma$-algebra 定義知也包含 closed sets $[a,b]$, ${a}$, $(a,b]$, $[a,b)$, 以及上述這些的 countable union (complement)</p>
+</blockquote>
+<p><img src="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 7.png" width="70%" height="70%"><br>可稱 $\sigma$-algebra 中的元素為 measurable set<br>接著定義可測函數:<br><img src="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 8.png" width="70%" height="70%"><br>對於 $f$ 來說, 其 domain ($X$) and image ($Y$) spaces 都配備了對應的 $\sigma$-algebra $\mathcal{A},\mathcal{B}$<br>回到 probability space, $(\Omega, \mathcal{F}, \mathcal{P})$, 我們知道 $\mathcal{F}$ 是定義在 sample space $\Omega$ 的 $\sigma$-algebra, i.e. $(\Omega,\mathcal{F})$ 是 measurable space.<br>而 random variable $Z$ 其實是定義為由 $\Omega$ 映射到 $\mathbb{R}$ 的 measurable function. $\mathbb{R}$ 配備 $\mathcal{B}(\mathbb{R})$.<br><img src="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 9.png" width="70%" height="70%"><br>舉一個 <a href="https://www.khanacademy.org/math/statistics-probability/random-variables-stats-library/random-variables-discrete/v/random-variables?modal=1" target="_blank" rel="external">Khan Academy</a> 淺顯的例子, $X,Y$ 為兩個 r.v.s 分別把 outcomes 對應到 $\mathbb{R}$</p>
+<p>$Y$ 的 outcomes 是<br><span>$\{(a_1,...,a_7):a_i\in \{\text{head,tail} \} \}$</span><!-- Has MathJax --><br>共 $2^7$ 種可能<br><img src="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 10.png" width="80%" height="80%"><br>Mapping 到 $\mathbb{R}$ 後我們就可以算對應的機率, 例如<br>$\mathcal{P}(Y\leq30)$ or $\mathcal{P}(Y\text{ is even})$<br>而需要 r.v. 是 measurable function 的原因可以從這看出來, 因為我們要知道 pre-image:<br><span>$\{\omega:Y(\omega)\leq30\}$</span><!-- Has MathJax --><br>也就是滿足這條件的 outcomes 集合, 必須要 $\in\mathcal{F}$. 所以它才會是個 “事件”<br>這是因為我們的 probability measure $\mathcal{P}:\mathcal{F}\rightarrow [0,1]$, 是定義在 $\mathcal{F}$ (事件的 $\sigma$-algebra) 上</p>
+<hr>
+<h2 id="Week-1-5-Trajectories-and-finite-dimensional-distributions"><a href="#Week-1-5-Trajectories-and-finite-dimensional-distributions" class="headerlink" title="Week 1.5: Trajectories and finite-dimensional distributions"></a>Week 1.5: Trajectories and finite-dimensional distributions</h2><p><strong>[Def]: Stochastic process</strong><br>  &emsp;Stochastic process 是一個 mapping $X:T\times\Omega\rightarrow\mathbb{R}$, 而通常 $T=\mathbb{R}^+$, 且滿足:<br>  &emsp;$\forall t \in T$, we have $X_t=X(t,\cdot)$ is a random variable on probability space $(\Omega,\mathcal{F},\mathcal{P})$</p>
+<p><strong>[Def]: Trajectory (sample path, or path) of a stochastic process</strong><br>  &emsp;對一個 stochastic process $X$ 來說, fixed $\omega\in\Omega$, 我們得到 $X(\cdot,\omega)$ 為 $T$ 的函數, 這就是 trajectory</p>
+<p><strong>[Def]: Finite dimensional distributions</strong><br>   &emsp;對一個 stochastic process $X$ 來說, 我們根據時間可以拿到 $n$ 個 random variables:<br>   &emsp;<span>$(X_{t_1}, X_{t_2}, ..., X_{t_n})$, where $t_1, t_2,...,t_n \in \mathbb{R}$</span><!-- Has MathJax --></p>
+<p>在 probability theory 裡面都是將這 $n$ 個 r.v.s 視為獨立, 但在 stochastic processes 裡面不能. 這是很大的不同. 所以就算是 finite dimensional distribution, 在 stochastic processes 也是很挑戰的.</p>
+<p>video 的試題:<br><img src="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 11.png" width="100%" height="100%"><br><img src="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 12.png" width="100%" height="100%"></p>
+<hr>
+<h2 id="Week-1-6-Renewal-process-Counting-process"><a href="#Week-1-6-Renewal-process-Counting-process" class="headerlink" title="Week 1.6: Renewal process. Counting process"></a>Week 1.6: Renewal process. Counting process</h2><p>可參考詳細解說: <a href="https://www.randomservices.org/random/renewal/Introduction.html" target="_blank" rel="external">https://www.randomservices.org/random/renewal/Introduction.html</a><br>第一個事件發生的時間為 $T_1$, 第二個事件發生的時間為 $T_2$, …<br>每一個事件要隔多久發生都是從一個 random variable $X_i$ 決定的<br>因此我們會有一個 sequence of <em>interarrival times</em>, $X=(X_1,X_2,…)$<br>所以 sequence of <em>arrival times</em> 就會是 $T = (T_1, T_2, …)$, 其中<br><span>$T_n=\sum_{i=1}^nX_i$ , $n\in\mathbb{N}$</span><!-- Has MathJax --><br>它們的關係用圖來看如下:<br><img src="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 13.png" width="80%" height="80%"><br>最後我們可以定義一個 random variable $N_t$ 表示到時間 $t$ 為止有多少個”事件”到達了:<br><span>$N_t=\sum_{n=1}^\infty \mathbf{1}(T_n\leq t)$, $t\in[0,\infty)$</span><!-- Has MathJax --><br>其中 $\mathbf{1}(\cdot)$ 表示 indicator function.<br>又或者可以用課程上的定義:<br><span>$N_t=\arg\max_n\{T_n\leq t\}$</span><!-- Has MathJax --><br>所以可以定義 counting process 為一個 random process $N=(N_t:t\geq 0)$<br>我們可以將 $N$ 這個 random processes 的 trajectory (path) 畫出來.<br>這個意思就是 fixed 一個 sample space 的值, 例如固定 $X’=(X_1=0.5,X_2=0.11,…)$, 然後對每個時間點的 $N_t$ 的值隨著時間畫出來. 我們會發現是如下的 increasing step function:<br><img src="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 14.png" width="75%" height="75%"><br><img src="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 15.png" width="80%" height="80%"><br>$T_n\leq t$ 意思就是 $n$ 個事件發生的時間比 $t$ 小. 等同於到時間 $t$ 為止至少有 $n$ 個事件已經發生, i.e. $N_t\geq n$</p>
+<p><strong>[Properties]: counting variables $N_t$ 與 arrival times $T_n$ 的關聯如下:</strong><br>&emsp;1. ${N_t\geq n}={T_n\leq t}$ or ${N_t\leq n}={T_n\geq t}$<br>&emsp;2. <span>$\{N_t=n\}=\{T_n\leq t\} \cap \{T_{n+1}&gt;t\}$</span><!-- Has MathJax --></p>
+<hr>
+<h2 id="Week-1-7-Convolution"><a href="#Week-1-7-Convolution" class="headerlink" title="Week 1.7: Convolution"></a>Week 1.7: Convolution</h2><p>我們有兩個互為獨立的 r.v.s $X\bot Y$, 且已知 $X\sim F_X$, $Y\sim F_Y$ (in c.d.f.) 或是寫成 $X\sim P_X$, $Y\sim P_Y$ (in p.d.f.).</p>
+<blockquote>
+<p>$F_X$ and $F_Y$ 是 cumulated distribution function of $X$ and $Y$<br>$P_X$ and $P_Y$ 是 probability density function of $X$ and $Y$<br>$F_X(x)=P_X(X&lt;x)$</p>
+</blockquote>
+<p>則 convolution of two independent random variables 記做:</p>
+<ul>
+<li><span>$F_X\ast F_Y$</span><!-- Has MathJax --> (convolution in terms of <em>distribution</em> function): <span>$F_{X+Y}(x)=\int_\mathbb{R} F_X(x-y)dF_Y(y)$</span><!-- Has MathJax --></li>
+<li>或 <span>$P_X \ast P_Y$</span><!-- Has MathJax --> (convolution in terms of <em>density</em> function): <span>$P_{X+Y}(x)=\int_\mathbb{R} P_X(x-y)P_y(y)dy$</span><!-- Has MathJax --></li>
+</ul>
+<blockquote>
+<p>💡 Convolution 同樣都是用 $\ast$ 表示, 但根據是 c.d.f. or p.d.f. 會有不同定義, 然而兩者為等價</p>
+</blockquote>
+<p>把 convolution 擴展到 $n$ 個 i.i.d. r.v.s <span>$\{X_1,X_2,...,X_n\}$</span><!-- Has MathJax -->, 其中 $X_i \sim F$, 則:<br><span>$S_n=X_1+...+X_n\sim {\color{orange}{F^{n\ast}=\underbrace{F\ast ...\ast F}_\text{n times}}}$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>注意到這裡的 convolution, $\ast$, is in terms of <em>distribution</em> function</p>
+</blockquote>
+<p>有幾個特性:</p>
+<ul>
+<li><span>$F^{n\ast}(x)\leq F^n(x)$</span><!-- Has MathJax -->, if $F(0)=0$<br>這是因為<br><span>$$\{X_1 + ... + X_n \leq x\}\subseteq\{X_1\leq x, ..., X_n\leq x\} \\
+\therefore P\{X_1 + ... + X_n \leq x\}\leq \prod_{i=1}^n P\{X_i\leq x\} \\
+=F^{n\ast}(x)\leq \prod_{i=1}^n F(x)=F^n(x)$$</span><!-- Has MathJax --></li>
+<li>$F^{n\ast}(x)\geq F^{(n+1)\ast}(x)$<br>這是因為<span>$\{X_1 + ... + X_n \leq x\}\supseteq\{X_1 + ... + X_n + X_{n+1} \leq x\}$</span><!-- Has MathJax -->
+</li>
+</ul>
+<p><strong>[Thm] Expectation of counting process equals to renewal function $\mathcal{U}(t)$:</strong><br>&emsp;考慮 renewal process: <span>$T_n=T_{n-1}+X_n$</span><!-- Has MathJax -->, 且 $X_1,X_2,…$ are i.i.d. r.v.s with distribution function $F$.</p>
+<ul>
+<li><p>$\mathcal{U}(t):=\sum_{n=1}^\infty F^{n\ast}(t) &lt; \infty$<br>  課程略過證明. 此定理告訴我們該序列收斂.<br>  $F^{n\ast}(t)$ 的意思是 $n$ 個 i.i.d. r.v.s 相加的 CDF, i.e. $P(X_1+…+X_n\leq t)=P(T_n\leq t)$, 而在 renewal process 指的就是 arrival time $P(T_n\leq t)$, i.e. 到時間 $t$ 為止至少有 $n$ 個事件已經發生的機率.</p>
+<p>  然後 $\sum_{n=1}^\infty$ 有那種把所有可能的情況都考慮進去的意思, 因此 $\mathcal{U}(t)$ 可能會跟到時間 $t$ 為止發生”事件”的次數的期望值 ($\mathbb{E} N_t$) 有關. 而事實上就是.</p>
+<blockquote>
+<p>$\mathcal{U}(t)$ 稱 renewal function</p>
+</blockquote>
+</li>
+<li><p>$\mathbb{E} N_t = \mathcal{U}(t)$<br>&emsp;<span>$$\mathbb{E}N_t = \mathbb{E}\left[ \#\{n:T_n\leq t\}  \right] =\mathbb{E}\left[ \sum_{n=1}^\infty \mathbf{1}(T_n\leq t) \right] \\
+=\sum_{n=1}^\infty \mathbb{E}\left[ \mathbf{1}(T_n\leq t) \right] =\sum_{n=1}^\infty P(T_n\leq t) =\sum_{n=1}^\infty F^{n\ast}(t)$$</span><!-- Has MathJax --></p>
+</li>
+</ul>
+<p>雖然 <span>$\mathbb{E} N_t = \mathcal{U}(t) =\sum_{n=1}^\infty F^{n\ast}(t)$</span><!-- Has MathJax --> 我們可以明確寫出來, 但對於 $F$ 是比較 general form 的話, 幾乎很難算出來. 因為要算 convolution, 又要求 sequence 的 limit.</p>
+<p>課程試題: 附上 exponential distributino 定義<br><img src="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 16.png" width="80%" height="80%"><br><img src="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 17.png" width="100%" height="100%"></p>
+<hr>
+<h2 id="Week-1-8-Laplace-transform-Calculation-of-an-expectation-of-a-counting-process-1"><a href="#Week-1-8-Laplace-transform-Calculation-of-an-expectation-of-a-counting-process-1" class="headerlink" title="Week 1.8: Laplace transform. Calculation of an expectation of a counting process-1"></a>Week 1.8: Laplace transform. Calculation of an expectation of a counting process-1</h2><p><strong>[Def]: Laplace transform</strong><br>&emsp;Given <span>$f:\mathbb{R}^+\rightarrow\mathbb{R}$</span><!-- Has MathJax -->, Laplace transform 定義為如下積分:<br>&emsp;<span>$\mathcal{L}_f(s)=\int_{x=0}^\infty e^{-sx}f(x)dx$</span><!-- Has MathJax --></p>
+<p>有幾個主要的 properties:</p>
+<ol>
+<li>令 $f$ 是 p.d.f. of some random variable $\xi$<br>則 $\mathcal{L}_f(s)=\mathbb{E}\left[ e^{-s\xi} \right]$</li>
+<li><p>給定任兩個 functions (不一定要是 p.d.f. or c.d.f.) $f_1$, $f_2$, 則 <span>$\mathcal{L}_{f_1\ast f_2}(s)=\mathcal{L}_{f_1}(s)\cdot\mathcal{L}_{f_2}(s)$</span><!-- Has MathJax --><br>其中 $\ast$ 是 convolution in terms of <em>density</em><br>[Proof]:<br>Let $f(x)=f_1(x)*f_2(x)$ 則</p>
+<span>$$\mathcal{L}_f(s)=\int_{x=0}^\infty 
+e^{-sx}\left(\int_{y=0}^\infty f_1(x-y)f_2(y)dy\right)dx \\
+=\int_{y=0}^\infty\left(\int_{x=0}^\infty e^{-sx}f_1(x-y)dx\right) \\
+=\int_{y=0}^\infty\left(
+e^{-sy}\int_{x-y=y}^\infty e^{-s(x-y)}f_1(x-y)d(x-y)
+\right) f_2(y)dy \\
+=\mathcal{L}_{f_1}(s)\cdot\int_{y=0}^\infty e^{-sy} f_2(y)dy = \mathcal{L}_{f_1}(s)\cdot\mathcal{L}_{f_2}(s)$$</span><!-- Has MathJax -->
+</li>
+<li><p>令 $F$ 是 c.d.f. 且 $F(0)=0$, $p=F’$ is p.d.f., 則:</p>
+<span>$\mathcal{L}_F(s)=\frac{\mathcal{L}_p(s)}{s}\\$</span><!-- Has MathJax -->
+<p>[Proof]: 使用分部積分, <a href="https://www.notion.so/2009-11-24-8d6b96c859694da5b2609a679c9ba023" target="_blank" rel="external">integration by part</a></p>
+<span>$$l.h.s.=-\int_{\mathbb{R}^+}F(x)\frac{d(e^{-sx})}{s} = -\left[F(x)e^{-sx}/s\right]|_{x=0}^\infty+\frac{1}{s}\int_{\mathbb{R}^+}e^{-sx}dF(x) \\
+= 0+\frac{1}{s}\int_{\mathbb{R}^+}p(x)e^{-sx}dx = r.h.s.$$</span><!-- Has MathJax -->
+</li>
+</ol>
+<p><strong>[Example 1]:</strong> 令 $f(x) = x^n$, 求 $\mathcal{L}_f(s)$<br>&emsp;[sol]: 也是使用分部積分, <a href="https://www.notion.so/2009-11-24-8d6b96c859694da5b2609a679c9ba023" target="_blank" rel="external">integration by part</a><br><span>$$\mathcal{L}_{x^n}(s) = \int_{\mathbb{R}^+}x^n e^{-sx}dx =-\int_{\mathbb{R}^+}x^n\frac{d(e^{-sx})}{s} \\
+= \frac{n}{s} \int_{\mathbb{R}^+}x^{n-1} e^{-sx}dx=...\\
+=\frac{n}{s}\cdot\frac{n-1}{s}\cdot...\cdot\frac{1}{s}\int_{\mathbb{R}^+}e^{-sx}dx \\
+=\frac{n!}{s^n}\cdot\left[ -\left.\frac{1}{s}e^{-sx} \right |_0^\infty \right] = \frac{n!}{s^{n+1}}$$</span><!-- Has MathJax --></p>
+<p><strong>[Example 2]:</strong> 令 $f(x) = e^{ax}$, 求 <span>$\mathcal{L}_f(s)$</span><!-- Has MathJax --><br>&emsp;[sol]: 答案為 <span>$\mathcal{L}_{e^{ax}}(s)=\frac{1}{s-a}$</span><!-- Has MathJax -->, if $a&lt;s$<br>&emsp;略…</p>
+<hr>
+<h2 id="Week-1-9-Laplace-transform-Calculation-of-an-expectation-of-a-counting-process-2"><a href="#Week-1-9-Laplace-transform-Calculation-of-an-expectation-of-a-counting-process-2" class="headerlink" title="Week 1.9: Laplace transform. Calculation of an expectation of a counting process-2"></a>Week 1.9: Laplace transform. Calculation of an expectation of a counting process-2</h2><p>現在我們要來計算 $\mathbb{E}N_t$, 回顧一下 $N_t$ 是一個 r.v. 表示到時間 $t$ 為止有多少個事件到達了<br>而我們也證明了 <span>$\mathbb{E} N_t = \mathcal{U}(t) =\sum_{n=1}^\infty F^{n\ast}(t)$</span><!-- Has MathJax -->, 現在我們在仔細分析一下<br><span>$$\mathbb{E}N_t=\mathcal{U}(t)=\sum_{n=1}^\infty F^{n\ast}(t) \\
+= F(t) + \left( \sum_{n=1}^\infty F^{n\ast} \right) \ast F(t) \\
+= F(t) + \mathcal{U}(t)\ast F(t)$$</span><!-- Has MathJax --><br>因此我們得到: <span>$\mathcal{U}=F+\mathcal{U}\ast F$</span><!-- Has MathJax -->, 其中 convolution, $\ast$, is in terms of <em>distribution</em> function<br>然後我們對等號兩邊套用 Laplace transfrom, 但是我們注意到 Laplace transfrom 套用的 convolution 必須是 <em>density</em> function, 因此要轉換<br>其實我們從定義可以知道 <span>$\mathcal{U}\ast_{cdf}F=\mathcal{U}\ast_{pdf}p$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>已知 $p=F’$<br><span>$\int_{\mathbb{R}}\mathcal{U}(x-y)dF(y) = \int_{\mathbb{R}}\mathcal{U}(x-y)p(y)dy$</span><!-- Has MathJax --></p>
+</blockquote>
+<p>所以<br><span>$\mathcal{U}=F+\mathcal{U}\ast_{cdf} F = F+\mathcal{U}\ast_{pdf} p$</span><!-- Has MathJax -->, 然後就可以套用 Laplace transfrom, 並利用上面提到的 properties 2 &amp; 3<br><span>$$\mathcal{L}_\mathcal{U}(s) = \mathcal{L}_F(s) + \mathcal{L}_\mathcal{U}(s) \cdot \mathcal{L}_p(s) \\
+=\frac{\mathcal{L}_p(s)}{s} + \mathcal{L}_\mathcal{U}(s) \cdot \mathcal{L}_p(s)$$</span><!-- Has MathJax --><br>因此<br><span>$\mathcal{L}_\mathcal{U}(s) = \frac{\mathcal{L}_p(s)}{s(1-\mathcal{L}_p(s))} \ldots (\star)$</span><!-- Has MathJax --><br>所以雖然無法直接計算出 $\mathbb{E} N_t = \mathcal{U}(t)$, 但我們可以迂迴地透過以下三個步驟來估計:</p>
+<ol>
+<li>從 $F$ 算出 $\mathcal{L}_p$</li>
+<li>利用 $(\star)$ 從 <span>$\mathcal{L}_p$</span><!-- Has MathJax --> 算出 <span>$\mathcal{L}_\mathcal{U}$</span><!-- Has MathJax --></li>
+<li>反推什麼樣的 $\mathcal{U}$ 會得到 <span>$\mathcal{L}_\mathcal{U}$</span><!-- Has MathJax -->, 這一步是最困難的</li>
+</ol>
+<p>下一段課程將會給出一個如何使用上面三步驟的範例</p>
+<hr>
+<h2 id="Week-1-10-Laplace-transform-Calculation-of-an-expectation-of-a-counting-process-3"><a href="#Week-1-10-Laplace-transform-Calculation-of-an-expectation-of-a-counting-process-3" class="headerlink" title="Week 1.10: Laplace transform. Calculation of an expectation of a counting process-3"></a>Week 1.10: Laplace transform. Calculation of an expectation of a counting process-3</h2><p><strong>[Example]:</strong> 假設我們有一個 renewal process, <span>$S_n=S_{n-1}+\xi_n$</span><!-- Has MathJax --><br>&emsp;其中 <span>$\xi_1, \xi_2, ... \sim p(x)=\frac{e^{-x}}{2}+e^{-2x}$</span><!-- Has MathJax --><br>&emsp;我們要如何計算 <span>$\mathbb{E}N_t$</span><!-- Has MathJax -->?, 我們使用上面所述的三步驟:<br>&emsp;<img src="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 18.png" width="100%" height="100%"><br>&emsp;在最後一步的時候我要需要找出<br>&emsp;什麼樣的 <span>$\mathcal{U}(t)$</span><!-- Has MathJax --> 會有 <span>$\mathcal{L}_\mathcal{U}(s)=\frac{1}{s}$</span><!-- Has MathJax -->? Ans: $1$<br>&emsp;什麼樣的 <span>$\mathcal{U}(t)$</span><!-- Has MathJax --> 會有 <span>$\mathcal{L}_\mathcal{U}(s)=\frac{1}{s^2}$</span><!-- Has MathJax -->? Ans $t$<br>&emsp;什麼樣的 <span>$\mathcal{U}(t)$</span><!-- Has MathJax --> 會有 <span>$\mathcal{L}_\mathcal{U}(s)=\frac{1}{2s+3}$</span><!-- Has MathJax -->? Ans <span>$\exp\{-\frac{3}{2}t\}$</span><!-- Has MathJax --></p>
+<hr>
+<h2 id="Week-1-11-Limit-theorems-for-renewal-processes"><a href="#Week-1-11-Limit-theorems-for-renewal-processes" class="headerlink" title="Week 1.11: Limit theorems for renewal processes"></a>Week 1.11: Limit theorems for renewal processes</h2><p>考慮一個 renewal process, <span>$S_n=S_{n-1}+\xi_n$</span><!-- Has MathJax -->, 其中 <span>$\xi_1,\xi_2,...$</span><!-- Has MathJax --> are i.i.d. &gt;0 almost surely<br><img src="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 19.png" width="50%" height="50%"><br><img src="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 20.png" width="50%" height="50%"><br>SLLN 為 Strong Law of Large Number; CLT 為 Central Limit Theorem<br>Thm1 直觀上可以理解, 因為 $N_t$ 表示到時間 $t$ 為止共有多少個事件發生了. 當 $t$ 很大的時候, 每單位時間發生的事件次數, i.e. <span>$\frac{N_t}{t}$</span><!-- Has MathJax -->, 應該會十分接近頻率, i.e. <span>$\frac{1}{\mu}$</span><!-- Has MathJax --><br>Thm2 就不好直接理解了, 其中 <span>$\xrightarrow[]{d}$</span><!-- Has MathJax --> 表示 convergence in distribution. 注意到 <span>$\frac{1}{\mu}$</span><!-- Has MathJax --> 表示單位時間是間發生的次數, 所以乘上 $t$ 就是事件發生的次數, 注意到這是期望值, 而 $N_t$ 是發生次數的 random variable. 因此可以想像 mean 應該就是 $t/\mu$. 困難的是 variance 是什麼, 以及這剛好會 follow normal distribution.<br>而這兩個分別跟 SLLN (Strong Law of Large Number) and CLT (Central Limit Theorem) 相關. 以下給出證明</p>
+<p>Thm1 的證明:<br><img src="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 21.png" width="50%" height="50%"></p>
+<p>Thm2 的證明:<br><img src="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 22.png" width="100%" height="100%"></p>
+<p>開頭的第一行:<br><span>$\mathcal{P}\left\{ \frac{\xi_1 + \xi_2 + ... + \xi_n -n\cdot\mu}{\sigma\sqrt{n}} \leq x \right\} = \mathcal{P}\left\{ \frac{S_n-n\cdot\mu}{\sigma\sqrt{n}} \leq x \right\}$</span><!-- Has MathJax --><br>是從 CLT 出發<br>第二行到第三行用到了, <span>$\mathcal{P}\left\{ S_n\leq t \right\} = \mathcal{P}\left\{ N_t \geq n \right\}$</span><!-- Has MathJax --><br>然後由 <span>$t=n\mu+\sigma\sqrt{n}x\Rightarrow n=\frac{t}{\mu}-\frac{\sigma\sqrt{n}}{\mu}x$</span><!-- Has MathJax --> 並將 <span>$n \approx t/\mu$</span><!-- Has MathJax --> 帶入 r.h.s. 得到<br><span>$n=\frac{t}{\mu}-\frac{\sigma\sqrt{t}}{\mu^{3/2}}x$</span><!-- Has MathJax -->, 然後代回到 <span>$\mathcal{P}\left\{ N_t \geq n \right\}$</span><!-- Has MathJax -->, 再整理一下得到最後一行<br>證明最後一行是 (被擋到):<br><span>$\mathcal{P}\left\{ Z_t \leq x \right\} = \mathcal{P}\left\{ Z_t &gt; -x \right\} \rightarrow 1-\Phi(-x) = \Phi(x)$</span><!-- Has MathJax --><br>或可以參考 <a href="https://www.randomservices.org/random/renewal/LimitTheorems.html" target="_blank" rel="external">https://www.randomservices.org/random/renewal/LimitTheorems.html</a> 的 The Central Limit Theorem<br><img src="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 23.png" width="100%" height="100%"></p>
+<hr>
+<h2 id="Applications-of-the-Renewal-Processes"><a href="#Applications-of-the-Renewal-Processes" class="headerlink" title="Applications of the Renewal Processes"></a>Applications of the Renewal Processes</h2><p><a href="Applications_of_the_Renewal_Processes.pdf">Applications of the Renewal Processes.pdf</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/" title="Stochastic Processes Week 1 Introduction & Renewal processes">http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Coursera/" rel="tag"># Coursera</a>
+          
+            <a href="/tags/Stochastic-Processes/" rel="tag"># Stochastic Processes</a>
+          
+            <a href="/tags/Probability-Space/" rel="tag"># Probability Space</a>
+          
+            <a href="/tags/Renewal-Process/" rel="tag"># Renewal Process</a>
+          
+            <a href="/tags/Counting-Process/" rel="tag"># Counting Process</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/" rel="next" title="Stochastic Processes Week 0 一些預備知識">
+                <i class="fa fa-chevron-left"></i> Stochastic Processes Week 0 一些預備知識
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">61</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">124</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-1-2-Difference-between-various-fields-of-stochastics"><span class="nav-number">1.</span> <span class="nav-text">Week 1.2: Difference between various fields of stochastics</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-1-3-Probability-space"><span class="nav-number">2.</span> <span class="nav-text">Week 1.3: Probability space</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-1-4-Definition-of-a-stochastic-function-Types-of-stochastic-functions"><span class="nav-number">3.</span> <span class="nav-text">Week 1.4: Definition of a stochastic function. Types of stochastic functions.</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-1-5-Trajectories-and-finite-dimensional-distributions"><span class="nav-number">4.</span> <span class="nav-text">Week 1.5: Trajectories and finite-dimensional distributions</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-1-6-Renewal-process-Counting-process"><span class="nav-number">5.</span> <span class="nav-text">Week 1.6: Renewal process. Counting process</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-1-7-Convolution"><span class="nav-number">6.</span> <span class="nav-text">Week 1.7: Convolution</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-1-8-Laplace-transform-Calculation-of-an-expectation-of-a-counting-process-1"><span class="nav-number">7.</span> <span class="nav-text">Week 1.8: Laplace transform. Calculation of an expectation of a counting process-1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-1-9-Laplace-transform-Calculation-of-an-expectation-of-a-counting-process-2"><span class="nav-number">8.</span> <span class="nav-text">Week 1.9: Laplace transform. Calculation of an expectation of a counting process-2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-1-10-Laplace-transform-Calculation-of-an-expectation-of-a-counting-process-3"><span class="nav-number">9.</span> <span class="nav-text">Week 1.10: Laplace transform. Calculation of an expectation of a counting process-3</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-1-11-Limit-theorems-for-renewal-processes"><span class="nav-number">10.</span> <span class="nav-text">Week 1.11: Limit theorems for renewal processes</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Applications-of-the-Renewal-Processes"><span class="nav-number">11.</span> <span class="nav-text">Applications of the Renewal Processes</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
