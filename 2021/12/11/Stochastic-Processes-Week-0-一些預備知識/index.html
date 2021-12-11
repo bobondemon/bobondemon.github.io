@@ -1,0 +1,929 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Coursera,Stochastic Processes," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識 (本文)
+Week 1: Introduction &amp;amp; Renewal processes
+Week 2: Poisson Processes
+Week3: Markov Chains
+Week 4: Gaussian Processes
+Week 5: Station">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Stochastic Processes Week 0 一些預備知識">
+<meta property="og:url" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識 (本文)
+Week 1: Introduction &amp;amp; Renewal processes
+Week 2: Poisson Processes
+Week3: Markov Chains
+Week 4: Gaussian Processes
+Week 5: Station">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/Untitled.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/Untitled 1.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/Untitled 2.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/1_8fqGjD53hQHAg_3Ew-rFVA.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/1_ChFQfJHe8uHTcWpLCipg7g.png">
+<meta property="og:updated_time" content="2021-12-11T12:50:10.677Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Stochastic Processes Week 0 一些預備知識">
+<meta name="twitter:description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識 (本文)
+Week 1: Introduction &amp;amp; Renewal processes
+Week 2: Poisson Processes
+Week3: Markov Chains
+Week 4: Gaussian Processes
+Week 5: Station">
+<meta name="twitter:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/Untitled.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/"/>
+
+
+
+
+
+  <title> Stochastic Processes Week 0 一些預備知識 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Stochastic Processes Week 0 一些預備知識
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2021-12-11T20:01:14+08:00">
+                2021-12-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p><a href="https://www.coursera.org/learn/stochasticprocesses?" target="_blank" rel="external">Coursera Stochastic Processes</a> 課程筆記, 共九篇:</p>
+<ul>
+<li><strong>Week 0: 一些預備知識 (本文)</strong></li>
+<li>Week 1: Introduction &amp; Renewal processes</li>
+<li>Week 2: Poisson Processes</li>
+<li>Week3: Markov Chains</li>
+<li>Week 4: Gaussian Processes</li>
+<li>Week 5: Stationarity and Linear filters</li>
+<li>Week 6: Ergodicity, differentiability, continuity</li>
+<li>Week 7: Stochastic integration &amp; Itô formula</li>
+<li>Week 8: Lévy processes </li>
+</ul>
+<p>本篇回顧一些基礎的機率複習, 這些在之後課程裡有用到.<br>強烈建議閱讀以下文章:</p>
+<ul>
+<li><a href="https://ch-hsieh.blogspot.com/2010/04/measurable-function.html" target="_blank" rel="external">[測度論] Sigma Algebra 與 Measurable function 簡介</a></li>
+<li><a href="https://ch-hsieh.blogspot.com/2013/12/blog-post_7.html" target="_blank" rel="external">[機率論] 淺談機率公理 與 基本性質</a></li>
+<li><a href="https://towardsdatascience.com/lebesgue-measure-and-integration-64f5c45d7888" target="_blank" rel="external">A guide to the Lebesgue measure and integration</a></li>
+<li><a href="https://towardsdatascience.com/measure-theory-in-probability-c8aaf1dea87c" target="_blank" rel="external">Measure theory in probability</a></li>
+</ul>
+<p>以下回顧開始:</p>
+<a id="more"></a>
+<hr>
+<h2 id="回顧機率知識"><a href="#回顧機率知識" class="headerlink" title="回顧機率知識"></a>回顧機率知識</h2><ul>
+<li><p>$e^x=\sum_{k=0}^\infty\frac{x^k}{k!}$. <a href="https://math.stackexchange.com/questions/1407111/how-to-prove-that-ex-sum-k-0-infty-fracxkk" target="_blank" rel="external">Proof link</a>.</p>
+</li>
+<li><p>Independent of Random Variables</p>
+<p>  $X\perp Y \Longleftrightarrow \mathcal{P}(XY)=\mathcal{P}(X)\mathcal{P}(Y)$</p>
+</li>
+</ul>
+<ul>
+<li><p>$Cov(X,Y)=\mathbb{E}[XY]-\mathbb{E}[X]\mathbb{E}[Y]$<br>[Proof]:</p>
+<span>$$Cov(X,Y)=\mathbb{E}[(X-\mu_x)(Y-\mu_y)] \\
+=\mathbb{E}[XY]-\mu_x\mathbb{E}[Y]-\mu_y\mathbb{E}[X]+\mu_x\mu_y \\
+=\mathbb{E}[XY]-\mu_x\mu_y$$</span><!-- Has MathJax -->
+</li>
+<li><p>$Var(X)=\mathbb{E}[X^2]-(\mathbb{E}[X])^2$<br>[Proof]:</p>
+<span>$$Var(X)=Cov(X,X)=\mathbb{E}[XX]-\mathbb{E}[X]\mathbb{E}[X] \\
+= \mathbb{E}[X^2]-(\mathbb{E}[X])^2$$</span><!-- Has MathJax -->
+</li>
+</ul>
+<ul>
+<li>$X,Y$ uncorrelated $\Longleftrightarrow Cov(X,Y)=0 \Longleftrightarrow \mathbb{E}[XY]=\mathbb{E}[X]\mathbb{E}[Y]$</li>
+<li><p>$X\perp Y \Rightarrow$ $X,Y$ uncorrelated $\Rightarrow \mathbb{E}[XY]=\mathbb{E}[X]\mathbb{E}[Y]$</p>
+</li>
+<li><p>Covariance 是線性的: $Cov(aX+bY,cZ)=acCov(X,Z)+bcCov(Y,Z)$<br>[Proof]:</p>
+<span>$$Cov(aX+bY,cZ)=\mathbb{E}[(aX+bY)cZ]-\mathbb{E}[aX+bY]\mathbb{E}[cZ] \\
+= ac\mathbb{E}[XZ]+bc\mathbb{E}[YZ]-ac\mathbb{E}[X]\mathbb{E}[Z]-bc\mathbb{E}[Y]\mathbb{E}[Z] \\
+= ac(\mathbb{E}[XZ]-\mathbb{E}[X]\mathbb{E}[Z])+bc(\mathbb{E}[YZ]-\mathbb{E}[Y]\mathbb{E}[Z]) \\
+= acCov(X,Z)+bcCov(Y,Z)$$</span><!-- Has MathJax -->
+</li>
+<li><p><strong>[Characteristic Function Def]:</strong><br>  For random variable $\xi$, 定義 characteristic function $\Phi:\mathbb{R}\rightarrow \mathbb{C}$ 為<br>  $$\Phi_\xi(u) = \mathbb{E}\left[ e^{iu\xi} \right]$$</p>
+</li>
+<li><p>如果 $\xi_1\perp\xi_2$, 則</p>
+<span>$\Phi_{\xi_1+\xi_2}(u)=\Phi_{\xi_1}(u)\Phi_{\xi_2}(u)$</span><!-- Has MathJax -->
+<p>[Proof]:</p>
+<span>$$\Phi_{\xi_1+\xi_2}(u)=\mathbb{E}[e^{iu(\xi_1+\xi_2)}]=\mathbb{E}[e^{iu\xi_1}e^{iu\xi_2}] \\
+= \int_{\xi_1,\xi_2} \mathcal{P}(\xi_1,\xi_2)e^{iu\xi_1}e^{iu\xi_2} d\xi_1 d\xi_2 \\
+= \int_{\xi_1,\xi_2} \left(\mathcal{P}(\xi_1)e^{iu\xi_1}\right)\left(\mathcal{P}(\xi_2)e^{iu\xi_2}\right) d\xi_1 d\xi_2 \\
+=\mathbb{E}[e^{iu\xi_1}]\mathbb{E}[e^{iu\xi_2}] \\
+=\Phi_{\xi_1}(u)\Phi_{\xi_2}(u)$$</span><!-- Has MathJax -->
+</li>
+<li><p>$\mathbb{E}[X+Y]=\mathbb{E}[X]+\mathbb{E}[Y]$. 跟 $X,Y$ 是否獨立或不相關無關.</p>
+</li>
+<li><p>$|Cov(X,Y)|\leq\sqrt{Var(X)}\sqrt{Var(Y)}$<br>[<a href="https://en.wikipedia.org/wiki/Covariance" target="_blank" rel="external">Proof</a>]:<br><img src="/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/Untitled.png" width="65%" height="65%"></p>
+</li>
+<li><p>$Var(X+Y)=Var(X)+Var(Y)+2Cov(X,Y)$<br>[Proof]:</p>
+<span>$$Var(X+Y)=Cov(X+Y,X+Y)\\
+=Cov(X,X)+2Cov(X,Y)+Cov(Y,Y)\\
+=Var(X)+Var(Y)+2Cov(X,Y)$$</span><!-- Has MathJax -->
+</li>
+<li><p>如果 $X,Y$ uncorrelated (所以 $X\perp Y$ 也成立), 則 $Var(X+Y)=Var(X)+Var(Y)$</p>
+</li>
+<li><p>Normal distribution of one r.v.</p>
+<span>$$X\sim\mathcal{N}(\mu,\sigma^2), \text{ for }\sigma&gt;0,\mu\in\mathbb{R} \\
+p(x)=\frac{1}{\sqrt{2\pi}\sigma} e^{-\frac{(x-\mu)^2}{2\sigma^2}}$$</span><!-- Has MathJax -->
+</li>
+<li><p>The characteristic function of normal distribution is:</p>
+<span>$\Phi(u)=e^{iu\mu-\frac{1}{2}u^2\sigma^2}$</span><!-- Has MathJax -->
+</li>
+<li><p>獨立高斯分佈之和仍為高斯分佈, mean and variance 都相加<br>[Proof]:</p>
+<span>$(X_1,...,X_n) \text{ where } X_k\sim\mathcal{N}(\mu_k,\sigma_k^2),\forall k=1,...,n$</span><!-- Has MathJax -->
+<p>我們知道</p>
+<span>$$X_k\sim\mathcal{N}(\mu_k,\sigma_k^2)\longleftrightarrow
+\Phi_k(u)=e^{iu\mu_k-\frac{1}{2}u^2\sigma_k^2}$$</span><!-- Has MathJax -->
+<p>則</p>
+<span>$$\sum_k X_k \longleftrightarrow
+\prod_k \Phi_k(u) = e^{iu(\sum_k \mu_k)-\frac{1}{2}u^2(\sum_k \sigma_k^2)}$$</span><!-- Has MathJax -->
+<p>由特徵方程式與機率分佈一對一對應得知</p>
+<span>$\sum_k X_k \sim \mathcal{N}\left(\sum_k \mu_k, \sum_k \sigma_k^2\right)$</span><!-- Has MathJax -->
+</li>
+<li><p>$K:\mathcal{X}\times\mathcal{X}\rightarrow\mathbb{R}$ is symmetric positive semi-definite:<br><img src="/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/Untitled 1.png" width="75%" height="75%"></p>
+</li>
+</ul>
+<ul>
+<li><p>給定 $t_1&lt;t_2&lt;…&lt;t_n$ 一個很有用的技巧為:<br>可以變成以下這些 disjoint 區段的線性組合</p>
+<span>$(t_2-t_1),...,(t_n-t_{n-1})$</span><!-- Has MathJax -->
+<p>具體如下:</p>
+<span>$$\sum_{k=1}^n \lambda_k B_{t_k} = \lambda_n(B_{t_n}-B_{t_{n-1}}) + (\lambda_n+\lambda_{n-1})B_{t_{n-1}} + \sum_{k=1}^{n-2} \lambda_k B_{t_k} \\
+= \sum_{k=1}^n d_k(B_{t_n}-B_{t_{n-1}})$$</span><!-- Has MathJax -->
+<p>會想要這樣轉換是因為課程會學到 independent increment 特性, 表明 disjoint 區段的 random variables 之間互相獨立, 因此可以變成互相獨立的 r.v.s 線性相加</p>
+</li>
+<li><p>Calculating Moments with Characteristic Functions (<a href="https://en.wikipedia.org/wiki/Characteristic_function_(probability_theory" target="_blank" rel="external">wiki</a>))<br><img src="/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/Untitled 2.png" width="75%" height="75%"></p>
+</li>
+</ul>
+<ul>
+<li><p>Brownian Motion <a href="http://www.math.uchicago.edu/~may/VIGRE/VIGRE2009/REUPapers/Hartmann.pdf" target="_blank" rel="external">reference</a><br><a href="Brownian_Motion_by_Hartmann.pdf">Brownian Motion by Hartmann.pdf</a></p>
+</li>
+<li><p>Lebesgue Measure and Integration<br><a href="https://towardsdatascience.com/lebesgue-measure-and-integration-64f5c45d7888" target="_blank" rel="external">A guide to the Lebesgue measure and integration</a><br>Lebesgue integration from <a href="https://en.wikipedia.org/wiki/Lebesgue_integration" target="_blank" rel="external">wiki</a><br><a href="https://ch-hsieh.blogspot.com/2010/04/measurable-function.html" target="_blank" rel="external">[測度論] Sigma Algebra 與 Measurable function 簡介</a></p>
+</li>
+<li><p>Probability Theory<br><a href="https://ch-hsieh.blogspot.com/2013/12/blog-post_7.html" target="_blank" rel="external">[機率論] 淺談機率公理 與 基本性質</a><br><a href="https://towardsdatascience.com/measure-theory-in-probability-c8aaf1dea87c" target="_blank" rel="external">Measure theory in probability</a><br>Distribution function $F$ defined with (probability) measure $\mu$ (<a href="https://towardsdatascience.com/measure-theory-in-probability-c8aaf1dea87c" target="_blank" rel="external">ref</a>)<br><img src="/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/1_8fqGjD53hQHAg_3Ew-rFVA.png" width="60%" height="60%"><br>$F$ 又稱 cumulative distribution function (c.d.f.), 或稱 cumulative function<br>其微分稱為 probability density function (p.d.f.), 或簡稱 density function. 注意到 density 不是 (probability) measure $\mu$!<br>而期望值可以用 Lebesgue measure or in probability measure 來看待:<br>Given Probability space: $(\Omega,\Sigma,\mathcal{P})$, 期望值定義為<br><img src="/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/1_ChFQfJHe8uHTcWpLCipg7g.png" width="35%" height="35%"></p>
+<blockquote>
+<p>所有 event $\omega\in\Sigma$ 的 probability measure $\mathcal{P}(\omega)$, 乘上該 random variable 的值 $X(\omega)$<br>所有 outcome $\omega\in\Omega$ 的 probability measure $\mathcal{P}(d\omega)$, 乘上該 random variable 的值 $X(\omega)$</p>
+</blockquote>
+</li>
+<li><p><a href="https://en.wikipedia.org/wiki/Dominated_convergence_theorem" target="_blank" rel="external">Lebesgue’s Dominated Convergence Theorem</a>: Exchanging $\lim$ and $\int$<br>Let $(f_n)$ be a sequence of measurable functions on a measure space $(S,\Sigma,\mu)$. Assume $(f_n)$ <strong><em>converges pointwise</em></strong> to $f$ and is dominated by some <a href="https://en.wikipedia.org/wiki/Lebesgue_integration#Signed_functions" target="_blank" rel="external">(Lebesgue) integrable</a> function $g$, i.e.</p>
+<span>$|f_n(x)|\leq g(x), \qquad \forall n,\forall x\in S$</span><!-- Has MathJax -->
+<p>Then $f$ is <a href="https://en.wikipedia.org/wiki/Lebesgue_integration#Signed_functions" target="_blank" rel="external">(Lebesgue) integrable</a>, i.e. $\int_S |f|d\mu&lt;\infty$<br>and</p>
+<span>$$\lim_{n\rightarrow\infty}\int_S |f_n-f|d\mu=0 \\
+\lim_{n\rightarrow\infty}\int_S f_nd\mu = \int_S\lim_{n\rightarrow\infty}f_nd\mu = \int_S f d\mu$$</span><!-- Has MathJax -->
+</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/" title="Stochastic Processes Week 0 一些預備知識">http://yoursite.com/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Coursera/" rel="tag"># Coursera</a>
+          
+            <a href="/tags/Stochastic-Processes/" rel="tag"># Stochastic Processes</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/" rel="next" title="MCMC by Gibbs and Metropolis-Hasting Sampling">
+                <i class="fa fa-chevron-left"></i> MCMC by Gibbs and Metropolis-Hasting Sampling
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">60</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">121</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#回顧機率知識"><span class="nav-number">1.</span> <span class="nav-text">回顧機率知識</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
