@@ -1,0 +1,965 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Coursera,Stochastic Processes,Markov Chains,Ergodic Markov Chains," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識
+Week 1: Introduction &amp;amp; Renewal processes
+Week 2: Poisson Processes
+Week3: Markov Chains (本文)
+Week 4: Gaussian Processes
+Week 5: Station">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Stochastic Processes Week 3 Markov Chains">
+<meta property="og:url" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識
+Week 1: Introduction &amp;amp; Renewal processes
+Week 2: Poisson Processes
+Week3: Markov Chains (本文)
+Week 4: Gaussian Processes
+Week 5: Station">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 1.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 2.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 3.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 4.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 5.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 6.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 7.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 6.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Proof_of_period_in_equivalence_class.drawio.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Ergodic_Markov_Chain.drawio.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Not_Ergodic_Markov_Chain.drawio.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 8.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 9.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 10.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 11.png">
+<meta property="og:updated_time" content="2021-12-12T09:52:59.618Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Stochastic Processes Week 3 Markov Chains">
+<meta name="twitter:description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識
+Week 1: Introduction &amp;amp; Renewal processes
+Week 2: Poisson Processes
+Week3: Markov Chains (本文)
+Week 4: Gaussian Processes
+Week 5: Station">
+<meta name="twitter:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/"/>
+
+
+
+
+
+  <title> Stochastic Processes Week 3 Markov Chains | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Stochastic Processes Week 3 Markov Chains
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2021-12-12T17:15:30+08:00">
+                2021-12-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p><a href="https://www.coursera.org/learn/stochasticprocesses?" target="_blank" rel="external">Coursera Stochastic Processes</a> 課程筆記, 共九篇:</p>
+<ul>
+<li><a href="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-0-%E4%B8%80%E4%BA%9B%E9%A0%90%E5%82%99%E7%9F%A5%E8%AD%98/" target="_blank" rel="external">Week 0: 一些預備知識</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/" target="_blank" rel="external">Week 1: Introduction &amp; Renewal processes</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/" target="_blank" rel="external">Week 2: Poisson Processes</a></li>
+<li><strong>Week3: Markov Chains (本文)</strong></li>
+<li>Week 4: Gaussian Processes</li>
+<li>Week 5: Stationarity and Linear filters</li>
+<li>Week 6: Ergodicity, differentiability, continuity</li>
+<li>Week 7: Stochastic integration &amp; Itô formula</li>
+<li>Week 8: Lévy processes </li>
+</ul>
+<a id="more"></a>
+<hr>
+<h2 id="Week-3-1-Definition-of-a-Markov-chain-Some-examples"><a href="#Week-3-1-Definition-of-a-Markov-chain-Some-examples" class="headerlink" title="Week 3.1: Definition of a Markov chain. Some examples"></a>Week 3.1: Definition of a Markov chain. Some examples</h2><p><strong>[Markov Chain Def]:</strong><br>&emsp;令 State space $\mathcal{S}$ which is countable. 則 $S_n$, $n=0,1,2,…$ 稱為 Markov chain 需滿足 Markov property 如下:<br>&emsp;<span>$\mathcal{P}\{S_n=j | S_{n-1}=i_{n-1},...,S_0=i_0\} = \mathcal{P}\{S_n=j | S_{n-1}=i_{n-1}\}$</span><!-- Has MathJax --><br>&emsp;其中 <span>$i_0,...,i_{n-1},j\in\mathcal{S}$</span><!-- Has MathJax -->, and <span>$\mathcal{P}\{S_{n-1}=i_{n-1},...,S_0=i_0\}\neq0$</span><!-- Has MathJax --></p>
+<p>如果滿足 Markov property, 則我們發現:<br><span>$$\mathcal{P}\{S_n=i_n,S_{n-1}=i_{n-1},...,S_0=i_0\} \\
+= \mathcal{P}\{ S_n=i_n | S_{n-1}=i_{n-1},...,S_0=i_0 \}\cdot \mathcal{P}\{ S_{n-1}=i_{n-1},...,S_0=i_0 \} \\
+= \mathcal{P}\{ S_n=i_n | S_{n-1}=i_{n-1} \}\cdot \mathcal{P}\{ S_{n-1}=i_{n-1},...,S_0=i_0 \} \\
+=...\\
+= \mathcal{P}\{ S_n=i_n | S_{n-1}=i_{n-1} \} \mathcal{P}\{ S_{n-1}=i_{n-1} | S_{n-2}=i_{n-2} \} ... \mathcal{P}\{ S_1=i_1 | S_0=i_0 \} \mathcal{P}\{S_0=i_0\}$$</span><!-- Has MathJax --></p>
+<p>所以是 pairwise independent</p>
+<blockquote>
+<p>Any renewal process is also a Markov chain</p>
+</blockquote>
+<p><strong>[Random Walk Example]:</strong><br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled.png" width="60%" height="60%"><br>&emsp;考慮<br>&emsp;<span>$$\mathcal{P}\{ S_n=j | S_{n-1}=i_{n-1} \} = \left\{
+\begin{array}{rl}
+p, &amp; j=i_{n-1}+1 \\
+1-p, &amp; j=i_{n-1}-1 \\
+0, &amp; \text{otherwise}
+\end{array}
+\right.$$</span><!-- Has MathJax --><br>&emsp;發現只會跟前一個 state 有關</p>
+<blockquote>
+<p>注意到 random walk 不是 renewal process, 因為 $\xi$ 可以產生負的值. 而在 renewal process, $\xi$ 為 inter-arrival time $\geq0$</p>
+</blockquote>
+<p><strong>[Taxis in the airport Example]:</strong><br>&emsp;$1$ taxi at $n$ moment, $n=1,2,3,…$<br>&emsp;如果當下沒有乘客, taxi 就離開. 如果有乘客, taxi 當場載走一名並馬上就離開.<br>&emsp;$X_k$: # people waiting for taxi at time $k$<br>&emsp;$Y_k$: # people arriving at time $k$<br>&emsp;現在說明 $X_k$ 是 Markov chain<br>&emsp;<span>$$X_k=Y_k+(X_{k-1}-1)_+= \left\{
+\begin{array}{rl}
+Y_k, &amp; \text{if }X_{k-1}=0 \\
+Y_k+X_{k-1}-1, &amp; \text{if }X_{k-1}\geq0 \\
+\end{array}
+\right.$$</span><!-- Has MathJax --><br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 1.png" width="40%" height="40%"><br>&emsp;所以 $X_k$ 只跟 <span>$X_{k-1}$</span><!-- Has MathJax --> 有關</p>
+<p><strong>[Example]:</strong><br>&emsp;考慮以下 $X_n$, for some fixed $m\in\mathbb{N}$<br>&emsp;<span>$\mathcal{P}\{ X_n | X_{n-1},...,X_0 \} = \mathcal{P}\{ X_n | X_{n-1},...,X_{n-m} \}$</span><!-- Has MathJax --><br>&emsp;當下的 state 跟前 $m$ 個 states 有關, 而原本 Markov property 是只能與前 $1$ 個 state 有關.<br>&emsp;我們定義 $S_n$ (a vector of $X_n$) 如下:<br>&emsp;<span>$S_n=(X_n,...,X_{n-m+1}),\text{ where } n=m-1,m,...$</span><!-- Has MathJax --><br>&emsp;則我們發現:<br>&emsp;<span>$$\mathcal{P}\{ X_n | X_{n-1},...,X_0 \} = \frac{\mathcal{P}\{ X_n,X_{n-1},...,X_0\}}{\mathcal{P}\{ X_{n-1},...,X_0\}} \\
+= \frac
+{
+\mathcal{P}\{ (X_n,...,X_{n-m+1}), (X_{n-1},...,X_{n-m}),...,(X_{m-1},...,X_0) \}
+}
+{
+\mathcal{P}\{ (X_{n-1},...,X_{n-m}),...,(X_{m-1},...,X_0)
+} \\
+= \frac
+{\mathcal{P}\{S_n,S_{n-1},...,S_{m-1}\}}
+{\mathcal{P}\{S_{n-1},...,S_{m-1}\}} = \mathcal{P}\{S_n | S_{n-1},...,S_{m-1}\} \ldots(\star) \\
+
+\mathcal{P}\{ X_n | X_{n-1},...,X_{n-m} \} = \frac{\mathcal{P}\{ X_n,X_{n-1},...,X_{n-m}\}}{\mathcal{P}\{ X_{n-1},...,X_{n-m}\}} \\
+= \frac
+{
+\mathcal{P}\{ (X_n,...,X_{n-m+1}), (X_{n-1},...,X_{n-m}) \}
+}
+{
+\mathcal{P}\{ (X_{n-1},...,X_{n-m})
+} \\
+= \frac
+{\mathcal{P}\{S_n,S_{n-1}\}}
+{\mathcal{P}\{S_{n-1}\}} = \mathcal{P}\{S_n | S_{n-1}\}\ldots(\square)$$</span><!-- Has MathJax --><br>&emsp;因為 $X_n$ 是 Markov chain, 所以 $(\star)=(\square)$, 得知 $S_n$ 為 Markov chain</p>
+<hr>
+<h2 id="Week-3-2-Matrix-representation-of-a-Markov-chain-Transition-matrix-Chapman-Kolmogorov-equation"><a href="#Week-3-2-Matrix-representation-of-a-Markov-chain-Transition-matrix-Chapman-Kolmogorov-equation" class="headerlink" title="Week 3.2: Matrix representation of a Markov chain. Transition matrix. Chapman-Kolmogorov equation"></a>Week 3.2: Matrix representation of a Markov chain. Transition matrix. Chapman-Kolmogorov equation</h2><p><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 2.png" width="100%" height="100%"><br>Matrix representation 如課程上圖的說明, 這裡很容易看上圖即可.</p>
+<p><strong>[Thm]:</strong><br>&emsp;Define <span>$p_{ij}^{(m)} = \mathcal{P}\{X_{n+m}=j | X_n=i\}$</span><!-- Has MathJax -->, 即 step $n$ 時在 state $i$, 且走了 $m$ steps, i.e. step $n+m$, 時在 state $j$ 的機率.<br>&emsp;並定義 <span>$P^{(m)}=\left( p_{ij}^{(m)} \right)$</span><!-- Has MathJax --> 表示 m-step 的 transition matrix. 則我們有:<br>&emsp;<span>$P^{(m)}= P^m=\underbrace{PP\cdots P}_{m\text{-times}}$</span><!-- Has MathJax --></p>
+<p><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 3.png" width="100%" height="100%"><br>定義了 stationary distribution <span>$\vec\pi^*=\vec\pi^*P$</span><!-- Has MathJax --></p>
+<hr>
+<h2 id="Week-3-3-5-Graphic-representation-Classification-of-states"><a href="#Week-3-3-5-Graphic-representation-Classification-of-states" class="headerlink" title="Week 3.3-5: Graphic representation. Classification of states"></a>Week 3.3-5: Graphic representation. Classification of states</h2><p><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 4.png" width="100%" height="100%"><br>定義了 $i\rightarrow j$ 表示有一條 walk (多條 arcs 連結) from $i$ to $j$. 稱 $j$ is accesible from $i$<br>定義了 $i\leftrightarrow j$ 表示有一條雙向 walk 連結 $i$ and $j$. 稱 $i$ and $j$ communicate</p>
+<p><strong>[Equivalence Relation Def]:</strong><br>&emsp;給定 set $A$, 若有一個 binary operation $\sim$ 滿足以下關係則稱 $\sim$ 為 equivalence relation:<br>&emsp;<span>$$\begin{array}{rl}
+a\sim a, a\in A &amp; \text{reflectivity} \\
+a\sim b\Rightarrow b\sim a, \forall a,b\in A &amp; \text{symmetry} \\
+a\sim b, b\sim c \Rightarrow a\sim c &amp; \text{transtivity}
+\end{array}$$</span><!-- Has MathJax --></p>
+<p>給定 set $A$ 和它的一個 equivalence relation $\sim$, 則我們可以定義出 <a href="https://en.wikipedia.org/wiki/Equivalence_class" target="_blank" rel="external">equivalence class</a></p>
+<blockquote>
+<p>The equivalence class of an element $a$ is often denoted $[a]$ or $[a]_\sim$ and is defined as the set ${ x\in A: a\sim x}$ of elements that are related to $a$ by $\sim$.</p>
+</blockquote>
+<p><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 5.png" width="80%" height="80%"></p>
+<p>我們對 Markov chain 的圖可以定義一個 equivalence relation (by communicate $\leftrightarrow$)</p>
+<p>$B_1,B_2,…$ 為 states 的 equivalence classes by definition below<br><span>$$\forall j\in B_i, \forall k \in \mathcal{S} \left\{
+\begin{array}{rl}
+k\in B_i, &amp;k\leftrightarrow j \\
+k \notin B_i, &amp; k \nleftrightarrow j
+\end{array}
+\right.$$</span><!-- Has MathJax --><br>簡單講就是拿兩個 states $j$ and $k$ 出來, 如果他們 $\leftrightarrow$ 則屬於同一個 set. 這樣會使得 state space $\mathcal{S}$ 形成 equivalence classes</p>
+<blockquote>
+<p>課程裡的 state $4$ 只有 out going arcs, 所以 $4 \nleftrightarrow 4$, 因此不應該有一個 equivalence class <span>$\{4\}$</span><!-- Has MathJax --> 才對啊 ? 我猜應該要多補上這條: 自己跟自己一定屬於同一個 equivalence class.</p>
+</blockquote>
+<p><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 6.png" width="50%" height="50%"></p>
+<p><strong>[Recurrent and Transient Def]:</strong><br>&emsp;$i$ is recurrent if <span>$\forall j:i\rightarrow j \Rightarrow j\rightarrow i$</span><!-- Has MathJax --><br>&emsp;$i$ is transient if <span>$\exist j: i\rightarrow j, j\nrightarrow i$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>我們說一個 state $i$ 是 recurrent 必須滿足對”所有”其他 states 都滿足 “如果 $i$ 到的了該 state, 那該 state 也到的了 $i$”<br>而 transient 只需滿足 “存在” 一個 state 使得 $i$ 到的了但回不來</p>
+</blockquote>
+<p><strong>[Thm, Nodes are ALL Recurrent or ALL Transient in An Equivalence Class]:</strong><br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 7.png" width="60%" height="60%"></p>
+<p>因此 equivalence classes:<br><span>$$\begin{array}{rl}
+\{1\}, &amp; \text{transient} \\
+\{2,3\}, &amp; \text{recurrent} \\
+\{4\}, &amp; \text{transient} \\
+\{5,6\}, &amp; \text{transient}
+\end{array}$$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>其實我們可以把 equivalence class 想成是一個 state 就可以. 然後如果有出去的 arc 就是 transient. 反之沒有出去的 arcs 就會是 recurrent.</p>
+</blockquote>
+<p><strong>[Period of a State $i$ Def]:</strong><br>&emsp;給定一個 Markov chain (discrete time and countable state space $\mathcal{S}$), 定義 peroid of a state $i$:<br>&emsp;<span>$d(i):=GCD\{n:p_{ii}^{(n)}\neq0\}$</span><!-- Has MathJax --><br>&emsp;其中 $GCD$ 為 greates common divisor, 若 $d(i)=1$ 我們稱 $i$ 為 aperiodic</p>
+<blockquote>
+<p>假設 $n$ 為走回自己要花的步數, 所有那些 $n$ 的最大公因數就是 period</p>
+</blockquote>
+<p><strong>[範例]: 同樣用課程的圖</strong><br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 6.png" width="50%" height="50%"><br>&emsp;$d(1)=1$<br>&emsp;$d(2)=d(3)=2$<br>&emsp;$d(4)=1$, 走不回自己 period 定義為 $1$<br>&emsp;$d(5)=GCD{2,3,…}=1$, 其中 $2$ 是因為 $5\rightarrow6\rightarrow5$, $3$ 是因為 $5\rightarrow6\rightarrow6\rightarrow5$<br>&emsp;$d(6)=1$</p>
+<blockquote>
+<p>$a\vdots b$ 表示 $a$ 能被 $b$ 整除</p>
+</blockquote>
+<p><strong>[Thm]: All elements in 1 equivalence class have the same period</strong><br>[Proof]:<br>&emsp;選定 states $i$ and $j$ 在同一個 equivalence class, 並令 $i\rightarrow j$ 走 $n$ 步, $j\rightarrow i$ 走 $m$ 步.<br>&emsp;假定 for some $k$ 滿足:<br>&emsp;<span>$p_{jj}^{(k)}\neq 0 \Longrightarrow k\vdots d(j) \ldots (\star)$</span><!-- Has MathJax --><br>&emsp;表示 $j\rightarrow j$ 可以走 $k$ 步, 因此 $k$ 一定會被 $d(j)$ 整除.<br>&emsp;如圖:<br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Proof_of_period_in_equivalence_class.drawio.png" width="50%" height="50%"><br>&emsp;我們有如下的關係:<br>&emsp;<span>$$\left.
+\begin{array}{r}
+p_{ii}^{(n+m)}\neq0 \Longrightarrow (n+m) \vdots d(i) \\
+p_{jj}^{(k)}\neq0 \Longrightarrow p_{ii}^{(n+m+k)}\neq0 \Longrightarrow (n+m+k) \vdots d(i) 
+\end{array}
+\right\} \Longrightarrow k\vdots d(i)$$</span><!-- Has MathJax --><br>&emsp;因為 $j$ 可以走 $k$ 步回到自己, 所以 $i$ 可以走 $n+m+k$ 步也回到自己. 得到 $k$ 可以被 $d(i)$ 整除的結論.<br>&emsp;因此對所有可能的 $k$ (那些滿足 $(\star)$ 的 $k$) 我們都可以得到被 $d(i)$ 整除的結論.<br>&emsp;表示 $d(i)$ 是這些所有可能的 $k$ 的 “公因數”<br>&emsp;根據定義, $d(j)$ 是這些所有可能的 $k$ 的 “最大公因數”<br>&emsp;因此 $d(j)\geq d(i)$<br>&emsp;同樣的流程我們 $i$ and $j$ 的腳色互換, 也可以得到 $d(i)\geq d(j)$<br>&emsp;得到結論 $d(i)=d(j)$<br>&emsp;Q.E.D.<br>&emsp;課程的說明我覺得有點問題, 以下為課程的解釋:</p>
+<blockquote>
+<p>注意到 $d(i)$ 是”某一個” $k$ 的因數, 但是 $d(j)$ 是所有可能的 $k$ 的最大公因數. 因此 $d(i)$ 一定可以被 $d(j)$ 整除 <strong>(??)</strong> :<br>$$d(i) \vdots d(j)$$<br>同樣的流程我們 $i$ and $j$ 的腳色互換, 也可以得到 $d(j)$ 會被 $d(i)$ 整除<br>得到結論 $d(i)=d(j)$</p>
+</blockquote>
+<hr>
+<h2 id="Week-3-6-7-Ergodic-chains-Ergodic-theorem"><a href="#Week-3-6-7-Ergodic-chains-Ergodic-theorem" class="headerlink" title="Week 3.6-7: Ergodic chains. Ergodic theorem"></a>Week 3.6-7: Ergodic chains. Ergodic theorem</h2><p><strong>[Ergodic Markov Chain using Graphic Representation]:</strong><br>&emsp;我們說一個 Markov chain is ergodic, 需滿足以下條件<br>&emsp;1. 只有一個 class of equivalence<br>&emsp;2. 所有 nodes are recurrent<br>&emsp;3. $d(i)=1,\forall i\in\mathcal{S}$. 所有 nodes are aperiodic</p>
+<p><strong>[Example]:</strong><br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Ergodic_Markov_Chain.drawio.png" width="50%" height="50%"><br>&emsp;如果只有實線的 arcs, 則滿足 1. 只有一個 equivalence class, 2. 所有 nodes are recurrent. 但是 $d(i)=6$.<br>&emsp;但如果包含虛線的 arc 則 <span>$d(i)=GCD(\{5,6\})=1$</span><!-- Has MathJax --><br>&emsp;算出 equivalence class 裡的一個 node, 就等於算出了全部 nodes</p>
+<p><strong>[Thm of Connection between Graphic and Matrix Representation in Ergodic Markov Chain]:</strong><br>&emsp;Markov chain is ergodic (defined in graphic representation)<br>&emsp;<span>$\Longleftrightarrow \exists m\in \mathbb{N}:p_{ij}^{(m)}\neq0, \forall i,j \in \mathcal{S} \ldots (\star)$</span><!-- Has MathJax --></p>
+<p>我們舉個例子 $(\star)$ 條件不成立.<br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Not_Ergodic_Markov_Chain.drawio.png" width="50%" height="50%"></p>
+<p>我們發現<br><span>$$\left\{m=5,11,17,...:p_{ij}^{(m)}\neq0\right\} \\
+\left\{m=1,7,13,...:p_{ji}^{(m)}\neq0\right\}$$</span><!-- Has MathJax --></p>
+<p>不存在一個 $m$ 能同時滿足所有 nodes</p>
+<p>利用以上定理我們可以寫出 matrix representation for ergodic Markov chain<br><strong>[Ergodic Markov Chain using Matrix Representation]:</strong><br>&emsp;我們稱一個 Markov chain 是 ergodic, 如果滿足:<br>&emsp;<span>$p_{ij}^{(m)}\neq0, \forall i,j \in \mathcal{S}, \forall m\geq(M-1)^2+1$</span><!-- Has MathJax --><br>&emsp;其中 $M$ 是 states 數量, i.e. $|\mathcal{S}|$</p>
+<p>課程試題:<br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 8.png" width="70%" height="70%"><br>將 graph 圖畫出來, 可以發現滿足 graphic representation of ergodic Markov chain 的三個條件</p>
+<blockquote>
+<p>用 matrix 的定義目前還不知道怎麼驗證 $\forall m\geq26$ 都滿足</p>
+</blockquote>
+<p><strong>[Ergodic Theorem]:</strong><br>&emsp;令 $X_t$ 為一個 ergodic Markov chain, (i.e. 1-class equivalence, recurrent, and aperiodic.), 則極限值存在:<br>&emsp;<span>$\exists \lim_{n\rightarrow\infty}p_{ij}^{(n)} = \pi_j^* &gt; 0$</span><!-- Has MathJax --><br>&emsp;注意到已經跟出發點的 state $i$ 無關了, 且 strictly positive. 另外 $\vec\pi$ 的定義如下:<br>&emsp;<span>$\vec{\pi}^* = (\vec{\pi}_1^*,...,\vec{\pi}_M^*), \text{ with } \sum_{j=1}^M \pi_j^* = 1$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>$i$ transition $n$ 步到 $j$ 的機率, 當 $n\rightarrow\infty$ 時會收斂, 並且 $&gt;0$</p>
+</blockquote>
+<p><strong>[Corollary]:</strong><br>&emsp;令 $X_t$ 為一個 ergodic Markov chain, 則 Ergodic theorem 成立, 則我們有:<br>&emsp;1. <span>$\vec{\pi}^*$</span><!-- Has MathJax --> is stationary distribution, i.e. <span>$\vec{\pi}^*=\vec{\pi}^*P$</span><!-- Has MathJax --><br>&emsp;2. <span>$\lim_{n\rightarrow\infty}\mathcal{P}\{X_n=j\}=\pi_j^*$</span><!-- Has MathJax --><br>[Proof]:<br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 9.png" width="50%" height="50%"><br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 10.png" width="50%" height="50%"></p>
+<p>[Example]:<br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 11.png" width="50%" height="50%"></p>
+<hr>
+<h2 id="Applications-of-the-Markov-Chains"><a href="#Applications-of-the-Markov-Chains" class="headerlink" title="Applications of the Markov Chains"></a>Applications of the Markov Chains</h2><p><a href="Week3%20Markov%20Chains%207e26d98fdcb440eca7bee84970e442b2/Applications_of_the_Markov_Chains.pdf">Applications of the Markov Chains.pdf</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/" title="Stochastic Processes Week 3 Markov Chains">http://yoursite.com/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Coursera/" rel="tag"># Coursera</a>
+          
+            <a href="/tags/Stochastic-Processes/" rel="tag"># Stochastic Processes</a>
+          
+            <a href="/tags/Markov-Chains/" rel="tag"># Markov Chains</a>
+          
+            <a href="/tags/Ergodic-Markov-Chains/" rel="tag"># Ergodic Markov Chains</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/" rel="next" title="Stochastic Processes Week 2 Poisson Processes">
+                <i class="fa fa-chevron-left"></i> Stochastic Processes Week 2 Poisson Processes
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">63</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">127</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-3-1-Definition-of-a-Markov-chain-Some-examples"><span class="nav-number">1.</span> <span class="nav-text">Week 3.1: Definition of a Markov chain. Some examples</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-3-2-Matrix-representation-of-a-Markov-chain-Transition-matrix-Chapman-Kolmogorov-equation"><span class="nav-number">2.</span> <span class="nav-text">Week 3.2: Matrix representation of a Markov chain. Transition matrix. Chapman-Kolmogorov equation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-3-3-5-Graphic-representation-Classification-of-states"><span class="nav-number">3.</span> <span class="nav-text">Week 3.3-5: Graphic representation. Classification of states</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-3-6-7-Ergodic-chains-Ergodic-theorem"><span class="nav-number">4.</span> <span class="nav-text">Week 3.6-7: Ergodic chains. Ergodic theorem</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Applications-of-the-Markov-Chains"><span class="nav-number">5.</span> <span class="nav-text">Applications of the Markov Chains</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
