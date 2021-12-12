@@ -1,0 +1,980 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Coursera,Stochastic Processes,Spectral Density,Wide-Sense Stationary,Stochastic Integration," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識
+Week 1: Introduction &amp;amp; Renewal processes
+Week 2: Poisson Processes
+Week3: Markov Chains
+Week 4: Gaussian Processes
+Week 5: Stationarity">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Stochastic Processes Week 5 Stationarity and Linear filters">
+<meta property="og:url" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-5-Stationarity-and-Linear-filters/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識
+Week 1: Introduction &amp;amp; Renewal processes
+Week 2: Poisson Processes
+Week3: Markov Chains
+Week 4: Gaussian Processes
+Week 5: Stationarity">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-5-Stationarity-and-Linear-filters/Untitled.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-5-Stationarity-and-Linear-filters/Untitled 1.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-5-Stationarity-and-Linear-filters/Untitled 2.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-5-Stationarity-and-Linear-filters/Untitled 3.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-5-Stationarity-and-Linear-filters/Untitled 4.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-5-Stationarity-and-Linear-filters/Untitled 5.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-5-Stationarity-and-Linear-filters/Untitled 6.png">
+<meta property="og:updated_time" content="2021-12-12T12:00:33.654Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Stochastic Processes Week 5 Stationarity and Linear filters">
+<meta name="twitter:description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識
+Week 1: Introduction &amp;amp; Renewal processes
+Week 2: Poisson Processes
+Week3: Markov Chains
+Week 4: Gaussian Processes
+Week 5: Stationarity">
+<meta name="twitter:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-5-Stationarity-and-Linear-filters/Untitled.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-5-Stationarity-and-Linear-filters/"/>
+
+
+
+
+
+  <title> Stochastic Processes Week 5 Stationarity and Linear filters | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-5-Stationarity-and-Linear-filters/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Stochastic Processes Week 5 Stationarity and Linear filters
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2021-12-12T19:11:51+08:00">
+                2021-12-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p><a href="https://www.coursera.org/learn/stochasticprocesses?" target="_blank" rel="external">Coursera Stochastic Processes</a> 課程筆記, 共九篇:</p>
+<ul>
+<li><a href="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-0-%E4%B8%80%E4%BA%9B%E9%A0%90%E5%82%99%E7%9F%A5%E8%AD%98/" target="_blank" rel="external">Week 0: 一些預備知識</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/" target="_blank" rel="external">Week 1: Introduction &amp; Renewal processes</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/" target="_blank" rel="external">Week 2: Poisson Processes</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/" target="_blank" rel="external">Week3: Markov Chains</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/" target="_blank" rel="external">Week 4: Gaussian Processes</a></li>
+<li><strong>Week 5: Stationarity and Linear filters (本文)</strong></li>
+<li>Week 6: Ergodicity, differentiability, continuity</li>
+<li>Week 7: Stochastic integration &amp; Itô formula</li>
+<li>Week 8: Lévy processes </li>
+</ul>
+<a id="more"></a>
+<hr>
+<h2 id="Week-5-1-2-Two-types-of-stationarity"><a href="#Week-5-1-2-Two-types-of-stationarity" class="headerlink" title="Week 5.1-2: Two types of stationarity"></a>Week 5.1-2: Two types of stationarity</h2><p><strong>[Strictly Stationary Def]:</strong><br>&emsp;$X_t$ is (strictly) stationary if <span>$\forall(t_1,...,t_n)\in\mathbb{R}_+^n,\forall h&gt;0$</span><!-- Has MathJax --><br>&emsp;<span>$(X_{t_1+h},...,X_{t_n+h})=^d (X_{t_1},...,X_{t_n})$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>Finite dimenstional distributions are invariant in shift in time</p>
+</blockquote>
+<p><strong>[Weakly Stationary Def]:</strong><br>&emsp;$X_t$ is (weakly) stationary, if <span>$\forall t,s\in \mathbb{R}_+,\forall h&gt;0$</span><!-- Has MathJax --><br>&emsp;<span>$$m(t)=\mathbb{E}X_t=const \\
+K(t,s)=Cov(X_t,X_s)=K(t+h,s+h)$$</span><!-- Has MathJax --><br>&emsp;存在 function <span>$\gamma:\mathbb{R}\rightarrow\mathbb{R}$</span><!-- Has MathJax --> (auto-covariance function) such that<br>&emsp;<span>$K(t,s)=\gamma(t-s)$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>Shift in time 不變的只有 mean 和 covariance<br>Weak stationarity 也稱 second order stationarity 或 wide sense stationarity (WSS)</p>
+</blockquote>
+<p><strong>[Properties of Auto-covariance $\gamma(\cdot)$]:</strong><br>&emsp;1. $\gamma(0)\geq0$<br>&emsp;&emsp;<span>$\gamma(0)=Cov(X_t,X_t)=Var(X_t)\geq0,\forall t\geq0$</span><!-- Has MathJax --><br>&emsp;2. $|\gamma(t)|\leq\gamma(0)$<br>&emsp;&emsp;<span>$$|\gamma(t)|=|Cov(X_t,X_0)|\leq\sqrt{Var(X_t)}\sqrt{Var(X_0)} \\
+= \sqrt{Cov(X_t,X_t)}\sqrt{Cov(X_0,X_0)} \\
+= \sqrt{\gamma(t-t)}\sqrt{\gamma(0-0)}=\gamma(0)$$</span><!-- Has MathJax --><br>&emsp;3. $\gamma$ is even<br>&emsp;&emsp;<span>$\gamma(t)=Cov(X_t,X_0)=Cov(X_0,X_t)=\gamma(-t)$</span><!-- Has MathJax --></p>
+<p><strong>[Statements btw Strictly and Weakly Stationarity]:</strong><br>&emsp;1. We assume <span>$\mathbb{E}X_t^2&lt;\infty$</span><!-- Has MathJax -->, then $X_t$ is strictly stationary $\Longrightarrow$ $X_t$ is weakly stationary<br>&emsp;2. $X_t$ is Gaussian process, then $X_t$ is strictly stationary $\Longleftrightarrow$ $X_t$ is weakly stationary</p>
+<p><strong>[Stationary of White Noise Process? Is Weak]:</strong><br>&emsp;$X_t,t=\pm1,\pm2,…$ is called white noise process, $WN(0,\sigma^2)$, if<br>&emsp;<span>$$\mathbb{E}X_t=0, Var(X_t)=\sigma^2 \\
+Cov(X_t,X_s)=0,\forall t\neq s$$</span><!-- Has MathJax --><br>&emsp;i.e.<br>&emsp;<span>$m(t)=0,\gamma(0)=\sigma^2,\gamma(t)=0,\forall t&gt;0$</span><!-- Has MathJax --><br>&emsp;or<br>&emsp;<span>$$\mathbb{E}X_t=0\\
+K(t,s)=\sigma^2\mathbf{1}\{t=s\}=\gamma(t-s) \\
+\therefore\gamma(x)=\sigma^2\mathbf{1}\{x=0\}$$</span><!-- Has MathJax --><br>&emsp;以上都是相同意思</p>
+<blockquote>
+<p>$WN(0,\sigma^2)$ 可以看出是 weakly stationary, 通常情況下不一定是 strictly stationary, 因為根據定義只看 mean and covariance. 但有些情況會是 strict, 如:</p>
+<ol>
+<li>$X_1,X_2,…$ are i.i.d. noise</li>
+<li>$X_t$ is a Gaussian process (因為此時 strictly if and only if weakly)</li>
+</ol>
+</blockquote>
+<p><strong>[Stationary of Random Walk Process? Not Weak/Strict]:</strong><br>&emsp;<span>$S_n=S_{n-1}+\xi_n$</span><!-- Has MathJax --> where <span>$\xi_1,\xi_2,...$</span><!-- Has MathJax --> are i.i.d. with<br>&emsp;<span>$$\xi=\left\{
+\begin{array}{rl}
+1, &amp; p \\
+-1, &amp; 1-p
+\end{array}
+\right.$$</span><!-- Has MathJax --><br>&emsp;Also assume $S_0=0$<br>&emsp;知道 $S_n=\xi_1+…+\xi_n$, 計算一下 expectation<br>&emsp;<span>$\mathbb{E}S_n=n\mathbb{E}\xi_1=n(2p-1)$</span><!-- Has MathJax --><br>&emsp;所以如果 $p\neq\frac{1}{2}$, 則 $\mathbb{E}S_n$ depends on $n$<br>&emsp;所以 $S_n$ 不是 weakly stationary (因此也一定不是 strictly)<br>&emsp;所以我們 focus 在 $p=\frac{1}{2}$, 接著計算 covariance, for $n&gt;m$<br>&emsp;<span>$$K(n,m)=Cov(S_m+\xi_{m+1}+...+\xi_n, S_m) \\
+= Cov(S_m,S_m)+Cov(\xi_{m+1}+...+\xi_n,S_m) \\
+=m\cdot Var(\xi_1)+0=\min\{n,m\}Var(\xi_1)$$</span><!-- Has MathJax --><br>&emsp;所以 $K(n,m)$ 無法只用 $n-m$ 來表示, 因此 Random walk 不是 strictly/weakly stationary</p>
+<p><strong>[Stationary of Brownian Motion? Not Weak/Strict]:</strong><br>&emsp;$\mathbb{E}B_t=0$, and $Var(B_t)=t$. 且知道 $B_t-B_s\sim\mathcal{N}(0,t-s)$<br>&emsp;$K(t,t)=Cov(B_t,B_t)=Var(B_t)=t$, $\because B_t\sim\mathcal{N}(0,t)$<br>&emsp;所以不存在 $\gamma(t-s)=K(t,s)$, 因為我們看 $\gamma(0)$ 就知道不固定, $\gamma$ 不符合 function 定義<br>&emsp;或可以從 $K(t+h,s+h)=?K(t,s)$ 觀察, 已知 Brownian motion <span>$K(t,s)=\min\{t,s\}$</span><!-- Has MathJax --><br>&emsp;則 $K(t+h,s+h)\neq K(t,s)$<br>&emsp;結論 Brownian motion is not weakly stationary (因此一定也不是 strictly)</p>
+<p><strong>[Stationary of Moving Average Process? Is Weak]:</strong><br>&emsp;$X_t\sim WN(0,\sigma^2)$. Given $a_1,…,a_q\in\mathbb{R};a_0=1$. Moving average $Y_t$ defined as:<br>&emsp;<span>$Y_t=X_t+a_1X_{t-1}+...+a_qX_{t-q}$</span><!-- Has MathJax --><br>&emsp;用 $MA(q)$ 表示<br>&emsp;<span>$\mathbb{E}Y_t=\mathbb{E}[X_t]+a_1\mathbb{E}[X_{t-1}]+...+a_q\mathbb{E}[X_{t-q}]=0$</span><!-- Has MathJax --><br>&emsp;<span>$$K(t,s)=Cov\left(\sum_{j=0}^qa_jX_{t-j},\sum_{k=0}^qa_kX_{s-k}\right) \\
+= \sum_{j=0}^q \sum_{k=0}^q a_ja_kCov(X_{t-j},X_{s-k}) \\
+= \sum_{j=0}^q \sum_{k=0}^q a_ja_k \sigma^2\mathbf{1}\{t-s=j-k\}$$</span><!-- Has MathJax --><br>&emsp;因此可以看出 $K(t,s)$ 只跟 $t-s$ 有關<br>&emsp;MA(1):<br><img src="/2021/12/12/Stochastic-Processes-Week-5-Stationarity-and-Linear-filters/Untitled.png" width="100%" height="100%"><br>&emsp;所以是 Weakly stationary</p>
+<blockquote>
+<p>這個 moving average 是 FIR (linear), input $X_t$ 是 white noise, 所以為 weakly stationary. 由 weakly stationary 經過 linear filter 其 output 仍為 weakly stationary 可得到結論.</p>
+</blockquote>
+<p><strong>[Stationary of Autoregressive Model? Weak in Constraint]:</strong><br>&emsp;<span>$\xi_t\sim WN(0,\sigma^2)$</span><!-- Has MathJax -->, we say that $Y_t$ is autoregressive model, $AR(p)$, if:<br>&emsp;<span>$Y_t=b_1Y_{t-1}+...+b_pY_{t-p}+\xi_t$</span><!-- Has MathJax --><br>&emsp;Also we assume $Cov(\xi_t,Y_s)=0,\forall t&gt;s$<br>&emsp;考慮 $AR(1)$:<br>&emsp;<span>$$Y_t=bY_{t-1}+\xi_t \\
+=b(bY_{t-2}+\xi_{t-1})+\xi_t \\
+= ... = \sum_{j=0}^\infty b^j\xi_{t-j}$$</span><!-- Has MathJax --><br>&emsp;明顯可以看出 $\mathbb{E}Y_t=0$, 接著計算 covariance:<br>&emsp;<span>$$K(t,s)=Cov(Y_t,Y_s)=\sum_{j,k=0}^\infty b^{j+k}\cdot Cov(\xi_{t-j},\xi_{s-k}) \\
+= \sum_{j,k=0}^\infty b^{j+k} \cdot \sigma^2\cdot\mathbf{1}\{t-s=j-k\}$$</span><!-- Has MathJax --><br>&emsp;看起來 covariance 只跟 $t-s$ 有關, 但我們計算一下 $\gamma(0)=K(t,t)$:<br>&emsp;<span>$$t-s=0\Rightarrow K(t,t)=\sum_{k=0}^\infty b^{2k}\cdot \sigma^2 \\
+\therefore K(t,t)&lt;\infty\Leftrightarrow |b|&lt;1$$</span><!-- Has MathJax --><br>&emsp;只有在 $|b|&lt;1$ 的情況 variance 才收斂, 因此 weakly stationary 才成立<br>&emsp;考慮 $AR(p)$, 課程說 $Y_t$ 一樣可以寫出 $\xi_t$ 的和, 找出所有根並在 norm&lt;1 才收斂</p>
+<blockquote>
+<p>這就是 IIR 的 poles 要在單位圓內</p>
+</blockquote>
+<p>&emsp;總之, autoregressive model 有條件地成為 weakly stationary</p>
+<hr>
+<h2 id="Week-5-3-4-Spectral-density-of-a-wide-sense-stationary-process"><a href="#Week-5-3-4-Spectral-density-of-a-wide-sense-stationary-process" class="headerlink" title="Week 5.3-4: Spectral density of a wide-sense stationary process"></a>Week 5.3-4: Spectral density of a wide-sense stationary process</h2><p><strong>[Bochner–Khinchin Theorem]:</strong><br>&emsp;<span>$\Phi:\mathbb{R}\rightarrow\mathbb{C}$</span><!-- Has MathJax -->, and $\Phi(u)$ is a characteristic function, i.e.<br>&emsp;$\exists\xi$ random variable such that <span>$\Phi(u)=\mathbb{E}[e^{iu\xi}]$</span><!-- Has MathJax --><br>&emsp;$\Longleftrightarrow$<br>&emsp;1. $\Phi$ is continuous<br>&emsp;2. $\Phi$ is positive semi-definite<br>&emsp;&emsp;<span>$$\forall(z_1,...,z_n)\in\mathbb{C}^n,\forall(u_1,...,u_n)\in\mathbb{R}^n \\
+\sum_{j,k=1}^n z_j\overline{z_k}\Phi(u_j-u_k)\geq0$$</span><!-- Has MathJax --><br>&emsp;3. $\Phi(0)=1$</p>
+<p><strong>[Bochner–Khinchin Theorem Alternative 1]:</strong><br>&emsp;如果只滿足 1. and 2. 則可以得到 $\exists\mu$ is some measure such that<br>&emsp;<span>$\Phi(u)=\int e^{iux}\mu(dx)$</span><!-- Has MathJax --><br>&emsp;$\mu$ 可以不必是 probability measure (但我們知道一定會有個 measure 滿足上式)</p>
+<p><strong>[Bochner–Khinchin Theorem Alternative 2]:</strong><br>&emsp;如果滿足 1. and 2. and 如下條件<br>&emsp;<span>$\int|\Phi(u)|du&lt;\infty$</span><!-- Has MathJax --><br>&emsp;則 $\Phi:\mathbb{R}\rightarrow\mathbb{C}$, and $\Phi(u)$ is a characteristic function<br>&emsp;i.e. 某個 r.v. $\xi$ 的 p.d.f. 為 $s(x)$ 的 Fourier transform<br>&emsp;相比 alternative 1, 此時 measure $\mu$ 有 density $s(x)$<br>&emsp;<span>$\Phi(u)=\int e^{iux}s(x)dx$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>💡 注意到課程的 Fourier transform 跟我們一般在訊號處理的有點不同, 課程的定義為:<br><span>$\mathcal{F}[g](u)=\int e^{iux}g(x)dx$</span><!-- Has MathJax --><br>且課程的 spectral density 在訊號處理我們稱 “power” spectral density</p>
+</blockquote>
+<p><strong>[Spectral Density of Weakly Stationary Def]:</strong><br>&emsp;Let $X_t$ is weakly stationary 且 $\gamma:K(t,s)=\gamma(t-s)$<br>&emsp;If $\gamma$ is continuous (本身已經是半正定) and $\int|\gamma(u)|du&lt;\infty$<br>&emsp;使用 <strong>Bochner–Khinchin Theorem Alternative 2</strong> 則 $\exists g(x)$ a density such that<br>&emsp;<span>$$\color{orange}{
+\gamma(u)=\int_\mathbb{R} e^{iux}g(x)dx }\\
+= \mathcal{F}[g](u) \text{    (i.e. Fourier transform of }g)$$</span><!-- Has MathJax --><br>&emsp;也等於<br>&emsp;<span>$$\color{orange}{
+g(x)=\frac{1}{2\pi}\int_\mathbb{R} e^{-iux}\gamma(u)du }\\
+= \frac{1}{2\pi}\mathcal{F}[\gamma](-x)$$</span><!-- Has MathJax --><br>&emsp;此時 $g(x)$ 稱為 $X_t$ 的 spectral density<br>&emsp;在 discrete case 為<br>&emsp;<span>$$\color{orange}{
+g(x)=\frac{1}{2\pi}\sum_{h=-\infty}^\infty e^{-ihx}\gamma(h)
+}$$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>在 WSS 條件下, auto-covariance $\gamma$ 就等同於特徵方程式了<br>(注意到特徵方程式為 pdf 的 Fourier transform)</p>
+</blockquote>
+<p>[Examples]:<br>&emsp;White noise, $WN(0,\sigma^2)$, <span>$\gamma(u)=\sigma^2\cdot\mathbf{1}\{u=0\}$</span><!-- Has MathJax -->, 所以<br>&emsp;<span>$g(x)=\frac{\sigma^2}{2\pi}$</span><!-- Has MathJax --><br>&emsp;Moving average, $MA(1)$<br>&emsp;<span>$$\gamma(u)=\left\{
+\begin{array}{rl}
+0, &amp; |u|&gt;1 \\
+a\sigma^2, &amp; |u|=1 \\
+(1+a^2)\sigma^2, &amp; u=0
+\end{array}
+\right. \\
+g(x)=\frac{\sigma^2}{2\pi}\left(1+a^2+a\cdot2\cos(x)\right)$$</span><!-- Has MathJax --></p>
+<p><strong>[Sufficient and Necessary Condition for a Function is a Spectral Density]:</strong><br>&emsp;A real-valued function $g(x)$ defined on $(-\pi,\pi]$<br>&emsp;is a spectral density of a stochastic process $X_t$<br>&emsp;if and only if<br>&emsp;1. $g(x)\geq0$<br>&emsp;2. $g(x)$ is even<br>&emsp;3. <span>$\int_{-\pi}^\pi g(x)dx&lt;\infty$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>用 “power” spectral density 來記憶, 因為是 power 所以 1. 2. 合理一定要</p>
+</blockquote>
+<p><img src="/2021/12/12/Stochastic-Processes-Week-5-Stationarity-and-Linear-filters/Untitled 1.png" width="40%" height="40%"></p>
+<hr>
+<h2 id="Week-5-5-Stochastic-integration-of-the-simplest-type"><a href="#Week-5-5-Stochastic-integration-of-the-simplest-type" class="headerlink" title="Week 5.5: Stochastic integration of the simplest type"></a>Week 5.5: Stochastic integration of the simplest type</h2><p><strong>[Stochastic Integrals Def]:</strong><br>&emsp;Given a Stochastic process $X_t$<br>&emsp;Given partition <span>$\Delta:a=t_0\leq t_1\leq ...\leq t_n=b$</span><!-- Has MathJax -->, <span>$|\Delta|=\max\{t_k-t_{k-1}\},k=1,...,n$</span><!-- Has MathJax --><br>&emsp;If the following expectation converges to some value $A$ in mean square sense:<br>&emsp;<span>$$\mathbb{E}\left[
+\left(
+A - \sum_{k=1}^n X_{t_{k-1}}(t_k-t_{k-1})
+\right)^2
+\right]
+\xrightarrow[|\Delta|\longrightarrow0]{} 0$$</span><!-- Has MathJax --><br>&emsp;Then we denote(define) the converged value $A$ as:<br>&emsp;<span>$\int_a^b X_t dt$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>💡 參考課程 Week 7.1: Different types of stochastic integrals. Integrals of the type $∫ X_t dt$</p>
+</blockquote>
+<p><strong>[Existence of Stochastic Integral]:</strong><br>&emsp;$X_t:\mathbb{E}[X_t^2]&lt;\infty$, if<br>&emsp;1. $m(t)$ continuous<br>&emsp;2. $K(t,s)$ continuous<br>&emsp;Then the stochastic integral exists<br>&emsp;<span>$\int_a^b X_tdt&lt;\infty$</span><!-- Has MathJax --></p>
+<p>要證明 $K(t,s)$ continuous, 其實只需要 check diagonal 項就可以</p>
+<blockquote>
+<p>💡 只對 covariance function $K(t,s)$ 有這樣的特性, 我們再 Week 6.4 會證明</p>
+</blockquote>
+<p><strong>[Lemma]:</strong><br>&emsp;1. Stochastic process $X_t$. If $K(t,s)$ is continuous at $(t_0, t_0)$<br>&emsp;&emsp;then $X_t$ is continuous at $t_0$ (in mean square sense), that is<br>&emsp;&emsp;<span>$\mathbb{E}[(X_t-X_{t_0})^2]\rightarrow0,\text{ as }t\rightarrow t_0$</span><!-- Has MathJax --><br>&emsp;2. On the other side, if $X_t$ is continuous at $t_0$ and $s_0$<br>&emsp;&emsp;then $K(t,s)$ is continuous at $(t_0,s_0)$, that is $K(t_0,s_0)$ is continuous</p>
+<p><strong>[Covariance Function is Continuous when Continuous on Diagonal]:</strong><br>&emsp;Covariance function $K(t,s)$ is continuous $\forall(t_0,s_0)$ $\Longleftrightarrow$<br>&emsp;$K(t,s)$ is continuous $\forall(t_0,t_0)$<br>[Proof]:<br>&emsp;$(\Longrightarrow)$: of course<br>&emsp;$(\Longleftarrow)$:<br>&emsp;$K(t,s)$ is continuous $\forall(t_0,t_0)$, 由 Lemma 1 知道 $X_t$ is countinuous $\forall t_0$<br>&emsp;因此 $X_t$ is continuous $\forall t_0,s_0$, 由 Lemma 2 知道 $K(t_0,s_0)$ is countinuous $\forall t_0,s_0$</p>
+<p><strong>[Properties of Stochastic Integral]: assume integral exists</strong><br>&emsp;We assume integral is taken in an bounded interval $[a,b]$<br>&emsp;1. Expectation of stochastic integral:<br>&emsp;&emsp;<span>$\mathbb{E}\left[ \int X_tdt \right] = \int \mathbb{E}[X_t]dt$</span><!-- Has MathJax --><br>&emsp;&emsp;課程老師說 apply Frobenius theorem 可得此結果. 看不懂 Frobenius theorem<br>&emsp;2. Expectation of squared stochastic integral:<br>&emsp;&emsp;<span>$$\mathbb{E}\left[
+\left(\int X_t dt\right)^2
+\right] = \mathbb{E}\left[
+\int\int X_t X_s dtds
+\right] \\
+= \int\int\mathbb{E}[X_tX_s]dtds$$</span><!-- Has MathJax --><br>&emsp;3. Variance of stochastic integral:<br>&emsp;&emsp;<span>$$Var\left[
+\int X_t dt
+\right] = \mathbb{E}\left[
+\left(\int X_t dt\right)^2
+\right] - \left(\mathbb{E}\left[ \int X_tdt \right]\right)^2 \\
+= \int_a^b\int_a^b K(t,s) dtds \\
+\because\text{symmetric}= 2\int_a^b \int_a^s K(t,s) dtds$$</span><!-- Has MathJax --></p>
+<p>課程 pop up quiz<br><img src="/2021/12/12/Stochastic-Processes-Week-5-Stationarity-and-Linear-filters/Untitled 2.png" width="100%" height="100%"><br><img src="/2021/12/12/Stochastic-Processes-Week-5-Stationarity-and-Linear-filters/Untitled 3.png" width="100%" height="100%"></p>
+<hr>
+<h2 id="Week-5-6-8-Moving-average-filters"><a href="#Week-5-6-8-Moving-average-filters" class="headerlink" title="Week 5.6-8: Moving-average filters"></a>Week 5.6-8: Moving-average filters</h2><p>Filter 就是把某個 stochastic process $X_t$ transform 到另一個 $Y_t$<br><img src="/2021/12/12/Stochastic-Processes-Week-5-Stationarity-and-Linear-filters/Untitled 4.png" width="100%" height="100%"><br>Filter 有 linearity and time-invariant 兩個重要 properties<br>課程舉兩個 filter 的例子 (第一個為 FIR, 第二個為 simplest stochastic integral)<br><span>$$\begin{align}
+Y_t=a_0X_t+a_1X_{t-1}+...+a_nX_{t-n} \\
+Y_t=\int_\mathbb{R} e^{-\beta(t-s)}X_sds
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>都具有上述 properties, 也很容易證<br>然後上圖右下角寫出 filtering 的 continuous and discrete 的數學式, 顯然這是 convolution<br><span>$$Y_t=\int_\mathbb{R}\rho(s)X_{t-s}ds \\
+Y_t=\sum_{h=-\infty}^\infty \rho(h)X_{t-h}$$</span><!-- Has MathJax --></p>
+<p><strong>[Spectral Density and Weakly Stationary by Linear Filter]:</strong><br>&emsp;$X_t$ is weakly stationary with $\mathbb{E}X_t=0$ and some spectral density $g(x)$.<br>&emsp;$Y_t$ is linear filtered by $\rho(x)$ from $X_t$:<br>&emsp;<span>$Y_t=\int_\mathbb{R} \rho(s)X_{t-s}ds$</span><!-- Has MathJax --><br>&emsp;Then,<br>&emsp;1. $Y_t$ is weakly stationary<br>&emsp;2. Spectral density of $Y_t$:<br>&emsp;&emsp;<span>$$\color{orange}{
+g_Y(u)=g_X(u)\cdot|\mathcal{F}[\rho](u)|^2
+}$$</span><!-- Has MathJax --><br>&emsp;here the Fourier transform of $\rho$ is:<br>&emsp;<span>$\mathcal{F}[\rho](u)=\int_\mathbb{R} e^{-iux}\rho(x)dx$</span><!-- Has MathJax --><br>[Proof 1. weakly stationary]:<br>&emsp;觀察 expectation and covariance functions 是否符合 weakly stationary<br>&emsp;<span>$\mathbb{E}[Y_t]=\int_\mathbb{R}\rho(s)\mathbb{E}[X_{t-s}]ds=0$</span><!-- Has MathJax --><br>&emsp;因為 $\mathbb{E}[Y_t]=0$, 所以 $K(t,s)=Cov(Y_t,Y_s)=\mathbb{E}[Y_tY_s]$, then<br>&emsp;<span>$$K_Y(t_1,t_2)=\mathbb{E}\left[
+\int_\mathbb{R}\rho(s_1)X_{t_1-s_1}ds_1 \cdot \int_\mathbb{R}\rho(s_2)X_{t_2-s_2}ds_2
+\right] \\
+=\int_\mathbb{R}\int_\mathbb{R}
+\rho(s_1)\rho(s_2)\mathbb{E}[X_{t_1-s_1}X_{t_2-s_2}]
+ds_1ds_2 \\
+=\int_\mathbb{R}\int_\mathbb{R}
+\rho(s_1)\rho(s_2)\gamma(
+\color{orange}{t_2-t_1}
+-(s_2-s_1))
+ds_1ds_2 \\$$</span><!-- Has MathJax --><br>&emsp;所以只 depends on $t_2-t_1$, 所以 auto-covariance of $Y_t$ 存在如下:<br>&emsp;<span>$$\gamma_Y(x)=\int_\mathbb{R}\int_\mathbb{R}
+\rho(s_1)\rho(s_2)\gamma(
+x
+-(s_2-s_1))
+ds_1ds_2$$</span><!-- Has MathJax --><br>&emsp;Q.E.D.<br>[Proof 2. Spectral density of $Y_t$]:<br>&emsp;由 proof 1 知道 $\gamma_Y(x)$ 改寫如下:<br>&emsp;<span>$$\gamma_Y(x)=\int_\mathbb{R}\rho(s_1)
+\color{orange}{\int_\mathbb{R}\rho(s_2)\gamma((x+s_1)-s_2)ds_2}
+ds_1 \\
+=\int_\mathbb{R}\rho(s_1)
+\color{orange}{[\gamma_X*\rho](x+s_1)}
+ds_1 \ldots(\star)\\$$</span><!-- Has MathJax --><br>&emsp;定義 $\rho^o(x)=\rho(-x)$, 在把 $s_1$ 改寫成 $-s_1$, 則 $(\star)$ 變成:<br>&emsp;<span>$$\gamma_Y(x)=(\star)=\int_\mathbb{R}\rho^o(s_1)
+[\gamma_X*\rho](x-s_1)
+ds_1 \\
+=[\gamma_X*\rho*\rho^o](x)\ldots(\square)$$</span><!-- Has MathJax --><br>&emsp;注意到 spectral density 跟 auto-covariance 的關係為 Fourier transform 的關係:<br>&emsp;<span>$g_Y(u)=\frac{1}{2\pi}\mathcal{F}[\gamma_Y](-u)$</span><!-- Has MathJax --><br>&emsp;所以對 $(\square)$ 兩邊取 Fourier transform 我們得到:<br>&emsp;<span>$$g_Y(u)=
+\frac{1}{2\pi}\mathcal{F}[\gamma_Y](-u)=\frac{1}{2\pi}\mathcal{F}[\gamma_X](-u)\cdot\mathcal{F}[\rho](-u)\cdot\mathcal{F}[\rho^o](-u) \\
+=g_X(u)\cdot|\mathcal{F}[\rho](u)|^2$$</span><!-- Has MathJax --><br>&emsp;Q.E.D.</p>
+<p>Let $X_t$ is weakly stationary, and it’s spectral density is $g_X(u)$. 我們想用 moving average $MA(2)$ 來預測當下這個時間點的 $X_t$:<br><span>$Y_n=a_1X_{n-1}+a_2X_{n-2}$</span><!-- Has MathJax --><br>如何決定 $a_1,a_2$ 來使得預測最準 (in least square error sense):<br><span>$\mathbb{E}[(X_n-Y_n)^2]\rightarrow \min$</span><!-- Has MathJax --><br>我們知道 <span>$Z_n=X_n-Y_n=X_n-a_1X_{n-1}-a_2X_{n-2}$</span><!-- Has MathJax --> 也是 weakly stationary, 因為過一個 linear filter $\rho(x)$:<br><span>$\rho(x)=\mathbf{1}\{x=0\}-a_1\mathbf{1}\{x=1\}-a_2\mathbf{1}\{x=2\}$</span><!-- Has MathJax --><br>其 Fourier transform 為: <span>$\mathcal{F}[\rho](u)=1-a_1e^{iu}-a_2e^{2iu}$</span><!-- Has MathJax --><br>則 spectral density of $Z$ 為: <span>$g_Z(u)=g_X(u)\cdot|\mathcal{F}[\rho](u)|^2$</span><!-- Has MathJax --><br>所以問題等同於計算<span>$\arg\min_{a_1,a_2} VarZ_n$</span><!-- Has MathJax --><br>計算 $Var Z_n$ 如下<br><span>$$Var(Z_n)=K_Z(n,n)=\gamma_Z(0)\\
+=\int e^{i\cdot u\cdot 0}g_Z(u)du \\
+=\int g_X(u)\cdot|1-a_1e^{iu}-a_2e^{2iu}|^2 du \\
+=\int g_X(u)\cdot(1-a_1e^{iu}-a_2e^{2iu})\cdot(1-a_1e^{-iu}-a_2e^{-2iu}) du \\
+=...=\sum_{i,j=1}^2 B_{ij}a_ia_j + \sum_{i=1}^2 C_ia_i + D$$</span><!-- Has MathJax --><br>所以最小化一個二次式即可求得最佳解 $a_1,a_2$</p>
+<p>[Pop up Quiz]:<br><img src="/2021/12/12/Stochastic-Processes-Week-5-Stationarity-and-Linear-filters/Untitled 5.png" width="100%" height="100%"><br><img src="/2021/12/12/Stochastic-Processes-Week-5-Stationarity-and-Linear-filters/Untitled 6.png" width="100%" height="100%"></p>
+<p>有點難算 XD 容易算錯</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-5-Stationarity-and-Linear-filters/" title="Stochastic Processes Week 5 Stationarity and Linear filters">http://yoursite.com/2021/12/12/Stochastic-Processes-Week-5-Stationarity-and-Linear-filters/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Coursera/" rel="tag"># Coursera</a>
+          
+            <a href="/tags/Stochastic-Processes/" rel="tag"># Stochastic Processes</a>
+          
+            <a href="/tags/Spectral-Density/" rel="tag"># Spectral Density</a>
+          
+            <a href="/tags/Wide-Sense-Stationary/" rel="tag"># Wide-Sense Stationary</a>
+          
+            <a href="/tags/Stochastic-Integration/" rel="tag"># Stochastic Integration</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/" rel="next" title="Stochastic Processes Week 4 Gaussian Processes">
+                <i class="fa fa-chevron-left"></i> Stochastic Processes Week 4 Gaussian Processes
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">65</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">132</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-5-1-2-Two-types-of-stationarity"><span class="nav-number">1.</span> <span class="nav-text">Week 5.1-2: Two types of stationarity</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-5-3-4-Spectral-density-of-a-wide-sense-stationary-process"><span class="nav-number">2.</span> <span class="nav-text">Week 5.3-4: Spectral density of a wide-sense stationary process</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-5-5-Stochastic-integration-of-the-simplest-type"><span class="nav-number">3.</span> <span class="nav-text">Week 5.5: Stochastic integration of the simplest type</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-5-6-8-Moving-average-filters"><span class="nav-number">4.</span> <span class="nav-text">Week 5.6-8: Moving-average filters</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
