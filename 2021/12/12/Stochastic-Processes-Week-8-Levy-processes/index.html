@@ -1,0 +1,1042 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Coursera,Stochastic Processes,Lévy Processes,Characteristic Exponent," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識
+Week 1: Introduction &amp;amp; Renewal processes
+Week 2: Poisson Processes
+Week3: Markov Chains
+Week 4: Gaussian Processes
+Week 5: Stationarity">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Stochastic Processes Week 8 Lévy processes">
+<meta property="og:url" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識
+Week 1: Introduction &amp;amp; Renewal processes
+Week 2: Poisson Processes
+Week3: Markov Chains
+Week 4: Gaussian Processes
+Week 5: Stationarity">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 1.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 2.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 3.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 4.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 5.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 6.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 7.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 8.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 9.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 10.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 11.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 12.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 13.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 14.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 15.png">
+<meta property="og:updated_time" content="2021-12-12T16:14:12.010Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Stochastic Processes Week 8 Lévy processes">
+<meta name="twitter:description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識
+Week 1: Introduction &amp;amp; Renewal processes
+Week 2: Poisson Processes
+Week3: Markov Chains
+Week 4: Gaussian Processes
+Week 5: Stationarity">
+<meta name="twitter:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/"/>
+
+
+
+
+
+  <title> Stochastic Processes Week 8 Lévy processes | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Stochastic Processes Week 8 Lévy processes
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2021-12-12T23:17:32+08:00">
+                2021-12-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SP/" itemprop="url" rel="index">
+                    <span itemprop="name">SP</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p><a href="https://www.coursera.org/learn/stochasticprocesses?" target="_blank" rel="external">Coursera Stochastic Processes</a> 課程筆記, 共九篇:</p>
+<ul>
+<li><a href="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-0-%E4%B8%80%E4%BA%9B%E9%A0%90%E5%82%99%E7%9F%A5%E8%AD%98/" target="_blank" rel="external">Week 0: 一些預備知識</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/" target="_blank" rel="external">Week 1: Introduction &amp; Renewal processes</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/" target="_blank" rel="external">Week 2: Poisson Processes</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/" target="_blank" rel="external">Week3: Markov Chains</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/" target="_blank" rel="external">Week 4: Gaussian Processes</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-5-Stationarity-and-Linear-filters/" target="_blank" rel="external">Week 5: Stationarity and Linear filters</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/" target="_blank" rel="external">Week 6: Ergodicity, differentiability, continuity</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/" target="_blank" rel="external">Week 7: Stochastic integration &amp; Itô formula</a></li>
+<li><strong>Week 8: Lévy processes (本文)</strong></li>
+</ul>
+<a id="more"></a>
+<hr>
+<h2 id="Week-8-1-Definition-of-a-Levy-process-Stochastic-continuity-and-cadlag-paths"><a href="#Week-8-1-Definition-of-a-Levy-process-Stochastic-continuity-and-cadlag-paths" class="headerlink" title="Week 8.1: Definition of a Lévy process. Stochastic continuity and càdlàg paths"></a>Week 8.1: Definition of a Lévy process. Stochastic continuity and càdlàg paths</h2><p>$N_t,W_t,L_t$ 分別表示 Poisson process, Brownian motion, and Levy process<br><span>$$\begin{array}{|c | c |c |}
+\hline N_t &amp; W_t &amp; L_t \\
+\hline N_0=0\text{ a.s.} &amp; W_0=0\text{ a.s.} &amp; L_0=0\text{ a.s.} \\
+\hline \text{indep. increments} &amp; \text{indep. increments} &amp; \text{indep. increments} \\
+\hline \text{stationary increments} &amp; \text{stationary increments} &amp; \text{stationary increments} \\
+\hline N_t-N_s\sim Pois(\lambda(t-s)) &amp; W_t-W_s\sim\mathcal{N}(0,t-s) &amp; {L_t-L_s\sim\mathcal{P}(t-s),\mathcal{P}\text{ is }\color{orange}{idd}} \\
+\hline
+\end{array}$$</span><!-- Has MathJax --><br>&emsp;- Independent increments:<br>&emsp;&emsp;<span>$\forall t_0&lt;t_1&lt;\ldots&lt;t_n$</span><!-- Has MathJax -->, we have the following random variables <em>jointly independent</em> (所以一定也是 <em>pairwise indep.</em>)<br>&emsp;&emsp;<span>$X_{t_n}-X_{t_{n-1}},\ldots,X_1-X_0$</span><!-- Has MathJax --><br>&emsp;- Stationary increments:<br>&emsp;&emsp;$\forall t,s\geq0$, and $h&gt;0$, we have<br>&emsp;&emsp;<span>$X_{t+h}-X_{s+h} =^d X_t-X_s$</span><!-- Has MathJax --><br>&emsp;&emsp;注意到是 in distribution sense (最 weak 的那個 sense)<br>&emsp;&emsp;我們知道 “almost surely”, “in probability”, or “in mean square” senses 都會導致 in distribution sense.<br>&emsp;- $iid$ stands for <em>Infinitely divisible distribution</em>: will be discussed in next section</p>
+<p>注意到對所有的 Levy process $L_t$, 其 covariance function 有如下關係:<br><span>$$K(t,s)=Cov(L_t,L_s)\\
+\text{assume } t&gt;s \text{ } =Cov(L_t-L_s+L_s,L_s) = Cov(L_t-L_s,L_s) + Var(L_s) = Var(L_s)\\
+\therefore K(t,s)=Var(L_{\min(t,s)})$$</span><!-- Has MathJax --></p>
+<p><strong>[Cadlag Function Def]:</strong><br>&emsp;中文稱 “右連左極函數”<br>&emsp;We say $f$ is a Cadlag function, if 左右 limit 都存在且定義 $f$ 為右 limit 的值<br>&emsp;<span>$$\exists\lim_{s\rightarrow t,s&lt;t} f(s) =: f(t^-) \\
+\exists\lim_{s\rightarrow t,s&gt;t} f(s) =: f(t^+) = f(t)$$</span><!-- Has MathJax --></p>
+<p>Wiki 的介紹很清楚<br><img src="/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled.png" width="80%" height="80%"></p>
+<p>記得在 Brownian motion 時有講到 Kolmogorov continuity theorem: 一定存在一個 continuous modification of a Brownian motion 類似.<br>所以看到 Brownian motion 可以只考慮其 almost surely continuous trajectories 的版本</p>
+<p><strong>[Proposition, Cadlag Trajectories of Levy Process]:</strong><br>&emsp;在 Levy process 也有類似的情況. 給定一個 Levy process $L_t$<br>&emsp;存在另一個 process $L_t’$ such that 所有 trajectories 都是 almost surely Cadlag function.</p>
+<hr>
+<h2 id="Week-8-2-Examples-of-Levy-processes-Calculation-of-the-characteristic-function-in-particular-cases"><a href="#Week-8-2-Examples-of-Levy-processes-Calculation-of-the-characteristic-function-in-particular-cases" class="headerlink" title="Week 8.2: Examples of Lévy processes. Calculation of the characteristic function in particular cases"></a>Week 8.2: Examples of Lévy processes. Calculation of the characteristic function in particular cases</h2><p><strong>[Infinitely Divisible Distributions Def]:</strong><br>&emsp;$\xi$ is a infinitely divisible distribution if $\forall n\geq2$, <span>$\exists Y_1,\ldots,Y_n$</span><!-- Has MathJax --> - i.i.d. such that<br>&emsp;<span>$\xi=^d Y_1+\dots+Y_n$</span><!-- Has MathJax --><br>&emsp;Note that it is equals <em>in distribution sense</em>. It is equivalent to saying:<br>&emsp;<span>$$\Phi_\xi(u)=\left(\Phi_{Y_1}(u)\right)^n, \qquad \forall n \\
+\Longleftrightarrow \left(\Phi_\xi(u)\right)^{1/n} \text{ is a characteristic function}, \qquad\forall n$$</span><!-- Has MathJax --><br>&emsp;where $\Phi_\xi(u)$ is the characteristic function of random variable $\xi$</p>
+<p><strong>[Levy Process can be Characterized by an I.D.D.]:</strong><br>&emsp;1. $\forall$ Levy process $L_t$ at $\forall$ time <span>$t^*$</span><!-- Has MathJax -->, <span>$L_{t^*}$</span><!-- Has MathJax --> has an infinitely divisible distribution<br>&emsp;2. $\forall$ infinitely divisible distribution, $\exists$ a Levy process $L_t$ such that $L_1$ has this distribution<br>[Proof]:<br>&emsp;只證明第一條. $L_t$ 可以改寫如下: $\forall n$ 都滿足<br>&emsp;<span>$L_t=\sum_{k=1}^n\left(L_{t\cdot\frac{k}{n}} - L_{t\cdot\frac{k-1}{n}}\right)$</span><!-- Has MathJax --><br>&emsp;由於 stationary increments 特性<br>&emsp;<span>$\left(L_{t\cdot\frac{k}{n}} - L_{t\cdot\frac{k-1}{n}} \right) =^d L_{\frac{t}{n}}$</span><!-- Has MathJax --><br>&emsp;再由於 independent increments 特性, 變成 $n$ 個 i.i.d. random variables 相加. Q.E.D.</p>
+<p><strong>[Normal Distribution is an i.d.d.]:</strong><br><img src="/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 1.png" width="50%" height="50%"><br>&emsp;所以可以發現 $L_t$ is a Levy process ($W_t$ is a Brownian motion)<br>&emsp;<span>$L_t=\mu t+\sigma W_t$</span><!-- Has MathJax -->; 且 $L_1\sim\mathcal{N}(\mu,\sigma^2)$</p>
+<p><strong>[Cauchy Distribution is an i.d.d.]:</strong><br>&emsp;Cauchy distribution 的 p.d.f. 為:<br>&emsp;<span>$p(x)=\frac{1}{\pi\gamma\left[1+\left(\frac{x-x_0}{\gamma}\right)^2\right]}$</span><!-- Has MathJax --><br>&emsp;其中 $x_0$ 稱為 location parameter, $\gamma$ 稱為 scale parameter<br><img src="/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 2.png" width="50%" height="50%"><br>&emsp;觀察特徵函數可以發現是 i.d.d.<br><img src="/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 3.png" width="40%" height="40%"></p>
+<p><strong>[Gamma Distribution is an i.d.d.]</strong><br><img src="/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 4.png" width="50%" height="50%"></p>
+<p>Distributions that are infinitely divisible distributions:<br><img src="/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 5.png" width="50%" height="50%"></p>
+<p><strong>[Stable Distribution Def]:</strong><br>&emsp;We say that $\xi$ is stable distribution if $\forall n\geq2$, $\exists$ $a_n&gt;0,b_n\in\mathbb{R}$<br>&emsp;$\xi,\xi_1,\ldots,\xi_n$ - are i.i.d. such that<br>&emsp;<span>$\xi_1+\ldots+\xi_n =^d a_n\xi+b_n$</span><!-- Has MathJax --></p>
+<p>是 stable distribution 一定是 infinitely divisible, 很容易看出來, 只要改寫成<br><span>$\left(\frac{\xi_1}{a_n}-\frac{b_n}{n\cdot a_n}\right) + \ldots + \left(\frac{\xi_n}{a_n}-\frac{b_n}{n\cdot a_n}\right) =^d \xi$</span><!-- Has MathJax --><br>反之不成立<br>所以上述的 i.d.d. 中, 只有 Normal and Cauch distributions 是 stable</p>
+<hr>
+<h2 id="Week-8-3-Relation-to-the-infinitely-divisible-distributions"><a href="#Week-8-3-Relation-to-the-infinitely-divisible-distributions" class="headerlink" title="Week 8.3: Relation to the infinitely divisible distributions"></a>Week 8.3: Relation to the infinitely divisible distributions</h2><p><strong>[Properties of Infinitely Divisible Distributions]:</strong><br>&emsp;Let $\xi$ is a i.d.d. then<br>&emsp;1. $\Phi_\xi(u)=0$ doesn’t have any $\mathbb{R}$ solution<br>&emsp;&emsp;i.e. all solutions are imaginary numbers. 特徵方程式的 roots 沒有實數解<br>&emsp;2. Support set of $\xi$, $Supp(\xi)$, is unbounded</p>
+<p>Random variable $\xi$ 為一個 measurable function $\Omega\rightarrow\mathbb{R}$. 而 support of a measurable function $\mu$ 定義為:<br><span>$Supp(\mu):=\left\{x:\forall\text{ open set }G\text{ containing }x\text{ s.t. }\mu(G)&gt;0\right\}$</span><!-- Has MathJax --></p>
+<p>參考 <a href="https://en.wikipedia.org/wiki/Support_(measure_theory" target="_blank" rel="external">wiki 的定義</a>):<br><img src="/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 6.png" width="100%" height="100%"></p>
+<blockquote>
+<p>白話是任何 $x$ 的 open neighbourhood 的 measure 都 $&gt;0$, 則 $x$ 屬於 support set</p>
+</blockquote>
+<p>因此 random variable 的 support set 就用 measurable function 的方式去想</p>
+<p><strong>[Uniform Distribution is NOT i.d.d.]:</strong><br>&emsp;Let $\xi$ is uniform distribution $\mathcal{U}(a,b)$, then the characteristic function is<br>&emsp;<span>$\Phi_\xi(u)=\int_a^b e^{iux}\frac{1}{b-a}dx=\frac{1}{b-a}\cdot\frac{e^{iua}}{iu}\cdot\left(e^{iu(b-a)}-1\right)$</span><!-- Has MathJax --><br>&emsp;We have $\Phi_\xi(u)=0$ if and only if<br>&emsp;<span>$e^{iu(b-a)}=1 \Longleftrightarrow u=\frac{2\pi k}{b-a},\qquad k\in\mathbb{Z}/\{0\}$</span><!-- Has MathJax --><br>&emsp;所以存在 $\mathbb{R}$ 的 root, 因此不是 infinitely divisible distributions</p>
+<p><strong>[Bernoulli Distribution is NOT i.d.d.]:</strong><br>&emsp;Let $\xi$ is Bernoulli random variable<br>&emsp;<span>$$\xi=\left\{
+\begin{array}{rl}
+1, &amp; p\\
+0, &amp; 1-p
+\end{array}
+\right.$$</span><!-- Has MathJax --><br>&emsp;then <span>$Supp(\xi)=\{0,1\}$</span><!-- Has MathJax -->, so is not bounded and hence NOT infinitely divisible distributions</p>
+<p><img src="/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 7.png" width="100%" height="100%"></p>
+<blockquote>
+<p>我們常看到的 distribution 大部分都是 infinitely divisible distribution, 如<br>Gaussian, Cauchy, Gamma, Poisson, Compound Poisson<br>但是 uniform and Bernoulli distributions 不是 i.d.d.</p>
+</blockquote>
+<p>最後試題計算一下 binomial distribution $Bin(n,p)$ 的特徵函數:<br><span>$$\Phi_X(u)=\mathbb{E}\left[e^{iuX}\right]=\sum_{k=0}^n e^{iuk}\mathcal{P}(X=k) \\
+= \sum_{k=0}^n e^{iuk}\frac{n!}{k!(n-k)!}p^k(1-p)^{n-k} \\
+= \sum_{k=0}^n\frac{n!}{k!(n-k)!}(e^{iu}p)^k(1-p)^{n-k} = (e^{iu}p+(1-p))^n$$</span><!-- Has MathJax --></p>
+<hr>
+<h2 id="Week-8-4-Characteristic-exponent"><a href="#Week-8-4-Characteristic-exponent" class="headerlink" title="Week 8.4: Characteristic exponent"></a>Week 8.4: Characteristic exponent</h2><p><strong>[Characteristic Exponent Def with Proposition]:</strong><br>&emsp;$\forall$ Levy process $L_t$, <span>$\exists \Psi:\mathbb{R}\rightarrow\mathbb{C}$</span><!-- Has MathJax --> call characteristic exponent, such that<br>&emsp;<span>$\Phi_{L_t}(u)=\mathbb{E}[e^{iuL_t}]=e^{t\cdot\Psi(u)}$</span><!-- Has MathJax --></p>
+<p><strong>[Example 1]:</strong><br>&emsp;$L_t=\mu\cdot t$, 其 characteristic function is <span>$\Phi_{L_t}(u)=\mathbb{E}[e^{iu\mu t}]$</span><!-- Has MathJax -->, 所以 $\Psi(u)=iu\mu$</p>
+<p><strong>[Brownian Motion Example 2]:</strong><br>&emsp;$L_t=\sigma W_t$, where $W_t$ is a Brownian motion. 所以 $L_t\sim\mathcal{N}(0,\sigma^2t)$.<br>&emsp;我們知道 $X\sim\mathcal{N}(\mu,\sigma^2)$ 的特徵方程式為:<br>&emsp;<span>$\Phi_X(u)=e^{i\mu u-\frac{1}{2}\sigma^2u^2}$</span><!-- Has MathJax --><br>&emsp;所以<br>&emsp;<span>$\Phi_{L_t}(u)=e^{-\frac{1}{2}\sigma^2t u^2}\Longrightarrow \Psi(u)=-\frac{1}{2}\sigma^2u^2$</span><!-- Has MathJax --></p>
+<p><strong>[Compound Poisson processes Example 3]:</strong><br>&emsp;Let $X_t$ is a Compound Poisson processes. We have it’s <strong><em>characteristic function of increments</em></strong> as:<br>&emsp;<span>$\Phi_{X_t-X_s}(u)=e^{\lambda(t-s)(\Phi_{\xi_1}(u)-1)}$</span><!-- Has MathJax --><br>&emsp;Therefore, characteristic function of $L_t=X_t$:<br>&emsp;<span>$\Phi_{L_t}(u)=e^{\lambda t(\Phi_{\xi_1}(u)-1)}$</span><!-- Has MathJax --><br>&emsp;and hence<br>&emsp;<span>$$\Psi(u)=\lambda(\Phi_{\xi_1}(u)-1) \\
+=\lambda\left( \int e^{iux}\mathcal{P}_{\xi_1}(x)dx - \int\mathcal{P}_{\xi_1}(x)dx \right) \\
+= \int (e^{iux}-1)\lambda \mathcal{P}_{\xi_1}(x)dx 
+=\int (e^{iux}-1)\lambda F_{\xi_1}(dx)$$</span><!-- Has MathJax --></p>
+<p><strong>[Linear Brownian Motion Plus Compound Poisson processes Example 4]:</strong><br>&emsp;Let $L_t$ is<br>&emsp;<span>$L_t=\mu t+\sigma W_t + C.P.P.$</span><!-- Has MathJax --><br>&emsp;then we have<br>&emsp;<span>$\Psi(u)=iu\mu-\frac{1}{2}\sigma^2u^2 + \int (e^{iux}-1)\lambda F_\xi(dx)$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>這個形式很重要, for such Levy process, 其特徵方程式可以 explicitly 寫出來</p>
+</blockquote>
+<p><strong>[Corollaries]:</strong><br>&emsp;1. The distribution of $L_t$ is determined by $L_1$<br>&emsp;&emsp;<span>$\Phi_{L_1}(u)=e^{\Psi(u)}$</span><!-- Has MathJax --><br>&emsp;&emsp;所以可以由 $L_1$ 決定出 characteristic exponent $\Psi(u)$<br>&emsp;&emsp;而知道 $\Psi(u)$ 我們就知道任何時間點的 characteristic function, 也就決定了 distribution<br>&emsp;2. Expectation and variance of $L_t$<br>&emsp;&emsp;<span>$$\mathbb{E}L_t=t\cdot\mathbb{E}L_1 \\
+Var(L_t)=t\cdot Var(L_1) \\
+K(t,s) =Var(L_{\min(t,s)}) = \min(t,s)\cdot Var(L_1)$$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>由此 $K(t,s)$ 可知, Levy process is NOT stationary (in any sense). 因為 WSS 必須滿足 $K(t,s)=K(t+h,s+h)$, 然而 $\min(t,s)\neq \min(t+h,s+h)$</p>
+</blockquote>
+<p>注意到, Levy process is NOT stationary but is stationary increment</p>
+<hr>
+<h2 id="Week-8-5-Properties-of-a-Levy-process-which-directly-follow-from-the-existence-of-characteristic-exponent"><a href="#Week-8-5-Properties-of-a-Levy-process-which-directly-follow-from-the-existence-of-characteristic-exponent" class="headerlink" title="Week 8.5: Properties of a Lévy process, which directly follow from the existence of characteristic exponent"></a>Week 8.5: Properties of a Lévy process, which directly follow from the existence of characteristic exponent</h2><p><strong>[Levy Measure Def]:</strong><br>&emsp;Levy measure of a Levy process $X_t$ is defined as<br>&emsp;<span>$$\nu(B)=\mathbb{E}\left[
+\# t\in[0,1]: \triangle X_t \in B
+\right], \qquad \forall B\subset\mathbb{R} \setminus\{0\}$$</span><!-- Has MathJax --><br>&emsp;where <span>$\triangle X_t=X_t-X_{t^-}$</span><!-- Has MathJax --> (size of jump), also reference to <a href="https://www.notion.so/Week-8-L-vy-processes-305f008762c24cd3ac981521f69a970b" target="_blank" rel="external">definition of Cadlag function</a></p>
+<blockquote>
+<p>$B$ 定義了我們要關注的那些 jump 值, 而 measure 就是: 有多少 (以期望值來看) random variables 他們的 jump 值屬於 $B$, 且 random variables 只限制在 $t\in[0,1]$<br>又或者這麼說, 對於 $X_t,\forall t\in[0,1]$ 這些 random variables 來說, measure 就是發生 jump 次數的期望值 (constrained on jump 的值是我們要的, i.e. in $B$)<br>此段課程後面會提供一個 Levy measure 的充要條件, 實在很神奇</p>
+</blockquote>
+<p>這定義是否符合 measure 之定義? 檢查如下特性<br>&emsp;1. Non-negativity: $\nu(B)\geq 0$<br>&emsp;2. Null empty set: $\nu(\phi) = 0$<br>&emsp;3. Countable additivity:<br>&emsp;&emsp;For all countable collections ${B_k}$ of pairwise disjoint sets<br>&emsp;&emsp;<span>$\nu\left(\bigcup_{k=1}^\infty B_k \right) = \bigcup_{k=1}^\infty \nu(B_k)$</span><!-- Has MathJax --><br>可發現 $\nu$ 符合 measure 定義, 所以是個 measure</p>
+<p>Brownain motion is continuous a.e. 所以 $\nu(B)=0$<br>Poisson process 如圖所示</p>
+<p><img src="/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 8.png" width="70%" height="70%"></p>
+<p>考慮 Compound Poisson process, let $N_t$ is Poisson process, and $\xi_1,\xi_2,…$ are i.i.d. then C.P.P. $X_t$ is defined as<br><span>$X_t=\sum_{k=1}^{N_t} \xi_k$</span><!-- Has MathJax --><br>其 Levy measure 如下:<br><span>$$\nu(B)=\lambda\cdot\mathcal{P}(\xi_1\in B) \\
+= \int_B \lambda \mathcal{P}_\xi(x)dx := \int_B s(x)dx$$</span><!-- Has MathJax --><br>where $s(x)$ is called <strong><em>Levy density</em></strong><br><span>$s(x):=\lambda \mathcal{P}_\xi(x)$</span><!-- Has MathJax --><br>and we have $\nu(dx)=s(x)dx$</p>
+<blockquote>
+<p>可以這麼想, 在原來的 Poisson process, 每一次的 jump 都固定是 $1$, 但在 C.P.P. jump 的值是根據 $\xi_k$ 來決定的. 所以能不能算進一次 jump 要看 jump 的值是不是在 $B$ 中</p>
+</blockquote>
+<p><strong>[Sufficient and Necessary Condition of Levy Measure]:</strong><br>&emsp;If $\nu$ is a Levy measure for some Levy process $L_t$, if and only if satisfying<br>&emsp;<span>$$\int_{|x|&lt;1} x^2\nu(dx) =\int_{|x|&lt;1} x^2s(x)dx&lt;\infty \\
+\int_{|x|\geq1} \nu(dx)=\int_{|x|\geq1} s(x)dx&lt;\infty$$</span><!-- Has MathJax --></p>
+<hr>
+<h2 id="Week-8-6-Levy-Khintchine-representation-and-Levy-Khintchine-triplet-1"><a href="#Week-8-6-Levy-Khintchine-representation-and-Levy-Khintchine-triplet-1" class="headerlink" title="Week 8.6: Lévy-Khintchine representation and Lévy-Khintchine triplet-1"></a>Week 8.6: Lévy-Khintchine representation and Lévy-Khintchine triplet-1</h2><blockquote>
+<p>💡 課程老師說這是整個課程最重要的定理</p>
+</blockquote>
+<p><strong>[Levy-Khintchine Theorem]:</strong><br>&emsp;The characteristic exponent $\Psi(u)$ of a Levy process $L_t$ can be represented as follows:<br>&emsp;<span>$$\color{orange}{
+\Psi(u)=iu\mu-\frac{1}{2}u^2\sigma^2 + \int_{\mathbb{R}}\left(
+e^{iux}-1-iux\cdot\mathbf{1}\{|x|&lt;1\}
+\right)\nu(dx)
+}$$</span><!-- Has MathJax --><br>&emsp;where $\mu\in\mathbb{R},\sigma\geq0$, and $\nu$ is a Levy measure. <strong>$(\mu,\sigma,\nu)$ is called Levy triplet</strong><br>&emsp;which completely determined the distribution of Levy process at any time moment $t$</p>
+<p>可以證明 $\forall L_t$ - Levy process, 可以表示如下<br><span>$X_t = \underbrace{\mu t + \sigma W_t}_\text{continuous part} + \underbrace{\mathcal{J}_t}_{\text{jump part}}$</span><!-- Has MathJax --></p>
+<p>所以 Levy process 的 continuous part 可以視為 Brownian motion<br>而 jump part $\mathcal{J}_t$:<br><span>$$\mathcal{J}_t \approx 
+\overbrace{
+\left(
+\sum_{0&lt;s&lt;t,|\triangle X_s|&gt;1} \triangle X_s 
+\right)
+}^{\text{C.P.P.}}
++ 
+\left(
+\lim_{\varepsilon\rightarrow0}
+\overbrace{
+\sum_{0&lt;s&lt;t,\varepsilon&lt;|\triangle X_s|\leq1} \triangle X_s
+}^{\text{C.P.P.}}
+\right)$$</span><!-- Has MathJax --></p>
+<p>我們可以將 Levy process 的 trajectory 畫出來<br><img src="/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 9.png" width="100%" height="100%"></p>
+<p><a href="Week%208%20Le%CC%81vy%20processes%20f0ef88cde3dd4cda8f7e055b19206004/trajectory_of_Levy_process.pptx">trajectory_of_Levy_process.pptx</a></p>
+<p>接下來下一節課程會介紹一個 sufficient condition 使我們可以把 jump process 的 limit 那段拿掉, 使得 jump process 完全可以由一個 C.P.P. 替代<br><img src="/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 10.png" width="75%" height="75%"></p>
+<hr>
+<h2 id="Week-8-7-Levy-Khintchine-representation-and-Levy-Khintchine-triplet-2"><a href="#Week-8-7-Levy-Khintchine-representation-and-Levy-Khintchine-triplet-2" class="headerlink" title="Week 8.7: Lévy-Khintchine representation and Lévy-Khintchine triplet-2"></a>Week 8.7: Lévy-Khintchine representation and Lévy-Khintchine triplet-2</h2><p>重複一次 Levy process 的 characteristic exponent:<br><span>$$\Psi(u)=iu\mu-\frac{1}{2}u^2\sigma^2 + \int_{\mathbb{R}}\left(
+e^{iux}-1-
+\color{orange}{
+iux\cdot\mathbf{1}\{|x|&lt;1\}
+}
+\right)\nu(dx)$$</span><!-- Has MathJax --><br>有些情況下可以簡化上式, 尤其橘色部分. 首先回顧一下什麼是 bounded variation</p>
+<p><strong>[Bounded Variation of a Stochastic Processes]:</strong><br>&emsp;對於一個 process $X_t$, 考慮一個 partition <span>$\bigtriangleup:0=t_0&lt;t_1&lt;...&lt;t_n=t$</span><!-- Has MathJax --><br>&emsp;如果滿足以下條件, 則稱 $X_t$ is bounded variation:<br>&emsp;<span>$\lim_{|\bigtriangleup|\rightarrow0} \sum_{k=1}^n | X_{t_k}-X_{t_{k-1}} | &lt; \infty$</span><!-- Has MathJax --><br>&emsp;$|\bigtriangleup|\rightarrow0$ 表示:<br>&emsp;<span>$\max_{k=0,...,n}\{|t_k-t_{k-1}|\}\rightarrow0, \text{ for }n\rightarrow0$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>注意到 Brownian motion $W_t$ <strong><em>不是</em></strong> bounded variation</p>
+</blockquote>
+<p><strong>[When Levy Process is Bounded Variation]:</strong><br>&emsp;一個 Levy process $L_t$ 是 <strong><em>bounded variation 若且為若</em></strong><br>&emsp;<span>$$\begin{align}
+\sigma=0 \\
+\int_{|x|&lt;1} x\nu(dx) &lt; \infty
+\end{align}$$</span><!-- Has MathJax --><br>&emsp;條件 $(2)$ 會有如下結果<br>&emsp;<span>$\int_\mathbb{R}iux\cdot\mathbf{1}\{|x|&lt;1\}\nu(dx) = iu\int_{|x|&lt;1}x\nu(dx)&lt;\infty$</span><!-- Has MathJax --><br>&emsp;因此 characteristic exponent 變成:<br>&emsp;<span>$$\Psi(u)=iu\mu-\frac{1}{2}u^2\sigma^2 + \int_{\mathbb{R}}\left(
+e^{iux}-1-
+iux\cdot\mathbf{1}\{|x|&lt;1\}
+\right)\nu(dx) \\
+=iu\mu +
+\int_{\mathbb{R}}(e^{iux}-1)\nu(dx)-iu\int_{|x|&lt;1}x\nu(dx) \\
+= iu\left(\mu-\int_{|x|&lt;1}x\nu(dx)\right) + \int_{\mathbb{R}}(e^{iux}-1)\nu(dx)$$</span><!-- Has MathJax --><br>&emsp;所以 characteristic function: <span>$\Phi(u)=\exp\{t\cdot\Psi(u)\}$</span><!-- Has MathJax --></p>
+<p>重寫一遍, 這很重要<br><span>$$\color{orange}{
+\Psi(u) = iu
+\underbrace{\left(\mu-\int_{|x|&lt;1}x\nu(dx)\right)}_{=\tilde{\mu}}
+ + \int_{\mathbb{R}}(e^{iux}-1)\nu(dx)
+}$$</span><!-- Has MathJax --><br>or<br><span>$$\color{orange}{
+\Psi(u) = iu
+\underbrace{\left(\mu-\int_{|x|&lt;1}x\cdot s(x)dx\right)}_{\tilde{\mu}}
+ + \int_{\mathbb{R}}(e^{iux}-1)\cdot s(x)dx
+}$$</span><!-- Has MathJax --><br>where $s(x)$ is Levy density</p>
+<p><strong>[When Levy Process is C.P.P.]</strong><br>&emsp;一個 Levy process $L_t$ 是 <strong><em>C.P.P. 若且為若</em></strong><br>&emsp;<span>$$\begin{align}
+\sigma=0, \\
+\int_{\mathbb{R}}\nu(dx)=\nu(\mathbb{R})&lt;\infty
+\end{align}$$</span><!-- Has MathJax --><br>&emsp;可以發現這樣的 $L_t$ 也是 bounded variation, 所以也可以簡化</p>
+<p><strong>[When Levy Process is Subordinator]:</strong><br>&emsp;一個 Levy process $L_t$ 稱為 subordinator 如果滿足<br>&emsp;<span>$$\begin{align}
+X_t\geq0\text{ a.s. }\Longleftrightarrow X_t\geq X_s\text{ a.s. }, \forall t\geq s
+\end{align}$$</span><!-- Has MathJax --><br>&emsp;上式會等價是因為 Levy process 的 stationary increment. i.e.<br>&emsp;<span>$X_t-X_s =^d X_{t-s}, \qquad \forall t\geq s$</span><!-- Has MathJax --><br>&emsp;而 Levy process $L_t$ 為 subordinator <strong><em>若且為若</em></strong><br>&emsp;<span>$$\begin{align}
+\sigma=0 \\
+\nu(\mathbb{R}^-)=0 \\
+\int_0^1 x\nu(dx)&lt;\infty
+\end{align}$$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>式 (7) 的 Levy measure 表示 jump 的值一定都是正的 (為負的次數其 measure 為 0)</p>
+</blockquote>
+<p>一樣可以發現這樣的 $L_t$ 也是 bounded variation, 所以也可以簡化<br><img src="/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 11.png" width="75%" height="75%"><br><img src="/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 12.png" width="60%" height="60%"><br>最後一個問題是因為 $\sigma&gt;0$ 表示有 Brownian motion, 所以 variation 不會 bounded</p>
+<hr>
+<h2 id="Week-8-8-Levy-Khintchine-representation-and-Levy-Khintchine-triplet-3"><a href="#Week-8-8-Levy-Khintchine-representation-and-Levy-Khintchine-triplet-3" class="headerlink" title="Week 8.8: Lévy-Khintchine representation and Lévy-Khintchine triplet-3"></a>Week 8.8: Lévy-Khintchine representation and Lévy-Khintchine triplet-3</h2><h3 id="Recap"><a href="#Recap" class="headerlink" title="Recap"></a>Recap</h3><p>Levy process 常用來描述 jumps, recap Levy process $L_t$<br>其 characteristic exponent 為<br><span>$$\Psi(u)=iu\mu-\frac{1}{2}u^2\sigma^2 + \int_{\mathbb{R}}\left(
+e^{iux}-1-
+iux\cdot\mathbf{1}\{|x|&lt;1\}
+\right)\nu(dx)$$</span><!-- Has MathJax --><br>然後 characteristic function 為<br><span>$\Phi_{L_t}(u)=\exp\{t\cdot \Psi(u)\}$</span><!-- Has MathJax --><br>而 $\nu(x)$ 是 Levy measure<br><span>$\nu(B)=\int_B s(x)dx$</span><!-- Has MathJax --><br>稱 $s(x)$ 為 Levy density, 滿足<br><span>$$\begin{align}
+\int_{|x|&lt;1} x^2\nu(dx) =\int_{|x|&lt;1} x^2s(x)dx&lt;\infty \\
+\int_{|x|\geq1} \nu(dx)=\int_{|x|\geq1} s(x)dx&lt;\infty
+\end{align}$$</span><!-- Has MathJax --></p>
+<h3 id="Recap-結束"><a href="#Recap-結束" class="headerlink" title="Recap 結束"></a>Recap 結束</h3><p>由 Levy measure and density 式子 (9) and (10) 知道, characteristic exponent 的積分項存在, 分析如下<br><span>$$\int_{\mathbb{R}}\left(
+e^{iux}-1-
+iux\cdot\mathbf{1}\{|x|&lt;1\}
+\right)\nu(dx) \\
+= \int_{|x|&lt;1}\left(e^{iux}-1-iux\right)\nu(dx)
++ \int_{|x|\geq1}(e^{iux}-1)\nu(dx) \\
+\leq \int_{|x|&lt;1}\left(O(x^2)\cdot u^2\right)\nu(dx) + \int_{|x|\geq1}2\nu(dx)&lt;\infty$$</span><!-- Has MathJax --><br>我們可以分析 $r$ 最小可以多小, 使得下式仍滿足<br><span>$\int_{|x|&lt;1}x^r\nu(dx)&lt;\infty$</span><!-- Has MathJax --><br>我們知道如果 $r$ 滿足的話, 則 $\forall s<r$ 也都滿足,="" 因此我們可以找到一個最小的="" $r$,="" 該="" $r$="" 定義為="" blumenthal-getoor="" (bg)="" index="" <span="">$$BG(\nu):=\inf\left\{
+r:\int_{|x|&lt;1}x^r\nu(dx)&lt;\infty
+\right\}$$<!-- Has MathJax --></r$></p>
+<p><strong>[Stable Processes Def]:</strong><br>&emsp;Stable processes are Levy processes which have stable distribution at any time moment.</p>
+<p>以下照老師的說法寫下的, 不是很肯定<br><strong>[Levy Process Defined by Stable Process]:</strong><br>&emsp;$S_t$ is a Levy process if $\forall a&gt;0$, <span>$\exists b:\mathbb{R}^+\rightarrow\mathbb{R}$</span><!-- Has MathJax -->, $\alpha\in(0,2]$, such that<br>&emsp;<span>$$\left\{ S_{at}\right\}_{t\geq0}
+=^d
+\left\{ a^{1/\alpha}S_t+b(t)\right\}_{t\geq0}$$</span><!-- Has MathJax --></p>
+<p>Brownian motion is a stable process, 因為 $\alpha=2$, $b(t)=0$ 滿足上式<br><span>$W_{at}\sim\mathcal{N}(0,at)\sim\sqrt{2}\cdot\mathcal{N}(0,t)\sim\sqrt{2}\cdot W_t$</span><!-- Has MathJax --></p>
+<p>For stable processes, $BG(\nu)=\alpha$</p>
+<p>如果 $\alpha\approx0$, 則 trajectories 會很接近 C.P.P., 而如果 $\alpha\approx2$, 則 trajectories 會很接近 Brownian motion, 其他則介於中間的兩者混合<br><img src="/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 13.png" width="60%" height="60%"></p>
+<hr>
+<h2 id="Week-8-9-Modelling-of-jump-type-dynamics-Levy-based-models"><a href="#Week-8-9-Modelling-of-jump-type-dynamics-Levy-based-models" class="headerlink" title="Week 8.9: Modelling of jump-type dynamics. Lévy-based models"></a>Week 8.9: Modelling of jump-type dynamics. Lévy-based models</h2><p>這節主要講如何從 data 去 estimate 出對應的 Levy process<br>$X_t$ is a Levy process with bounded variation, 所以特徵方程式為:<br><span>$$\Phi_{X_\Delta}(u) = \exp\left\{
+\Delta\cdot\left(
+iu\tilde\mu+\int_\mathbb{R}(e^{iux}-1)s(x)dx
+\right)
+\right\}$$</span><!-- Has MathJax --><br>對其一次和二次微分:<br><img src="/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 14.png" width="70%" height="70%"></p>
+<p>注意到二次微分跑出了一個 Fourier transform 項, 所以改寫一下變成<br><span>$$\begin{align}
+\mathcal{F}[x^2s(x)](u)=\frac{-1}{\Delta}\cdot\left(
+\frac{\Phi_{X_\Delta}&apos;&apos;(u)}{\Phi_{X_\Delta}(u)} - \left(\frac{\Phi_{X_\Delta}&apos;(u)}{\Phi_{X_\Delta}(u)}\right)^2
+\right)
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>所以如果我們有如下的 data:<br><span>$X_\Delta,X_{2\Delta},...,X_{n\Delta}$</span><!-- Has MathJax --></p>
+<p>我們可以估計出 $\Phi$ 如下:<br><span>$$\hat{\Phi}_{X_\Delta}(u)=\frac{1}{n}\sum_{k=1}^n \exp\left\{iu\left(X_{k\Delta}-X_{(k-1)\Delta}\right)
+\right\}$$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>我不是很懂為何可以這麼估計, 發<a href="https://www.coursera.org/learn/stochasticprocesses/discussions/weeks/8/threads/eCX821BKEeyrGQ6wZtNVcQ" target="_blank" rel="external">問題到論壇</a>了.</p>
+</blockquote>
+<p>因此對其微分也就得到估計的 $\hat\Phi’,\hat\Phi’’$, 然後可以得到式 (11) 的結果, 再對其求 inverse Fourier transform 可以得到 Levy density $s(x)$</p>
+<p>老實說沒有例子很難想像怎麼做…. 🙁</p>
+<hr>
+<h2 id="Week-8-10-Time-changed-stochastic-processes-Monroe-theorem"><a href="#Week-8-10-Time-changed-stochastic-processes-Monroe-theorem" class="headerlink" title="Week 8.10: Time-changed stochastic processes. Monroe theorem"></a>Week 8.10: Time-changed stochastic processes. Monroe theorem</h2><p>有始有終吧, 最後一課了!!<br>說明一些 Levy-based model<br>課程說單純的 Levy process 對於真實情況仍過於簡化, 因此要有一些變形, 其中一個例子是 stochastic time change model</p>
+<p><strong>[Stochastic Time Change Model]:</strong><br>&emsp;$X_t$ is a Levy process, 其中 $t=T(s)$, $T(s)$ 是一個 subordinator Levy process, 所以變成 <span>$X_{T(s)}$</span><!-- Has MathJax --><br>&emsp;同時如果 <span>$X_t\perp T(s)$</span><!-- Has MathJax --> 則 <span>$X_{T(s)}$</span><!-- Has MathJax --> 也會是 Levy process</p>
+<p>一個例子如下圖, $t$ 有時很密集, 有時很鬆散<br><img src="/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 15.png" width="75%" height="75%"></p>
+<p>$T(s)$ 是 cumulative amount of transactions in time interval $[0,s]$</p>
+<p>第二個例子真的聽不懂…</p>
+<p>課程結束! 最後剩 Quiz and Final Exam! 👏</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/" title="Stochastic Processes Week 8 Lévy processes">http://yoursite.com/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Coursera/" rel="tag"># Coursera</a>
+          
+            <a href="/tags/Stochastic-Processes/" rel="tag"># Stochastic Processes</a>
+          
+            <a href="/tags/Levy-Processes/" rel="tag"># Lévy Processes</a>
+          
+            <a href="/tags/Characteristic-Exponent/" rel="tag"># Characteristic Exponent</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/" rel="next" title="Stochastic Processes Week 7 Stochastic integration & Itô formula">
+                <i class="fa fa-chevron-left"></i> Stochastic Processes Week 7 Stochastic integration & Itô formula
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">68</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">138</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-8-1-Definition-of-a-Levy-process-Stochastic-continuity-and-cadlag-paths"><span class="nav-number">1.</span> <span class="nav-text">Week 8.1: Definition of a Lévy process. Stochastic continuity and càdlàg paths</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-8-2-Examples-of-Levy-processes-Calculation-of-the-characteristic-function-in-particular-cases"><span class="nav-number">2.</span> <span class="nav-text">Week 8.2: Examples of Lévy processes. Calculation of the characteristic function in particular cases</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-8-3-Relation-to-the-infinitely-divisible-distributions"><span class="nav-number">3.</span> <span class="nav-text">Week 8.3: Relation to the infinitely divisible distributions</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-8-4-Characteristic-exponent"><span class="nav-number">4.</span> <span class="nav-text">Week 8.4: Characteristic exponent</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-8-5-Properties-of-a-Levy-process-which-directly-follow-from-the-existence-of-characteristic-exponent"><span class="nav-number">5.</span> <span class="nav-text">Week 8.5: Properties of a Lévy process, which directly follow from the existence of characteristic exponent</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-8-6-Levy-Khintchine-representation-and-Levy-Khintchine-triplet-1"><span class="nav-number">6.</span> <span class="nav-text">Week 8.6: Lévy-Khintchine representation and Lévy-Khintchine triplet-1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-8-7-Levy-Khintchine-representation-and-Levy-Khintchine-triplet-2"><span class="nav-number">7.</span> <span class="nav-text">Week 8.7: Lévy-Khintchine representation and Lévy-Khintchine triplet-2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-8-8-Levy-Khintchine-representation-and-Levy-Khintchine-triplet-3"><span class="nav-number">8.</span> <span class="nav-text">Week 8.8: Lévy-Khintchine representation and Lévy-Khintchine triplet-3</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Recap"><span class="nav-number">8.1.</span> <span class="nav-text">Recap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Recap-結束"><span class="nav-number">8.2.</span> <span class="nav-text">Recap 結束</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-8-9-Modelling-of-jump-type-dynamics-Levy-based-models"><span class="nav-number">9.</span> <span class="nav-text">Week 8.9: Modelling of jump-type dynamics. Lévy-based models</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-8-10-Time-changed-stochastic-processes-Monroe-theorem"><span class="nav-number">10.</span> <span class="nav-text">Week 8.10: Time-changed stochastic processes. Monroe theorem</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
