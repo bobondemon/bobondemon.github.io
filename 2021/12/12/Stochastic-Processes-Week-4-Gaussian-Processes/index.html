@@ -1,0 +1,981 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Gaussian Process,Coursera,Stochastic Processes,Gaussian Vector,Brownian Motion," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識
+Week 1: Introduction &amp;amp; Renewal processes
+Week 2: Poisson Processes
+Week3: Markov Chains
+Week 4: Gaussian Processes (本文)
+Week 5: Station">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Stochastic Processes Week 4 Gaussian Processes">
+<meta property="og:url" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識
+Week 1: Introduction &amp;amp; Renewal processes
+Week 2: Poisson Processes
+Week3: Markov Chains
+Week 4: Gaussian Processes (本文)
+Week 5: Station">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/Untitled.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/Untitled 1.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/Untitled 2.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/W4_7_trajectories.drawio.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/Untitled 3.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/Untitled 4.png">
+<meta property="og:updated_time" content="2021-12-12T11:03:24.940Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Stochastic Processes Week 4 Gaussian Processes">
+<meta name="twitter:description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識
+Week 1: Introduction &amp;amp; Renewal processes
+Week 2: Poisson Processes
+Week3: Markov Chains
+Week 4: Gaussian Processes (本文)
+Week 5: Station">
+<meta name="twitter:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/Untitled.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/"/>
+
+
+
+
+
+  <title> Stochastic Processes Week 4 Gaussian Processes | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Stochastic Processes Week 4 Gaussian Processes
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2021-12-12T17:55:59+08:00">
+                2021-12-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p><a href="https://www.coursera.org/learn/stochasticprocesses?" target="_blank" rel="external">Coursera Stochastic Processes</a> 課程筆記, 共九篇:</p>
+<ul>
+<li><a href="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-0-%E4%B8%80%E4%BA%9B%E9%A0%90%E5%82%99%E7%9F%A5%E8%AD%98/" target="_blank" rel="external">Week 0: 一些預備知識</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/" target="_blank" rel="external">Week 1: Introduction &amp; Renewal processes</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/" target="_blank" rel="external">Week 2: Poisson Processes</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/" target="_blank" rel="external">Week3: Markov Chains</a></li>
+<li><strong>Week 4: Gaussian Processes (本文)</strong></li>
+<li>Week 5: Stationarity and Linear filters</li>
+<li>Week 6: Ergodicity, differentiability, continuity</li>
+<li>Week 7: Stochastic integration &amp; Itô formula</li>
+<li>Week 8: Lévy processes </li>
+</ul>
+<a id="more"></a>
+<hr>
+<h2 id="Week-4-1-Random-vector-Definition-and-main-properties"><a href="#Week-4-1-Random-vector-Definition-and-main-properties" class="headerlink" title="Week 4.1: Random vector. Definition and main properties"></a>Week 4.1: Random vector. Definition and main properties</h2><p>Normal distribution of one r.v.<br><span>$$X\sim\mathcal{N}(\mu,\sigma^2), \text{ for }\sigma&gt;0,\mu\in\mathbb{R} \\
+p(x)=\frac{1}{\sqrt{2\pi}\sigma} e^{-\frac{(x-\mu)^2}{2\sigma^2}}$$</span><!-- Has MathJax --><br>The characteristic function of normal distribution is:<br><span>$\Phi(u)=e^{iu\mu-\frac{1}{2}u^2\sigma^2}$</span><!-- Has MathJax --><br>我們可以說一個 random variable $X$ almost surely constant $=\mu$ 表示如下:<br><span>$\mathcal{P}\{X=\mu\}=1$</span><!-- Has MathJax --><br>如果此時也定義 $\sigma=0$, 我們可將其也視為 normal distribution $\mathcal{N}(\mu,0)$</p>
+<blockquote>
+<p>等於把 constant 也加入 normal distribution 的定義</p>
+</blockquote>
+<p><strong>[Gaussian Vector Def]:</strong><br>&emsp;A random vector <span>$\vec{X}=(X_1,...,X_n)$</span><!-- Has MathJax --> is Gaussian if and only if<br>&emsp;<span>$$(\star):\sum_{k=1}^n \lambda_k X_k \sim \mathcal{N}\\
+\forall(\lambda_1,...,\lambda_n)\in\mathbb{R}$$</span><!-- Has MathJax --></p>
+<hr>
+<h2 id="Week-4-2-Gaussian-vector-Definition-and-main-properties"><a href="#Week-4-2-Gaussian-vector-Definition-and-main-properties" class="headerlink" title="Week 4.2: Gaussian vector. Definition and main properties"></a>Week 4.2: Gaussian vector. Definition and main properties</h2><p>Definition of multivariate characteristic function, ref from wiki<br><img src="/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/Untitled.png" width="50%" height="50%"><br>我們說明一下為何 $C$ (covariance matrix) is positive semi-definite, 檢查 <span>$\vec{u}^TC\vec{u},\forall \vec{u}$</span><!-- Has MathJax --><br><span>$$\vec{u}^TC\vec{u} = \sum_{k,j=1}^n u_k c_{kj} u_j = \sum_{k,j=1}^n u_k Cov(X_j,X_k) u_j \\
+= Cov\left(\sum_{j=1}^n u_jX_j,\sum_{k=1}^n u_kX_k\right) = Var\left(\sum_{j=1}^n u_jX_j\right) \geq 0$$</span><!-- Has MathJax --></p>
+<p><strong>[Gaussian Vector Thm]:</strong><br>&emsp;$\vec{X}$ is Gaussian vector if and only if any of the following conditions holds:<br>&emsp;1. Characteristic function of Gaussian vector:<br>&emsp;<span>$$(\square): \Phi_{\vec{X}}(\vec{u})=\mathbb{E}\left[ e^{i\cdot \vec{u}^T\vec{X}} \right]
+= \exp\left\{ i\cdot \vec{u}^T\vec{\mu} - \frac{1}{2}\vec{u}^TC\vec{u} \right\} \\
+\text{where }\vec{\mu}\in\mathbb{R}^n; C\in\mathbb{R}^{n\times n}\text{-positive semi-definite}$$</span><!-- Has MathJax --><br>&emsp;&emsp;同時 $\vec{\mu}$ and $C$ 為<br>&emsp;<span>$$\vec{\mu}=(\mathbb{E}X_1,...,\mathbb{E}X_n) \\
+C=\left(c_{jk}\right)_{j,k=1}^n; c_{jk}=Cov(X_j,X_k)$$</span><!-- Has MathJax --><br>&emsp;2. Can be represented by Standard Gaussian vector $\vec{X^o}$<br>&emsp;<span>$$(\blacksquare):\vec{X}=A\cdot \vec{X^o}+\vec{\mu} \\
+\text{where }A\in\mathbb{R}^{n\times n},\vec{X^o}\text{ is standard Gaussin vector}$$</span><!-- Has MathJax --><br>&emsp;&emsp;同時 $A=C^{1/2}$, i.e. $AA=C$</p>
+<blockquote>
+<p>要寫出 $A$ 只要將 $C$ 對角化, 然後對中間的 diagonal matrix (eigenvalues 組成的) 取 <code>sqrt</code> 即可</p>
+</blockquote>
+<p>[Proof]:<br>&emsp;我們先證明 Definition $(\star)\Rightarrow 1.(\square)$<br>&emsp;Let <span>$\xi=\vec{u}^T\vec{X}=\sum_{k=1}^n u_kX_k$</span><!-- Has MathJax --> 根據定義 <span>$\xi\sim\mathcal{N}$</span><!-- Has MathJax --><br>&emsp;我們將 $\vec{X}$ 的特徵方程式寫出來:<br>&emsp;<span>$\Phi_{\vec{X}}(\vec{u})=\mathbb{E} [e^{i\vec{u}^T\vec{X}}]=\mathbb{E}[e^{i\xi\cdot1}]=\Phi_\xi(1)$</span><!-- Has MathJax --><br>&emsp;因為 $\xi\sim\mathcal{N}$, 所以特徵方程式是知道的:<br>&emsp;<span>$\Phi_\xi(1)=\exp\left(i\mu_\xi-\frac{1}{2}\sigma_\xi^2\right)$</span><!-- Has MathJax --><br>&emsp;所以我們只需計算出 <span>$\mu_\xi,\sigma_\xi^2$</span><!-- Has MathJax --> 在代回去即可<br>&emsp;<span>$\mu_\xi=\mathbb{E}\left[\sum_{k=1}^n u_kX_k\right] = \sum_{k=1}^n u_k \mu_k = \vec{u}^T \vec{\mu}$</span><!-- Has MathJax --><br>&emsp;<span>$$\sigma_\xi^2 = cov\left( \sum_{k=1}^n u_k X_k, \sum_{j=1}^n u_j X_j \right) \\
+= \sum_{k,j=1}^n u_k\cdot cov(X_k,X_j) \cdot u_j = \vec{u}^TC\vec{u}$$</span><!-- Has MathJax --><br>&emsp;代回去即可發現 $=(\square)$<br>&emsp;Q.E.D.<br>&emsp;我們再證明 $1.(\square)\Rightarrow$ Definition $(\star)$<br>&emsp;因為特徵函數跟 P.D.F. 是一對一對應的, 所以知道 $\vec{X}$ 的特徵函數為 $(\square)$<br>&emsp;很顯然這是 Gaussian 的特徵函數, 所以 $\vec{X}$ 是 Gaussian vector<br>&emsp;證明 $2. (\blacksquare) \Rightarrow 1. (\square)$<br>&emsp;$\vec{X}^o$ is standard Gaussian vector, 我們將它的特徵函數寫下來:<br>&emsp;<span>$\Phi_{\vec{X}^o}(\vec{u}) = \exp\{-\frac{1}{2}\vec{u}^T\vec{u}\}$</span><!-- Has MathJax --><br>&emsp;計算 $\vec{X}$ 的特徵函數:<br>&emsp;<span>$$\text{from }(\blacksquare) \text{ we know that } \Phi_{\vec{X}}(\vec{u})=\mathbb{E}\left[ e^{i\vec{u}^T(A\vec{X}^o+\vec{\mu})} \right] \\
+= e^{i\vec{u}^T\vec{\mu}} \cdot \Phi_{\vec{X}^o}(A^T\vec{u}) \\
+= e^{i\vec{u}^T\vec{\mu}} \cdot e^{-\frac{1}{2}\vec{u}^TAA^T\vec{u}} \\
+= e^{i\vec{u}^T\vec{\mu}} \cdot e^{-\frac{1}{2}\vec{u}^TC\vec{u}} = (\square)$$</span><!-- Has MathJax --><br>&emsp;Q.E.D.<br>&emsp;證明 $1. (\square) \Rightarrow 2. (\blacksquare)$<br>&emsp;我們定義 $A:=C^{1/2}$, 則代入 $(\square)$ 再整理一下可以得到這是一個 $\vec{X}=A\cdot \vec{X^o}+\vec{\mu}$ 的特徵函數<br>&emsp;Q.E.D.</p>
+<hr>
+<h2 id="Week-4-3-Connection-between-independence-of-normal-random-variables-and-absence-of-correlation"><a href="#Week-4-3-Connection-between-independence-of-normal-random-variables-and-absence-of-correlation" class="headerlink" title="Week 4.3: Connection between independence of normal random variables and absence of correlation"></a>Week 4.3: Connection between independence of normal random variables and absence of correlation</h2><p><strong>[Thm]:</strong><br>&emsp;Let $X_1,X_2\sim\mathcal{N}(0,1)$ and $corr(X_1,X_2)=0$, 則<br>&emsp;<span>$X_1 \perp X_2 \Longleftrightarrow (X_1,X_2) \text{ is Gaussian vector}$</span><!-- Has MathJax --><br>[Proof]:<br>&emsp;證明 $(\Rightarrow)$<br>&emsp;<span>$\lambda_1 X_1+\lambda_2 X_2 \sim \mathcal{N} \Longrightarrow (X_1,X_2) \text{ is Gaussian vector}$</span><!-- Has MathJax --><br>&emsp;可以從特徵方程式對於獨立 r.v.s 的線性組合, 以及 Gaussian 的特徵方程式看出來<br><img src="/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/Untitled 1.png" width="75%" height="75%"><br>&emsp;證明 $(\Leftarrow)$<br>&emsp;因為 uncorrelated<br>&emsp;<span>$$\therefore
+C=\left[
+\begin{array}{c}
+1 &amp; 0 \\
+0 &amp; 1
+\end{array}
+\right] \Rightarrow A=\left[
+\begin{array}{c}
+1 &amp; 0 \\
+0 &amp; 1
+\end{array}
+\right]=C^{1/2}$$</span><!-- Has MathJax --><br>&emsp;定理 $2. (\blacksquare)$ 告訴我們 $(X_1,X_2)$ 可以改寫如下:<br>&emsp;<span>$$\left[
+\begin{array}{c}
+X_1 \\ X_2
+\end{array}
+\right]
+=^d \left[
+\begin{array}{c}
+1 &amp; 0 \\
+0 &amp; 1
+\end{array}
+\right]
+\left[
+\begin{array}{c}
+\xi_1 \\
+\xi_2
+\end{array}
+\right] +
+\left[
+\begin{array}{c}
+0 \\
+0
+\end{array}
+\right]$$</span><!-- Has MathJax --><br>&emsp;$=^d$ 表示相同分布, $\xi_1,\xi_2\sim\mathcal{N}(0,1)$<br>&emsp;乘開來就發現 $X_1 =^d \xi_1$ and $X_2 =^d \xi_2$, 因此 $X_1 \perp X_2$<br>&emsp;Q.E.D.</p>
+<p>[Exercise1]:<br>&emsp;Given <span>$X_1\sim\mathcal{N}(0,1)$</span><!-- Has MathJax -->, <span>$\mathcal{P}\{\xi=1\}=0.5; \mathcal{P}\{\xi=-1\}=0.5$</span><!-- Has MathJax -->,<br>&emsp;and $\xi\perp X_1$<br>&emsp;考慮 $X_2 = |X_1|\cdot \xi$, 證明 $X_2 \sim \mathcal{N}(0,1)$<br>[Proof]:<br>&emsp;<span>$$\mathcal{P}\{X_2\leq x\},\forall x&gt;0\\
+= \mathcal{P}\{|X_1|\leq x | \xi=1\}\mathcal{P}\{\xi=1\}
++ \mathcal{P}\{|X_1|\geq -x | \xi=-1\}\mathcal{P}\{\xi=-1\} \\
+\text{Note }(X_1\perp\xi\text){ }= \mathcal{P}\{|X_1|\leq x\}/2 + \mathcal{P}\{|X_1|\geq -x\}/2 \\
+\text{Note }(\mathcal{P}\{|X_1|\geq-x\}=1) = \frac{1}{2}\left( 1+\mathcal{P}\{|X_1|\leq x\} \right)\\
+\text{by std normal} = \mathcal{P}\{X_1\leq x\}$$</span><!-- Has MathJax --><br>&emsp;注意到 Standard normal <span>$\mathcal{P}\{X_1\geq x\}=\mathcal{P}\{X_1\leq -x\}$</span><!-- Has MathJax -->, 所以<br>&emsp;<span>$$\frac{1}{2}\left( 1+\mathcal{P}\{|X_1|\leq x\}\right)
+= \frac{1}{2}\left( 1 +\mathcal{P}\{X_1\leq x\}-\mathcal{P}\{X_1\leq -x\}\right) \\
+= \frac{1}{2}\left( {\color{orange}1} +\mathcal{P}\{X_1\leq x\}-\mathcal{P}\{X_1\geq x\}\right) \\
+= \frac{1}{2}\left( \color{orange}{\mathcal{P}\{X_1\leq x\}+\mathcal{P}\{X_1\geq x\}} +\mathcal{P}\{X_1\leq x\}-\mathcal{P}\{X_1\geq x\}\right) \\
+= \mathcal{P}\{X_1\leq x\}$$</span><!-- Has MathJax --><br>&emsp;Q.E.D.</p>
+<p>[Exercise2]:<br>&emsp;Given <span>$X_1\sim\mathcal{N}(0,1)$</span><!-- Has MathJax -->, <span>$\mathcal{P}\{\xi=1\}=0.5; \mathcal{P}\{\xi=-1\}=0.5$</span><!-- Has MathJax -->, and $\xi\perp X_1$<br>&emsp;考慮 $X_2 = |X_1|\cdot \xi$, 證明 $cov(X_1,X_2)=0$<br>[Proof]:<br>&emsp;<span>$$cov(X_1,X_2)=\mathbb{E}[X_1X_2]-\mathbb{E}[X_1]\mathbb{E}[X_2] \\
+=\mathbb{E}[X_1\cdot|X_1|\cdot\xi]-0\cdot \mathbb{E}[X_2] \\
+=\mathbb{E}[X_1\cdot|X_1|] \mathbb{E}[\xi] = \mathbb{E}[X_1\cdot|X_1|]\cdot 0=0$$</span><!-- Has MathJax --><br>&emsp;Q.E.D.</p>
+<p>[Exercise3]:<br>&emsp;Given <span>$X_1\sim\mathcal{N}(0,1)$</span><!-- Has MathJax -->, <span>$\mathcal{P}\{\xi=1\}=0.5; \mathcal{P}\{\xi=-1\}=0.5$</span><!-- Has MathJax -->, and $\xi\perp X_1$<br>&emsp;考慮 $X_2 = |X_1|\cdot \xi$, 證明 $X_1$ and $X_2$ are dependent<br>[Proof]:<br>&emsp;由 Exercise 1 &amp; 2 我們知道 $X_1,X_2\sim\mathcal{N}(0,1)$ and $corr(X_1,X_2)=0$<br>&emsp;則如果 $X_1\perp X_2$, 等價於說明 $(X_1,X_2)$ 是 Gaussian vector.<br>&emsp;利用反證法, 如果是 Gaussian vector 則滿足 linear combination 仍是 normal distribution:<br>&emsp;<span>$Z=X_1-X_2=X_1-|X_1|\xi \sim \mathcal{N}$</span><!-- Has MathJax --><br>&emsp;考慮<br>&emsp;<span>$$(a)\ldots \mathcal{P}\{Z&gt;0\} \geq \mathcal{P}\{X_1&gt;0,\xi=-1\} \\
+= \mathcal{P}\{X_1&gt;0\}\mathcal{P}\{\xi=-1\}=1/4 \\
+(b)\ldots \mathcal{P}\{Z=0\} \geq \mathcal{P}\{X_1&gt;0,\xi=1\} \\
+=\mathcal{P}\{X_1&gt;0\}\mathcal{P}\{\xi=1\}=1/4$$</span><!-- Has MathJax --><br>&emsp;條件 $(a),(b)$ 不可能同時滿足, 因為如果 $\sigma^2&gt;0$ 則 <span>$\mathcal{P}\{Z=0\}=0$</span><!-- Has MathJax --> 矛盾 $(b)$<br>&emsp;否則就是 $\sigma^2=0$, i.e. constant, 明顯矛盾<br>&emsp;Q.E.D.</p>
+<blockquote>
+<p>Exercise 1, 2, &amp; 3 告訴我們, 可以有兩個 normal r.v.s 是 uncorrelated 但不是 independet</p>
+</blockquote>
+<p><img src="/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/Untitled 2.png" width="100%" height="100%"></p>
+<hr>
+<h2 id="Week-4-4-5-Definition-of-a-Gaussian-process-Covariance-function"><a href="#Week-4-4-5-Definition-of-a-Gaussian-process-Covariance-function" class="headerlink" title="Week 4.4-5: Definition of a Gaussian process. Covariance function"></a>Week 4.4-5: Definition of a Gaussian process. Covariance function</h2><p><strong>[Gaussian Processes Def]:</strong><br>&emsp;A Gaussian process $X_t$ is a stochastic process if<br>&emsp;<span>$\forall t_1, ..., t_n: (X_{t_1},...,X_{t_n})$</span><!-- Has MathJax --> is a Gaussian vector</p>
+<p>Denotes two terms $m(t)$ and $K(t,s)$:<br><span>$m(t)=\mathbb{E}X_t$</span><!-- Has MathJax -->, mathmetical expectation, <span>$\mathbb{R}_+\rightarrow\mathbb{R}$</span><!-- Has MathJax --><br>$K(t,s)=Cov(X_t,X_s)$, covariance function, <span>$\mathbb{R}_+\times\mathbb{R}_+\rightarrow \mathbb{R}$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>$K(t,t)=Var[X_t]$<br>$K(t,s)=K(s,t)$</p>
+</blockquote>
+<p><strong>[Covariance function $K(t,s)$ is positive semi-definite]:</strong><br>&emsp;For a Gaussian process $X_t$, $K(t,s)$ is positive semi-definite<br>[Proof]:<br>&emsp;考慮 <span>$\forall(t_1,...,t_n)\in\mathbb{R}_+^n$</span><!-- Has MathJax --> and $\forall(u_1,…,u_n)\in\mathbb{R}^n$, 則<br>&emsp;<span>$$\sum_{k,j=1}^n u_k u_j K(t_k,t_j) = Cov\left(\sum_{k=1}^n u_k X_{t_k}, \sum_{j=1}^n u_j X_{t_j}\right) \\
+= Var\left(\sum_{k=1}^n u_k X_{t_k}\right) \geq 0$$</span><!-- Has MathJax --><br>&emsp;Q.E.D.</p>
+<p><strong>[Gaussian Processes Thm]:</strong><br>&emsp;若 <span>$m:\mathbb{R}_+\rightarrow\mathbb{R}$</span><!-- Has MathJax --> 和 <span>$K:\mathbb{R}_+\times\mathbb{R}_+\rightarrow\mathbb{R}$</span><!-- Has MathJax --> 為任意 functions 滿足<br>&emsp;$K$ is symmetric positive semi-definite, 則<br>&emsp;$\exists$ Gaussian process $X_t:$<br>&emsp;<span>$$\begin{align}
+\mathbb{E}X_t=m(t) \\
+Cov(X_t,X_s)=K(t,s)
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>討論一下 sufficient statistics<br>&emsp;- Gaussian random variable: <span>$\mu\in\mathbb{R}$</span><!-- Has MathJax -->, and <span>$\sigma\in\mathbb{R}_+$</span><!-- Has MathJax --><br>&emsp;- Gaussian vector: <span>$\vec{\mu}\in\mathbb{R}^n$</span><!-- Has MathJax -->, and <span>$C\in\mathbb{R}^{n\times n}$</span><!-- Has MathJax --> and is symmetric positive semi-definite<br>&emsp;- Gaussian process: <span>$m:\mathbb{R}_+\rightarrow\mathbb{R}$</span><!-- Has MathJax -->, and <span>$K:\mathbb{R}_+\times\mathbb{R}_+\rightarrow\mathbb{R}$</span><!-- Has MathJax --> and is symmetric positive semi-definite</p>
+<p>[Example1]: $K(t,s)=|t-s|$, 證明不是 positive semi-definite<br>[Proof]:<br>&emsp;如果 $K$ 是半正定, 則存在 Gaussian process $X_t$ such that<br>&emsp;<span>$Cov(X_t,X_s)=|t-s|$</span><!-- Has MathJax --><br>&emsp;則可發現 $Var(X_t)=0$, 因此 $X_t=f(t)$ 是 deterministic function, i.e. constat<br>&emsp;因此<br>&emsp;<span>$Cov(X_t,X_s)=\mathbb{E}[X_tX_s]-\mathbb{E}[X_t]\mathbb{E}[X_s]=0$</span><!-- Has MathJax --><br>&emsp;明顯不是半正定, Q.E.D.</p>
+<p><strong>[Example2]: $K(t,s)=\min(t,s)$, 證明是半正定</strong><br>[Proof]:<br>&emsp;能否證明<br>&emsp;<span>$(\star)\ldots\sum_{j,k=1}^n u_j u_k \min(t_j,t_k) \geq 0$</span><!-- Has MathJax --><br>&emsp;我們導入 $f_t(x)$ 幫忙推導<br>&emsp;<span>$f_t(x)=\mathbf{1}\{x\in[0,t]\}, \text{ where }\mathbf{1}\{\cdot\} \text{ is indicator function} \\$</span><!-- Has MathJax --><br>&emsp;則<br>&emsp;<span>$\min(t,s)=\int_0^\infty f_t(x)f_s(x) dx$</span><!-- Has MathJax --><br>&emsp;代入 $(\star)$ 得到<br>&emsp;<span>$$\sum_{j,k=1}^n u_j u_k \int_0^\infty f_{t_j}(x)f_{t_k}(x)dx \\
+= \int_0^\infty
+\left(\sum_{j=1}^n u_j f_{t_j}(x) \right)
+\left(\sum_{k=1}^n u_k f_{t_k}(x) \right) dx \\
+=\int_0^\infty \left(\sum_{j=1}^n u_j f_{t_j}(x) \right)^2 dx \geq 0$$</span><!-- Has MathJax --><br>&emsp;Q.E.D.</p>
+<hr>
+<h2 id="Week-4-6-Two-definitions-of-a-Brownian-motion"><a href="#Week-4-6-Two-definitions-of-a-Brownian-motion" class="headerlink" title="Week 4.6: Two definitions of a Brownian motion"></a>Week 4.6: Two definitions of a Brownian motion</h2><p>Brownian Motion 又稱 Wiener process<br><strong>[Brownian Motion Def1]:</strong><br>&emsp;We say that $B_t$ is Brownian motion if and only if<br>&emsp;$B_t$ is a Gaussin process with $m(t)=0$ and $K(t,s)=\min(t,s)$</p>
+<p><strong>[Brownian Motion Def2]:</strong><br>&emsp;We say that $B_t$ is Brownian motion if and only if<br>&emsp;$(0)$ $B_0=0$ almost surely (a.s.)<br>&emsp;$(1)$ $B_t$ is independent increaments, i.e.<br>&emsp;&emsp;<span>$\forall t_0&lt;t_1&lt;...&lt;t_n$</span><!-- Has MathJax -->, we have <span>$B_{t_1}-B_{t_0}, ..., B_{t_n}-B_{t_{n-1}}$</span><!-- Has MathJax --> are independent<br>&emsp;$(2)$ <span>$B_t-B_s\sim\mathcal{N}(0,t-s)$</span><!-- Has MathJax -->, $\forall t&gt;s\geq0$</p>
+<p><strong>[證明 Def1 $\Rightarrow$ Def2]:</strong><br>&emsp;先證明 $(0)$, 我們知道 $\mathbb{E}B_0 = m(0)=0$, $Var(B_0)=K(B_0, B_0)=0$<br>&emsp;所以 $B_0=0$ a.s.<br>&emsp;再來證明 $(1)$: $B_b-B_a \perp B_d-B_c, \forall 0\leq a\leq b\leq c\leq d$<br>&emsp;我們先證明它們是 uncorrelated<br>&emsp;<span>$$Cov(B_b-B_a, B_d-B_c)  \\
+=Cov(B_b,B_d) - Cov(Ba,B_d) - Cov(B_b,B_c) + Cov(B_a,B_c) \\
+= b-a-b+a = 0$$</span><!-- Has MathJax --><br>&emsp;所以 $B_b-B_a$ uncorrelated with $B_d-B_c$<br>&emsp;之前我們學過, 如果 $(B_b-B_a, B_d-B_c)$ 是 Gaussian vector 的話<br>&emsp;uncorrelated 等同於 independent<br>&emsp;所以我們用 Gaussian vector 的定義來證明:<br>&emsp;<span>$$\lambda_1(B_b-B_a)+\lambda_2(B_d-B_c) \\
+= \lambda_1B_b-\lambda_1B_a+\lambda_2B_d-\lambda_2B_c \\
+\text{by Def1 }\sim \mathcal{N}$$</span><!-- Has MathJax --><br>&emsp;證得 $(B_b-B_a, B_d-B_c)$ 是 Gaussian vector 且已證過 uncorrelated, 所以 independent<br>&emsp;最後證明 $(2)$:<br>&emsp;首先 $B_t-B_s\sim\mathcal{N}$, 因為 by Def1 $B_t$ is Gaussian process, 所以線性組合也是 Gaussian<br>&emsp;$\mathbb{E}[B_t-B_s]=\mathbb{E}[B_t]-\mathbb{E}[B_s]=m(t)-m(s)=0$<br>&emsp;<span>$$Var[B_t-B_s]=Cov(B_t-B_s,B_t-B_s) \\
+= Cov(B_t,B_t)-2Cov(B_t,B_s)+Cov(B_s,B_s) \\
+= t-s$$</span><!-- Has MathJax --><br>&emsp;Q.E.D.</p>
+<p><strong>[證明 Def2 $\Rightarrow$ Def1]:</strong><br>&emsp;我們先證明是 Gaussian process, <span>$\forall t_1&lt;t_2&lt;...&lt;t_n$</span><!-- Has MathJax --> 考慮<br>&emsp;<span>$$\sum_{k=1}^n \lambda_k B_{t_k} = \lambda_n(B_{t_n}-B_{t_{n-1}}) + (\lambda_n+\lambda_{n-1})B_{t_{n-1}} + \sum_{k=1}^{n-2} \lambda_k B_{t_k} \\
+= \sum_{k=1}^n d_k(B_{t_n}-B_{t_{n-1}}) \\
+\text{by sum of independent Guassian is also Gaussian} \sim \mathcal{N}$$</span><!-- Has MathJax --><br>&emsp;所以 <span>$(B_{t_1},...,B_{t_n})$</span><!-- Has MathJax --> 是 Gaussian vector implies that $B_t$ 是 Gaussian process<br>&emsp;是 Gaussian process 後, 我們找一下 $m(t),K(t,s)$<br>&emsp;首先注意到我們有 <span>$B_t=B_t-B_0\sim\mathcal{N}(0,t)$</span><!-- Has MathJax --><br>&emsp;所以 $m(t)=\mathbb{E}B_t=0$<br>&emsp;接著計算 $K(t,s)$, for $t&gt;s$<br>&emsp;<span>$$K(t,s)=Cov(B_t,B_s) \\
+= Cov(B_t-B_s+B_s,B_s) \\
+= Cov(B_t-B_s, B_s) + Cov(B_s,B_s) \\
+= Cov(B_t-B_s, B_s-B_0) + s \\
+\text{by indep. increment }= 0 + s = s$$</span><!-- Has MathJax --><br>&emsp;如果 $t&lt;s$ 則 $K(t,s)=t$, 因此<br>&emsp;$K(t,s)=\min(t,s)$<br>&emsp;Q.E.D.</p>
+<p>由 Brownian motion 的 Def2 我們可以推出一些東西:<br>For <span>$t&gt;s\geq0$</span><!-- Has MathJax -->, <span>$B_t\sim\mathcal{N}(0,t)$</span><!-- Has MathJax -->, <span>$B_s\sim\mathcal{N}(0,s)$</span><!-- Has MathJax -->, <span>$B_{t-s}\sim\mathcal{N}(0,t-s)$</span><!-- Has MathJax --><br>由 independent increament 知道 $B_{t-s}\perp B_s$, 又因為獨立 normal r.v.s 相加也仍是 normal, 且其 mean and variance 為直接相加<br>所以<br><span>$(B_{t-s}+B_s)\sim\mathcal{N}(0,t-s+s)=\mathcal{N}(0,t)=^d B_t \\$</span><!-- Has MathJax --><br><span>$B_t(x)=B_{t-s}(x)+B_s(x)$</span><!-- Has MathJax --></p>
+<hr>
+<h2 id="Week-4-7-Modification-of-a-process-Kolmogorov-continuity-theorem"><a href="#Week-4-7-Modification-of-a-process-Kolmogorov-continuity-theorem" class="headerlink" title="Week 4.7: Modification of a process. Kolmogorov continuity theorem"></a>Week 4.7: Modification of a process. Kolmogorov continuity theorem</h2><p><strong>[Stochastically Equivalent Def]:</strong><br>&emsp;$X_t,Y_t$ are called stochastically equivalent if<br>&emsp;<span>$\mathcal{P}\{X_t=Y_t\}=1,\forall t\geq0$</span><!-- Has MathJax --></p>
+<p>[Example]: stochastically equivalent 但行為卻不一樣的 r.v.s<br>&emsp;<span>$X_t=0,\forall t\in[0,1]$</span><!-- Has MathJax -->. And <span>$Y_t=\mathbf{1}\{\tau=t\},\tau\sim Unif(0,1)$</span><!-- Has MathJax --><br>&emsp;在看 $Y_t$ 這個 random variable 的時候, $t$ 是給定的 (fixed), 而它的值只有可能是 $0$ or $1$<br>&emsp;則很顯然 $X_t$ 和 $Y_t$ 是 stochastically equivalent:<br>&emsp;<span>$\mathcal{P}\{X_t=Y_t\}=\mathcal{P}\{Y_t=0\}=\mathcal{P}\{t\neq\tau\}=1$</span><!-- Has MathJax --><br>&emsp;我們劃出 $X_t$ 和 $Y_t$ 的 trajectory:<br>&emsp;Stochastic process <span>$X_t:\Omega\times\mathbb{R}_+\rightarrow\mathbb{R}$</span><!-- Has MathJax --><br>&emsp;Trajectory of an <em>given</em> outcome $\omega$, <span>$X_t(\omega):\mathbb{R}_+\rightarrow\mathbb{R}$</span><!-- Has MathJax --><br><img src="/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/W4_7_trajectories.drawio.png" width="70%" height="70%"><br>&emsp;上圖顯示了給定某一個 $t$, $X_t$ 和 $Y_t$ 的<em>一條</em> trajectory<br>&emsp;對於所有的 $t$, $X_t$ 都長一個樣, 而 $Y_t$ 都長不一樣, 且都不連續</p>
+<p>所以 $X_t$ 和 $Y_t$ 是 stochastically equivalent 但是 $X_t$ trajectory 是 continuous 而 $Y_t$ 不是<br>有沒有可能把一個 trajectory 不連續的 stochastic process 找道其對應 stochastically equivalent 的 process 呢 ?</p>
+<p><strong>[Kolmogorov continuity Theorem]:</strong><br>&emsp;Let $X_t$ be a stochastic process, if $\exists C,\alpha,\beta&gt;0$ such that<br>&emsp;<span>$\mathbb{E}\left[ |X_t-X_s|^\alpha \right] \leq C\cdot |t-s|^{1+\beta},\forall t,s\in[a,b]$</span><!-- Has MathJax --><br>&emsp;then $\exists Y_t$ is stochastically equivalent to $X_t$ and $Y_t$ has continuous trajectories<br>&emsp;We can say that the process $X_t$ has a continuous modification.</p>
+<p><strong>[Brownian motion has continuous modification]:</strong><br>&emsp;Let $B_t$ be a Brownian motion<br>&emsp;We know that $B_t-B_s\sim\mathcal{N}(0,t-s)$, which also means<br>&emsp;<span>$B_t-B_s=^d\sqrt{t-s}\cdot\xi,\xi\sim\mathcal{N}(0,1)$</span><!-- Has MathJax --><br>&emsp;Then (using the 4-th moment of normal distribution)<br>&emsp;<span>$\mathbb{E}\left[ |B_t-B_s|^4 \right] = (t-s)^2\mathbb{E}\xi^4= (t-s)^2\cdot3$</span><!-- Has MathJax --><br>&emsp;We can see that it fullfilled <strong>Kolmogorov continuity Theorem</strong><br>&emsp;Conclude that Brownian motion has continuous modification.</p>
+<p>一般我們稱 Brownian motion 都預設稱這個 continuous modification</p>
+<hr>
+<h2 id="Week-4-8-Main-properties-of-Brownian-motion"><a href="#Week-4-8-Main-properties-of-Brownian-motion" class="headerlink" title="Week 4.8: Main properties of Brownian motion"></a>Week 4.8: Main properties of Brownian motion</h2><p><strong>[Quadratic Variation Def]: <a href="https://en.wikipedia.org/wiki/Quadratic_variation" target="_blank" rel="external">wiki</a></strong><br>&emsp;$X_{t}$ is a stochastic process. It’s quadratic variation is the process, written as $[X_t]$, defined as<br>&emsp;<span>$[X_t]=\lim_{|\Delta|\rightarrow0}\sum_{k=1}^n (X_{t_k}-X_{t_{k-1}})^2$</span><!-- Has MathJax --><br>&emsp;where <span>$\Delta:0=t_0&lt;t_1&lt;...&lt;t_n=t$</span><!-- Has MathJax -->, is a partition, and <span>$|\Delta|=\max_{i=1,...,n}\{t_i-t_{i-1}\}$</span><!-- Has MathJax --><br>&emsp;This limit, if it exists, is defined using <a href="https://en.wikipedia.org/wiki/Convergence_of_random_variables#Convergence_in_probability" target="_blank" rel="external">convergence in probability</a> (See Week 6 的開頭).</p>
+<p>課程沒提供證明, 說在很多 stochastic 的書都有提供了</p>
+<p><strong>[Quadratic Variation of Brownian Motion]:</strong><br>&emsp;給一個 Brownian motion $B_t$, 考慮一個 partition <span>$\bigtriangleup:0=t_0&lt;t_1&lt;...&lt;t_n=t$</span><!-- Has MathJax --><br>&emsp;我們稱該 partition 的 quadratic variation 為以下 limit:<br>&emsp;<span>$\lim_{|\bigtriangleup|\rightarrow0} \sum_{k=1}^n\left( B_{t_k}-B_{t_{k-1}} \right)^2 = t$</span><!-- Has MathJax --><br>&emsp;<span>$|\bigtriangleup|\rightarrow0$</span><!-- Has MathJax --> 表示:<span>$\max_{k=0,...,n}\{|t_k-t_{k-1}|\}\rightarrow0, \text{ for }n\rightarrow0$</span><!-- Has MathJax --><br>&emsp;從上面可以看出 Brownian motion 的 quadratic variation 極限值存在且等於 $t$<br>[Proof]:<br>&emsp;使用 convergence in mean square sense 證明.<br>&emsp;因為我們知道 m.sq. sense 成立則 converges in probability<br>&emsp;(quadratic variation 的 limit 定義) 也成立. 更多參考 Week 6 開頭.<br><img src="/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/Untitled 3.png" width="100%" height="100%"></p>
+<p>如果我們令:<br><span>$S_n=\sum_{k=1}^n\left( B_{t_k}-B_{t_{k-1}} \right)^2$</span><!-- Has MathJax --><br>則 quadratic variation 告訴我們<br><span>$\mathbb{E}(S_n-t)^2\rightarrow0, \text{ for }n\rightarrow\infty$</span><!-- Has MathJax --></p>
+<p><strong>[Variation of Brownian Motion]:</strong><br>&emsp;給一個 Brownian motion $B_t$, 考慮一個 partition <span>$\bigtriangleup:0=t_0&lt;t_1&lt;...&lt;t_n=t$</span><!-- Has MathJax --><br>&emsp;我們稱該 partition 的 variation 為以下 limit:<br>&emsp;<span>$\lim_{|\bigtriangleup|\rightarrow0} \sum_{k=1}^n | B_{t_k}-B_{t_{k-1}} | = \infty$</span><!-- Has MathJax --><br>&emsp;從上面可以看出 Brownian motion 的 variation 極限值<strong><em>不存在</em></strong></p>
+<blockquote>
+<p>課程說 variation 不存在的證明會用到 quadratic variation 存在的定理, 但沒給證明</p>
+</blockquote>
+<p>總結來說, Brownian motion 是 quadratic variation, 但不是 bounded variation</p>
+<p><strong>[Brownian Motion Continuity and Differentiability]:</strong><br>&emsp;Brownian motion is <strong>everywhere continuous</strong> but <strong>nonwhere differentiable</strong>.<br>&emsp;我們說 stochastic process 是 continuous at time $t$ 意思為:<br>&emsp;<span>$$B_{t+h}\xrightarrow[h\rightarrow0]{p}B_t \\
+\Longleftrightarrow\mathcal{P}\{|B_{t+h}-B_t|&gt;\varepsilon\}=0, \text{ for }h\rightarrow0, \forall\varepsilon&gt;0$$</span><!-- Has MathJax --><br>&emsp;而 differentiable 會在 week6 提到.</p>
+<p>接下來的定理可以用來了解 Brownian motion $B_t$ 跑向 $\infty$ 的速度有多快.<br><span>$$\begin{align}
+\begin{array}{rl}
+\lim_{t\rightarrow\infty}\frac{B_t}{t}=0, &amp;a.s. \\
+\lim\sup_{t\rightarrow\infty}\frac{B_t}{\sqrt{t}}=\infty, &amp;a.s.
+\end{array}
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>課程說很容易證明… 但對我來說不是 (<a href="https://en.wikipedia.org/wiki/Law_of_the_iterated_logarithm" target="_blank" rel="external">Law of the iterated logarithm</a>)</p>
+<blockquote>
+<p>直觀理解為: Brownian motion 跑得比 $t$ 還慢, 但是比 $\sqrt{t}$ 還快<br>但準確來說 Brownian motion 的速度應該是什麼? Law of the Iterated Logarithm 告訴了我們答案</p>
+</blockquote>
+<p><strong>[Law of the Iterated Logarithm]:</strong><br>&emsp;Brownian motion $B_t$, we have<br>&emsp;<span>$\lim\sup_{t\rightarrow\infty} \frac{B_t}{\sqrt{2t\log(\log t)}}=1$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>無法太深入理解這些定理的用處和意義, 同意課程要給更多範例說明</p>
+</blockquote>
+<p><img src="/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/Untitled 4.png" width="75%" height="75%"></p>
+<p>最後一個問題可以由 <span>$\lim_{h\rightarrow0} B_{t+h}-B_t \sim \lim_{h\rightarrow0}\mathcal{N}(0,h)$</span><!-- Has MathJax --> 看出, 為 constant $0$ a.s.</p>
+<p>END OF CLASS</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/" title="Stochastic Processes Week 4 Gaussian Processes">http://yoursite.com/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Gaussian-Process/" rel="tag"># Gaussian Process</a>
+          
+            <a href="/tags/Coursera/" rel="tag"># Coursera</a>
+          
+            <a href="/tags/Stochastic-Processes/" rel="tag"># Stochastic Processes</a>
+          
+            <a href="/tags/Gaussian-Vector/" rel="tag"># Gaussian Vector</a>
+          
+            <a href="/tags/Brownian-Motion/" rel="tag"># Brownian Motion</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/" rel="next" title="Stochastic Processes Week 3 Markov Chains">
+                <i class="fa fa-chevron-left"></i> Stochastic Processes Week 3 Markov Chains
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">129</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-4-1-Random-vector-Definition-and-main-properties"><span class="nav-number">1.</span> <span class="nav-text">Week 4.1: Random vector. Definition and main properties</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-4-2-Gaussian-vector-Definition-and-main-properties"><span class="nav-number">2.</span> <span class="nav-text">Week 4.2: Gaussian vector. Definition and main properties</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-4-3-Connection-between-independence-of-normal-random-variables-and-absence-of-correlation"><span class="nav-number">3.</span> <span class="nav-text">Week 4.3: Connection between independence of normal random variables and absence of correlation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-4-4-5-Definition-of-a-Gaussian-process-Covariance-function"><span class="nav-number">4.</span> <span class="nav-text">Week 4.4-5: Definition of a Gaussian process. Covariance function</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-4-6-Two-definitions-of-a-Brownian-motion"><span class="nav-number">5.</span> <span class="nav-text">Week 4.6: Two definitions of a Brownian motion</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-4-7-Modification-of-a-process-Kolmogorov-continuity-theorem"><span class="nav-number">6.</span> <span class="nav-text">Week 4.7: Modification of a process. Kolmogorov continuity theorem</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-4-8-Main-properties-of-Brownian-motion"><span class="nav-number">7.</span> <span class="nav-text">Week 4.8: Main properties of Brownian motion</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
