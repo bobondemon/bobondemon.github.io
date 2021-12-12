@@ -1,0 +1,1010 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Coursera,Stochastic Processes,Stochastic Integration,Itô formula," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識
+Week 1: Introduction &amp;amp; Renewal processes
+Week 2: Poisson Processes
+Week3: Markov Chains
+Week 4: Gaussian Processes
+Week 5: Stationarity">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Stochastic Processes Week 7 Stochastic integration & Itô formula">
+<meta property="og:url" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識
+Week 1: Introduction &amp;amp; Renewal processes
+Week 2: Poisson Processes
+Week3: Markov Chains
+Week 4: Gaussian Processes
+Week 5: Stationarity">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled 1.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled 2.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled 3.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled 4.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled 5.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled 6.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled 7.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled 8.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled 9.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled 10.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled 11.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled 12.png">
+<meta property="og:updated_time" content="2021-12-12T15:06:18.765Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Stochastic Processes Week 7 Stochastic integration & Itô formula">
+<meta name="twitter:description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識
+Week 1: Introduction &amp;amp; Renewal processes
+Week 2: Poisson Processes
+Week3: Markov Chains
+Week 4: Gaussian Processes
+Week 5: Stationarity">
+<meta name="twitter:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/"/>
+
+
+
+
+
+  <title> Stochastic Processes Week 7 Stochastic integration & Itô formula | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Stochastic Processes Week 7 Stochastic integration & Itô formula
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2021-12-12T21:17:41+08:00">
+                2021-12-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SP/" itemprop="url" rel="index">
+                    <span itemprop="name">SP</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p><a href="https://www.coursera.org/learn/stochasticprocesses?" target="_blank" rel="external">Coursera Stochastic Processes</a> 課程筆記, 共九篇:</p>
+<ul>
+<li><a href="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-0-%E4%B8%80%E4%BA%9B%E9%A0%90%E5%82%99%E7%9F%A5%E8%AD%98/" target="_blank" rel="external">Week 0: 一些預備知識</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/" target="_blank" rel="external">Week 1: Introduction &amp; Renewal processes</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/" target="_blank" rel="external">Week 2: Poisson Processes</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/" target="_blank" rel="external">Week3: Markov Chains</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/" target="_blank" rel="external">Week 4: Gaussian Processes</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-5-Stationarity-and-Linear-filters/" target="_blank" rel="external">Week 5: Stationarity and Linear filters</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/" target="_blank" rel="external">Week 6: Ergodicity, differentiability, continuity</a></li>
+<li><strong>Week 7: Stochastic integration &amp; Itô formula (本文)</strong></li>
+<li>Week 8: Lévy processes </li>
+</ul>
+<a id="more"></a>
+<p>四種 types 的 stochastic integration, where $X_t,H_t$ are stochastic processes, $f(t)\in L^2([a,b])$ is a deterministic function, $W_t$ is a Brownian motion, and $a,b\in\mathbb{R}$<br><span>$$\begin{align}
+\int_a^b X_t dt \\
+\int_a^b f(t)dW_t \\
+\int_a^b X_t dW_t \\
+\int_a^b X_t dH_t
+\end{align}$$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>在 stochastic integral 跟以往的 integral 很不一樣的一點是, 我們發現 <em>integral 的結果仍然是一個 random variable</em><br>閱讀以下內容時可以看出這一點</p>
+</blockquote>
+<hr>
+<h2 id="Week-7-1-Different-types-of-stochastic-integrals-Integrals-of-the-type-∫-X-t-dt"><a href="#Week-7-1-Different-types-of-stochastic-integrals-Integrals-of-the-type-∫-X-t-dt" class="headerlink" title="Week 7.1: Different types of stochastic integrals. Integrals of the type $∫ X_t dt$"></a>Week 7.1: Different types of stochastic integrals. Integrals of the type $∫ X_t dt$</h2><p>Given a Stochastic process <span>$X_t:\Omega\times\mathbb{R}_+\rightarrow\mathbb{R}$</span><!-- Has MathJax --><br>如果我們固定一個 outcome $\omega$, 則 <span>$X_t(\omega):\mathbb{R}_+\rightarrow\mathbb{R}$</span><!-- Has MathJax -->, 因此我們就可以考慮 Riemann integral:<br><span>$\int_a^b X_t(\omega)dt=\color{orange}{\lim_{|\Delta|\rightarrow0}}\sum_{k=1}^n X_{t_{k-1}}(\omega)\cdot(t_k-t_{k-1})$</span><!-- Has MathJax --><br>For partition $\Delta:a=t_0\leq t_1\leq …\leq t_n=b$, <span>$|\Delta|=\max\{t_k-t_{k-1}\},k=1,...,n$</span><!-- Has MathJax --><br>若考慮 stochastic process, 上述的 <em>limit 必須以 mean square sense 來考慮</em>, 因此正式定義如下:</p>
+<p><strong>[Stochastic Integrals of Simplest Type</strong> $∫ X_t dt$<strong>]:</strong><br>&emsp;Given a Stochastic process <span>$X_t:\Omega\times\mathbb{R}_+\rightarrow\mathbb{R}$</span><!-- Has MathJax --><br>&emsp;Given partition <span>$\Delta:a=t_0\leq t_1\leq ...\leq t_n=b$</span><!-- Has MathJax -->, <span>$|\Delta|=\max\{t_k-t_{k-1}\},k=1,...,n$</span><!-- Has MathJax --><br>&emsp;If the following expectation converges to some value $A$ in mean square sense:<br>&emsp;<span>$$\mathbb{E}\left[
+\left(
+A - \sum_{k=1}^n X_{t_{k-1}}(t_k-t_{k-1})
+\right)^2
+\right]
+\xrightarrow[|\Delta|\longrightarrow0]{} 0$$</span><!-- Has MathJax --><br>&emsp;Then we denote(define) the converged value $A$ as: <span>$\int_a^b X_t dt$</span><!-- Has MathJax --></p>
+<p><strong>[Existence of the Simplest Type of Stochastic Integral]:</strong><br>&emsp;<span>$X_t:\mathbb{E}[X_t^2]&lt;\infty$</span><!-- Has MathJax -->, if<br>&emsp;1. $m(t)$ continuous<br>&emsp;2. $K(t,s)$ continuous<br>&emsp;Then the stochastic integral exists, i.e. <span>$\int_a^b X_tdt&lt;\infty$</span><!-- Has MathJax --></p>
+<p>有上述定理好處如下<br>We assume integral is taken in an bounded interval $[a,b]$<br>&emsp;1. Expectation of stochastic integral:<br>&emsp;&emsp;<span>$\mathbb{E}\left[ \int X_tdt \right] = \int \mathbb{E}[X_t]dt$</span><!-- Has MathJax --><br>&emsp;&emsp;課程老師說 apply Frobenius theorem 可得此結果. 看不懂 Frobenius theorem<br>&emsp;2. Expectation of squared stochastic integral:<br>&emsp;&emsp;<span>$$\mathbb{E}\left[
+\left(\int X_t dt\right)^2
+\right] = \mathbb{E}\left[
+\int\int X_t X_s dtds
+\right] \\
+= \int\int\mathbb{E}[X_tX_s]dtds$$</span><!-- Has MathJax --><br>&emsp;3. Variance of stochastic integral:<br>&emsp;&emsp;<span>$$Var\left[
+\int X_t dt
+\right] = \mathbb{E}\left[
+\left(\int X_t dt\right)^2
+\right] - \left(\mathbb{E}\left[ \int X_tdt \right]\right)^2 \\
+= \int\int \mathbb{E}[X_tX_s]dtds - \mathbb{E}\left[ \int X_tdt \right]\mathbb{E}\left[ \int X_sds \right]\\
+= \int\int \mathbb{E}[X_tX_s]dtds - \int\mathbb{E}[X_t]dt\cdot\int\mathbb{E}[X_s]ds \\
+= \int_a^b\int_a^b K(t,s) dtds \\
+\because\text{symmetric}= 2\int_a^b \int_a^s K(t,s) dtds$$</span><!-- Has MathJax --></p>
+<p><img src="/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled.png" width="80%" height="80%"></p>
+<blockquote>
+<p>注意到 $W_t\sim\mathcal{N}(0,t)$, 所以 $Var(W_t)=\mathbb{E}W_t^2=t$</p>
+</blockquote>
+<hr>
+<h2 id="Week-7-2-3-Integrals-of-the-type-∫-f-t-dW-t"><a href="#Week-7-2-3-Integrals-of-the-type-∫-f-t-dW-t" class="headerlink" title="Week 7.2-3: Integrals of the type $∫ f(t) dW_t$"></a>Week 7.2-3: Integrals of the type $∫ f(t) dW_t$</h2><p>第二種 type 的 integral 我們稱為 Wiener integral<br><span>$\int_a^b f(t)dW_t$</span><!-- Has MathJax --><br>where $f(t)\in L^2([a,b])$ is a deterministic function, $W_t$ is a Brownian motion, and $a,b\in\mathbb{R}$</p>
+<p><strong>[Inner Product in Function Space]:</strong><br>&emsp;Define inner product between real valued functions $f,g$ in $[a,b]$<br>&emsp;<span>$&lt;f,g&gt;=\int_a^b f(x)g(x)dx$</span><!-- Has MathJax --><br>&emsp;Having properties:<br>&emsp;1. <span>$&lt;f,g&gt;=&lt;g,f&gt;$</span><!-- Has MathJax --><br>&emsp;2. <span>$&lt;a_1f_1+a_2f_2,g&gt;=a_1&lt;f_1,g&gt;+a_2&lt;f_2,g&gt;$</span><!-- Has MathJax --><br>&emsp;3. <span>$&lt;f,f&gt;\geq0$</span><!-- Has MathJax -->, and $=0\Longleftrightarrow f=0$</p>
+<p><strong>[Informal Def of $L^2$ Space]:</strong><br>&emsp;定義 norm 為 <span>$\|f\|_2 = \sqrt{&lt;f,f&gt;}$</span><!-- Has MathJax -->, 則所有 <span>$\|f\|_2\leq\infty$</span><!-- Has MathJax --> 所形成的空間<br>&emsp;(搭配 <span>$\|\cdot\|_2$</span><!-- Has MathJax --> 則為 Banach space, 搭配 <span>$&lt;\cdot,\cdot&gt;$</span><!-- Has MathJax --> 則為 Helbert sapce) 我們稱為 $L^2$ space</p>
+<blockquote>
+<p>比較嚴謹的定義參考數學課本</p>
+</blockquote>
+<p>因此我們可以說在 $L^2$ space 上的收斂, 視為該 normed (Banach) space 上的收斂, i.e.<br><span>$$f_n\xrightarrow[]{L^2}f\Longleftrightarrow \|f_n-f\|_2\xrightarrow[n\rightarrow\infty]{}0 \\
+\text{, or } \Longleftrightarrow \int_a^b \left( f_n(x)-f(x) \right)^2 dx
+\xrightarrow[n\rightarrow\infty]{}0$$</span><!-- Has MathJax --></p>
+<p>我們先定義 Wiener integral of a step function</p>
+<p><strong>[Wiener Integral of a Step Function]:</strong><br>&emsp;Let $a=t_0\leq t_1\leq …\leq t_n=b$, $\alpha_i\in\mathbb{R}$, and step function $f(x)$ defined as:<br>&emsp;<span>$f(x)=\sum_{i=1}^n \alpha_i\cdot\mathbf{1}\{t_{i-1}\leq x&lt;t_i\}$</span><!-- Has MathJax --><br>&emsp;Then Wiener integral of $f(x)$ is:<br>&emsp;<span>$\int_a^b f(x)dW_t = \sum_{i=1}^n \alpha_i\cdot(W_{t_i}-W_{t_{i-1}})$</span><!-- Has MathJax --></p>
+<p><strong>[Example]:</strong><br><img src="/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled 1.png" width="40%" height="40%"><br>&emsp;我們可以發現 integral 的結果都是 normal distribution</p>
+<p><strong>[Distribution of Wiener Integral of a Step Function]:</strong><br>&emsp;Let $f(x)$ is a step function, and Wiener integral as:<br>&emsp;<span>$I(f):=\int_a^b f(t)dW_t$</span><!-- Has MathJax --><br>&emsp;then<br>&emsp;<span>$I(f)\sim\mathcal{N}\left(0,\int_a^bf^2(x)dx\right)$</span><!-- Has MathJax --></p>
+<p>[Proof]:<br>&emsp;根據 Wiener integral 的定義, 我們可以知道<br>&emsp;<span>$\int_a^b f(x)dW_t = \sum_{i=1}^n \alpha_i\cdot(W_{t_i}-W_{t_{i-1}})$</span><!-- Has MathJax --><br>&emsp;而因為 $W_t$ is Brownian motion, 具有 independent increment 性質<br>&emsp;因此等於是互相獨立的 normal distribution 線性組合的結果, 所以也是 normal. 因此我們只需計算 mean and variance<br><img src="/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled 2.png" width="40%" height="40%"></p>
+<p><strong>[Wiener Integral of a Deterministic $L^2$ Function]:</strong><br>&emsp;Let $f(x)\in L^2([a,b])$, and if we can find <em>a sequence of step functions</em> $(f_n)_n$<br>&emsp;such that converges to $f$ in $L^2$ space, i.e.:<br>&emsp;<span>$f_n\xrightarrow[]{L^2}f\Longleftrightarrow \int_a^b\left( f_n(t)-f(t) \right)^2 dt \xrightarrow[n\rightarrow\infty]{}0$</span><!-- Has MathJax --><br>&emsp;then we define $I(f)$ as the limit of $I(f_n)$ as $n\rightarrow\infty$, i.e.:<br>&emsp;<span>$I(f):=\lim_{n\rightarrow\infty} I(f_n)$</span><!-- Has MathJax --><br>&emsp;Where the <em>limit should be understood by mean square sense:</em><br>&emsp;<span>$$\mathbb{E}\left[
+(I(f_n)-I(f))^2
+\right] \xrightarrow[n\rightarrow\infty]{}0$$</span><!-- Has MathJax --></p>
+<p>觀察以上的定義, 有 3 個重要的問題需要回答:</p>
+<ol>
+<li>Why $I(f)$ doesn’t depend on $(f_n)_n$?</li>
+<li>Properties of $I(f)$?</li>
+<li>How to counstruct $(f_n)_n$? Will be answered in Week 7.4-5</li>
+</ol>
+<p><strong>[Theorem Explian Why $I(f)$ doesn’t depend on $(f_n)_n$]:</strong><br>&emsp;$(f_n)_n,(\tilde{f}_n)_n$ sequences of step functions in $L^2$ space and both converges to $f$, i.e.<br>&emsp;<span>$f_n\xrightarrow[]{L^2}f, \tilde{f}_n\xrightarrow[]{L^2}f$</span><!-- Has MathJax --><br>&emsp;Then<br>&emsp;<span>$\lim_{n\rightarrow\infty} I(f_n) = \lim_{n\rightarrow\infty} I(\tilde{f_n})$</span><!-- Has MathJax --><br>&emsp;The limit is understood as mean square sense, that is:<br>&emsp;<span>$$\mathbb{E}\left[
+(I(f_n)-I(\tilde{f}_n))^2
+\right] \xrightarrow[n\rightarrow\infty]{}0$$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>Note that the Wiener integral of <em>a step function</em> $f$ is defined as:<br><span>$I(f):=\int_a^b f(t)dW_t$</span><!-- Has MathJax --><br>and $W_t$ is Brownian motion</p>
+</blockquote>
+<p>[Proof]:<br>&emsp;<span>$I(f_n)-I(\tilde{f}_n)=I(f_n-\tilde{f}_n)$</span><!-- Has MathJax --> also is a step function<br>&emsp;所以這個 step function 的 Wiener integral 會 follow normal distribution:<br>&emsp;<span>$I(f_n-\tilde{f}_n)\sim\mathcal{N}\left(0,\int_a^b (f_n(x)-\tilde{f}_n(x))^2 dx\right)$</span><!-- Has MathJax --><br>&emsp;所以 Variance:<br>&emsp;<span>$$Var(I(f_n-\tilde{f}_n)) = \mathbb{E}\left[
+(I(f_n-\tilde{f}_n))^2
+\right] \\
+= \int_a^b (f_n(x)-\tilde{f}_n(x))^2 dx \xrightarrow[n\rightarrow\infty]{} 0$$</span><!-- Has MathJax --><br>&emsp;最後會 approach to $0$ 是因為 both converges to $f$.<br>&emsp;所以馬上就發現 limit converges in mean square sense:<br>&emsp;<span>$$\because \mathbb{E}\left[
+(I(f_n)-I(\tilde{f}_n))^2
+\right] = 
+\mathbb{E}\left[
+(I(f_n-\tilde{f}_n))^2
+\right] \\
+= Var(I(f_n-\tilde{f}_n)) \xrightarrow[n\rightarrow\infty]{}0
+\\
+\therefore\lim_{n\rightarrow\infty} I(f_n) = \lim_{n\rightarrow\infty} I(\tilde{f_n})$$</span><!-- Has MathJax --></p>
+<p><strong>[The Wiener Integral of Function in $L^2$ Space]:</strong><br>&emsp;$\forall f\in L^2([a,b])$, The Wiener integral:<br>&emsp;<span>$I(f)\sim\mathcal{N}\left(0,\int_a^b f^2(x)dx\right)$</span><!-- Has MathJax --><br>[Proof]:<br>&emsp;For any $(f_n)_n$ converges to $f$ in $L^2$, we have<br>&emsp;<span>$$I(f)=\lim_{n\rightarrow\infty} I(f_n)\\
+I(f_n)\sim\mathcal{N}\left(
+0, \int_a^b f^2_n(x)dx
+\right)$$</span><!-- Has MathJax --><br>&emsp;Normal distribution 的 limit 仍是 normal, 其結果為 mean and variance 的 limit, 所以<br>&emsp;<span>$$I(f)\sim\mathcal{N}\left(
+0, \lim_{n\rightarrow\infty}\int_a^b f^2_n(x)dx
+\right)
+= \mathcal{N}\left(
+0, \int_a^b f^2(x)dx \right)$$</span><!-- Has MathJax --><br><img src="/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled 3.png" width="80%" height="80%"><br>&emsp;Q.E.D.</p>
+<p><img src="/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled 4.png" width="100%" height="100%"></p>
+<hr>
+<h2 id="Week-7-4-5-Integrals-of-the-type-∫-X-t-dW-t"><a href="#Week-7-4-5-Integrals-of-the-type-∫-X-t-dW-t" class="headerlink" title="Week 7.4-5: Integrals of the type $∫ X_t dW_t$"></a>Week 7.4-5: Integrals of the type $∫ X_t dW_t$</h2><p>要定義這樣的 integral, $X_t$ 必須定義在 <em>filtered probability space</em> 上.<br><strong>[Filteration Def]:</strong> from <a href="https://en.wikipedia.org/wiki/Filtration_probability_theory" target="_blank" rel="external">Wiki</a><br><img src="/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled 5.png" width="100%" height="100%"></p>
+<p><strong>[Filteration Def]:</strong><br>&emsp;Filtration is a sequence of $\sigma$-algebras $\mathcal{F}_t$ defined on the same probability space $(\Omega,\mathcal{F},\mathcal{P})$<br>&emsp;such that, $\mathcal{F}_t$ is a sub-$\sigma$-algebra of $\mathcal{F}_s$ if $t\leq s$, i.e.:<br>&emsp;<span>$\mathcal{F}_t \subseteq \mathcal{F}_s, \forall t\leq s$</span><!-- Has MathJax --></p>
+<p><strong>[$L^2$ Space of Stochastic Processes]:</strong><br>&emsp;給定一個 filtered probability space <span>$(\Omega,\mathcal{F}, \{\mathcal{F}_t\} ,\mathcal{P})$</span><!-- Has MathJax --><br>&emsp;我們可以定義 $X_t$ 是從如下的 stochastic process 的 space 來的, ($ad$ 表示 adapted)<br>&emsp;<span>$L^2_{ad}([a,b],\Omega)$</span><!-- Has MathJax --><br>&emsp;這個 space 有如下兩個 properties:<br>&emsp;1. 由於我們知道 random variable $X_t$ 其實是一個 measurable function<br>&emsp;&emsp;從 measurable space $(\Omega,\mathcal{F}_t)$ mapping 到另一個 measurable space $(\mathbb{R},B(\mathbb{R}))$, where $B(\mathbb{R})$ 表示 Borel set of $\mathbb{R}$<br>&emsp;&emsp;由 measurable function 的定義知道 pre-image is still in $\sigma$-algebra<br>&emsp;&emsp;i.e., <span>$\{\omega:X_t(\omega)\in B\}\in\mathcal{F}_t$</span><!-- Has MathJax -->, $\forall B\in B(\mathbb{R})$<br>&emsp;&emsp;我們稱 $X_t$ is $\mathcal{F}_t$ measurable 或稱 $X_t$ is $\mathcal{F}_t$-adapted<br>&emsp;&emsp;我們有 $X_t$ is $\mathcal{F}_t$-adapted, $\forall t$<br>&emsp;2. 滿足如下特性<br>&emsp;&emsp;<span>$\int_a^b \mathbb{E}X_t^2 dt &lt; \infty$</span><!-- Has MathJax --></p>
+<p>若要積分<span>$\int_a^b X_tdW_t$</span><!-- Has MathJax --><br>Brownian motion $W_t$ 也必須在相同的 filtered space 上.</p>
+<p><strong>[$\mathcal{F}_t$-Brownian Motion Def]:</strong><br>&emsp;我們稱 $W_t$ is $\mathcal{F}_t$-Brownian motion, if<br>&emsp;1. $W_t$ is $\mathcal{F}_t$-adapted<br>&emsp;2. $(W_t-W_s)\perp\mathcal{F}_s,\forall t&gt;s$</p>
+<p><strong>[Wiener Integral of a $L^2$-adapted Stochastic Process $X_t$]:</strong><br>&emsp;<span>$X_t\in L_{ad}^2$</span><!-- Has MathJax -->, $W_t$ is a <span>$\mathcal{F}_t$</span><!-- Has MathJax -->-Brownian motion, consider defining<br>&emsp;<span>$\int_a^b X_t dW_t$</span><!-- Has MathJax --><br>&emsp;(Stage 1): Let $\xi_i,\forall i=0,…,n-1$ are random variables. If $X_t$ is a <em>step processes</em>, i.e.<br>&emsp;&emsp;<span>$X_t=\sum_{i=1}^n\xi_{i-1}\cdot\mathbf{1}\{t_{i-1}\leq t&lt;t_i\}$</span><!-- Has MathJax --><br>&emsp;&emsp;then we define Wiener integral of this type is<br>&emsp;&emsp;<span>$I(X_t)=\sum_{i=1}^n \xi_{i-1}(W_{t_i}-W_{t_{i-1}})$</span><!-- Has MathJax --><br>&emsp;(Stage 2): For any <span>$X_t\in L_{ad}^2$</span><!-- Has MathJax -->, we can find a <em>sequence of step processes</em> <span>$(X_t^n)_n$</span><!-- Has MathJax --> which converges in <span>$L_{ad}^2$</span><!-- Has MathJax --> sense, i.e.:<br>&emsp;&emsp;<span>$\int_a^b\mathbb{E}\left(X_t^n-X_t\right)^2dt\xrightarrow[n\rightarrow\infty]{}0$</span><!-- Has MathJax --><br>&emsp;&emsp;Such <span>$X_t^n$</span><!-- Has MathJax --> can be difined as:<br>&emsp;&emsp;<span>$X_t^n:=\sum_{i=1}^nX_{t_{i-1}}\cdot\mathbf{1}\{t_{i-1}\leq t&lt;t_i\}$</span><!-- Has MathJax --><br>&emsp;&emsp;and will be proved later that this construction is converges in <span>$L_{ad}^2$</span><!-- Has MathJax --> sense.<br>&emsp;&emsp;then we can define the integral as follows:<br>&emsp;&emsp;<span>$I(X_t):=\lim_{n\rightarrow\infty}I(X_t^n)$</span><!-- Has MathJax --><br>&emsp;&emsp;and the limit is understood in mean square sense, i.e.:<br>&emsp;&emsp;<span>$$\mathbb{E}\left[
+(I(X_t^n)-I(X_t))^2
+\right]\xrightarrow[n\rightarrow0]{}0$$</span><!-- Has MathJax --></p>
+<p>同樣的, 這個 integration doesn’t depend on 怎麼選 <em>sequence of step processes</em> $(X_t^n)_n$</p>
+<blockquote>
+<p>💡 所以找出一個 sequence of step processes converges (in $L_{ad}^2$ sense) to $X_t$ 後, 由於每一個 step process 的 Wiener integral 都可以求得, 所以該 Wiener integral 的 limit (in m.sq. sense) 我們就可以定義為 $X_t$ 的 Wiener integral</p>
+</blockquote>
+<p>以下定理說明怎麼找到這個 step process <span>$(X_t^n)_n$</span><!-- Has MathJax --> such that converge to <span>$X_t$</span><!-- Has MathJax --> in <span>$L_{ad}^2$</span><!-- Has MathJax --> sense</p>
+<p><strong>[Convergence of Step Processes]:</strong><br>&emsp;Let stochastic process $X_t$ be such that $m(t)$ and $K(t,s)$ are continuous, then define<br>&emsp;<span>$X_t^n:=\sum_{i=1}^nX_{t_{i-1}}\cdot\mathbf{1}\{t_{i-1}\leq t&lt;t_i\}$</span><!-- Has MathJax --><br>&emsp;then we have<br>&emsp;<span>$X_t^n\xrightarrow[]{L^2_{ad}} X_t \Longleftrightarrow \int_a^b\mathbb{E}\left(X_t^n-X_t\right)^2dt\xrightarrow[n\rightarrow\infty]{}0$</span><!-- Has MathJax --><br>[Proof]:<br>&emsp;首先證明 $X_t$ is continuous in mean square sense, i.e.<br>&emsp;<span>$\mathbb{E}(X_t-X_s)^2\xrightarrow[s\rightarrow t]{}0$</span><!-- Has MathJax --><br>&emsp;展開來並全部用 $m(t),K(t,s)$ 替換:<br>&emsp;<span>$$\mathbb{E}(X_t-X_s)^2
+= \mathbb{E}X_t^2 - 2\mathbb{E}X_tX_s + \mathbb{E}X_s^2 \\
+= (K(t,t)+m^2(t))-2(K(t,s)+m(t)m(s))+(K(s,s)+m^2(s)) \\
+\xrightarrow[s\rightarrow t]{}0 \Longrightarrow X_t^n\xrightarrow[n\rightarrow\infty]{m.sq.}X_t \text{ (for a given }t) \\
+\text{i.e.  }\lim_{n\rightarrow\infty}\mathbb{E}\left(X_t^n-X_t\right)^2=0$$</span><!-- Has MathJax --><br>&emsp;其中 $X_t^n$ converges to $X_t$ in m.sq. sense 可以參考 <a href="https://www.coursera.org/learn/stochasticprocesses/discussions/weeks/7/threads/eYtYxHP_Eei8-go9alE41A" target="_blank" rel="external">link</a><br><img src="/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled 6.png" width="80%" height="80%"><br>&emsp;所以<br>&emsp;<span>$$\lim_{n\rightarrow\infty}\int_a^b\mathbb{E}\left(X_t^n-X_t\right)^2dt \\
+(\text{by Lebesgue&apos;s dominated convergence theorem})\\
+= \int_a^b \lim_{n\rightarrow\infty}\mathbb{E}\left(X_t^n-X_t\right)^2dt = 0\ldots(\star)$$</span><!-- Has MathJax --><br>&emsp;參考 <a href="https://en.wikipedia.org/wiki/Dominated_convergence_theorem" target="_blank" rel="external">Lebesgue’s dominated convergence theorem</a><br>&emsp;If $\exists M(t)$ such that<br>&emsp;<span>$$|f(n,t)|\leq M(t),\forall n,t \\
+\int M(t)dt&lt;\infty$$</span><!-- Has MathJax --><br>&emsp;then<br>&emsp;<span>$\int\lim_{n\rightarrow\infty} f(n,t)dt = \lim_{n\rightarrow\infty}\int f(n,t)dt$</span><!-- Has MathJax --><br>&emsp;由於有以下關係<br>&emsp;<span>$$\mathbb{E}(X_t^n-X_t)^2 \leq 2\mathbb{E}(X_t^n)^2 + 2\mathbb{E}(X_t)^2 \\
+\leq 4\max_{t\in[a,b]}\mathbb{E}X_t^2=4\max_{t\in[a,b]}(K(t,t)+m^2(t))$$</span><!-- Has MathJax --><br>&emsp;由於 $m,K$ continuous 所以該 maximum 存在是 finite, 因此我們找到了 bounded function $M(t)$<br>&emsp;所以 limit and integral 可互換.<br>&emsp;結果 $(\star)$ 成立, Q.E.D.</p>
+<p><strong>[Quadratic Variation of a Brownian Motion]:</strong><br>&emsp;Assume $W_t$ is a Brownian motion. The interval from $0$ to $t$ is divided into $n$ parts by points $0=t_0,t_1,…,t_n=t$. Prove<br>&emsp;<span>$t=\lim_{n\rightarrow\infty}\sum_{i=1}^n (W_{t_i}-W_{t_{i-1}})^2$</span><!-- Has MathJax --><br>[Sol]:<br><img src="/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled 7.png" width="100%" height="100%"></p>
+<p><strong>[Example]:</strong><br><img src="/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled 8.png" width="60%" height="60%"></p>
+<blockquote>
+<p>Quiz 第七題有計算這個 stochastic integral 產生的 process 之 mean and variance</p>
+</blockquote>
+<p>這段課程的結語, 使用定義的方式來計算出 Wiener integral of process in $L_{ad}^2$ 很多時候仍然很困難<br>但接下來要介紹的 Ito formula 可以幫助我們計算大部分的情況<br><img src="/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled 9.png" width="100%" height="100%"></p>
+<hr>
+<h2 id="Week-7-6-Integrals-of-the-type-∫-X-t-dY-t-where-Y-t-is-an-Ito-process"><a href="#Week-7-6-Integrals-of-the-type-∫-X-t-dY-t-where-Y-t-is-an-Ito-process" class="headerlink" title="Week 7.6: Integrals of the type $∫ X_t dY_t$, where $Y_t$ is an Itô process"></a>Week 7.6: Integrals of the type $∫ X_t dY_t$, where $Y_t$ is an Itô process</h2><p><strong>[Ito Process Def]:</strong><br>&emsp;Let $\mathcal{F}_t$ is a filtration, $b_t,\sigma_t$ are processes $\mathcal{F}_t$-adapted, $W_t$ is $\mathcal{F}_t$ Brownian motion<br>&emsp;and $H_0$ is a random variable which is a measurable function w.r.t. $\mathcal{F}_0$<br>&emsp;$H_t$ is a Ito process:<br>&emsp;<span>$H_t=H_0+\int_0^t b_sds + \int_0^t\sigma_sdW_s$</span><!-- Has MathJax --><br>&emsp;or equivalently<br>&emsp;<span>$dH_t=b_tdt+\sigma_tdW_t$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>$H_t$ 的變化 (也還是一個 random process) 等於 $b_t$ 乘上時間的變化 $dt$, 再加上 $\sigma_t$ 乘上 Brownian motion 的變化 $dW_t$</p>
+</blockquote>
+<p><strong>[Stochastic Integral with Ito Process]:</strong><br>&emsp;Let $\mathcal{F}_t$ be some filtration, $X_t$ is $\mathcal{F}_t$-adapted and $H_t$ is a Ito process which is also $\mathcal{F}_t$-adapted.<br>&emsp;If $X_t$ fulfilled<br>&emsp;<span>$\int_a^b|X_sb_s|+X_s^2\sigma_s^2ds&lt;\infty$</span><!-- Has MathJax --><br>&emsp;then the integral is defined as<br>&emsp;<span>$\int_a^b X_tdH_t:=\int_a^bb_sX_xds + \int_a^b\sigma_sX_sdW_s$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>r.h.s. 的第一項和第二項 integrals 之前都討論過</p>
+</blockquote>
+<p><strong>[Ito Lemma or Ito Formula]:</strong><br>&emsp;Let $H_t$ is a Ito process, i.e.<br>&emsp;<span>$dH_t=b_tdt+\sigma_tdW_t$</span><!-- Has MathJax --><br>&emsp;where $b_t,\sigma_t$ are processes $\mathcal{F}_t$-adapted, $W_t$ is $\mathcal{F}_t$ Brownian motion.<br>&emsp;If $f(t,x)$ is twice continuously differentiable, then $f(t,H_t)$ be a Ito process with the following equation:<br>&emsp;<span>$$\color{orange}{
+f(t,H_t)=f(0,H_0)+\int_0^tf_1&apos;(s,H_s)ds + \int_0^tf_2&apos;(s,H_s)dH_s + \frac{1}{2}\int_0^tf_{22}&apos;&apos;(s,H_s)\sigma_s^2ds
+}$$</span><!-- Has MathJax --><br>&emsp;where<br>&emsp;<span>$$f_1&apos;(t,x)=\frac{\partial}{\partial t}f(t,x) \\
+f_2&apos;(t,x)=\frac{\partial}{\partial x}f(t,x) \\
+f_{22}&apos;&apos;(t,x)=\frac{\partial^2}{\partial t\partial t}f(t,x)$$</span><!-- Has MathJax --><br>&emsp;or equivalently,<br>&emsp;<span>$$\color{orange}{
+df(t,H_t)=f_1&apos;(t,H_t)dt + f_2&apos;(t,H_t)dH_t + \frac{1}{2}f_{22}&apos;&apos;(t,H_t)\sigma_t^2dt
+}$$</span><!-- Has MathJax --></p>
+<hr>
+<h2 id="Week-7-7-Ito’s-formula"><a href="#Week-7-7-Ito’s-formula" class="headerlink" title="Week 7.7: Itô’s formula"></a>Week 7.7: Itô’s formula</h2><p>若 $H_t$  為 Ito-process, i.e.: $b_t,\sigma_t$ are processes $\mathcal{F}_t$-adapted, $W_t$ is $\mathcal{F}_t$ Brownian motion.<br><span>$dH_t=b_tdt+\sigma_tdW_t$</span><!-- Has MathJax --></p>
+<p>If $f(t,x)$ is twice continuously differentiable, then $f(t,H_t)$ be a Ito process with the following equation:<br><span>$$f(t,H_t)\\
+=f(0,H_0)+\int_0^tf_1&apos;(s,H_s)ds + \int_0^tf_2&apos;(s,H_s)dH_s + \frac{1}{2}\int_0^tf_{22}&apos;&apos;(s,H_s)\sigma_s^2ds$$</span><!-- Has MathJax --></p>
+<p>Ito formula 可以用來幫助計算以下形式的積分, 假設 $g(t,x)$ is twice continuously differentiable:<br><span>$\int_0^t g(s,W_s)dW_s$</span><!-- Has MathJax --></p>
+<p>對照 Ito formula</p>
+<blockquote>
+<p>我們在 Week 7.5 有利用 Wiener process Integral 的定義來計算過 $\int W_sdW_s$, 此時 $g(s,W_s)=W_s$, 但如果 $g(.,.)$ 複雜一點就會很難計算. 不過我們可以借用 Ito formula 來幫忙</p>
+</blockquote>
+<p>我們令 $f$-antiderivative of $g$ w.r.t. 2nd-argument, i.e., $f_2’=g$, 注意到 $f(t,x)$ 如果加上 $h(t)$ 也滿足 $f_2’=g$, 且不影響以下推導, 可自行帶入多了一個 $h(t)$ 會發現不影響結果<br>由於 Brownian motion 也是 Ito process, 所以此時 $H_t=W_t$ and $\sigma_s=1$, 重新改寫 Ito formula 變成:<br><span>$f(t,W_t)=f(0,0)+\int_0^tf_1&apos;(s,W_s)ds + \int_0^t g(s,W_s)dW_s + \frac{1}{2}\int_0^t g_2&apos;(s,W_s)ds$</span><!-- Has MathJax --></p>
+<p>移項一下:<br><span>$$\color{orange}{
+\int_0^t g(s,W_s)dW_s=f(t,W_t)-f(0,0) - \int_0^t\left(
+f_1&apos;(s,W_s)+\frac{1}{2}g_2&apos;(s,W_s)
+\right)ds
+}\ldots(\square)$$</span><!-- Has MathJax --></p>
+<p><strong>[Example]:</strong><br>&emsp;計算 <span>$\int_0^t W_sdW_s$</span><!-- Has MathJax --><br>[Sol]:<br>&emsp;$g(t,x)=x$, 所以 $f(t,x)=\frac{1}{2}x^2$. 利用 $(\square)$ 則<br>&emsp;<span>$\int_0^t W_sdW_s = \frac{1}{2}W_t^2-\int_0^t\frac{1}{2}ds=\frac{1}{2}W_t^2-\frac{1}{2}t$</span><!-- Has MathJax --></p>
+<p><strong>[Example]:</strong><br>&emsp;計算 <span>$\int_0^t \frac{W_s}{1+W_s^2}dW_s$</span><!-- Has MathJax --><br>[Sol]:<br><img src="/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled 10.png" width="60%" height="60%"></p>
+<hr>
+<h2 id="Week-7-8-Calculation-of-stochastic-integrals-using-the-Ito-formula-Black-Scholes-model"><a href="#Week-7-8-Calculation-of-stochastic-integrals-using-the-Ito-formula-Black-Scholes-model" class="headerlink" title="Week 7.8: Calculation of stochastic integrals using the Itô formula. Black-Scholes model"></a>Week 7.8: Calculation of stochastic integrals using the Itô formula. Black-Scholes model</h2><p>重複一次 Ito formula (in derivative form)<br><span>$df(t,H_t)=f_1&apos;(t,H_t)dt + f_2&apos;(t,H_t)dH_t + \frac{1}{2}f_{22}&apos;&apos;(t,H_t)\sigma_t^2dt$</span><!-- Has MathJax --><br>其中 $H_t$  為 Ito-process<br><span>$dH_t=b_tdt+\sigma_tdW_t$</span><!-- Has MathJax --></p>
+<p><strong>[Black-Scholes model Def]:</strong><br>&emsp;$X_t$ 為以下 Stochastic Differential Equation (SDE) 的解:<br>&emsp;<span>$dX_t = X_t\mu dt+X_t\sigma dW_t$</span><!-- Has MathJax --><br>&emsp;where $\mu,\sigma\in\mathbb{R},\sigma&gt;0$, $W_t$ is $\mathcal{F}_t$ Brownian motion.</p>
+<blockquote>
+<p>對比 Ito-process 的定義會發現 $X_t$ 是 Ito-process</p>
+</blockquote>
+<p>&emsp;上式等同於<br>&emsp;<span>$X_t=X_0+\mu\int_0^t X_sds+\sigma\int_0^tX_sdW_s$</span><!-- Has MathJax --><br>&emsp;證明其解為:<br>&emsp;<span>$X_t=X_0\cdot\exp\left\{(\mu-\frac{\sigma^2}{2})t+\sigma W_t\right\}$</span><!-- Has MathJax --><br>[Proof]:<br>&emsp;Let $f(t,x)=\ln x$, $H_t=X_t$ 並代入 Ito formula:<br><img src="/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled 11.png" width="40%" height="40%"></p>
+<p>課程教授說這常用在 modeling stock prices</p>
+<hr>
+<h2 id="Week-7-9-Vasicek-model-Application-of-the-Ito-formula-to-stochastic-modelling"><a href="#Week-7-9-Vasicek-model-Application-of-the-Ito-formula-to-stochastic-modelling" class="headerlink" title="Week 7.9: Vasicek model. Application of the Itô formula to stochastic modelling"></a>Week 7.9: Vasicek model. Application of the Itô formula to stochastic modelling</h2><p>重複一次 Ito formula (in derivative)<br><span>$df(t,H_t)=f_1&apos;(t,H_t)dt + f_2&apos;(t,H_t)dH_t + \frac{1}{2}f_{22}&apos;&apos;(t,H_t)\sigma_t^2dt$</span><!-- Has MathJax --><br>其中 $H_t$  為 Ito-process<br><span>$dH_t=b_tdt+\sigma_tdW_t$</span><!-- Has MathJax --></p>
+<p><strong>[Vasicek model Def]:</strong><br>&emsp;$X_t$ 為以下 Stochastic Differential Equation (SDE) 的解:<br>&emsp;<span>$dX_t=(a-bX_t)dt+cdW_t,\qquad b,c&gt;0$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>對比 Ito-process 的定義會發現 $X_t$ 是 Ito-process</p>
+</blockquote>
+<p>&emsp;證明其解為:<br>&emsp;<span>$X_t=e^{-bt}X_0 + \frac{a}{b}(1-e^{-bt})+c\int_0^te^{b(s-t)}dW_s$</span><!-- Has MathJax --><br>[Proof]:<br>&emsp;使用 Ito formula, 並定義 $H_t=X_t$, and <span>$f(t,x)=xe^{bt}$</span><!-- Has MathJax --><br>&emsp;得到<br>&emsp;<span>$$d\left(X_te^{bt}\right)=bX_te^{bt}dt+e^{bt}\left((a-bX_t)dt+cdW_t\right) \\
+= ae^{bt}dt+ce^{bt}dW_t$$</span><!-- Has MathJax --><br>&emsp;所以<br>&emsp;<span>$X_t=e^{-bt}X_0 + \frac{a}{b}(1-e^{-bt})+c\int_0^te^{b(s-t)}dW_s$</span><!-- Has MathJax --></p>
+<p>SDE 改寫成<br><span>$dX_t=b\left(\frac{a}{b}-X_t\right)dt+cdW_t,\qquad b,c&gt;0$</span><!-- Has MathJax --></p>
+<p>如果 <span>$X_t&gt;a/b$</span><!-- Has MathJax -->, <span>$dX_t&lt;0$</span><!-- Has MathJax -->, 也就是說 $X_t$ 的斜率為負, $X_t$ 會變小. 反之斜率為正, 值變大. 所以觀察 trajectory 為下圖:</p>
+<p><img src="/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/Untitled 12.png" width="40%" height="40%"></p>
+<p>$b$ 稱為 speed of reversion</p>
+<hr>
+<h2 id="Week-7-10-Ornstein-Uhlenbeck-process-Application-of-the-Ito-formula-to-stochastic-modelling"><a href="#Week-7-10-Ornstein-Uhlenbeck-process-Application-of-the-Ito-formula-to-stochastic-modelling" class="headerlink" title="Week 7.10: Ornstein-Uhlenbeck process. Application of the Itô formula to stochastic modelling."></a>Week 7.10: Ornstein-Uhlenbeck process. Application of the Itô formula to stochastic modelling.</h2><p>繼續重複 Ito formula (in derivative)<br><span>$df(t,H_t)=f_1&apos;(t,H_t)dt + f_2&apos;(t,H_t)dH_t + \frac{1}{2}f_{22}&apos;&apos;(t,H_t)\sigma_t^2dt$</span><!-- Has MathJax --><br>其中 $H_t$  為 Ito-process<br><span>$dH_t=b_tdt+\sigma_tdW_t$</span><!-- Has MathJax --></p>
+<p><strong>[Ornstein-Uhlenbeck process Def]:</strong><br>&emsp;$V_t$ 為以下 Stochastic Differential Equation (SDE) 的解:<br>&emsp;<span>$mdV_t=dW_t-\lambda\cdot V_tdt$</span><!-- Has MathJax --><br>&emsp;where $m$ is mass (質量), $V_t$ 表示速度, $W_t$ is Brownian motion. $\lambda$ is called friction coefficient<br>&emsp;證明其解為:<br>&emsp;<span>$$V_t=e^{-\frac{\lambda}{m}t} \left(
+V_0+\frac{1}{m}\int_0^t e^{\frac{\lambda}{m}s}dW_s
+\right)$$</span><!-- Has MathJax --><br>[Proof]:<br>&emsp;使用 Ito formula, 並定義 $H_t=X_t$, and<br>&emsp;<span>$f(t,x)=xe^{\frac{\lambda}{m}t}$</span><!-- Has MathJax --><br>&emsp;則解為<br>&emsp;<span>$$V_t=e^{-\frac{\lambda}{m}t} \left(
+V_0+\frac{1}{m}\int_0^t e^{\frac{\lambda}{m}s}dW_s
+\right)$$</span><!-- Has MathJax --></p>
+<p>如果<br><span>$V_0\sim\mathcal{N}\left(0,\frac{1}{2\lambda m}\right) \perp W_t$</span><!-- Has MathJax --><br>then $V_t$ is a Gaussian process with $m(t)=0$<br><span>$K(t,s)=\frac{m}{2\lambda}e^{-\frac{\lambda}{m}|t-s|}$</span><!-- Has MathJax --><br>且看的出只與 $t-s$ 有關, 因此 auto-covariance 存在 $\gamma(t-s)=K(t,s)$<br>因此是 WSS, 加上是 Gaussian process, 所以也是 strictly stationary</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/" title="Stochastic Processes Week 7 Stochastic integration & Itô formula">http://yoursite.com/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Coursera/" rel="tag"># Coursera</a>
+          
+            <a href="/tags/Stochastic-Processes/" rel="tag"># Stochastic Processes</a>
+          
+            <a href="/tags/Stochastic-Integration/" rel="tag"># Stochastic Integration</a>
+          
+            <a href="/tags/Ito-formula/" rel="tag"># Itô formula</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/" rel="next" title="Stochastic Processes Week 6 Ergodicity, differentiability, continuity">
+                <i class="fa fa-chevron-left"></i> Stochastic Processes Week 6 Ergodicity, differentiability, continuity
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">67</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">136</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-7-1-Different-types-of-stochastic-integrals-Integrals-of-the-type-∫-X-t-dt"><span class="nav-number">1.</span> <span class="nav-text">Week 7.1: Different types of stochastic integrals. Integrals of the type $∫ X_t dt$</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-7-2-3-Integrals-of-the-type-∫-f-t-dW-t"><span class="nav-number">2.</span> <span class="nav-text">Week 7.2-3: Integrals of the type $∫ f(t) dW_t$</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-7-4-5-Integrals-of-the-type-∫-X-t-dW-t"><span class="nav-number">3.</span> <span class="nav-text">Week 7.4-5: Integrals of the type $∫ X_t dW_t$</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-7-6-Integrals-of-the-type-∫-X-t-dY-t-where-Y-t-is-an-Ito-process"><span class="nav-number">4.</span> <span class="nav-text">Week 7.6: Integrals of the type $∫ X_t dY_t$, where $Y_t$ is an Itô process</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-7-7-Ito’s-formula"><span class="nav-number">5.</span> <span class="nav-text">Week 7.7: Itô’s formula</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-7-8-Calculation-of-stochastic-integrals-using-the-Ito-formula-Black-Scholes-model"><span class="nav-number">6.</span> <span class="nav-text">Week 7.8: Calculation of stochastic integrals using the Itô formula. Black-Scholes model</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-7-9-Vasicek-model-Application-of-the-Ito-formula-to-stochastic-modelling"><span class="nav-number">7.</span> <span class="nav-text">Week 7.9: Vasicek model. Application of the Itô formula to stochastic modelling</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-7-10-Ornstein-Uhlenbeck-process-Application-of-the-Ito-formula-to-stochastic-modelling"><span class="nav-number">8.</span> <span class="nav-text">Week 7.10: Ornstein-Uhlenbeck process. Application of the Itô formula to stochastic modelling.</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
