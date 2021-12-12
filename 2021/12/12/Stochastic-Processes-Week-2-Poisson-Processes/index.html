@@ -1,0 +1,1065 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Coursera,Stochastic Processes,Poisson Process," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識
+Week 1: Introduction &amp;amp; Renewal processes
+Week 2: Poisson Processes (本文)
+Week3: Markov Chains
+Week 4: Gaussian Processes
+Week 5: Station">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Stochastic Processes Week 2 Poisson Processes">
+<meta property="og:url" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識
+Week 1: Introduction &amp;amp; Renewal processes
+Week 2: Poisson Processes (本文)
+Week3: Markov Chains
+Week 4: Gaussian Processes
+Week 5: Station">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/Untitled.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/Untitled 1.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/Untitled 2.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/Untitled 3.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/Untitled 4.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/Untitled 5.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/Untitled 6.png">
+<meta property="og:updated_time" content="2021-12-12T02:28:16.657Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Stochastic Processes Week 2 Poisson Processes">
+<meta name="twitter:description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識
+Week 1: Introduction &amp;amp; Renewal processes
+Week 2: Poisson Processes (本文)
+Week3: Markov Chains
+Week 4: Gaussian Processes
+Week 5: Station">
+<meta name="twitter:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/Untitled.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/"/>
+
+
+
+
+
+  <title> Stochastic Processes Week 2 Poisson Processes | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Stochastic Processes Week 2 Poisson Processes
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2021-12-12T08:42:36+08:00">
+                2021-12-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p><a href="https://www.coursera.org/learn/stochasticprocesses?" target="_blank" rel="external">Coursera Stochastic Processes</a> 課程筆記, 共九篇:</p>
+<ul>
+<li><a href="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-0-%E4%B8%80%E4%BA%9B%E9%A0%90%E5%82%99%E7%9F%A5%E8%AD%98/" target="_blank" rel="external">Week 0: 一些預備知識</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/" target="_blank" rel="external">Week 1: Introduction &amp; Renewal processes</a></li>
+<li><strong>Week 2: Poisson Processes (本文)</strong></li>
+<li>Week3: Markov Chains</li>
+<li>Week 4: Gaussian Processes</li>
+<li>Week 5: Stationarity and Linear filters</li>
+<li>Week 6: Ergodicity, differentiability, continuity</li>
+<li>Week 7: Stochastic integration &amp; Itô formula</li>
+<li>Week 8: Lévy processes </li>
+</ul>
+<a id="more"></a>
+<hr>
+<h2 id="Week-2-1-4-Definition-of-a-Poisson-process-as-a-special-example-of-renewal-process-Exact-forms-of-the-distributions-of-the-renewal-process-and-the-counting-process"><a href="#Week-2-1-4-Definition-of-a-Poisson-process-as-a-special-example-of-renewal-process-Exact-forms-of-the-distributions-of-the-renewal-process-and-the-counting-process" class="headerlink" title="Week 2.1-4: Definition of a Poisson process as a special example of renewal process. Exact forms of the distributions of the renewal process and the counting process"></a>Week 2.1-4: Definition of a Poisson process as a special example of renewal process. Exact forms of the distributions of the renewal process and the counting process</h2><p>Just a recap<br><img src="/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/Untitled.png" width="100%" height="100%"><br>令我們有如上面所述的 renewal process<br><strong>[Poisson Processes Def1]:</strong><br>&emsp;A Poisson process 是一個 renewal process, 且 <span>$\xi_i\sim p(x)=\lambda e^{-\lambda x}\cdot \mathbf{1}(x&gt;0)$</span><!-- Has MathJax --> which is exponential density function<br>&emsp;此時 <span>$\mathbf{1}(\cdot)$</span><!-- Has MathJax --> 為 indicator function, 而 $\lambda$ 稱為 intensity parameter, 或 rate of Poisson process</p>
+<p>簡單說就是 exponential random variables 的 renewal process<br>此時的 renewal process 的 $S_n$ (arrival time process) and $N_t$ (counting process) 有 closed form</p>
+<p><strong>[Thm] Arrival time process $S_n$ 的 distribution and density functions:</strong><br>&emsp;<span>$$F_{S_n}(x)=\left\{ \begin{array}
+{rl} 1-e^{-\lambda x} \sum_{k=0}^{n-1}\frac{(\lambda x)^k}{k!}, &amp; x&gt;0 \\
+0, &amp; x&lt;0
+\end{array} \right. \\
+\mathcal{P}_{S_n}(x)=\lambda\frac{(\lambda x)^{n-1}}{(n-1)!}e^{-\lambda x}\cdot \mathbf{1}(x&gt;0)$$</span><!-- Has MathJax --></p>
+<p>[Proof]:<br>&emsp;我們證明 p.d.f., 使用數學歸納法<br>&emsp;考慮 $n=1$ 時 $\mathcal{P}_{S_1}=?$<br>&emsp;$S_1=\xi_1\sim \lambda e^{-\lambda x}\cdot \mathbf{1}(x&gt;0)$<br>&emsp;假設 $n$ 成立, 考慮 $n+1$<br>&emsp;<span>$$\mathcal{P}_{S_{n+1}}(x)
+= \int_{y=0}^x \mathcal{P}_{S_n}(x-y) \cdot \mathcal{P}_{\xi_{n+1}}(y) dy \\
+= \int_{y=0}^x
+\frac{\lambda^n(x-y)^{n-1}}{(n-1)!}e^{-\lambda (x-y)} \lambda e^{-\lambda y} dy \\
+= \int_{y=0}^x
+\frac{\lambda^{n+1}(x-y)^{n-1}}{(n-1)!}e^{-\lambda x} dy \\
+= \frac{\lambda^{n+1}}{(n-1)!}e^{-\lambda x} \int_{y=0}^x (x-y)^{n-1}dy \\
+= \frac{\lambda^{n+1}}{(n-1)!} e^{-\lambda x} \cdot \frac{x^n}{n} = \lambda\frac{(\lambda x)^n}{n!} e^{-\lambda x}$$</span><!-- Has MathJax --></p>
+<p><strong>[Thm] Counting process $N_t$ 是 Poisson distribution, $\mathcal{P}{N_t=n}\sim Pois(\lambda t)$:</strong><br>&emsp;<span>$${\color{orange}
+{
+\mathcal{P}\{N_t=n\} \sim Pois(\lambda t)=e^{-\lambda t}\frac{(\lambda t)^n}{n!}
+}
+}$$</span><!-- Has MathJax --><br>[Proof]:<br>&emsp;我們有 <span>$\mathcal{P}\{N_t=n\}=\mathcal{P}\{ S_n\leq t\} - \mathcal{P}\{ S_{n+1}\leq t\}\ldots(\star)$</span><!-- Has MathJax --><br>&emsp;L.H.S. 意思是, 到時間 $t$ 為止正好發生 $n$ 次事件的機率<br>&emsp;R.H.S. 以下兩種都可以解釋:<br>&emsp;1. 到時間 $t$ 為止已發生至少 $n$ 次事件的機率, 扣掉, 到時間 $t$ 為止已發生至少 $n+1$ 次事件的機率<br>&emsp;&emsp;—&gt; 很顯然只會剩下到時間 $t$ 為止正好發生 $n$ 次事件的機率<br>&emsp;2. 第 $n$ 個事件發生的時間比 $t$ 小的機率, 扣掉, 第 $n+1$ 個事件發生的時間比 $t$ 小的機率.<br>&emsp;&emsp;<span>$\{N_t=n\}=\{S_n\leq t\} \cap \{S_{n+1}&gt;t\}$</span><!-- Has MathJax --> 用 $A \cap B$ 表示, 由於<br>&emsp;<span>$$\left.
+\begin{array}{r}
+A\cap B=A\backslash B^c \\
+B^c\subset A
+\end{array}
+\right\}
+\Rightarrow \mathcal{P}(A\cap B)=\mathcal{P}(A)-\mathcal{P}(B^c)$$</span><!-- Has MathJax --><br>&emsp;因此<br>&emsp;<span>$$(\star) = \left( 1-e^{-\lambda t} \sum_{k=0}^{n-1}\frac{(\lambda t)^k}{k!} \right) - \left( 1-e^{-\lambda t} \sum_{k=0}^{n}\frac{(\lambda t)^k}{k!} \right) \\
+= e^{-\lambda t}\frac{(\lambda t)^n}{n!}$$</span><!-- Has MathJax --></p>
+<hr>
+<h2 id="Week-2-5-Memoryless-property"><a href="#Week-2-5-Memoryless-property" class="headerlink" title="Week 2.5: Memoryless property"></a>Week 2.5: Memoryless property</h2><p><strong>[Def] Memoryless Property:</strong><br>&emsp;A random variable $X$ possesses the <em>memoryless property</em>, $iff$<br>&emsp;<span>$\mathcal{P}\{X&gt;u+v\} = \mathcal{P}\{X&gt;u\} \mathcal{P}\{X&gt;v\}$</span><!-- Has MathJax --></p>
+<p>If <span>$\mathcal{P}\{x&gt;v\}&gt;0$</span><!-- Has MathJax -->, then<br><span>$\mathcal{P}\{ X&gt;u+v \vert X&gt;v \} = \mathcal{P}\{ X&gt;u \}\ldots(\square)$</span><!-- Has MathJax --><br>這是因為<br><span>$$\mathcal{P}\{X&gt;u+v\} = \mathcal{P}\{X&gt;u+v , X&gt;v\}=\mathcal{P}\{X&gt;u+v \vert X&gt;v\}\mathcal{P}\{X&gt;v\} \\
+\text{mem.less prop.}\Rightarrow \mathcal{P}\{X&gt;u\} \mathcal{P}\{X&gt;v\} = \mathcal{P}\{X&gt;u+v \vert X&gt;v\}\mathcal{P}\{X&gt;v\} \\
+\Rightarrow \mathcal{P}\{X&gt;u\} = \mathcal{P}\{X&gt;u+v \vert X&gt;v\}$$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>從這就可以看出為何稱 memoryless. 這是因為 已經等了 $v$ 的時間, 要再多等 $u$ 的時間, 跟一開始就等 $u$ 的時間的機率是一樣的</p>
+</blockquote>
+<p>再來有一個定理可以看出 Poisson process 適不適合用來 model 一個問題</p>
+<p><strong>[Thm] Memoryless is exactly exponential distribution:</strong><br>&emsp;Let $X$ be a random variable with density $p(x)$, 則<br>&emsp;<span>$X\text{ memoryless } \Longleftrightarrow p(x)=\lambda e^{-\lambda x}\text{, }X\sim\text{ exponential p.d.f.}$</span><!-- Has MathJax --></p>
+<p>範例: 公車每 $20 \pm 2$ 分鐘來一班, 也就是說 $X$ 是公車到的時間的 r.v. 值在 $20 \pm 2$. 這個問題是否可以用 Poisson process 來 model ? (檢察 r.v. $X$ 是否具有 memoryless property)<br>令 $v=19$, $u=10$, 則考慮 $(\square)$<br>L.H.S. 為 <span>$\mathcal{P}\{X&gt;29|X&gt;19\}=0$</span><!-- Has MathJax --><br>R.H.S. 為 <span>$\mathcal{P}\{ X&gt;10 \}=1$</span><!-- Has MathJax --><br>兩者不相等, 所以不具有 memoryless property, 因此此 random variable 不能用在 renewal process 讓它成為 Poisson process</p>
+<p><strong>[Quiz]:</strong><br><img src="/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/Untitled 1.png" width="70%" height="70%"><br><img src="/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/Untitled 2.png" width="70%" height="70%"></p>
+<hr>
+<h2 id="Week-2-6-7-Other-definitions-of-Poisson-processes"><a href="#Week-2-6-7-Other-definitions-of-Poisson-processes" class="headerlink" title="Week 2.6-7: Other definitions of Poisson processes"></a>Week 2.6-7: Other definitions of Poisson processes</h2><p>之前定義 Poisson process 是 renewal process 的一個特例 (當 $\xi$ 是 exponential distribution)<br>現在給出另一種定義, 這種定義跟 Poisson process 與 Levy precess 的關聯有很大的關係. (之後才會知道)</p>
+<p><strong>[Poisson Processes Def2] from Levy precess:</strong><br>&emsp;Poisson process is an integer-valued process, $N_t$, with $N_0=0$ a.s. (almost surely), such that<br>&emsp;1. $N_t$ has independent increments<br>&emsp;&emsp;<span>$\forall t_0&lt;t_1&lt;...&lt;t_n$</span><!-- Has MathJax -->, we have <span>$N_{t_1}-N_{t_0}, ..., N_{t_n}-N_{t_{n-1}}$</span><!-- Has MathJax --> are independent<br>&emsp;2. $N_t$ has stationary increments<br>&emsp;&emsp;<span>$N_t-N_s$ 與 $N_{t-s}$</span><!-- Has MathJax --> 具有相同的 distribution<br>&emsp;3. <span>$N_t-N_s\sim Pois(\lambda(t-s))$</span><!-- Has MathJax --><br>&emsp;&emsp;<span>$${\color{orange}
+{
+\mathcal{P}\{N_t=n\} \sim Pois(\lambda t)=e^{-\lambda t}\frac{(\lambda t)^n}{n!}
+}
+}$$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>特性 3 可以推導出特性 2<br>$X \sim Pois(\mu)$ has $\mathbb{E}[X]=Var[X]=\mu$</p>
+</blockquote>
+<p>我們再來推導一個定理, 該定理讓我們有第三種 Poisson process 的定義. 且跟 queueing theory 有關聯.<br>當在一個極短的時間段之內, Poisson process 能分成三種情況:<br>&emsp;1. 沒有事件發生<br>&emsp;2. 事件發生 $1$ 次<br>&emsp;3. 事件發生 $\geq 2$ 次</p>
+<p>定義 $f(h)=o(g(h))$ 為<br><span>$\lim_{h\rightarrow0}\frac{f(h)}{g(h)}=0$</span><!-- Has MathJax --></p>
+<p>直觀理解為 $f(h)$ 比 $g(h)$ 小的更快.</p>
+<p><strong>[Thm] Poisson process 在極小時間段的行為:</strong><br>&emsp;<span>$$\left\{
+\begin{array}{rl}
+\mathcal{P}\{N_{t+h}-N_t=0\} = 1 -\lambda h + o(h), &amp; h\rightarrow0 \\
+\mathcal{P}\{N_{t+h}-N_t=1\} = \lambda h + o(h), &amp; h\rightarrow0 \\
+\mathcal{P}\{N_{t+h}-N_t\geq2\} = o(h), &amp; h\rightarrow0 
+\end{array}
+\right.$$</span><!-- Has MathJax --><br>[Proof]:<br>&emsp;我們先證明 $=0$ 的情況<br>&emsp;根據之前的 定義2 我們知道 <span>$\mathcal{P}\{N_{t+h}-N_t=0\}=e^{-\lambda h}$</span><!-- Has MathJax -->, 則<br>&emsp;<span>$$\lim_{h\rightarrow0}\frac{1-\mathcal{P}\{N_{t+h}-N_t=0\}}{h}  = \lim_{h\rightarrow0}\frac{1-e^{-\lambda h}}{h}\\
+\text{by L&apos;Hospital&apos;s rule} = \lim_{h\rightarrow0}\frac{\lambda e^{-\lambda h}}{1} = \lambda$$</span><!-- Has MathJax --><br>&emsp;i.e., as $h\rightarrow0$,<br>&emsp;<span>$$\frac{1-\mathcal{P}\{N_{t+h}-N_t=0\}}{h} = \lambda + o(1) \\
+\Rightarrow \mathcal{P}\{N_{t+h}-N_t=0\} = 1-\lambda h + ho(1) \\
+= 1-\lambda h + o(h)$$</span><!-- Has MathJax --><br>&emsp;$o(h)$ 的正負號不重要, Q.E.D.<br>&emsp;而 <span>$\mathcal{P}\{N_{t+h}-N_t=1\} = \lambda h + o(h), h\rightarrow0$</span><!-- Has MathJax --> 這一條可以藉由計算<br>&emsp;<span>$$\lim_{h\rightarrow0}\frac{\mathcal{P}\{N_{t+h}-N_t=1\}}{h}  = \lim_{h\rightarrow0}\frac{e^{-\lambda h}\lambda h}{h}\\
+\text{by L&apos;Hospital&apos;s rule} = \lim_{h\rightarrow0}\frac{-\lambda e^{-\lambda h}\lambda h + \lambda e^{-\lambda h}}{1} = \lambda$$</span><!-- Has MathJax --><br>&emsp;i.e., as $h\rightarrow0$,<br>&emsp;<span>$$\frac{\mathcal{P}\{N_{t+h}-N_t=1\}}{h} = \lambda + o(1) \\
+\Rightarrow \mathcal{P}\{N_{t+h}-N_t=1\} = \lambda h + o(h)$$</span><!-- Has MathJax --><br>&emsp;Q.E.D.</p>
+<p>&emsp;最後, <span>$\mathcal{P}\{N_{t+h}-N_t\geq2\}=1-\mathcal{P}\{N_{t+h}-N_t=0\} - \mathcal{P}\{N_{t+h}-N_t=1\}$</span><!-- Has MathJax --> 可以計算得到<br>&emsp;注意到 $-o(h)=o(h)$, $2o(h)=o(h)$<br>&emsp;Q.E.D.</p>
+<p><strong>[Poisson Processes Def3] from queueing process:</strong><br>&emsp;Poisson process is an integer-valued process, $N_t$, with $N_0=0$ a.s. (almost surely), such that<br>&emsp;1. $N_t$ has independent increments<br>&emsp;&emsp; <span>$\forall t_0&lt;t_1&lt;...&lt;t_n$</span><!-- Has MathJax -->, we have <span>$N_{t_1}-N_{t_0}, ..., N_{t_n}-N_{t_{n-1}}$</span><!-- Has MathJax --> are independent<br>&emsp;2. $N_t$ has stationary increments<br>&emsp;&emsp;$N_t-N_s$ 與 <span>$N_{t-s}$</span><!-- Has MathJax --> 具有相同的 distribution<br>&emsp;3.  滿足:<br>&emsp;&emsp;<span>$\lim_{h\rightarrow0} \frac{\mathcal{P}\{N_{t+h} - N_t\geq2\}}{\mathcal{P}\{N_{t+h}-N_t=1\}}=0$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>定義 2 和定義 3 的差別只在第 3 點的條件. 然而兩種定義等價.<br>我們其實已經證明了 (定義 2 $\Rightarrow$ 定義 3), 但另一個方向還沒有</p>
+</blockquote>
+<hr>
+<h2 id="Week-2-8-9-Non-homogeneous-Poisson-processes"><a href="#Week-2-8-9-Non-homogeneous-Poisson-processes" class="headerlink" title="Week 2.8-9: Non-homogeneous Poisson processes"></a>Week 2.8-9: Non-homogeneous Poisson processes</h2><p>也可以參考 <a href="https://www.randomservices.org/random/poisson/Nonhomogeneous.html" target="_blank" rel="external">https://www.randomservices.org/random/poisson/Nonhomogeneous.html</a>, 但對我來說有點難懂</p>
+<p><strong>[Non-homogeneous Poisson Processes Def1]:</strong><br>&emsp;Let $\Lambda(t)$ be a <em>differentiable increasing</em> function, and $\Lambda(0)=0$,<br>&emsp;$N_t$ is a  N.H.P.P. (Non-Homogeneous Poisson Processes), if<br>&emsp;1. $N_0=0$<br>&emsp;2. $N_t$ has independent increments<br>&emsp;3. $N_t-N_s \sim Pois(\Lambda(t)-\Lambda(s))$<br>&emsp;&emsp;<span>$${\color{orange}
+{
+\mathcal{P}\{N_t=n\} \sim Pois(\Lambda(t))=e^{-\Lambda(t)}\frac{\Lambda(t)^n}{n!}
+}
+}$$</span><!-- Has MathJax --><br>&emsp;定義 $\lambda(t) = \Lambda’(t)$, 稱 intensity function</p>
+<blockquote>
+<p>在 P.P. 的定義 2, 我們知道 $N_t-N_s\sim Pois(\lambda(t-s))$, 所以當 $\Lambda(t)=\lambda t$ 的話, non-homogeneous P.P. 等於 P.P.</p>
+</blockquote>
+<p>我們可以發現 non-homogeneous 去掉 stationary increment 特性, 也就是 Poisson distribution 的 rate $\lambda$ 在每個時間段落不一定會都一樣, depends on $\Lambda(t)$</p>
+<p><strong>[Properties of N.H.P.P.]:</strong><br>&emsp;1. $\mathbb{E}[N_t]=\Lambda(t)$<br>&emsp;&emsp;我們算一下 $\mathbb{E}[N_t]$ for N.H.P.P.:<br>&emsp;&emsp;<span>$N_t = N_t - N_0 \sim Pois(\Lambda(t)-\Lambda(0))=Pois(\Lambda(t))$</span><!-- Has MathJax --><br>&emsp;&emsp;$\therefore \mathbb{E}[N_t]=\Lambda(t)$<br>&emsp;2. 如果 <span>$\lambda(t)=\text{const} \Rightarrow \Lambda(t) = \text{const}\cdot t$</span><!-- Has MathJax -->, 回退到原來的 (homogeneous) P.P.<br>&emsp;3. 因為 $\Lambda(t)$ is differentialble and increasing, 所以 <span>$\Lambda^{-1}(t)$</span><!-- Has MathJax --> 存在<br>&emsp;&emsp;讓我們假設 <span>$\text{Image}(\Lambda(t))=\mathbb{R}^+$</span><!-- Has MathJax -->, 所以 <span>$\Lambda^{-1}(t)$</span><!-- Has MathJax --> 對於 <span>$t\in\mathbb{R}^+$</span><!-- Has MathJax --> 都是 well defined<br>&emsp;&emsp;對於一個 N.H.P.P. 的 $N_t$ 來說, 考慮 <span>$N_{\Lambda^{-1}(t)}$</span><!-- Has MathJax --> 這些 r.v.s 的話, 會發現變成了 homogeneous P.P. 了!</p>
+<blockquote>
+<p>第三點提供了一個 N.H.P.P. 與 P.P. 的對應方法<br>但具體來說, 如果一個 N.H.P.P. 剛好是 P.P. 的話, iff 他也是個 renewal process, 下一節證明</p>
+</blockquote>
+<hr>
+<h2 id="Week-2-10-12-Relation-between-renewal-theory-and-non-homogeneous-Poisson-processes"><a href="#Week-2-10-12-Relation-between-renewal-theory-and-non-homogeneous-Poisson-processes" class="headerlink" title="Week 2.10-12: Relation between renewal theory and non-homogeneous Poisson processes"></a>Week 2.10-12: Relation between renewal theory and non-homogeneous Poisson processes</h2><p>我們試著從一個 $N_t$ 是 N.H.P.P. 去建構 renewal process 看看, 我們有如下的 N.H.P.P.<br><img src="/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/Untitled 3.png" width="60%" height="60%"><br>Renewal process 的 arrival time $S_n$ 可以這麼構建<br><span>$S_n=\arg\min_t\{N_t=n\}$</span><!-- Has MathJax --></p>
+<span>$\{N_t=n\}$</span><!-- Has MathJax --> 表示發生 $n$ 次事件的時間的集合, 所以很顯然的取最小那個就是剛剛好第 $n$ 個事件發生的時間, i.e. $=S_n$<br>有 $S_n$ 就可以得到 interarrival time <span>$\xi_n=S_n-S_{n-1}$</span><!-- Has MathJax -->
+<p>這樣子的 arrival times $S_n$ and interarrival times $\xi_n$ 是一個 renewal process 嗎?<br>首先我們知道若要成為一個 renewal process, $\xi_1, \xi_2, …$ 必須是 i.i.d. 才行<br>Note that:<br><span>$${
+\mathcal{P}\{N_t=n\} \sim Pois(\Lambda(t))=e^{-\Lambda(t)}\frac{\Lambda(t)^n}{n!}
+}$$</span><!-- Has MathJax --></p>
+<p>先證明以下兩個等式:</p>
+<ol>
+<li><p>$\mathcal{P}_{\xi_1}(x)=\lambda(x)e^{-\Lambda(x)}$:<br>[Proof]:<br>&emsp;<span>$$\mathcal{P}\{\xi_1\leq x\}=\mathcal{P}\{S_1\leq x\}=\mathcal{P}\{N_x\geq 1\}
+= 1 - \mathcal{P}\{N_x=0\} \\
+= 1- Pois(\Lambda(x)) = 1-e^{-\Lambda(x)}$$</span><!-- Has MathJax --><br>&emsp;用到 <span>$\{S_n\leq t\}=\{N_t\geq n\}$</span><!-- Has MathJax -->, 然後左右等式微分得到:<br>&emsp;<span>$\mathcal{P}_{\xi_1}(x)=\lambda(x)e^{-\Lambda(x)}$</span><!-- Has MathJax --><br>&emsp;其中 $\lambda=\Lambda’$, Q.E.D.</p>
+</li>
+<li><span>$\mathcal{P}_{(\xi_2|\xi_1)}(t|s)=\lambda(t+s)e^{-\Lambda(t+s)+\Lambda(s)}$</span><!-- Has MathJax -->:<br>[Proof]:<br>&emsp;先計算一下兩個 r.v.s $\xi_1,\xi_2$ 的 joint C.D.F. <span>$\mathcal{F}_{\xi_1,\xi_2}(s,t)$</span><!-- Has MathJax -->
+<p>&emsp;<span>$$\mathcal{F}_{(\xi_1,\xi_2)}(\xi_1=s,\xi_2=t)=\mathcal{P}\{\xi_1\leq s, \xi_2\leq t\} \\
+=\int_{y=0}^s \mathcal{P}\{ \xi_1\leq s, \xi_2\leq t \vert \xi_1=y \} \mathcal{P}_{\xi_1}(y)dy$$</span><!-- Has MathJax --><br>&emsp;$\because y\leq s$<br>&emsp;<span>$$=\int_{y=0}^s \mathcal{P}\{ \xi_2\leq t \vert \xi_1=y \} \mathcal{P}_{\xi_1}(y) dy \\
+= \int_{y=0}^s \mathcal{P}\{ N_{t+y} - N_y \geq 1 \vert \xi_1 = y \} \mathcal{P}_{\xi_1}(y) dy \ldots(\star)$$</span><!-- Has MathJax --><br>&emsp;由 N.H.P.P. 的 independent increments 特性知道 $(N_{t+y} - N_y),(N_y-N_0)$ 這兩個 r.v.s 為 independent. 因此<br>&emsp;<span>$$\mathcal{P}\{N_{t+y} - N_y \geq 1 | \xi_1=y\} = \mathcal{P}\{ N_{t+y} - N_y \geq 1 | N_y-N_0=1 \} \\
+= \mathcal{P}\{N_{t+y} - N_y \geq 1 \}$$</span><!-- Has MathJax --><br>&emsp;接續 $(\star)$<br>&emsp;<span>$$(\star) = \int_{y=0}^s \mathcal{P}\{ N_{t+y}-N_y \geq 1 \} \cdot \mathcal{P}_{\xi_1}(y) dy \\
+= \int_{y=0}^s (1 - \mathcal{P}\{ N_{t+y}-N_y = 0 \}) \cdot \mathcal{P}_{\xi_1}(y) dy \\
+= \int_{y=0}^s (1 - e^{-\Lambda(t+y)+\Lambda(y)}) \cdot \lambda(y)e^{-\Lambda(y)} dy$$</span><!-- Has MathJax --><br>&emsp;所以兩個 r.v.s $\xi_1,\xi_2$ 的 joint C.D.F.<br>&emsp;<span>$\mathcal{F}_{(\xi_1,\xi_2)}(s,t) = \int_{y=0}^s (1 - e^{-\Lambda(t+y)+\Lambda(y)}) \cdot \lambda(y)e^{-\Lambda(y)} dy$</span><!-- Has MathJax --><br>&emsp;微分可以計算 P.D.F.<br>&emsp;<span>$$\mathcal{P}_{(\xi_1,\xi_2)}(s,t) = \frac{\partial}{\partial t} \left( \frac{\partial}{\partial s} \mathcal{F}_{(\xi_1,\xi_2)}(s,t) \right) \\
+\text{replace y by s} = \frac{\partial}{\partial t} \left( (1 - e^{-\Lambda(t+s)+\Lambda(s)}) \cdot \lambda(s)e^{-\Lambda(s)} \right) \\
+= \lambda(t+s) e^{-\Lambda(t+s)+\Lambda(s)}\cdot \lambda(s) e^{-\Lambda(s)} \\
+= \lambda(t+s) e^{-\Lambda(t+s)+\Lambda(s)} \cdot \mathcal{P}_{\xi_1}(s)$$</span><!-- Has MathJax --><br>&emsp;所以<br>&emsp;<span>$$\mathcal{P}_{(\xi_2|\xi_1)}(t|s) = \frac{\mathcal{P}_{(\xi_1,\xi_2)}(s,t)}{\mathcal{P}_{\xi_1}(s)} \\
+=\lambda(t+s)e^{-\Lambda(t+s)+\Lambda(s)}$$</span><!-- Has MathJax --><br>&emsp;Q.E.D.</p>
+</li>
+</ol>
+<p>回到考慮什麼情況下的 N.H.P.P. 的 $\xi_1, \xi_2, …$ 是 i.i.d. 這個問題<br>我們先假設 $\xi_1, \xi_2, …$ 是 i.i.d., i.e. 假設 N.H.P.P. 是 renewal process, 則<br><span>$$\mathcal{P}_{\xi_2 | \xi_1}(t|s)=\mathcal{P}_{\xi_2}(t) \\
+\because\text{i.i.d.}=\mathcal{P}_{\xi_1}(t), \forall t,s&gt;0$$</span><!-- Has MathJax --><br>帶入我們花很多力氣推導的上述兩個結果得到:<br><span>$\lambda(t+s)e^{-\Lambda(t+s)+\Lambda(s)} = \lambda(t)e^{-\Lambda(t)}$</span><!-- Has MathJax --><br>然後對兩邊都做積分</p>
+<span>$\int_0^T\lambda(t+s)e^{-\Lambda(t+s)+\Lambda(s)} dt = \int_0^T \lambda(t)e^{-\Lambda(t)} dt \ldots (\square)$</span><!-- Has MathJax -->
+<p>$(\square)$ R.H.S.:<br><span>$$\int_0^T \lambda(t)e^{-\Lambda(t)} dt = \int_0^T e^{-\Lambda(t)}d\Lambda(t) \left(= \int_0^Te^{-y}dy\right) \\
+= -e^{-\Lambda(T)}+e^{-\Lambda(0)} = 1 -e^{-\Lambda(T)}$$</span><!-- Has MathJax --></p>
+<p>$(\square)$ L.H.S. 同理<br><span>$$\int_0^T\lambda(t+s)e^{-\Lambda(t+s)+\Lambda(s)} dt = e^{\Lambda(s)}\int_0^T e^{-\Lambda(t+s)} d\Lambda(t+s) \\
+\left(\text{this as: }e^{\Lambda(s)}\int e^{-y}dy\right) \\
+= e^{\Lambda(s)}
+\left[\left.
+-e^{\Lambda(t+s)}\right|_{t=0}^T
+\right] = e^{\Lambda(s)}\left[-e^{-\Lambda(T+s)}+e^{-\Lambda(s)}\right] = -e^{-\Lambda(T+s)+\Lambda(s)}+e^0$$</span><!-- Has MathJax --></p>
+<p>所以 L.H.S = R.H.S.<br><span>$$\Rightarrow e^0-e^{-\Lambda(T+s)+\Lambda(s)} = 1 - e^{-\Lambda(T)} \\
+\Rightarrow \Lambda(T+s) - \Lambda(s) = \Lambda(T), \forall T,s&gt;0$$</span><!-- Has MathJax --></p>
+<p>因為 $\Lambda$ is increasing function, 上式知道是 linear function, 所以會得到 <span>$\Lambda(t)=\text{const}\cdot t$</span><!-- Has MathJax --><br>而這正好表明了 N.H.P.P. 變成了 homogeneous P.P. 了</p>
+<p>結論是:<br>N.H.P.P. is a renewal process $\Longleftrightarrow$ $\Lambda (t)=\lambda t$ (i.e. 此時的 N.H.P.P. 也變成 homogenous 了)</p>
+<blockquote>
+<p>$(\Longleftarrow)$ 證明很容易, 因為 homogeneous P.P. 是 renewal process</p>
+</blockquote>
+<p>換句話說 <strong>N.H.P.P. is a renewal process $\Longleftrightarrow$ it is homogenous P.P.</strong></p>
+<hr>
+<h2 id="Week-2-13-Elements-of-the-queueing-theory-M-G-k-systems-1"><a href="#Week-2-13-Elements-of-the-queueing-theory-M-G-k-systems-1" class="headerlink" title="Week 2.13: Elements of the queueing theory. M/G/k systems-1"></a>Week 2.13: Elements of the queueing theory. M/G/k systems-1</h2><p>我們先前證明過</p>
+<p><strong>[Thm] Poisson process 在極小時間段:</strong><br>&emsp;<span>$$\left\{
+\begin{array}{rl}
+\mathcal{P}\{N_{t+h}-N_t=0\} = 1 -\lambda h + o(h), &amp; h\rightarrow0 \\
+\mathcal{P}\{N_{t+h}-N_t=1\} = \lambda h + o(h), &amp; h\rightarrow0 \\
+\mathcal{P}\{N_{t+h}-N_t\geq2\} = o(h), &amp; h\rightarrow0 
+\end{array}
+\right.$$</span><!-- Has MathJax --></p>
+<p>對於 N.H.P.P. 也有類似的結果</p>
+<p><strong>[Thm] Non-homogeneous Poisson process 在極小時間段:</strong><br>&emsp;<span>$$\left\{
+\begin{array}{rl}
+\mathcal{P}\{N_{t+h}-N_t=0\} = 1 -{\color{orange}{\lambda(t)}} h + o(h), &amp; h\rightarrow0 \\
+\mathcal{P}\{N_{t+h}-N_t=1\} = {\color{orange}\lambda(t)} h + o(h), &amp; h\rightarrow0 \\
+\mathcal{P}\{N_{t+h}-N_t\geq2\} = o(h), &amp; h\rightarrow0 
+\end{array}
+\right.$$</span><!-- Has MathJax --></p>
+<p>所以類似的對於 N.H.P.P. 我們也有另一種定義 (類似 <strong>[Poisson Processes Def3]</strong>)</p>
+<p><strong>[Non-homogeneous Poisson Processes Def2]:</strong><br>&emsp;Let $\Lambda(t)$ be a <em>differentiable increasing</em> function, and $\Lambda(0)=0$,<br>&emsp;$N_t$ is a  N.H.P.P. (Non-Homogeneous Poisson Processes), if<br>&emsp;1. $N_0=0$<br>&emsp;2. $N_t$ has independent increments<br>&emsp;3. 滿足:<br>&emsp;&emsp;<span>$\lim_{h\rightarrow0} \frac{\mathcal{P}\{N_{t+h} - N_t\geq2\}}{\mathcal{P}\{N_{t+h}-N_t=1\}}=0$</span><!-- Has MathJax --></p>
+<p>(Non-homogeneous) Poisson processes 很適合用來 modeling queueing processes.</p>
+<p>我們用 $M,D,G$ 來表示 distribution 種類:</p>
+<ul>
+<li>$M$: exponential distribution. 所以如果用來描述 arrival processes (memoryless) 就會變成 Poisson processes</li>
+<li>$D$: deterministic (constant distribution, 即不受 time $t$ 的影響? 還是連 value 都是 constant?)</li>
+<li>$G$: general, 表示可以是任何 distribution</li>
+</ul>
+<p>Queueing processes 包含了三個字母, e.g. $M/G/k$, 分別表示 Arrival process, Service time, 和  Number of servers</p>
+<ul>
+<li>Arrival process: <span>$\in\{M,D,G\}$</span><!-- Has MathJax --></li>
+<li>Service time: <span>$\in\{M,D,G\}$</span><!-- Has MathJax -->. <strong>同時為 I.I.D.</strong></li>
+<li>Number of servers: <span>$\in\{1, 2, ..., \infty\}$</span><!-- Has MathJax --></li>
+</ul>
+<p>我們以學生上機房用電腦來舉例, 若用 queueing process 為 $M/G/\infty$ 來描述的話<br>Arrival processes (by Poisson process) 描述了學生來的 $N(t)$<br>Service time 表示學生會用多久電腦, 用 $G_Y(t)$ 這個 distribution 描述<br>而電腦 (server) 的數量為 $\infty$, 表示學生一到就馬上有一台電腦可以用, 無需等待 (更複雜的 queueing process 會考慮等待時間)<br><img src="/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/Untitled 4.png" width="100%" height="100%"><br>所以 $N(t)$ 是一個 Poisson process, 考慮一個 fixed time $\tau&gt;0$, 我們會有兩個 processes $N_1(t)$ and $N_2(t)$.<br>$N_1(t)$ 表示有多少 <strong><em>還在處理</em></strong> 的事件 at time $\tau$ (即在時間 $\tau$ 還有多少學生在用電腦)<br>$N_2(t)$ 表示有多少 <strong><em>已處理完</em></strong> 的事件 at time $\tau$ (即在時間 $\tau$ 已有多少學生用完電腦)</p>
+<blockquote>
+<p>$t$ and $\tau$ 的關係在討論區有人這麼回答<br><img src="/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/Untitled 5.png" width="100%" height="100%"></p>
+</blockquote>
+<p>考慮 $N_1(t+h) - N_1(t)$, 這個值表示在這一段時間內共來了多少事件並且還在處理 (即這段時間來了多少學生, 並且這些學生都還在用電腦), 所以:<br><span>$$\mathcal{P}\{ N_1(t+h)-N_1(t)=1 \} \\
+= \mathcal{P}\{ N(t+h)-N(t)=1 \} \cdot \mathcal{P}\{ Y&gt;\tau-t \} + o(h) \ldots(\blacktriangle)$$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>$Y$ 表示 service time 的 random variable, 其 distribution 為 $G_Y(t)$</p>
+</blockquote>
+<p>“這段 $h$ 時間來了多少學生, 並且這些學生都還在用電腦” 可以近似於:<br>“這段 $h$ 時間來了 $1$ 個學生, 並且這 $1$ 個學生還在用電腦” + $o(h)$<br>注意到 $2$ 個學生以上的情形我們用 $o(h)$ 表示即可, 這是因為 Poisson process 的一個性質:<br><span>$\mathcal{P}\{N_{t+h}-N_t\geq2\} = o(h),h\rightarrow0$</span><!-- Has MathJax --></p>
+<p>所以用上開頭的 Theorem,<br><span>$$(\blacktriangle) = (\lambda h + o(h)) \cdot (1-G_Y(\tau-t)) + o(h) \\
+= \lambda h(1-G_Y(\tau-t)) + o(h)$$</span><!-- Has MathJax --></p>
+<p>重述一遍, 我們有:<br><span>$\mathcal{P}\{ N_1(t+h)-N_1(t)=1 \} = \lambda(1-G_Y(\tau-t))h + o(\delta)$</span><!-- Has MathJax --><br>令 $\lambda(1-G_Y(\tau-t))$ 等於某個 function $\lambda_1(t)$, 則上式與 N.H.P.P. 的性質結果相同.<br>同樣可以對 <span>$\mathcal{P}\{ N_1(t+h)-N_1(t)=0 \}$</span><!-- Has MathJax --> 和 <span>$\mathcal{P}\{ N_1(t+h)-N_1(t)\geq2 \}$</span><!-- Has MathJax --> 推導出相同結果.</p>
+<p>所以根據 <strong>[Non-homogeneous Poisson Processes Def2]</strong> 我們得到 $N_1$ 是 N.H.P.P. 的結論</p>
+<blockquote>
+<p>$N_1$ 是 N.H.P.P. 且其 intensity function $\lambda_1(t)=\lambda(1-G_Y(\tau-t))$</p>
+</blockquote>
+<p>我們對於 $N_1$ 的推論同樣也可以用在 $N_2$ 上, 結果也是一樣:</p>
+<blockquote>
+<p>$N_2$ 是 N.H.P.P. 且其 intensity function $\lambda_2(t)=\lambda \cdot G_Y(\tau-t)$</p>
+</blockquote>
+<p>下一節課會證明 $N_1$ and $N_2$ 為互相獨立的 r.v.s</p>
+<hr>
+<h2 id="Week-2-14-Elements-of-the-queueing-theory-M-G-k-systems-2"><a href="#Week-2-14-Elements-of-the-queueing-theory-M-G-k-systems-2" class="headerlink" title="Week 2.14: Elements of the queueing theory. M/G/k systems-2"></a>Week 2.14: Elements of the queueing theory. M/G/k systems-2</h2><p>欲證 <span>$\mathcal{P}\{N_1(t)=n_1, N_2(t)=n_2\} = \mathcal{P}\{N_1(t)=n_1\}\mathcal{P}\{ N_2(t)=n_2\}$</span><!-- Has MathJax --><br><span>$$\mathcal{P}\{N_1(t)=n_1, N_2(t)=n_2\}\\
+= \mathcal{P}\{ N_1(t)=n_1, N_2(t)=n_2 | N(t)=n_1+n_2 \} \cdot \mathcal{P}\{N(t)=n_1+n_2\} \\
+= \mathcal{C}_{n_1}^{n_1+n_2}(1-G(\tau-t))^{n_1}(G(\tau-t))^{n_2} \cdot e^{-\lambda t}\frac{(\lambda t)^{n_1+n_2}}{(n_1+n_2)!} \ldots(=)$$</span><!-- Has MathJax --><br>$(=)$ 為 Binomial term, 把”成功”的機率當成 “事件在時間 $\tau$ 還在served的機率”, 這個機率由 service time 的 distribution probability 可以知道:<br><span>$\mathcal{P}\{Y&gt;(\tau-t)\}=1-\mathcal{P}\{Y\leq(\tau-t)\}=1-G(\tau-t)$</span><!-- Has MathJax --></p>
+<p>所以失敗的話就是 $G(\tau-t)$<br>共有 $n$ 個事件, 共有 $n_1$ 個事件 $\in N_1(t)$, and $n_2$ 個事件 $\in N_2(t)$, 所以 <span>$\mathcal{C}_{n_1}^{n_1+n_2}$</span><!-- Has MathJax --></p>
+<span>$$(=)= \frac {(\lambda t(1-G(\tau-t)))^{n_1}}{n_1!} e^{-\lambda t(1-G(\tau-t))} \cdot \frac {(\lambda tG(\tau-t))^{n_2}}{n_2!} e^{-\lambda tG(\tau-t)} \\
+=\mathcal{P}\{N_1(t)=n_1\}\mathcal{P}\{N_2(t)=n_2\}$$</span><!-- Has MathJax -->
+<blockquote>
+<p>我不知道的是為何 <span>$\frac {(\lambda t(1-G(\tau-t)))^{n_1}}{n_1!} e^{-\lambda t(1-G(\tau-t))} = \mathcal{P}\{N_1(t)=n_1\}$</span><!-- Has MathJax --><br>因為只知道 $N_1$ 是 N.H.P.P. 且其 intensity function $\lambda_1(t)=\lambda(1-G_Y(\tau-t))$<br>所以必須求得 $\Lambda_1(t)$ 才能代入<br><span>$\mathcal{P}\{N_t=n\} \sim Pois(\Lambda(t))=e^{-\Lambda(t)}\frac{\Lambda(t)^n}{n!}$</span><!-- Has MathJax --><br>所以看起來 $\Lambda_1(t)=\lambda t(1-G(\tau-t))?$ 不懂…</p>
+</blockquote>
+<p>Q.E.D.</p>
+<hr>
+<h2 id="Week-2-15-17-Compound-Poisson-processes"><a href="#Week-2-15-17-Compound-Poisson-processes" class="headerlink" title="Week 2.15-17: Compound Poisson processes"></a>Week 2.15-17: Compound Poisson processes</h2><p>可參考一個淺顯易懂的定義: <a href="https://gtribello.github.io/mathNET/COMPOUND_POISSON_PROCESS.html" target="_blank" rel="external">https://gtribello.github.io/mathNET/COMPOUND_POISSON_PROCESS.html</a></p>
+<p><strong>[Compound Poisson Processes (C.P.P.) Def]:</strong><br>&emsp;<span>$X_t=\sum_{k=1}^{N_t} \xi_k$</span><!-- Has MathJax --><br>&emsp;其中<br>&emsp;- $N_t$ 是 Poisson process with intensity $\lambda$<br>&emsp;- $\xi_1,\xi_2,…$ are <em>i.i.d.</em><br>&emsp;- $\xi_1,\xi_2,…$ and $N_t$ are independent</p>
+<p>$X_t$ 的 distribution 沒有 cloded form, 但若是某些特定的 $\xi$ distribution 可以算出來.</p>
+<blockquote>
+<p>注意到若 $\xi_k=1$, 則 $X_t=N_t$, 可藉此想像一下 C.P.P. 的物理意義</p>
+</blockquote>
+<p>如果 $\xi$ (C.P.P.) 是 non-negative integer values, 我們使用 PGF 幫助計算<br><strong>[Probability Generating Function (PGF) Def]:</strong><br>&emsp;Let $\xi$ 是一個 integer 的 random variable, with $\geq 0$ values. 則 PGF 定義為:<br>&emsp;<span>$\varphi_\xi(u)=\mathbb{E}[u^\xi], \text{ where }|u|&lt;1$</span><!-- Has MathJax --></p>
+<p>根據定義我們可以得到 (expectation 寫出來), 如果 $\xi_1  \perp \xi_2$, 則 <span>$\varphi_{\xi_1+\xi_2}(u)=\varphi_{\xi_1}(u)\varphi_{\xi_2}(u)$</span><!-- Has MathJax --></p>
+<p>如果 $\xi$ (C.P.P.) 是 non-negative (real) values, 我們使用 MGF 幫助計算<br><strong>[Moment Generating Function (MGF) Def]:</strong><br>&emsp;跟 Laplace transform 密切相關.<br>&emsp;<span>$\mathcal{L}_\xi(u)=\mathbb{E}[e^{-u\xi}], \text{ where } \xi\geq0, u&gt;0$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>其實就是 <span>$\mathcal{L}_f(s)=\int_{x=0}^\infty e^{-sx}f(x)dx$</span><!-- Has MathJax -->, 將 $f$ 以 $\xi$ 的 P.D.F. 代入</p>
+</blockquote>
+<p>根據定義我們可以得到, 如果 $\xi_1  \perp \xi_2$, 則 <span>$\mathcal{L}_{\xi_1+\xi_2}(u)=\mathcal{L}_{\xi_1}(u)\mathcal{L}_{\xi_2}(u)$</span><!-- Has MathJax -->. 注意到 <span>${\xi_1+\xi_2}$</span><!-- Has MathJax --> 其 P.D.F. 是 $\xi_1,\xi_2$ 的 P.D.F.s 的 convolution. 之前我們也證過 Laplace transform 這個性質</p>
+<p>對於 $\xi$ (C.P.P.) 是 general case 的情況來說, 我們需借助 characteristic function 幫忙<br><strong>[Characteristic Function Def]:</strong><br>&emsp;For random variable $\xi$, 定義 characteristic function <span>$\Phi:\mathbb{R}\rightarrow \mathbb{C}$</span><!-- Has MathJax --> 為<br>&emsp;<span>$\Phi_\xi(u) = \mathbb{E}\left[ e^{iu\xi} \right]$</span><!-- Has MathJax --></p>
+<p>同樣根據定義我們可以得到, 如果 $\xi_1  \perp \xi_2$, 則 <span>$\Phi_{\xi_1+\xi_2}(u)=\Phi_{\xi_1}(u)\Phi_{\xi_2}(u)$</span><!-- Has MathJax --></p>
+<p><strong>[Characteristic Function of Increment of C.P.P.]:</strong><br>&emsp;For $t&gt;s\geq0$, and $X_t$ is a C.P.P., we have<br>&emsp;<span>$\Phi_{X_t-X_s}(u)=e^{\lambda(t-s)(\Phi_{\xi_1}(u)-1)}$</span><!-- Has MathJax --><br>[Proof]:<br>&emsp;<span>$$\Phi_{X_t-X_s}(u)=\mathbb{E}\left[ e^{iu(X_t-X_s)} \right] \\
+=\sum_{k=0}^\infty
+{\color{orange}
+{\mathbb{E}\left[ \left. e^{iu(X_t-X_s)} \right| N_t-N_s=k\right]}
+}
+\cdot
+{\color{green}
+{\mathcal{P}\{N_t-N_s=k\}}
+}$$</span><!-- Has MathJax --><br>&emsp;注意到已知 $N_t-N_s=k$ 的情況下, $X_t-X_s$ 根據 C.P.P. 的定義就是 $\xi_1+…+\xi_k$, 再加上我們知道 $\xi\perp N_t$, 所以橘色部分的 condition 就可以拔掉. 同時已知綠色部分為 Poisson Processes.<br>&emsp;因此:<br>&emsp;<span>$$= \sum_{k=0}^\infty
+\mathbb{E}\left[e^{iu(X_t-X_s)}\right] \cdot
+Pois(\lambda(t-s)) \\
+= \sum_{k=0}^\infty
+(\Phi_{\xi_1}(u))^k \cdot e^{-\lambda(t-s)}\frac{(\lambda(t-s))^k}{k!} \\
+=e^{-\lambda(t-s)}\sum_{k=0}^\infty\frac{(\Phi_{\xi_1}(u)\lambda(t-s))^k}{k!} \\
+= e^{-\lambda(t-s)}e^{\Phi_{\xi_1}(u)\lambda(t-s)} =e^{\lambda(t-s)(\Phi_{\xi_1}(u)-1)}$$</span><!-- Has MathJax --><br>&emsp;Q.E.D.</p>
+<p>此定理描述了 <em>increment of C.P.P. 的 characteristic function, 其具有 closed form solution</em><br>所以 characteristic function of $X_t$ is<br><span>$\Phi_{X_t}(u)=e^{\lambda t(\Phi_{\xi_1}(u)-1)}$</span><!-- Has MathJax --></p>
+<p>課程老師說這個 Theorem 很重要, 可以根據它推導出很多 Corollaries</p>
+<p><strong>[Expectation and Variance of C.P.P.]:</strong><br>&emsp;對於此節定義的 C.P.P. 我們有<br>&emsp;<span>$$\mathbb{E}[X_t]=\lambda t\mathbb{E}[\xi_1] \\
+Var[X_t]=\lambda t\mathbb{E}[\xi_1^2]$$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>原來的 Poisson distribution $Pois(\lambda t)$ 的 mean and variance 為 $\lambda t$, 所以 C.P.P. 等於多乘上 $\xi_1$ 的 moments</p>
+</blockquote>
+<p>[Proof]:<br>&emsp;課程證 expectation, 而 variance 可用同樣流程證明<br>&emsp;<span>$\mathbb{E}[\xi^r]&lt;\infty\Rightarrow\Phi_\xi(u)$</span><!-- Has MathJax --> is r-times 可微 at 0<br>&emsp;因為 derivative and expectation 都是線性的, 所以我們有<br>&emsp;<span>$\Phi^{(1)}_\xi(u)=\frac{d}{du}\mathbb{E}[e^{iu\xi}]=\mathbb{E}[(i\xi)e^{iu\xi}]$</span><!-- Has MathJax --><br>&emsp;<span>$\Phi^{(2)}_\xi(u)=\frac{d}{du}\frac{d}{du}\mathbb{E}[e^{iu\xi}]=\mathbb{E}[(i\xi)^2 e^{iu\xi}]$</span><!-- Has MathJax --><br>&emsp;$…$<br>&emsp;<span>$\Phi^{(r)}_\xi(u)=\mathbb{E}[(i\xi)^r e^{iu\xi}]$</span><!-- Has MathJax --><br>&emsp;<span>$\therefore \Phi_\xi^{(r)}(0)=i^r\cdot\mathbb{E}[\xi^r]$</span><!-- Has MathJax --><br>&emsp;由前面的 Theorem 知道 <span>$\Phi_{X_t}(u)=e^{\lambda t(\Phi_{\xi_1}(u)-1)}$</span><!-- Has MathJax -->, 所以<br>&emsp;<span>$$\Phi_{X_t}^{(1)}(u)=\frac{d}{du}\Phi_{X_t}(u) =\frac{d}{du}e^{\lambda t(\Phi_{\xi_1}(u)-1)} \\
+=\lambda t \Phi_{\xi_1}^{(1)}(u)e^{\lambda t(\Phi_{\xi_1}(u)-1)} = \lambda t \Phi_{\xi_1}^{(1)}(u)\Phi_{X_t}(u)$$</span><!-- Has MathJax --><br>&emsp;計算 $\mathbb{E}[X_t]$:<br>&emsp;<span>$$\mathbb{E}[X_t]=\frac{\Phi_{X_t}^{(1)}(0)}{i}
+= \frac{\lambda t \Phi_{
+\xi_1}^{(1)}(0) \overbrace{\Phi_{X_t}(0)}^{=1}
+}
+{i}$$</span><!-- Has MathJax --><br>&emsp;而根據 <a href="https://en.wikipedia.org/wiki/Characteristic_function_(probability_theory" target="_blank" rel="external">characteristic function 的特性</a><br><img src="/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/Untitled 6.png" width="70%" height="70%"><br>&emsp;<span>$\frac{\Phi_{\xi_1}^{(1)}(0)}{i} = \mathbb{E}[\xi_1]$</span><!-- Has MathJax --><br>&emsp;所以 $\mathbb{E}[X_t]=\lambda t\mathbb{E}[\xi_1]$<br>&emsp;Q.E.D.</p>
+<hr>
+<h2 id="Applications-of-the-Poisson-Processes-and-Related-Models"><a href="#Applications-of-the-Poisson-Processes-and-Related-Models" class="headerlink" title="Applications of the Poisson Processes and Related Models"></a>Applications of the Poisson Processes and Related Models</h2><p><a href="Applications_of_the_Poisson_Processes_and_Related_Models.pdf">Applications of the Poisson Processes and Related Models.pdf</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/" title="Stochastic Processes Week 2 Poisson Processes">http://yoursite.com/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Coursera/" rel="tag"># Coursera</a>
+          
+            <a href="/tags/Stochastic-Processes/" rel="tag"># Stochastic Processes</a>
+          
+            <a href="/tags/Poisson-Process/" rel="tag"># Poisson Process</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/" rel="next" title="Stochastic Processes Week 1 Introduction & Renewal processes">
+                <i class="fa fa-chevron-left"></i> Stochastic Processes Week 1 Introduction & Renewal processes
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">125</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-2-1-4-Definition-of-a-Poisson-process-as-a-special-example-of-renewal-process-Exact-forms-of-the-distributions-of-the-renewal-process-and-the-counting-process"><span class="nav-number">1.</span> <span class="nav-text">Week 2.1-4: Definition of a Poisson process as a special example of renewal process. Exact forms of the distributions of the renewal process and the counting process</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-2-5-Memoryless-property"><span class="nav-number">2.</span> <span class="nav-text">Week 2.5: Memoryless property</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-2-6-7-Other-definitions-of-Poisson-processes"><span class="nav-number">3.</span> <span class="nav-text">Week 2.6-7: Other definitions of Poisson processes</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-2-8-9-Non-homogeneous-Poisson-processes"><span class="nav-number">4.</span> <span class="nav-text">Week 2.8-9: Non-homogeneous Poisson processes</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-2-10-12-Relation-between-renewal-theory-and-non-homogeneous-Poisson-processes"><span class="nav-number">5.</span> <span class="nav-text">Week 2.10-12: Relation between renewal theory and non-homogeneous Poisson processes</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-2-13-Elements-of-the-queueing-theory-M-G-k-systems-1"><span class="nav-number">6.</span> <span class="nav-text">Week 2.13: Elements of the queueing theory. M/G/k systems-1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-2-14-Elements-of-the-queueing-theory-M-G-k-systems-2"><span class="nav-number">7.</span> <span class="nav-text">Week 2.14: Elements of the queueing theory. M/G/k systems-2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-2-15-17-Compound-Poisson-processes"><span class="nav-number">8.</span> <span class="nav-text">Week 2.15-17: Compound Poisson processes</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Applications-of-the-Poisson-Processes-and-Related-Models"><span class="nav-number">9.</span> <span class="nav-text">Applications of the Poisson Processes and Related Models</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
