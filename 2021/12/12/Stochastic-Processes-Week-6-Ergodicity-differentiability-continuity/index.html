@@ -1,0 +1,927 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Coursera,Stochastic Processes,Stochastic Convergences,Ergodicity,Continuity," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識
+Week 1: Introduction &amp;amp; Renewal processes
+Week 2: Poisson Processes
+Week3: Markov Chains
+Week 4: Gaussian Processes
+Week 5: Stationarity">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Stochastic Processes Week 6 Ergodicity, differentiability, continuity">
+<meta property="og:url" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識
+Week 1: Introduction &amp;amp; Renewal processes
+Week 2: Poisson Processes
+Week3: Markov Chains
+Week 4: Gaussian Processes
+Week 5: Stationarity">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 1.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 2.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 3.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 4.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 5.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 6.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/stochastic_convergence.drawio.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 7.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 8.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 9.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 10.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 11.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 12.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 13.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 14.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/W6_weakly_stationary_not_differentiable.drawio.png">
+<meta property="og:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 15.png">
+<meta property="og:updated_time" content="2021-12-12T12:57:18.655Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Stochastic Processes Week 6 Ergodicity, differentiability, continuity">
+<meta name="twitter:description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
+
+Week 0: 一些預備知識
+Week 1: Introduction &amp;amp; Renewal processes
+Week 2: Poisson Processes
+Week3: Markov Chains
+Week 4: Gaussian Processes
+Week 5: Stationarity">
+<meta name="twitter:image" content="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/"/>
+
+
+
+
+
+  <title> Stochastic Processes Week 6 Ergodicity, differentiability, continuity | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Stochastic Processes Week 6 Ergodicity, differentiability, continuity
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2021-12-12T20:16:36+08:00">
+                2021-12-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SP/" itemprop="url" rel="index">
+                    <span itemprop="name">SP</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p><a href="https://www.coursera.org/learn/stochasticprocesses?" target="_blank" rel="external">Coursera Stochastic Processes</a> 課程筆記, 共九篇:</p>
+<ul>
+<li><a href="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-0-%E4%B8%80%E4%BA%9B%E9%A0%90%E5%82%99%E7%9F%A5%E8%AD%98/" target="_blank" rel="external">Week 0: 一些預備知識</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/" target="_blank" rel="external">Week 1: Introduction &amp; Renewal processes</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/" target="_blank" rel="external">Week 2: Poisson Processes</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/" target="_blank" rel="external">Week3: Markov Chains</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/" target="_blank" rel="external">Week 4: Gaussian Processes</a></li>
+<li><a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-5-Stationarity-and-Linear-filters/" target="_blank" rel="external">Week 5: Stationarity and Linear filters</a></li>
+<li><strong>Week 6: Ergodicity, differentiability, continuity (本文)</strong></li>
+<li>Week 7: Stochastic integration &amp; Itô formula</li>
+<li>Week 8: Lévy processes </li>
+</ul>
+<a id="more"></a>
+<hr>
+<h2 id="Self-Study-Convergence-of-random-variables"><a href="#Self-Study-Convergence-of-random-variables" class="headerlink" title="Self Study: Convergence of random variables"></a>Self Study: Convergence of random variables</h2><p>主要參考 wikipedia 的資料筆記 <a href="https://en.wikipedia.org/wiki/Convergence_of_random_variables#Properties_4" target="_blank" rel="external">Convergence of random variables</a><br><strong>[Converge in distribution Def]:</strong><br><img src="/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled.png" width="60%" height="60%"><br>&emsp;記做 $X_n \xrightarrow[]{d}X$</p>
+<p>Converge in distribution 是最 weak 的, 也就是滿足 converge in distribution 不一定會滿足 converge in probability 或滿足 almost surely 或滿足 converge in mean<br><a href="https://ch-hsieh.blogspot.com/2021/03/blog-post.html" target="_blank" rel="external">[機率論] 兩隨機變數相等表示兩者有相同分布但反之不然</a>, 這篇文章最後給了一個例子:<br>考慮均勻分布 $X$ 為隨機變數服從均勻分布 $\mathcal{U}[-1,1]$ 現在取另一隨機變數 $Y:=-X$ 則 $Y$ 亦為在 $[-1,1]$ 上均勻分布，亦即 $X$ 與 $Y$ 具有同分布。然而<br><span>$\mathcal{P}(X=Y)=0$</span><!-- Has MathJax --></p>
+<p>Converge in distribution 的其他等價定義<br><img src="/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 1.png" width="100%" height="100%"></p>
+<p><strong>[Converge in probability Def]:</strong><br><img src="/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 2.png" width="60%" height="60%"><br>&emsp;記做 $X_n \xrightarrow[]{p}X$</p>
+<p><strong>[Properties]:</strong><br><img src="/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 3.png" width="100%" height="100%"></p>
+<p>自己的想法: $X_n$ 與 $X$ 的 sample spaces 可以不同, 只要 mapping 到 $\mathbb{R}$ 之後相減就好, 所以考量的是 joint distribution<br>For a random process $X_t$ converges to a constant in probability sense<br><span>$X_t\xrightarrow[t\rightarrow\infty]{p} c \text{ (is const.)}$</span><!-- Has MathJax --><br>則表示一定會 (必要條件)<br><span>$$\mathbb{E}X_t\xrightarrow[t\rightarrow\infty]{}c \\
+Var(X_t)\xrightarrow[t\rightarrow\infty]{}0$$</span><!-- Has MathJax --></p>
+<p><strong>[Almost sure convergence Def]:</strong><br><img src="/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 4.png" width="70%" height="70%"><br>&emsp;記做 $X_n \xrightarrow[]{a.s.} X$</p>
+<blockquote>
+<p>可參考: 謝宗翰的隨筆 <a href="https://ch-hsieh.blogspot.com/2012/10/almost-sure-convergence.html" target="_blank" rel="external">[機率論] Almost Sure Convergence</a></p>
+</blockquote>
+<p>自己的想法: 需要 sample space 一樣, 且都是對個別 outcome 去比較的. 把所有這些符合的 outcomes 蒐集起來的集合, 其 probability measure 為 $1$.<br>這是一個很強的條件, 幾乎針對每一個 outcome 都要符合.</p>
+<p><strong>[Convergence in mean Def]:</strong><br><img src="/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 5.png" width="100%" height="100%"><br><img src="/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 6.png" width="100%" height="100%"><br>&emsp;記做 $X_n \xrightarrow[]{L^r} X$.</p>
+<p>Convergence in the $r$-th mean, for $r\geq1$, implies convergence in probability (by <a href="https://en.wikipedia.org/wiki/Markov%27s_inequality" target="_blank" rel="external">Markov’s inequality</a>). Furthermore, if $r&gt;s\geq1$, convergence in $r$-th mean implies convergence in $s$-th mean. Hence, convergence in mean square implies convergence in mean.<br>It is also worth noticing that if</p>
+<p>$$X_n\xrightarrow[]{L^r}X$$</p>
+<p>then</p>
+<p>$$\lim_{n\rightarrow\infty}\mathbb{E}[|X_n|^r]=\mathbb{E}[|X|^r]$$</p>
+<p><strong>[Relation btw Stochastic Convergences]:</strong><br><img src="/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/stochastic_convergence.drawio.png" width="50%" height="50%"></p>
+<ul>
+<li>各種 convergence 的 proofs:<br><a href="https://en.wikipedia.org/wiki/Proofs_of_convergence_of_random_variables#propA2" target="_blank" rel="external">https://en.wikipedia.org/wiki/Proofs_of_convergence_of_random_variables#propA2</a></li>
+</ul>
+<p>補上課程針對以上四個 convergences 的定義<br><img src="/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 7.png" width="50%" height="50%"></p>
+<hr>
+<h2 id="Week-6-1-Notion-of-ergodicity-Examples"><a href="#Week-6-1-Notion-of-ergodicity-Examples" class="headerlink" title="Week 6.1: Notion of ergodicity. Examples"></a>Week 6.1: Notion of ergodicity. Examples</h2><p>Motivated by LLN (Law of Large Number)<br><strong>[LLN Thm]:</strong><br>&emsp;$\xi_1,\xi_2,…$ - i.i.d. and $\mathbb{E}\xi_1&lt;\infty$, then<br>&emsp;<span>$\frac{1}{N}\sum_{n=1}^N \xi_n \xrightarrow[N\rightarrow\infty]{p} \mathbb{E}\xi_1$</span><!-- Has MathJax --><br>&emsp;上式 $\xrightarrow[]{p}$ 表示 convergence in probability<br>&emsp;但也滿足 $\xrightarrow[]{a.s.}$ almost sure convergence (Strong LLN)</p>
+<p>Ergodicity 嘗試將 LLN 概念延伸到 stochastic process</p>
+<p><strong>[Ergodicity Def]:</strong><br>&emsp;$X_t$ is a stochastic process, where $t=1,2,3,…$<br>&emsp;$X_t$ is said ergodic if $\exists c$ constant such that<br>&emsp;<span>$$M_T:=\frac{1}{T}\sum_{t=1}^T X_t
+\xrightarrow[T\rightarrow\infty]{p} c$$</span><!-- Has MathJax --><br>&emsp;where $c$ is some constant. $T$ is called horizon.<br>&emsp;And we consider convergence in probability sense.</p>
+<p>所以要證明 ergodic 可以 $\xrightarrow[]{p}$, or $\xrightarrow[]{a.s.}$, or $\xrightarrow[]{m.sq.}$, or $\xrightarrow[]{d}c$</p>
+<p><strong>[Example 1]:</strong><br>&emsp;$X_t=\xi\sim\mathcal{N}(0,1)$, trajectory 為 constant for all $t$<br><img src="/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 8.png" width="40%" height="40%"><br>&emsp;$m(t)=0,K(t,s)=Var\xi=1$<br>&emsp;所以是 weak stationary, 我們考慮 ergodicity<br>&emsp;<span>$\frac{1}{T}\sum_{t=1}^T X_t=\xi\neq c$</span><!-- Has MathJax --><br>&emsp;不存在一個 constant for $T\rightarrow \infty$, 所以 non-ergodic</p>
+<p><strong>[Example 2]:</strong><br>&emsp;$X_t$ stochastic process defined as:<br>&emsp;<span>$X_t=\varepsilon_t+a\cos\frac{\pi t}{6}$</span><!-- Has MathJax --><br>&emsp;where $a\neq0$ and $\varepsilon_1, \varepsilon_2, …$ i.i.d. $\mathcal{N}(0,1)$</p>
+<p>其 trajectory 為下圖曲線, 並對該曲線每個位置都有 std normal noise<br><img src="/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 9.png" width="40%" height="40%"><br><img src="/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 10.png" width="40%" height="40%"><br>$m(t)=a\cos\frac{\pi t}{6}\neq const$, 所以不是 stationary. 考慮 ergodicity:<br><span>$\frac{1}{T}\sum_{t=1}^T X_t\sim\mathcal{N}\left(\frac{a}{T}\sum_{t=1}^T \cos\frac{\pi t}{6},\frac{1}{T}\right)$</span><!-- Has MathJax --><br>互相獨立之 normal distributions 相加仍為 normal, mean and variance 都為相加<br>variance 收斂到 $0$, 觀察 mean:<br>由於 trajectory 是以 12 為一個週期, 所以最多只會有 12 個非 0 的值, 而每一個都小於等於 1<br>結論是 mean 也收斂到 $0$ (因為不管哪一個 outcome, 其 trajectory 最後都到 $0$, 所以收斂的 random variable 為 contant $0$)<br>所以<br><span>$\frac{1}{T}\sum_{t=1}^T X_t\sim\mathcal{N}\left(0,0\right) \text{ for }T\rightarrow\infty$</span><!-- Has MathJax --><br>所以 $=0$ a.s. 因此是 ergodic<br>Example 1 是 (weak) stationary but non-ergodic<br>Example 2 是 non-stationary but erogodic<br>因此 stationary 跟 ergodic 是不同概念</p>
+<hr>
+<h2 id="Week-6-2-Ergodicity-of-wide-sense-stationary-processes"><a href="#Week-6-2-Ergodicity-of-wide-sense-stationary-processes" class="headerlink" title="Week 6.2: Ergodicity of wide-sense stationary processes"></a>Week 6.2: Ergodicity of wide-sense stationary processes</h2><p><strong>[Proposition]:</strong><br>For $X_t$ is a discrete time stochastic process. Define<br>&emsp;<span>$$M_T=\frac{1}{T}\sum_{t=1}^TX_t\\
+C(T)=Cov(X_T,M_T)$$</span><!-- Has MathJax --><br>&emsp;If $\exists\alpha$ such that the covariance function is bounded by $\alpha$, i.e.<br>&emsp;<span>$|K(s,t)|\leq\alpha;\forall s,t$</span><!-- Has MathJax --><br>&emsp;Then<br>&emsp;<span>$$Var(M_T)\xrightarrow[T\rightarrow\infty]{}0 \Longleftrightarrow 
+C(T)\xrightarrow[T\rightarrow\infty]{}0$$</span><!-- Has MathJax --></p>
+<p><strong>[Stolz-Cesaro Thm]:</strong><br>&emsp; For $a_n,b_n\in\mathbb{R}$, $b_n$ is <em>strictly increasing and unbounded</em>, we have:<br>&emsp;<span>$\lim_{n\rightarrow\infty}\frac{a_n-a_{n-1}}{b_n-b_{n-1}}=q\Longrightarrow \frac{a_n}{b_n}\xrightarrow[n\rightarrow\infty]{}q$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>See <a href="https://en.wikipedia.org/wiki/Stolz%E2%80%93Ces%C3%A0ro_theorem" target="_blank" rel="external">wiki</a> for more detials and proof</p>
+</blockquote>
+<p>當 stationary 時, 有兩個 sufficient conditions 滿足則保證 ergodic<br><strong>[Sufficient Conditions of Ergodicity when WSS]:</strong><br>&emsp;$X_t$ is weakly stationary and $\gamma(\cdot)$ is its auto-covariance function with $|\gamma(\cdot)|&lt;\infty$.<br>&emsp;1. Sufficient condition: If<br>&emsp;&emsp;<span>$\frac{1}{T}\sum_{r=0}^{T-1}\gamma(r) \xrightarrow[T\rightarrow\infty]{}0$</span><!-- Has MathJax --><br>&emsp;&emsp;Then $X_t$ is ergodic<br>&emsp;2. Sufficient condition: If<br>&emsp;&emsp;<span>$\gamma(r) \xrightarrow[r\rightarrow\infty]{}0$</span><!-- Has MathJax --><br>&emsp;&emsp;Then $X_t$ is ergodic<br>[Proof 1]:<br>&emsp;考慮 $C(T)$<br>&emsp;<span>$$C(T)=Cov\left(X_T,\frac{1}{T}\sum_{t=1}^TX_t\right)  =\frac{1}{T}\sum_{t=1}^T Cov(X_T,X_t) \\
+=\frac{1}{T}\sum_{t=1}^T \gamma(T-t) =\frac{1}{T}\sum_{r=0}^{T-1}\gamma(r)
+\longrightarrow0\text{ (by assumption)}$$</span><!-- Has MathJax --><br>&emsp;由 proposition 知道 $Var(M_T)\rightarrow0$, as $T\rightarrow\infty$<br>&emsp;又因為已知 $X_t$ is weakly stationary, 所以 $\exists c$ constant, s.t.<br>&emsp;<span>$\mathbb{E}X_t=c\Rightarrow\mathbb{E}M_t=c$</span><!-- Has MathJax --><br>&emsp;則 variance converge to $0$ as $T\rightarrow\infty$ 表示<br>&emsp;<span>$VarM_T=\mathbb{E}\left[(M_T-c)^2\right]\xrightarrow[T\rightarrow\infty]{}0$</span><!-- Has MathJax --><br>&emsp;則<br>&emsp;<span>$M_T \xrightarrow[]{L^2} c \Longrightarrow M_T \xrightarrow[]{p} c$</span><!-- Has MathJax --><br>&emsp;根據定義 $X_t$ is ergodic. Q.E.D.</p>
+<p>[Proof 2]:<br>&emsp;我們利用 proof 1 的結果和 Stolz-Cesaro thm, 定義<br>&emsp;<span>$$a_n:=\sum_{r=0}^{n-1}\gamma(r)\\
+b_n:=n$$</span><!-- Has MathJax --><br>&emsp;則<br>&emsp;<span>$$\frac{a_n-a_{n-1}}{b_n-b_{n-1}}=\frac{\gamma(n-1)}{1}\xrightarrow[n\rightarrow\infty]{}0=q \\
+\Longrightarrow \frac{a_n}{b_n} = \frac{1}{n}\sum_{r=0}^{n-1}\gamma(r)\xrightarrow[n\rightarrow\infty]{}0=q \\
+\Longrightarrow X_t \text{ ergodic}$$</span><!-- Has MathJax --></p>
+<p><img src="/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 11.png" width="70%" height="70%"></p>
+<p><strong>[Example 1]:</strong><br>&emsp;$N_t$ is Poisson process with $\lambda$. 給定 $p&gt;0$, 並定義<br>&emsp;<span>$X_t:=N_{t+p}-N_t$</span><!-- Has MathJax --><br>&emsp;則我們可得知 $X_t$ is ergodic<br><img src="/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 12.png" width="60%" height="60%"></p>
+<p>You can use the independent increment property of Poisson Process to get this formula.<br><span>$\gamma(t-s) = Cov(N_{t+p}-N_t,N_{s+p}-N_s)$</span><!-- Has MathJax --><br>If $|s-t|&gt;p$, then $N_{t+p}-N_t$ is independent of  <span>$N_{s+p}-N_s$</span><!-- Has MathJax -->, so $\gamma(t-s)=0$<br>If <span>$t&lt;s&lt;t+p$</span><!-- Has MathJax -->, then  $N_t$ is independent of  <span>$N_{s+p}-N_s$</span><!-- Has MathJax -->, so<br><span>$$Cov(N_{t+p}-N_t,N_{s+p}-N_s) = Cov(N_{t+p},N_{s+p}-N_s) \\
+= Cov(N_{t+p},N_{s+p}) - Cov(N_{t+p},N_s) \\
+= Cov(N_{t+p},N_{s+p} - N_{t+p} + N_{t+p}) - Cov(N_{t+p} - N_s + N_s,N_s) \\
+= Var(N_{t+p}) - Var(N_s) = \lambda(t+p-s)$$</span><!-- Has MathJax --><br>For $s&lt;t&lt;s+p$. you can deal with it similarly.</p>
+<p><strong>[Example 2]:</strong><br>&emsp;$A,B$ 都是 r.v.s 有如下圖的 expectation and uncorrelated relation<br>&emsp;$\omega$ 是任意給定的 fixed value<br>&emsp;則我們發現 $X_t$ is weakly stationary and ergodic<br><img src="/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 13.png" width="60%" height="60%"></p>
+<hr>
+<h2 id="Week-6-3-Definition-of-a-stochastic-derivative"><a href="#Week-6-3-Definition-of-a-stochastic-derivative" class="headerlink" title="Week 6.3: Definition of a stochastic derivative"></a>Week 6.3: Definition of a stochastic derivative</h2><p><strong>[Stochastic Derivative Def]:</strong><br>&emsp;We say that a random process $X_t$ is differentiable at $t=t_0$<br>&emsp;if the following limit <strong><em>converges in m.sq. sense</em></strong> to some random variable $\eta$<br>&emsp;<span>$\frac{X_{t+h}-X_t}{h} \xrightarrow[h\rightarrow0]{L^2}\eta:=X_{t_0}&apos;$</span><!-- Has MathJax --><br>&emsp;equivalently we can write as follows<br>&emsp;<span>$\mathbb{E}\left[\left(\frac{X_{t+h}-X_t}{h}-\eta\right)^2\right] \xrightarrow[h\rightarrow0]{}0$</span><!-- Has MathJax --></p>
+<p><strong>[Proposition, Differentiability of Stochastic Process]:</strong><br>&emsp;Let $X_t$ is a stochastic process and $\mathbb{E}X_t^2&lt;\infty$.<br>&emsp;Then $X_t$ is differentiable at $t=t_0$ <strong><em>if and only if</em></strong><br>&emsp;<span>$$\exists\frac{dm(t)}{dt}\text{, at }t=t_0 \\
+\exists\frac{\partial}{\partial t\partial s}K(t,s)\text{, at }(t_0,t_0)$$</span><!-- Has MathJax --></p>
+<p><strong>[Brownian Motion is NOT differentiable at any time $t$]:</strong><br><img src="/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 14.png" width="50%" height="50%"></p>
+<p><strong>[Differentiability of Independent Increments]:</strong><br>&emsp;$X_t$ is independent increments and $X_0=0$ a.s. 則我們知道<br>&emsp;<span>$K(t,s)=Var(X_{\min(t,s)})$</span><!-- Has MathJax --><br>&emsp;<strong><em>因此大部分的 stochastic process with independent increments 都不是可微的.</em></strong><br>&emsp;我們寫一下 covariance function 的推導:<br>&emsp;<span>$$K(t,s)=Cov(X_t,X_s) \\
+\text{(for t&gt;s) }=Cov(X_t-X_s,X_s-X_0)+Cov(X_s,X_s) \\
+= 0+Var(X_s)\\
+\text{(consider t&gt;s and t&lt;s) }= Var(X_{\min(t,s)})$$</span><!-- Has MathJax --></p>
+<p><strong>[Differentiability of Weakly Stationary]:</strong><br>&emsp;$X_t$ is weakly stationary. 所以 $m(t)$ is constant $\Rightarrow$ differentiable at all $t$.<br>&emsp;我們知道 $K(t,s)=\gamma(t-s)$, 計算 partial derivatives:<br>&emsp;<span>$$\left.\frac{\partial^2K(t,s)}{\partial t\partial s} \right\vert_{(t_0,t_0)}
+= \frac{\partial^2 \gamma(t-s) }{\partial t\partial s} \\
+= \left.\frac{\partial}{\partial t} \left(-\gamma&apos;(t-s)\right)\right|_{(t_0,t_0)}
+= \left.-\gamma&apos;&apos;(t-s)\right|_{(t_0,t_0)} \\
+= -\gamma&apos;&apos;(0)$$</span><!-- Has MathJax --><br>&emsp;所以 $X_t$ is differentiable (at any time $t$) <strong><em>if and only if</em></strong> $-\gamma’’(0)$ 存在</p>
+<p>[Example 1]:<br>&emsp;承上 weakly stationary differentiable. 如果 $\gamma(r)=e^{-\alpha|r|}$<br>&emsp;則 $X_t$ is not differentiable, 因為 $-\gamma’’(0)$ 不存在 ($\gamma’(0)$ 就不存在了). $\gamma(t)$ 如下:</p>
+<p><img src="/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/W6_weakly_stationary_not_differentiable.drawio.png" width="40%" height="40%"></p>
+<p>[Example 2]:<br>&emsp;承上 weakly stationary differentiable. 如果 $\gamma(r)=\cos(\alpha r)$<br>&emsp;則 $X_t$ is differentiable</p>
+<hr>
+<h2 id="Week-6-4-Continuity-in-the-mean-squared-sense"><a href="#Week-6-4-Continuity-in-the-mean-squared-sense" class="headerlink" title="Week 6.4: Continuity in the mean-squared sense"></a>Week 6.4: Continuity in the mean-squared sense</h2><p><strong>[Continuity in the probability sense Def]:</strong><br>&emsp;<span>$X_t\xrightarrow[t\rightarrow t_0]{p}X_{t_0} \Longleftrightarrow \mathcal{P}(|X_t-X_{t_0}|&gt;\varepsilon)\xrightarrow[t\rightarrow t_0]{}0, \qquad \forall\varepsilon&gt;0$</span><!-- Has MathJax --></p>
+<p>Converges in mean-squared sense 確保了 converges in probability, 且 in m.sq. sense 比較容易確認, 因此以下著重在 in m.sq. sense</p>
+<p><strong>[Continuity in the mean-squared sense Def]:</strong><br>&emsp;<span>$X_t\xrightarrow[t\rightarrow t_0]{L^2}X_{t_0} \Longleftrightarrow \mathbb{E}(X_t-X_{t_0})^2\xrightarrow[t\rightarrow t_0]{}0$</span><!-- Has MathJax --></p>
+<p><strong>[Proposition, Continuity of Stochastic Process]:</strong><br>&emsp;$X_t$ stochastic process and $\mathbb{E}X_t=0$<br>&emsp;1. If $K(t,s)$ is continuous at $(t_0, t_0)$, then $X_t$ is continuous in the m.sq. sense at $t=t_0$<br>&emsp;2. If $X_t$ is continuous in the m.sq. sense at $t=t_0,s_0$, then $K(t,s)$ is continuous at $(t_0,s_0)$</p>
+<p>[Proof 1]:<br>&emsp;proved by definition of m.sq. sense<br>&emsp;<span>$$\mathbb{E}(X_t-X_{t_0})^2 = \mathbb{E}X_t^2-2\mathbb{E}X_tX_{t_0} + \mathbb{E}X_{t_0}^2 \\
+=K(t,t)-2K(t,t_0)+K(t_0,t_0)\xrightarrow[t\rightarrow t_0]{}0$$</span><!-- Has MathJax --><br>[Proof 2]:<br>&emsp;<span>$$K(t,s)-K(t_0,s_0) \\
+= (K(t,s)-K(t_0,s)) + (K(t_0,s) - K(t_0,s_0))$$</span><!-- Has MathJax --><br>&emsp;使用 $\mathbb{E}X_t=0$ and 科西不等式, 考慮第一項 $K(t,s)-K(t_0,s)$<br>&emsp;<span>$$|K(t,s)-K(t_0,s)|=|\mathbb{E}[(X_t-X_{t_0})X_s]| \\
+\leq \sqrt{\mathbb{E}(X_t-X_{t_0})^2}\cdot\sqrt{\mathbb{E}X_s^2}\\
+\text{by assumption }\xrightarrow[t\rightarrow t_0]{}0$$</span><!-- Has MathJax --><br>&emsp;第二項 $K(t_0,s) - K(t_0,s_0)$ 也一樣. Q.E.D.</p>
+<blockquote>
+<p>Differentiability 要關注 $m(t)$ and $K(t,s)$ 的微分性, 而 continuity 只關注 $K(t,s)$ 的連續性<br>另外對於 simplest type of stochastic integral $\int X_tdx$ 來說, 關注的是 $m(t)$ and $K(t,s)$ 的連續性</p>
+</blockquote>
+<p><strong>[Corollary]:</strong><br>&emsp;Covariance function $K(t,s)$ is continuous at $(t_0,s_0),\forall t_0,s_0$ <strong><em>if and only if</em></strong><br>&emsp;$K(t,s)$ is continuous at diagonal, i.e. $(t_0,t_0),\forall t_0$</p>
+<p>[Proof]:<br>&emsp;只需證明 $\Longleftarrow$<br>&emsp;$K(t,s)$ is continuous at $(t_0,t_0)$, $\forall t_0$. 由 proposition 1 知道 $X_t$ is continuous in m.sq. sense $\forall t$<br>&emsp;因此 $X_t$ is continuous in the m.sq. sense at $t=t_0,s_0$ for all points<br>&emsp;由 proposition 2 知道 $K(t,s)$ is continuous at $(t_0,s_0),\forall t_0,s_0$<br>&emsp;Q.E.D.</p>
+<p><img src="/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/Untitled 15.png" width="100%" height="100%"></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/" title="Stochastic Processes Week 6 Ergodicity, differentiability, continuity">http://yoursite.com/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Coursera/" rel="tag"># Coursera</a>
+          
+            <a href="/tags/Stochastic-Processes/" rel="tag"># Stochastic Processes</a>
+          
+            <a href="/tags/Stochastic-Convergences/" rel="tag"># Stochastic Convergences</a>
+          
+            <a href="/tags/Ergodicity/" rel="tag"># Ergodicity</a>
+          
+            <a href="/tags/Continuity/" rel="tag"># Continuity</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/12/12/Stochastic-Processes-Week-5-Stationarity-and-Linear-filters/" rel="next" title="Stochastic Processes Week 5 Stationarity and Linear filters">
+                <i class="fa fa-chevron-left"></i> Stochastic Processes Week 5 Stationarity and Linear filters
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">66</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">135</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Self-Study-Convergence-of-random-variables"><span class="nav-number">1.</span> <span class="nav-text">Self Study: Convergence of random variables</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-6-1-Notion-of-ergodicity-Examples"><span class="nav-number">2.</span> <span class="nav-text">Week 6.1: Notion of ergodicity. Examples</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-6-2-Ergodicity-of-wide-sense-stationary-processes"><span class="nav-number">3.</span> <span class="nav-text">Week 6.2: Ergodicity of wide-sense stationary processes</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-6-3-Definition-of-a-stochastic-derivative"><span class="nav-number">4.</span> <span class="nav-text">Week 6.3: Definition of a stochastic derivative</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Week-6-4-Continuity-in-the-mean-squared-sense"><span class="nav-number">5.</span> <span class="nav-text">Week 6.4: Continuity in the mean-squared sense</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
