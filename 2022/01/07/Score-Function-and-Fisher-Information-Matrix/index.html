@@ -1,0 +1,886 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Score Function,Fisher Information Matrix," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Bayesian statistics 視 dataset $\mathcal{D}=\{x_1,...,x_n\}$ 為固定, 而 model parameter $\theta$ 為 random variables, 透過假設 prior $p(\theta)$, 利用 Bayes rule 可得 posterior $p(\theta|\mathcal{D})$. 而估計的參數就是">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Score Function and Fisher Information Matrix">
+<meta property="og:url" content="http://yoursite.com/2022/01/07/Score-Function-and-Fisher-Information-Matrix/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="Bayesian statistics 視 dataset $\mathcal{D}=\{x_1,...,x_n\}$ 為固定, 而 model parameter $\theta$ 為 random variables, 透過假設 prior $p(\theta)$, 利用 Bayes rule 可得 posterior $p(\theta|\mathcal{D})$. 而估計的參數就是">
+<meta property="og:image" content="http://yoursite.com/2022/01/07/Score-Function-and-Fisher-Information-Matrix/Untitled.png">
+<meta property="og:image" content="http://yoursite.com/2022/01/07/Score-Function-and-Fisher-Information-Matrix/Untitled 1.png">
+<meta property="og:image" content="http://yoursite.com/2022/01/07/Score-Function-and-Fisher-Information-Matrix/Untitled 2.png">
+<meta property="og:updated_time" content="2022-01-07T15:50:56.098Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Score Function and Fisher Information Matrix">
+<meta name="twitter:description" content="Bayesian statistics 視 dataset $\mathcal{D}=\{x_1,...,x_n\}$ 為固定, 而 model parameter $\theta$ 為 random variables, 透過假設 prior $p(\theta)$, 利用 Bayes rule 可得 posterior $p(\theta|\mathcal{D})$. 而估計的參數就是">
+<meta name="twitter:image" content="http://yoursite.com/2022/01/07/Score-Function-and-Fisher-Information-Matrix/Untitled.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2022/01/07/Score-Function-and-Fisher-Information-Matrix/"/>
+
+
+
+
+
+  <title> Score Function and Fisher Information Matrix | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/01/07/Score-Function-and-Fisher-Information-Matrix/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Score Function and Fisher Information Matrix
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2022-01-07T23:17:40+08:00">
+                2022-01-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>Bayesian statistics 視 dataset <span>$\mathcal{D}=\{x_1,...,x_n\}$</span><!-- Has MathJax --> 為固定, 而 model parameter $\theta$ 為 random variables, 透過假設 prior $p(\theta)$, 利用 Bayes rule 可得 posterior $p(\theta|\mathcal{D})$. 而估計的參數就是 posterior 的 mode, i.e. $\theta_{map}$ (Maximum A Posterior, MAP)</p>
+<p>關於 Fisher information matrix 在 Bayesian 觀點的用途, 其中一個為幫助定義一個特殊的 prior distribution (<a href="https://en.wikipedia.org/wiki/Jeffreys_prior" target="_blank" rel="external">Jeffreys prior</a>), 使得如果 parameter $\theta$ 重新定義成 $\phi$, 例如 $\phi=f(\theta)$, 則 MAP 解不會改變. 關於這部分還請參考 <a href="https://probml.github.io/pml-book/book0.html" target="_blank" rel="external">Machine Learning: a Probabilistic Perspective</a> by <a href="https://www.cs.ubc.ca/~murphyk/" target="_blank" rel="external">Kevin Patrick Murphy</a>. Chapters 5 的 Figure 5.2 圖很清楚</p>
+<p>反之 Frequentist statistics 視 dataset <span>$\mathcal{D}=\{X_1,...,X_n\}$</span><!-- Has MathJax --> 為 random variables, 透過真實 <span>$\theta^*$</span><!-- Has MathJax --> 採樣出 $K$ 組 datasets, 每一組 dataset $\mathcal{D}^k$ 都可以求得一個 <span>$\theta_{mle}^k$</span><!-- Has MathJax --> (MLE 表示 Maximum Likelihood Estimator), 則 <span>$\theta_{mle}^k$</span><!-- Has MathJax --> 跟 <span>$\theta^*$</span><!-- Has MathJax --> 的關係可藉由 Fisher information matrix 看出來</p>
+<p>本文探討 score function 和 Fisher information matrix 的定義, 重點會放在怎麼直觀理解. 然後會說明 Fisher information matrix 在 Frequentist statistics 角度代表什麼意義.</p>
+<p>先定義一波</p>
+<a id="more"></a>
+<h2 id="Score-Function"><a href="#Score-Function" class="headerlink" title="Score Function"></a>Score Function</h2><hr>
+<p><strong>[Score Function Definition]:</strong><br>&emsp;針對某一點 data point $x$, 在 $\hat{\theta}$ 點的 log-likelihood 的 gradient 定義為 score function:<br>&emsp;<span>$$\begin{align}
+s(x,\hat{\theta}) \triangleq \nabla_\theta \log p(x|\hat\theta)
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>注意到如果 $x$ 是 random variables, <span>$s(x,\hat{\theta})$</span><!-- Has MathJax --> 也會是 random variable<br>在 Frequentist statistics 觀點下, data $x$ 是 random variables, 所以可以對 true parameter <span>$\theta^*$</span><!-- Has MathJax --> 的 data distribution <span>$p(x|\theta^*)$</span><!-- Has MathJax --> 計算期望值:<br><span>$$\begin{align}
+\mathbb{E}_{p(x|\theta^*)}[s(x,\hat{\theta})] = \int p(x|\theta^*) \nabla_\theta \log p(x|\hat\theta) dx
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>我們舉個離散的例子來說明式 (2):</p>
+<p><a href="score_function_example.drawio">score_function_example.drawio</a></p>
+<p><img src="/2022/01/07/Score-Function-and-Fisher-Information-Matrix/Untitled.png" width="80%" height="80%"></p>
+<p>可以看到 score function 相當於在描述 parameter 變化對於 log-likelihood 的變化程度<br>而該變化程度在真實 <span>$\theta^*$</span><!-- Has MathJax --> 那點的期望值為 $0$, i.e. 在 <span>$\hat\theta=\theta^*$</span><!-- Has MathJax --> 這點計算 score function 的期望值:<br><span>$$\mathbb{E}_{p(x|\theta^*)}[s(x,\theta^*)] = \int p(x|\theta^*) \nabla_\theta \log p(x|\theta^*) dx \\
+= \int p(x|\theta^*)\frac{\nabla_\theta p(x|\theta^*)}{p(x|\theta^*)} dx \\
+= \int \nabla_\theta p(x|\theta^*) dx \\
+= \nabla_\theta \int p(x|\theta^*) dx = \nabla_\theta 1 = 0$$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>💡 注意到計算期望值都是基於真實資料分佈, i.e. $p(x|\theta^*)$</p>
+</blockquote>
+<p>因此我們有<br><span>$$\begin{align}
+\mathbb{E}_{p(x|\theta^*)}[s(x,\theta^*)] = 0
+\end{align}$$</span><!-- Has MathJax --></p>
+<h2 id="Fisher-Information-Matrix"><a href="#Fisher-Information-Matrix" class="headerlink" title="Fisher Information Matrix"></a>Fisher Information Matrix</h2><hr>
+<blockquote>
+<p>💡 <span>$\mathbb{E}_{p(x|\theta^*)}[\cdot]$</span><!-- Has MathJax --> 我們簡寫為 <span>$\mathbb{E}_{p^*}[\cdot]$</span><!-- Has MathJax --></p>
+</blockquote>
+<p><strong>[Fisher Information Matrix Definition]:</strong><br>&emsp;在 $\hat{\theta}$ 點的 Fisher information matrix 定義為:<br>&emsp;<span>$$I(\theta^* ; \hat\theta)
+=\mathbb{E}_{p^*}\left[
+s(x,\hat\theta)s(x,\hat\theta)^T
+\right] \\
+= \mathbb{E}_{p^*}\left[\nabla_\theta\log p(x|\hat\theta)\nabla_\theta\log p(x|\hat\theta)^T\right]$$</span><!-- Has MathJax --><br>&emsp;其中 <span>$\theta^*$</span><!-- Has MathJax --> 為真實資料的參數</p>
+<p>Fisher information matrix 在 <span>$\hat\theta=\theta^*$</span><!-- Has MathJax --> 此點上為:<br><span>$$I(\theta^* ; \theta^*)
+=\mathbb{E}_{p^*}\left[
+(s(x,\theta^*)-0)(s(x,\theta^*)-0)^T
+\right] \\
+= \mathbb{E}_{p^*}\left[
+(s(x,\theta^*)- \mathbb{E}_{p^*}[s(x,\theta^*)] )(s(x,\theta^*)- \mathbb{E}_{p^*}[s(x,\theta^*)] )^T
+\right] \\
+= Cov_{p^*}\left( s(x,\theta^*),s(x,\theta^*) \right)$$</span><!-- Has MathJax --><br>由於我們已經知道 score function 在 <span>$\hat\theta=\theta^*$</span><!-- Has MathJax --> 的期望值是 $0$ , 因此 Fisher information matrix 變成 Covariance matrix of score function<br>示意圖為:<br><a href="score_function_example_on_true_parameters.drawio">score_function_example_on_true_parameters.drawio</a><br><img src="/2022/01/07/Score-Function-and-Fisher-Information-Matrix/Untitled 1.png" width="80%" height="80%"></p>
+<p>另外假如我們思考 score function (gradient) 計算的是一次微分, 可以想成是斜率. 那如果考慮二次微分 (Hseeian matrix), 則可想成是 curvature, 因此示意圖為:<br><a href="Hessian_example_on_true_parameters.drawio">Hessian_example_on_true_parameters.drawio</a><br><a href="curvature_example.pptx">curvature_example.pptx</a><br><img src="/2022/01/07/Score-Function-and-Fisher-Information-Matrix/Untitled 2.png" width="80%" height="80%"><br>紅色的那三條 curves 就是 3 個 data points 的 Hessian matrices. 因此 Hessian matrix (at <span>$\theta^*$</span><!-- Has MathJax -->) 的期望值直觀上可以想成 log-likelihood 的 graph 在 <span>$\theta^*$</span><!-- Has MathJax --> 的彎曲程度 (curvature).<br>以上這個觀點其實跟 Fisher information matrix 有關聯的, 描述如下:<br>“Fisher information matrix = score function 的 covariance matrix” 等於 “負的 Hessian matrix 之期望值”. 注意到這性質成立在 <span>$\theta^\star$</span><!-- Has MathJax -->.</p>
+<blockquote>
+<p>證明可參考 Wiki 的 <a href="https://en.wikipedia.org/wiki/Fisher_information" target="_blank" rel="external">Fisher information</a>, 或參考 Agustinus Kristiadi’s Blog: <a href="https://agustinus.kristia.de/techblog/2018/03/11/fisher-information/" target="_blank" rel="external">Fisher Information Matrix</a>. 這裡就不重複.<br>本篇目的為了解其物理意義.</p>
+</blockquote>
+<p>因此我們有如下的等式:<br><span>$$\begin{align}
+I(\theta^* ; \theta^*)
+= \mathbb{E}_{p^*}\left[
+\nabla_\theta\log p(x|\theta^*) \nabla_\theta\log p(x|\theta^*)^T\right]
+= - \mathbb{E}_{p^*}\left[
+\nabla_\theta^2\log p(x|\theta^*)
+\right]
+\end{align}$$</span><!-- Has MathJax --></p>
+<h2 id="KL-divergence-or-relative-entropy-與-MLE-與-關聯"><a href="#KL-divergence-or-relative-entropy-與-MLE-與-關聯" class="headerlink" title="KL-divergence (or relative entropy) 與 MLE 與  關聯"></a>KL-divergence (or relative entropy) 與 MLE 與 <span>$I(\theta^* ; \theta^*)$</span><!-- Has MathJax --> 關聯</h2><hr>
+<p>KL-divergence 為, 通常 $p(x)$ 表示 ground truth distribution:<br><span>$KL(p(x);q(x))=\int p(x)\log\frac{p(x)}{q(x)}dx$</span><!-- Has MathJax --><br>則我們知道 MLE (maximum log likelihood estimation) 等同於求解最小化 KL-divergence [<a href="https://agustinus.kristia.de/techblog/2017/01/26/kl-mle/" target="_blank" rel="external">ref</a>]<br><span>$$\arg\min_{\theta} KL(p(x|\theta^*);p(x|\theta)) \\
+=\arg\min_{\theta} \int p(x|\theta^*)\log\frac{p(x|\theta^*)}{p(x|\theta)}dx \\
+=\arg\min_{\theta} 
+\int p(x|\theta^*)\log\frac{1}{p(x|\theta)}dx \\
+=\arg\min_{\theta} -\mathbb{E}_{p^*}[\log p(x|\theta)]  =: \arg\min\text{NLL}\\
+=\arg\max_{\theta}\mathbb{E}_{p^*}[\log p(x|\theta)] =: \theta_{mle}$$</span><!-- Has MathJax --><br>其中 NLL 表示 Negative Log-Likelihood<br>由於我們已經知道 <span>$I(\theta^* ; \theta^*)$</span><!-- Has MathJax --> 描述了 NLL 的 curvature, 由剛剛的推導知道 NLL (就是 MLE)  跟 KL 等價, 所以 <span>$I(\theta^* ; \theta^*)$</span><!-- Has MathJax --> 也描述了 KL-divergence 的 curvature, 具體推導如下:<br><span>$$\text{curvature of KL at }\theta^* = \nabla_\theta^2 KL(p(x|\theta^*); p(x|\theta^*)) \\
+=\left( \frac{\partial^2}{\partial\theta_i\partial\theta_j}
+KL(p(x|\theta^*); p(x|\theta))
+\right)_{\theta=\theta^*} \\
+= -\int p(x|\theta^*)\left(
+\frac{\partial^2}{\partial\theta_i\partial\theta_j} \log p(x|\theta)
+\right)_{\theta=\theta^*} dx \\
+=-\mathbb{E}_{p^*}[\nabla_\theta^2\log p(x|\theta^*)] \\
+\text{by (4) } = I(\theta^*; \theta^*)$$</span><!-- Has MathJax --></p>
+<h2 id="在-Frequentist-statistics-的解釋"><a href="#在-Frequentist-statistics-的解釋" class="headerlink" title=" 在 Frequentist statistics 的解釋"></a><span>$I(\theta^* ; \theta^*)$</span><!-- Has MathJax --> 在 Frequentist statistics 的解釋</h2><hr>
+<p>了解了 Fisher information matrix 的物理意義後, 還能給我們什麼洞見?<br>回到文章開頭說的:</p>
+<blockquote>
+<p>Frequentist statistics 視 dataset <span>$\mathcal{D}=\{X_1,...,X_n\}$</span><!-- Has MathJax --> 為 random variables, 透過真實 <span>$\theta^*$</span><!-- Has MathJax --> 採樣出 $K$ 組 datasets, 每一組 dataset <span>$\mathcal{D}^k$</span><!-- Has MathJax --> (共 $n$ 筆 data) 都可以求得一個 <span>$\theta_{mle}^k$</span><!-- Has MathJax --> (MLE 表示 Maximum Likelihood Estimator)</p>
+</blockquote>
+<p>所以可以視 <span>$\theta_{mle}$</span><!-- Has MathJax --> 為一個 random variables, 其 distribution 稱為 <strong>sampling distribution</strong>.<br>則 <span>$\theta_{mle}$</span><!-- Has MathJax --> 跟 <span>$\theta^*$</span><!-- Has MathJax --> 有如下關係 (sampling distribution 為 Normal distribution) :<br><span>$$\begin{align}
+\sqrt{n}(\theta_{mle}-\theta^*) \xrightarrow[]{d}
+\mathcal{N}\left(
+0,I^{-1}(\theta^*;\theta^*)
+\right), \qquad \text{as }n\rightarrow\infty
+\end{align}$$</span><!-- Has MathJax --><br>其中 $\xrightarrow[]{d}$ 表示 <a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/" target="_blank" rel="external">converge in distribution</a>. 又或者這麼寫<br><span>$$\begin{align}
+(\theta_{mle}-\theta)\approx^d \mathcal{N}\left(
+0, \frac{1}{nI(\theta^*;\theta^*)}
+\right)
+\end{align}$$</span><!-- Has MathJax --><br>直觀解釋為如果 <span>$I(\theta^*; \theta^*)$</span><!-- Has MathJax --> 愈大 (or $n$ 愈大) , MLE 愈有高的機率接近 <span>$\theta^*$</span><!-- Has MathJax --><br>因此 Fisher information matrix <span>$I(\theta^*; \theta^*)$</span><!-- Has MathJax --> 量測了 MLE 的準確度</p>
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><hr>
+<p>本文討論了 score function and Fisher information matrix 的定義和直觀解釋, 同時也說明了 MLE 的估計 <span>$\theta_{mle}$</span><!-- Has MathJax --> 其距離真實參數 <span>$\theta^*$</span><!-- Has MathJax --> 可被 Fisher information matrix <span>$I(\theta^* ; \theta^*)$</span><!-- Has MathJax --> 描述出來 (雖然實務上我們無法算 <span>$I(\theta^* ; \theta^*)$</span><!-- Has MathJax --> 因為不知道 true parameters <span>$\theta^*$</span><!-- Has MathJax -->)</p>
+<p>關於 Fisher information 知乎這篇文章很好: <a href="https://www.zhihu.com/question/26561604" target="_blank" rel="external">费雪信息 (Fisher information) 的直观意义是什么？</a><br>同時 Fisher information 也能描述參數 $\theta$ 和 random variable $x$ 之間的信息量 (這部分本文沒描述), 可參考 <a href="https://towardsdatascience.com/maximum-likelihood-estimation-mle-and-the-fisher-information-1dd53faa369" target="_blank" rel="external">Maximum Likelihood Estimation (MLE) and the Fisher Information</a> 和 <a href="https://arxiv.org/abs/1705.01064" target="_blank" rel="external">A tutorial on Fisher information</a> 利用 binomial distribution 的例子來說明</p>
+<p>最後提一下, 本文定義的 score function 是基於 $\theta$ 的 gradient, 但同時有另一種方法稱 Score Matching [<a href="https://jmlr.csail.mit.edu/papers/volume6/hyvarinen05a/hyvarinen05a.pdf" target="_blank" rel="external">ref 9</a>], 其定義的 score function 是基於 data point $x$ 的 gradient:<br><span>$\nabla_x\log p(x;\theta)$</span><!-- Has MathJax --><br>因此看這 score function 就不是在 parameter space 上觀察, 而是在 input space 上.</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><hr>
+<ol>
+<li><a href="https://probml.github.io/pml-book/book0.html" target="_blank" rel="external">Machine Learning: a Probabilistic Perspective</a> by <a href="https://www.cs.ubc.ca/~murphyk/" target="_blank" rel="external">Kevin Patrick Murphy</a>. Chapters 5 and 6</li>
+<li>Agustinus Kristiadi’s Blog: <em>**</em><a href="https://agustinus.kristia.de/techblog/2018/03/11/fisher-information/" target="_blank" rel="external">Fisher Information Matrix</a></li>
+<li>Wiki <a href="https://en.wikipedia.org/wiki/Fisher_information" target="_blank" rel="external">Fisher information</a></li>
+<li><a href="https://arxiv.org/abs/1705.01064" target="_blank" rel="external">A tutorial on Fisher information</a> [<a href="A_Tutorial_on_Fisher_Information.pdf">pdf</a>]</li>
+<li><a href="https://agustinus.kristia.de/techblog/2017/01/26/kl-mle/" target="_blank" rel="external">Maximizing likelihood is equivalent to minimizing KL-Divergence</a></li>
+<li><a href="https://www.zhihu.com/question/26561604" target="_blank" rel="external">费雪信息 (Fisher information) 的直观意义是什么？</a></li>
+<li><a href="https://towardsdatascience.com/maximum-likelihood-estimation-mle-and-the-fisher-information-1dd53faa369" target="_blank" rel="external">Maximum Likelihood Estimation (MLE) and the Fisher Information</a> by Xichu Zhang</li>
+<li><a href="https://yang-song.github.io/blog/2021/score/" target="_blank" rel="external">Yang Song: Generative Modeling by Estimating Gradients of the Data Distribution</a></li>
+<li><a href="https://jmlr.csail.mit.edu/papers/volume6/hyvarinen05a/hyvarinen05a.pdf" target="_blank" rel="external">Estimation of Non-Normalized Statistical Models by Score Matching</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2022/01/07/Score-Function-and-Fisher-Information-Matrix/" title="Score Function and Fisher Information Matrix">http://yoursite.com/2022/01/07/Score-Function-and-Fisher-Information-Matrix/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Score-Function/" rel="tag"># Score Function</a>
+          
+            <a href="/tags/Fisher-Information-Matrix/" rel="tag"># Fisher Information Matrix</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/" rel="next" title="Stochastic Processes Week 8 Lévy processes">
+                <i class="fa fa-chevron-left"></i> Stochastic Processes Week 8 Lévy processes
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">69</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">140</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Score-Function"><span class="nav-number">1.</span> <span class="nav-text">Score Function</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Fisher-Information-Matrix"><span class="nav-number">2.</span> <span class="nav-text">Fisher Information Matrix</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#KL-divergence-or-relative-entropy-與-MLE-與-關聯"><span class="nav-number">3.</span> <span class="nav-text">KL-divergence (or relative entropy) 與 MLE 與 $I(\theta^* ; \theta^*)$ 關聯</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#在-Frequentist-statistics-的解釋"><span class="nav-number">4.</span> <span class="nav-text">$I(\theta^* ; \theta^*)$ 在 Frequentist statistics 的解釋</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Summary"><span class="nav-number">5.</span> <span class="nav-text">Summary</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">6.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
