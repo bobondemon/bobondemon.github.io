@@ -369,7 +369,9 @@
 </script>
 
 <hr>
-<p>這是一篇論文筆記, 其實推薦直接讀論文, 數學式很清楚, 表達也明確<br>只是想順著自己的說法做一下筆記</p>
+<p>這是一篇論文筆記, 其實推薦直接讀論文, 數學式很清楚, 表達也明確, 只是想順著自己的說法做一下筆記</p>
+<h2 id="動機介紹"><a href="#動機介紹" class="headerlink" title="動機介紹"></a>動機介紹</h2><p>在 Machine Learning 中, 我們常常希望用參數 $\theta$ 估出來的 pdf <span>$p(.;\theta)$</span><!-- Has MathJax --> 能跟真實 data (training data) 的 pdf <span>$p_x(.)$</span><!-- Has MathJax --> 愈像愈好.<br>由於是 pdf <span>$p(.;\theta)$</span><!-- Has MathJax -->, 必須滿足機率形式, i.e. 積分所有 outcomes 等於 1, 因此引入一個 normalization term $Z(\theta)$<br><span>$$p(\xi;\theta)=\frac{1}{Z(\theta)}q(\xi;\theta)$$</span><!-- Has MathJax --><br>其中 <span>$\xi\in\mathbb{R}^n$</span><!-- Has MathJax --> 為一個 data point<br>假設我們有 $T$ 個 observations <span>$\{x_1,...,x_T\}$</span><!-- Has MathJax -->, 套用 empirical expecation 並對 likelihood estimation 找出最佳 $\theta$ (MLE):<br><span>$$\theta_{mle}=\arg\max_\theta \sum_{t=1}^T \log p(x_t;\theta)$$</span><!-- Has MathJax --><br>計算 gradient, 會發現由於存在 $Z(\theta)$ 變得很難計算, 導致 gradient-based optimization 也很困難.</p>
+<p>山不轉路轉, 如果我們能換個想法:<br></p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/#more" rel="contents">

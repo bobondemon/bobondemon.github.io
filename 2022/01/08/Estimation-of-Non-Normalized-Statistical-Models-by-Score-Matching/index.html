@@ -87,12 +87,14 @@
 
 
 
-<meta name="description" content="這是一篇論文筆記, 其實推薦直接讀論文, 數學式很清楚, 表達也明確只是想順著自己的說法做一下筆記">
+<meta name="description" content="這是一篇論文筆記, 其實推薦直接讀論文, 數學式很清楚, 表達也明確, 只是想順著自己的說法做一下筆記
+動機介紹在 Machine Learning 中, 我們常常希望用參數 $\theta$ 估出來的 pdf $p(.;\theta)$ 能跟真實 data (training data) 的 pdf $p_x(.)$ 愈像愈好.由於是 pdf $p(.;\theta)$, 必須滿足機率形">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Estimation of Non-Normalized Statistical Models by Score Matching">
 <meta property="og:url" content="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/index.html">
 <meta property="og:site_name" content="棒棒生">
-<meta property="og:description" content="這是一篇論文筆記, 其實推薦直接讀論文, 數學式很清楚, 表達也明確只是想順著自己的說法做一下筆記">
+<meta property="og:description" content="這是一篇論文筆記, 其實推薦直接讀論文, 數學式很清楚, 表達也明確, 只是想順著自己的說法做一下筆記
+動機介紹在 Machine Learning 中, 我們常常希望用參數 $\theta$ 估出來的 pdf $p(.;\theta)$ 能跟真實 data (training data) 的 pdf $p_x(.)$ 愈像愈好.由於是 pdf $p(.;\theta)$, 必須滿足機率形">
 <meta property="og:image" content="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled.png">
 <meta property="og:image" content="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 1.png">
 <meta property="og:image" content="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 2.png">
@@ -100,10 +102,11 @@
 <meta property="og:image" content="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 4.png">
 <meta property="og:image" content="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 5.png">
 <meta property="og:image" content="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 6.png">
-<meta property="og:updated_time" content="2022-01-07T16:32:35.741Z">
+<meta property="og:updated_time" content="2022-02-20T01:57:20.165Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Estimation of Non-Normalized Statistical Models by Score Matching">
-<meta name="twitter:description" content="這是一篇論文筆記, 其實推薦直接讀論文, 數學式很清楚, 表達也明確只是想順著自己的說法做一下筆記">
+<meta name="twitter:description" content="這是一篇論文筆記, 其實推薦直接讀論文, 數學式很清楚, 表達也明確, 只是想順著自己的說法做一下筆記
+動機介紹在 Machine Learning 中, 我們常常希望用參數 $\theta$ 估出來的 pdf $p(.;\theta)$ 能跟真實 data (training data) 的 pdf $p_x(.)$ 愈像愈好.由於是 pdf $p(.;\theta)$, 必須滿足機率形">
 <meta name="twitter:image" content="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled.png">
 
 
@@ -380,12 +383,9 @@
 </script>
 
 <hr>
-<p>這是一篇論文筆記, 其實推薦直接讀論文, 數學式很清楚, 表達也明確<br>只是想順著自己的說法做一下筆記</p>
-<a id="more"></a>
-<h2 id="動機介紹"><a href="#動機介紹" class="headerlink" title="動機介紹"></a>動機介紹</h2><hr>
-<p>在 Machine Learning 中, 我們常常希望用參數 $\theta$ 估出來的 pdf <span>$p(.;\theta)$</span><!-- Has MathJax --> 能跟真實 data (training data) 的 pdf <span>$p_x(.)$</span><!-- Has MathJax --> 愈像愈好.<br>由於是 pdf <span>$p(.;\theta)$</span><!-- Has MathJax -->, 必須滿足機率形式, i.e. 積分所有 outcomes 等於 1, 因此引入一個 normalization term $Z(\theta)$<br><span>$$p(\xi;\theta)=\frac{1}{Z(\theta)}q(\xi;\theta)$$</span><!-- Has MathJax --><br>其中 <span>$\xi\in\mathbb{R}^n$</span><!-- Has MathJax --> 為一個 data point</p>
-<p>假設我們有 $T$ 個 observations <span>$\{x_1,...,x_T\}$</span><!-- Has MathJax -->, 常見方式為使用 empirical expecation 並對 maximum likelihood estimation (MLE) 找出最佳 $\theta$:<br><span>$$\theta_{mle}=\arg\max_\theta \sum_{t=1}^T \log p(x_t;\theta)$$</span><!-- Has MathJax --><br>計算 gradient, 會發現由於存在 $Z(\theta)$ 變得很難計算, 導致 gradient-based optimization 也很困難.</p>
-<p>山不轉路轉, 如果我們能換個想法:<br>不要求找到的 $\theta$ 對每個 data points $x_t$ 使其 <span>$p_x(x_t)\approx p(x_t;\theta)$</span><!-- Has MathJax --><br>改成希望使其<br><span>$$\begin{align}
+<p>這是一篇論文筆記, 其實推薦直接讀論文, 數學式很清楚, 表達也明確, 只是想順著自己的說法做一下筆記</p>
+<h2 id="動機介紹"><a href="#動機介紹" class="headerlink" title="動機介紹"></a>動機介紹</h2><p>在 Machine Learning 中, 我們常常希望用參數 $\theta$ 估出來的 pdf <span>$p(.;\theta)$</span><!-- Has MathJax --> 能跟真實 data (training data) 的 pdf <span>$p_x(.)$</span><!-- Has MathJax --> 愈像愈好.<br>由於是 pdf <span>$p(.;\theta)$</span><!-- Has MathJax -->, 必須滿足機率形式, i.e. 積分所有 outcomes 等於 1, 因此引入一個 normalization term $Z(\theta)$<br><span>$$p(\xi;\theta)=\frac{1}{Z(\theta)}q(\xi;\theta)$$</span><!-- Has MathJax --><br>其中 <span>$\xi\in\mathbb{R}^n$</span><!-- Has MathJax --> 為一個 data point<br>假設我們有 $T$ 個 observations <span>$\{x_1,...,x_T\}$</span><!-- Has MathJax -->, 套用 empirical expecation 並對 likelihood estimation 找出最佳 $\theta$ (MLE):<br><span>$$\theta_{mle}=\arg\max_\theta \sum_{t=1}^T \log p(x_t;\theta)$$</span><!-- Has MathJax --><br>計算 gradient, 會發現由於存在 $Z(\theta)$ 變得很難計算, 導致 gradient-based optimization 也很困難.</p>
+<p>山不轉路轉, 如果我們能換個想法:<br><a id="more"></a><br>不要求找到的 $\theta$ 對每個 data points $x_t$ 使其 <span>$p(x_t;\theta)$</span><!-- Has MathJax --> 跟真實機率分佈的結果很接近, i.e. <span>$p(x_t;\theta)\approx p_x(x_t)$</span><!-- Has MathJax --><br>改成希望使其<br><span>$$\begin{align}
 \nabla_x\log p_x(x_t) \approx
 \nabla_x\log p(x_t;\theta) 
 {\color{orange}{=\nabla_x\log q(x_t;\theta)}}
@@ -453,9 +453,9 @@ J(\theta)=\frac{1}{2}\int_{\xi\in\mathbb{R}^n} p_x(\xi) \| \psi(\xi;\theta)-\psi
 J(\theta)=\mathbb{E}_{p_x(\xi)}\left[
 tr(\nabla_\xi\psi(\xi;\theta))+\frac{1}{2}\|\psi(\xi;\theta)\|_2^2
 \right]
-\end{align}$$</span><!-- Has MathJax --><br>其中 <span>$\psi(\xi;\theta):\mathbb{R}^n\rightarrow \mathbb{R}^n$</span><!-- Has MathJax -->, 實務上我們就用一個 NN 參數為 $\theta$ 表示, 因此原本需要二階導數, 變成只需要一階導數在 loss 中<br>就算只有一階導數, 效率還是會比較不好. 因為也需要為 gradient 保留計算圖, 圖會變大.</p>
+\end{align}$$</span><!-- Has MathJax --><br>其中 <span>$\psi(\xi;\theta):\mathbb{R}^n\rightarrow \mathbb{R}^n$</span><!-- Has MathJax -->, 實務上我們就用一個 NN 參數為 $\theta$ 表示, 因此原本需要二階導數, 變成只需要一階導數在 loss 中. 雖然這樣做比較有效率, 但 <a href="https://arxiv.org/abs/1805.08306" target="_blank" rel="external">Deep Energy Estimator Networks</a> 指出會不 robust.</p>
 <blockquote>
-<p>後續在這篇文章 “<a href="http://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf" target="_blank" rel="external">A Connection Between Score Matching and Denoising Autoencoders</a>”, 作者提出 Denoising Score Matching (DSM) 目標函式, 可以不需要將 gradient 也納入 loss 中.<br>其想法就是將每個 data $x$ 根據 Gaussian pdf 做些擾動, 所以一個副作用是永遠學不到最準的 data pdf (如非沒有擾動), 但可藉由加入的擾動愈小, 讓估計愈真實</p>
+<p>後續在這篇文章 “<a href="http://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf" target="_blank" rel="external">A Connection Between Score Matching and Denoising Autoencoders</a>”, 作者提出 Denoising Score Matching (DSM) 目標函式, 可以不需要將 gradient 也納入 loss 中.<br>其想法就是將每個 data $x$ 根據 Gaussian pdf 做些擾動, 所以一個副作用是永遠學不到最準的 data pdf (除非沒有擾動), 但可藉由加入的擾動愈小, 讓估計愈真實</p>
 </blockquote>
 <p>Score matching 的作法是 2005 年, 而作者 Aapo Hyv¨arinen 其實也是 Noise Contrastive Estimation (NCE) 的作者. (參考之前的 <a href="https://bobondemon.github.io/2021/06/05/Noise-Contrastive-Estimation-NCE-%E7%AD%86%E8%A8%98/" target="_blank" rel="external">NCE 筆記</a>)<br>NCE 也是在做一樣的事情: 想辦法避開 $Z(\theta)$ 來估計真實資料的 pdf. 但發表在 2010 年.</p>
 <blockquote>
