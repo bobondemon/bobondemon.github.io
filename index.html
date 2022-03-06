@@ -521,7 +521,7 @@
 </script>
 
 <hr>
-<p>這是一篇論文筆記: “A Connection Between Score Matching and Denoising Autoencoders”<br>建議看本文前請先參前一篇: <a href="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/">Score Matching 系列 (一) SM 估計模型的方法</a></p>
+<p>這是一篇論文筆記: “A Connection Between Score Matching and Denoising Autoencoders”<br>建議看本文前請先參前一篇: <a href="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/">Score Matching 系列 (一) Non-normalized 模型估計</a></p>
 <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>基於 Score Matching, 提出 Denoising Score Matching (DSM) 的目標函式, 好處是在 energy-based model 下:</p>
 <ol>
 <li>不用將 score function 的 gradients 也納入 loss 去計算 (避免二次微分做 backprop 提高效率)</li>
@@ -532,7 +532,7 @@
 <li>最多只能學到加 noise 後的分布</li>
 <li>加 noise 的 level 不好調整</li>
 </ol>
-<p>這兩個缺點在下一篇 <a href="">Sliced Score Matching (SSM)</a> 可以得到改善<br>這篇論文最後也點出了 denoising autoencoder 跟 score matching 的關係 (實際上就是 DSM loss)</p>
+<p>這兩個缺點在下一篇 <a href="https://bobondemon.github.io/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/">Sliced Score Matching (SSM)</a> 可以得到改善<br>這篇論文最後也點出了 denoising autoencoder 跟 score matching 的關係 (實際上就是 DSM loss)</p>
 <p>以下正文開始<br></p>
           <!--noindex-->
           <div class="post-button text-center">
@@ -605,7 +605,7 @@
               
                 
                 <a class="post-title-link" href="/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/" itemprop="url">
-                  Score Matching 系列 (一) SM 估計模型的方法
+                  Score Matching 系列 (一) Non-normalized 模型估計
                 </a>
               
             
