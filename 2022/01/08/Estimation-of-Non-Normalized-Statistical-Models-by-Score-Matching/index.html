@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Score Function,Score Matching,Fisher Divergence," />
+  <meta name="keywords" content="Score Matching,Fisher Divergence,Score Function," />
 
 
 
@@ -87,14 +87,14 @@
 
 
 
-<meta name="description" content="這是一篇論文筆記, 其實推薦直接讀論文, 數學式很清楚, 表達也明確, 只是想順著自己的說法做一下筆記
-動機介紹在 Machine Learning 中, 我們常常希望用參數 $\theta$ 估出來的 pdf $p(.;\theta)$ 能跟真實 data (training data) 的 pdf $p_x(.)$ 愈像愈好.由於是 pdf $p(.;\theta)$, 必須滿足機率形">
+<meta name="description" content="這是一篇論文筆記: “Estimation of Non-Normalized Statistical Models by Score Matching”, 其實推薦直接讀論文, 數學式很清楚, 表達也明確, 只是想順著自己的說法做一下筆記
+動機介紹在 Machine Learning 中, 我們常常希望用參數 $\theta$ 估出來的 pdf $p(.;\theta)$ 能跟真實 da">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Estimation of Non-Normalized Statistical Models by Score Matching">
+<meta property="og:title" content="Score Matching 系列 (一) SM 估計模型的方法">
 <meta property="og:url" content="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/index.html">
 <meta property="og:site_name" content="棒棒生">
-<meta property="og:description" content="這是一篇論文筆記, 其實推薦直接讀論文, 數學式很清楚, 表達也明確, 只是想順著自己的說法做一下筆記
-動機介紹在 Machine Learning 中, 我們常常希望用參數 $\theta$ 估出來的 pdf $p(.;\theta)$ 能跟真實 data (training data) 的 pdf $p_x(.)$ 愈像愈好.由於是 pdf $p(.;\theta)$, 必須滿足機率形">
+<meta property="og:description" content="這是一篇論文筆記: “Estimation of Non-Normalized Statistical Models by Score Matching”, 其實推薦直接讀論文, 數學式很清楚, 表達也明確, 只是想順著自己的說法做一下筆記
+動機介紹在 Machine Learning 中, 我們常常希望用參數 $\theta$ 估出來的 pdf $p(.;\theta)$ 能跟真實 da">
 <meta property="og:image" content="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled.png">
 <meta property="og:image" content="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 1.png">
 <meta property="og:image" content="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 2.png">
@@ -102,11 +102,11 @@
 <meta property="og:image" content="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 4.png">
 <meta property="og:image" content="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 5.png">
 <meta property="og:image" content="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 6.png">
-<meta property="og:updated_time" content="2022-02-20T01:57:20.165Z">
+<meta property="og:updated_time" content="2022-03-06T01:55:01.772Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Estimation of Non-Normalized Statistical Models by Score Matching">
-<meta name="twitter:description" content="這是一篇論文筆記, 其實推薦直接讀論文, 數學式很清楚, 表達也明確, 只是想順著自己的說法做一下筆記
-動機介紹在 Machine Learning 中, 我們常常希望用參數 $\theta$ 估出來的 pdf $p(.;\theta)$ 能跟真實 data (training data) 的 pdf $p_x(.)$ 愈像愈好.由於是 pdf $p(.;\theta)$, 必須滿足機率形">
+<meta name="twitter:title" content="Score Matching 系列 (一) SM 估計模型的方法">
+<meta name="twitter:description" content="這是一篇論文筆記: “Estimation of Non-Normalized Statistical Models by Score Matching”, 其實推薦直接讀論文, 數學式很清楚, 表達也明確, 只是想順著自己的說法做一下筆記
+動機介紹在 Machine Learning 中, 我們常常希望用參數 $\theta$ 估出來的 pdf $p(.;\theta)$ 能跟真實 da">
 <meta name="twitter:image" content="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled.png">
 
 
@@ -141,7 +141,7 @@
 
 
 
-  <title> Estimation of Non-Normalized Statistical Models by Score Matching | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  <title> Score Matching 系列 (一) SM 估計模型的方法 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
@@ -301,7 +301,7 @@
             
             
               
-                Estimation of Non-Normalized Statistical Models by Score Matching
+                Score Matching 系列 (一) SM 估計模型的方法
               
             
           </h1>
@@ -383,7 +383,7 @@
 </script>
 
 <hr>
-<p>這是一篇論文筆記, 其實推薦直接讀論文, 數學式很清楚, 表達也明確, 只是想順著自己的說法做一下筆記</p>
+<p>這是一篇論文筆記: “Estimation of Non-Normalized Statistical Models by Score Matching”, 其實推薦直接讀論文, 數學式很清楚, 表達也明確, 只是想順著自己的說法做一下筆記</p>
 <h2 id="動機介紹"><a href="#動機介紹" class="headerlink" title="動機介紹"></a>動機介紹</h2><p>在 Machine Learning 中, 我們常常希望用參數 $\theta$ 估出來的 pdf <span>$p(.;\theta)$</span><!-- Has MathJax --> 能跟真實 data (training data) 的 pdf <span>$p_x(.)$</span><!-- Has MathJax --> 愈像愈好.<br>由於是 pdf <span>$p(.;\theta)$</span><!-- Has MathJax -->, 必須滿足機率形式, i.e. 積分所有 outcomes 等於 1, 因此引入一個 normalization term $Z(\theta)$<br><span>$$p(\xi;\theta)=\frac{1}{Z(\theta)}q(\xi;\theta)$$</span><!-- Has MathJax --><br>其中 <span>$\xi\in\mathbb{R}^n$</span><!-- Has MathJax --> 為一個 data point<br>假設我們有 $T$ 個 observations <span>$\{x_1,...,x_T\}$</span><!-- Has MathJax -->, 套用 empirical expecation 並對 likelihood estimation 找出最佳 $\theta$ (MLE):<br><span>$$\theta_{mle}=\arg\max_\theta \sum_{t=1}^T \log p(x_t;\theta)$$</span><!-- Has MathJax --><br>計算 gradient, 會發現由於存在 $Z(\theta)$ 變得很難計算, 導致 gradient-based optimization 也很困難.</p>
 <p>山不轉路轉, 如果我們能換個想法:<br><a id="more"></a><br>不要求找到的 $\theta$ 對每個 data points $x_t$ 使其 <span>$p(x_t;\theta)$</span><!-- Has MathJax --> 跟真實機率分佈的結果很接近, i.e. <span>$p(x_t;\theta)\approx p_x(x_t)$</span><!-- Has MathJax --><br>改成希望使其<br><span>$$\begin{align}
 \nabla_x\log p_x(x_t) \approx
@@ -491,7 +491,7 @@ tr(\nabla_\xi\psi(\xi;\theta))+\frac{1}{2}\|\psi(\xi;\theta)\|_2^2
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/" title="Estimation of Non-Normalized Statistical Models by Score Matching">http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/</a>
+      <a href="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/" title="Score Matching 系列 (一) SM 估計模型的方法">http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>
@@ -507,11 +507,11 @@ tr(\nabla_\xi\psi(\xi;\theta))+\frac{1}{2}\|\psi(\xi;\theta)\|_2^2
       
         <div class="post-tags">
           
-            <a href="/tags/Score-Function/" rel="tag"># Score Function</a>
-          
             <a href="/tags/Score-Matching/" rel="tag"># Score Matching</a>
           
             <a href="/tags/Fisher-Divergence/" rel="tag"># Fisher Divergence</a>
+          
+            <a href="/tags/Score-Function/" rel="tag"># Score Function</a>
           
         </div>
       
@@ -533,6 +533,10 @@ tr(\nabla_\xi\psi(\xi;\theta))+\frac{1}{2}\|\psi(\xi;\theta)\|_2^2
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/" rel="prev" title="Score Matching 系列 (二) Denoising Score Matching (DSM) 改善效率並可 Scalable">
+                Score Matching 系列 (二) Denoising Score Matching (DSM) 改善效率並可 Scalable <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -604,7 +608,7 @@ tr(\nabla_\xi\psi(\xi;\theta))+\frac{1}{2}\|\psi(\xi;\theta)\|_2^2
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">70</span>
+                <span class="site-state-item-count">71</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -626,7 +630,7 @@ tr(\nabla_\xi\psi(\xi;\theta))+\frac{1}{2}\|\psi(\xi;\theta)\|_2^2
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">142</span>
+                <span class="site-state-item-count">143</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>
