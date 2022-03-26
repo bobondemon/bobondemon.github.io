@@ -1,0 +1,831 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Denoising Score Matching,Score Matching,Sliced Score Matching,Langevin Dynamics," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="看了一些 score matching 的論文後, 就在網路上找了一下有沒有範例, 然後找到了這個 repo: [toy_gradlogp]非常清晰易懂, 重點實作了:
+
+Denoising Score Matching (DSM)
+Deep Energy Estimator Networks (DEEN, 我怎麼覺得跟 DSM 等價?!)
+Sliced Score Matching (S">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Score Matching 系列 (四) Toy Example in PyTorch">
+<meta property="og:url" content="http://yoursite.com/2022/03/26/score-matching-toy-example-in-pytorch/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="看了一些 score matching 的論文後, 就在網路上找了一下有沒有範例, 然後找到了這個 repo: [toy_gradlogp]非常清晰易懂, 重點實作了:
+
+Denoising Score Matching (DSM)
+Deep Energy Estimator Networks (DEEN, 我怎麼覺得跟 DSM 等價?!)
+Sliced Score Matching (S">
+<meta property="og:updated_time" content="2022-03-26T07:25:54.196Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Score Matching 系列 (四) Toy Example in PyTorch">
+<meta name="twitter:description" content="看了一些 score matching 的論文後, 就在網路上找了一下有沒有範例, 然後找到了這個 repo: [toy_gradlogp]非常清晰易懂, 重點實作了:
+
+Denoising Score Matching (DSM)
+Deep Energy Estimator Networks (DEEN, 我怎麼覺得跟 DSM 等價?!)
+Sliced Score Matching (S">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2022/03/26/score-matching-toy-example-in-pytorch/"/>
+
+
+
+
+
+  <title> Score Matching 系列 (四) Toy Example in PyTorch | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/03/26/score-matching-toy-example-in-pytorch/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Score Matching 系列 (四) Toy Example in PyTorch
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2022-03-26T14:30:44+08:00">
+                2022-03-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>看了一些 score matching 的論文後, 就在網路上找了一下有沒有範例, 然後找到了這個 repo: [<a href="https://github.com/Ending2015a/toy_gradlogp?ref=pythonawesome.com" target="_blank" rel="external">toy_gradlogp</a>]<br>非常清晰易懂, 重點實作了:</p>
+<ul>
+<li>Denoising Score Matching (DSM)</li>
+<li>Deep Energy Estimator Networks (DEEN, 我怎麼覺得跟 DSM 等價?!)</li>
+<li>Sliced Score Matching (SSM)</li>
+<li>Sliced Score Matching with Variance Reduction (SSM-VR)</li>
+<li>Langevin Dynamics (可以只根據 score function 取 sample)</li>
+</ul>
+<p>雖然主要都是 PyTorch, 但 data pipeline 仍然使用 tensorflow<br>因此我就改寫了一下, 變成純 PyTorch, 並且也改成我習慣的資料夾結構和 config 使用 <a href="https://hydra.cc/" target="_blank" rel="external">Hydra</a></p>
+<blockquote>
+<p>改寫後的在這: [<a href="https://github.com/bobondemon/score_matching_toy_example" target="_blank" rel="external">Score Matching Practicing in PyTorch</a>]</p>
+</blockquote>
+<p>以下接著說明兩個重點:</p>
+<ol>
+<li>Langevin Dynamics 簡介</li>
+<li>怎麼把 gradient 也當成 loss?</li>
+</ol>
+<a id="more"></a>
+<h2 id="Langevin-Dynamics-簡介"><a href="#Langevin-Dynamics-簡介" class="headerlink" title="Langevin Dynamics 簡介"></a>Langevin Dynamics 簡介</h2><hr>
+<p>Langevin dynamics 可以使用 score function, i.e. <span>$\nabla_x\log p_{data}(x)$</span><!-- Has MathJax -->, 來取 sample, 取出來的 sample 具有 <span>$p_{data}(x)$</span><!-- Has MathJax --> 的分佈<br>而我們知道可以用 SM 來訓練一個 NN <span>$s_\theta(x)$</span><!-- Has MathJax --> 逼近 score function, 因此就可以用 <span>$s_\theta(x)$</span><!-- Has MathJax --> 來取 sample, 步驟如下:<br>給定一個固定的 step size $\epsilon&gt;0$, initial value <span>$z=\tilde{x}_0\sim\pi(x)$</span><!-- Has MathJax -->, 其中 $\pi(x)$ 是固定的 prior distribution, and <span>$z_t\sim\mathcal{N}(0,I)$</span><!-- Has MathJax --></p>
+<span>$$\tilde{x}_t = \tilde{x}_{t-1}+\frac{\epsilon}{2}\nabla_x\log p_{data}(\tilde{x}_{t-1})+\sqrt{\epsilon}z_t \\
+\approx \tilde{x}_{t-1}+\frac{\epsilon}{2}s_\theta(\tilde{x}_{t-1})+\sqrt{\epsilon}z_t$$</span><!-- Has MathJax -->
+<p>當 $\epsilon\rightarrow 0$, and $T\rightarrow\infty$, 則 <span>$\tilde{x}_T$</span><!-- Has MathJax --> 等同於從 <span>$p_{data}(x)$</span><!-- Has MathJax --> 取樣!</p>
+<blockquote>
+<p>只要我們能把 score function 用 NN 學得很好, 就可以利用 Langevin dynamics 採樣了. 疑?! 這樣不就完成了一個 generative modeling 了嗎?<br>沒錯, 這就是最初的 score-based generative modeling 想發開頭. 但這最 naive 的方法事實上會面臨到一些困難.<br>下一篇會介紹 Yang Song 使用這種方法時, 他是如何解決這些困難, 並成功鍊成生成模型.</p>
+</blockquote>
+<h2 id="怎麼把-gradient-也當成-loss"><a href="#怎麼把-gradient-也當成-loss" class="headerlink" title="怎麼把 gradient 也當成 loss?"></a>怎麼把 gradient 也當成 loss?</h2><hr>
+<p>其實直接參考這篇文章 <a href="https://zhuanlan.zhihu.com/p/84890656" target="_blank" rel="external">retain_graph和create_graph参数</a> 就可以了, 說得很清楚.<br>重點是利用 <code>torch.autograd.grad</code> 並且將其 <code>create_graph</code> 設定為 <code>True</code></p>
+<p>這邊簡單說明一下.<br>一般我們要得到 gradient 是對 loss 取 <code>loss.backward()</code>, pytorch 會在其 computational graph 裡做 backprop, 然後 tensor 如果 <code>requires_grad</code> 為 <code>True</code> 的話, 該 tensor 就會保留住 gradient.<br>但現在問題是, 這些 gradients 本身也是 loss 的一部分, 這該怎麼辦?<br>只要使用 <code>torch.autograd.grad</code> 並且將其 <code>create_graph</code> 設定為 <code>True</code>, pytorch 就會針對這些求 gradients 的 operations <strong>生出其對應的 computational graph</strong> 並加進原來的圖裡.</p>
+<blockquote>
+<p>也可以利用此方法求更高階的導數</p>
+</blockquote>
+<p>在 SM 裡會用到是因為其 loss 包含 score function <span>$\nabla_x\log NN(x;\theta)$</span><!-- Has MathJax -->, 而 score function 正是我們 energy-based model (是一個 NN) 的微分<br>一般我們定義 energy-based model $E(x)$ 為:<br><span>$$E(x)=-\log q(x)$$</span><!-- Has MathJax --><br>其中 $q(x)$ is non-normalized distribution, i.e. $p(x)=q(x)/Z$ where $Z$ is partition function</p>
+<p>不過如果我們的 NN 直接就是估計 score function (也就是不透過 energy-based model), 就不需要這麼做, 後面 Yang Song 的很多工作就直接這樣了.</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2022/03/26/score-matching-toy-example-in-pytorch/" title="Score Matching 系列 (四) Toy Example in PyTorch">http://yoursite.com/2022/03/26/score-matching-toy-example-in-pytorch/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Denoising-Score-Matching/" rel="tag"># Denoising Score Matching</a>
+          
+            <a href="/tags/Score-Matching/" rel="tag"># Score Matching</a>
+          
+            <a href="/tags/Sliced-Score-Matching/" rel="tag"># Sliced Score Matching</a>
+          
+            <a href="/tags/Langevin-Dynamics/" rel="tag"># Langevin Dynamics</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/" rel="next" title="Score Matching 系列 (三) Sliced Score Matching (SSM) 同時保持效率和效果">
+                <i class="fa fa-chevron-left"></i> Score Matching 系列 (三) Sliced Score Matching (SSM) 同時保持效率和效果
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">73</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">145</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Langevin-Dynamics-簡介"><span class="nav-number">1.</span> <span class="nav-text">Langevin Dynamics 簡介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#怎麼把-gradient-也當成-loss"><span class="nav-number">2.</span> <span class="nav-text">怎麼把 gradient 也當成 loss?</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
