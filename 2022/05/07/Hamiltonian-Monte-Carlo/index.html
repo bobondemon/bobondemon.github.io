@@ -106,7 +106,7 @@
 <meta property="og:image" content="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 1.png">
 <meta property="og:image" content="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 2.png">
 <meta property="og:image" content="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 3.png">
-<meta property="og:updated_time" content="2022-05-07T10:53:44.982Z">
+<meta property="og:updated_time" content="2022-05-07T12:39:53.434Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="忘記物理也要搞懂的 Hamiltonian Monte Carlo (HMC) 筆記">
 <meta name="twitter:description" content="先說我物理什麼的都還給老師了, 只能用自己理解的方式, 筆記下 Hamiltonian dynamic.
@@ -484,7 +484,7 @@ U(\mathbf{x})=-\log p^*(\mathbf{x})
 \end{align}$$</span><!-- Has MathJax -->
 <h2 id="MHC-採樣過程"><a href="#MHC-採樣過程" class="headerlink" title="MHC 採樣過程"></a>MHC 採樣過程</h2><hr>
 <p>好了, 到目前為止我們藉由設定好的 distribution <span>$p^*(\mathbf{x}),\mathcal{N}(\mathbf{p}|0,I)$</span><!-- Has MathJax -->, 可以找到對應的 energy functions $U(\mathbf{x}),K(\mathbf{p})$.<br>那就可以套用  Hamiltonian equations (6), (7) 來模擬能量不變的情形下, $(\mathbf{x},\mathbf{p})$ 隨時間的變化.<br>給定一個初始狀態 $(\mathbf{x}_0,\mathbf{p}_0)$ 可以得到:</p>
-<span>$$(\mathbf{x}_0,\mathbf{p}_0)\xrightarrow[]{(6)(7)}(\mathbf{x}_1,\mathbf{p}_2)\xrightarrow[]{(6)(7)}(\mathbf{x}_3,\mathbf{p}_3)\xrightarrow[]{(6)(7)}...$$</span><!-- Has MathJax -->
+<span>$$(\mathbf{x}_0,\mathbf{p}_0)\xrightarrow[]{(6)(7)}(\mathbf{x}_1,\mathbf{p}_1)\xrightarrow[]{(6)(7)}(\mathbf{x}_2,\mathbf{p}_2)\xrightarrow[]{(6)(7)}...$$</span><!-- Has MathJax -->
 <p>其中 <span>$H(\mathbf{x}_0,\mathbf{p}_0)=H(\mathbf{x}_1,\mathbf{p}_1)=...$</span><!-- Has MathJax --><br>實作上由於每一次 (6), (7) 的更新都採用很小的 $\varepsilon$ (Leapfrog sample codes 裡的 <code>self.eps</code>), 這樣才能確保夠準確.<br>但我們也希望能夠走遠一些 (這對 multi-modual 的 distribution 很有幫助, 如下圖所示), 所以會跑個 $T$ 步 updates (Leapfrog sample codes 裡的 <code>self.n_steps</code>)</p>
 <p><img src="/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 1.png" width="80%" height="80%"></p>
 <p>但就算如此, 由於 energy conservation (13) 的關係, $\mathbf{x}$ 只會在 phase space 上具有相同能量的 contour 上採樣.<br>(Phase space 定義為 $(\mathbf{x},\mathbf{p})$ 的空間)<br>為了能夠採樣出其它的點, 我們需要換到其他能量的 contour, 因此改變 $\mathbf{p}$, 即對它重新採樣即可.<br>(follow 之前定義好的分佈 <span>$\mathcal{N}(\mathbf{p}|0,I)$</span><!-- Has MathJax -->).<br>但是別忘了, Hamiltonian MC 所提出的採樣是 Metorpolis-Hastings 的 proposal distribution. 所以也需要有 accept/reject, 但也得益於 energy conservation 所以會有非常高的 accept rate. 因而採樣效率很好.<br>總結一下 HMC 方法 [<a href="https://github.com/bayesgroup/deepbayes-2019/blob/master/lectures/day5/1.%20Dmitry%20Kropotov%20-%20MCMC.pdf" target="_blank" rel="external">ref 3</a>]:</p>
