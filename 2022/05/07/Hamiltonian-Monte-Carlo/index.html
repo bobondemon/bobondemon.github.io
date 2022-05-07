@@ -1,0 +1,915 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="MCMC,HMC,Metropolis Hastings,Hamiltonian Dynamic,Hamiltonian Monte Carlo," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="先說我物理什麼的都還給老師了, 只能用自己理解的方式, 筆記下 Hamiltonian dynamic.
+
+　💡 如果連我都能懂, 相信大家都能理解 HMC 了
+
+但還是建議先看 MCMC by Gibbs and Metropolis-Hasting Sampling, 因為這篇要說的 Hamiltonian Monte Carlo (HMC) 是 Metropolis-Hasting">
+<meta property="og:type" content="article">
+<meta property="og:title" content="忘記物理也要搞懂的 Hamiltonian Monte Carlo (HMC) 筆記">
+<meta property="og:url" content="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="先說我物理什麼的都還給老師了, 只能用自己理解的方式, 筆記下 Hamiltonian dynamic.
+
+　💡 如果連我都能懂, 相信大家都能理解 HMC 了
+
+但還是建議先看 MCMC by Gibbs and Metropolis-Hasting Sampling, 因為這篇要說的 Hamiltonian Monte Carlo (HMC) 是 Metropolis-Hasting">
+<meta property="og:image" content="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/Untitled.png">
+<meta property="og:image" content="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/hamiltoniandynamics.gif">
+<meta property="og:image" content="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 1.png">
+<meta property="og:image" content="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 2.png">
+<meta property="og:image" content="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 3.png">
+<meta property="og:updated_time" content="2022-05-07T10:53:44.982Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="忘記物理也要搞懂的 Hamiltonian Monte Carlo (HMC) 筆記">
+<meta name="twitter:description" content="先說我物理什麼的都還給老師了, 只能用自己理解的方式, 筆記下 Hamiltonian dynamic.
+
+　💡 如果連我都能懂, 相信大家都能理解 HMC 了
+
+但還是建議先看 MCMC by Gibbs and Metropolis-Hasting Sampling, 因為這篇要說的 Hamiltonian Monte Carlo (HMC) 是 Metropolis-Hasting">
+<meta name="twitter:image" content="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/Untitled.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/"/>
+
+
+
+
+
+  <title> 忘記物理也要搞懂的 Hamiltonian Monte Carlo (HMC) 筆記 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                忘記物理也要搞懂的 Hamiltonian Monte Carlo (HMC) 筆記
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2022-05-07T18:09:02+08:00">
+                2022-05-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>先說我物理什麼的都還給老師了, 只能用自己理解的方式, 筆記下 <strong>Hamiltonian dynamic.</strong></p>
+<blockquote>
+<p>　💡 如果連我都能懂, 相信大家都能理解 HMC 了</p>
+</blockquote>
+<p>但還是<strong>建議先看 <a href="https://bobondemon.github.io/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/" target="_blank" rel="external">MCMC by Gibbs and Metropolis-Hasting Sampling</a></strong>, 因為這篇要說的 Hamiltonian Monte Carlo (HMC) 是 Metropolis-Hastings (MH) 方法的一種, 只是 proposal distribution 從 random walk 改成使用 Hamiltonian dynamics 來做, 因而變的非常有效率 (accept rate 很高), 且對於高維度資料採樣也很有效.</p>
+<p>首先粗體字如 <span>$\mathbf{x}, \mathbf{v}, \mathbf{p}$</span><!-- Has MathJax --> 都是 column vector, 而非粗體字表 scalar, e.g. $m,t$</p>
+<a id="more"></a>
+<h2 id="Hamiltonian-dynamic"><a href="#Hamiltonian-dynamic" class="headerlink" title="Hamiltonian dynamic"></a><strong>Hamiltonian dynamic</strong></h2><hr>
+<p>一物體在位置 $\mathbf{x}$ (這裡可想成是高度) 的重力位能 (potential energy) 為</p>
+<span>$$\begin{align}
+U(\mathbf{x})=m\mathbf{g}^T\mathbf{x}
+\end{align}$$</span><!-- Has MathJax -->
+<p>其中 $m$ 表質量, $\mathbf{g}$ 表重力加速度 (是個向量, 所以有方向性).<br>同時該物體, 其本身也存在動能 (kinetic energy) 且可表示為:</p>
+<span>$$\begin{align}
+K(\mathbf{p})=\frac{\mathbf{p}^T\mathbf{p}}{2m}\left(=\frac{1}{2}m\mathbf{v}^2\right) \\
+\mathbf{p}=m\frac{d\mathbf{x}}{dt}\left(=m\mathbf{v}\right)
+\end{align}$$</span><!-- Has MathJax -->
+<p>$\mathbf{v}$ 表速度 (是個向量, 所以有方向性), $\mathbf{p}$ 我們稱為動量 (momentum).<br>整個封閉系統 (沒有外界的其他能量介入) 的能量為:</p>
+<span>$$\begin{align}
+H(\mathbf{x},\mathbf{p})=U(\mathbf{x})+K(\mathbf{p}) \\
+=m\mathbf{g}^T\mathbf{x}+\frac{\mathbf{p}^T\mathbf{p}}{2m}
+\end{align}$$</span><!-- Has MathJax -->
+<p>根據能量守恆, 不管時間 $t$ 是什麼, 整個系統的能量 $H(\mathbf{x},\mathbf{p})$ 都維持相同.<br>此時如果我們知道該物體的初始狀態 $(\mathbf{x}_0,\mathbf{p}_0)$ 的話, 事實上可以知道任何時間 $t$ 下的位置和動量 $(\mathbf{x},\mathbf{p})$<br>而這樣的關係可以由下面的 <strong>Hamiltonian equations</strong> 描述出來:</p>
+<span>$$\begin{align}
+\frac{dx_i}{dt}=\frac{\partial H}{\partial p_i} \\
+\frac{dp_i}{dt}=-\frac{\partial H}{\partial x_i}
+\end{align}$$</span><!-- Has MathJax -->
+<p>其中 <span>$i\in\{1,..,d\}$</span><!-- Has MathJax -->, $d$ 表空間的維度.</p>
+<blockquote>
+<p>只要使用 $\mathbf{p}=m\mathbf{v}$, 速度 $\mathbf{v}$ 是 $\mathbf{x}$ 對時間的微分, 速度對時間的微分等於加速度 $\mathbf{g}$, 就可以從 (5) 推導出 (6) 和 (7).</p>
+</blockquote>
+<p>所以如果已知時間 $t$ 的位置 $x_i(t)$, 想預估 $t+\varepsilon$ 的位置 $x_i(t+\varepsilon)$ 的話, 可以透過 (6) 的方式更新:</p>
+<span>$$x_i(t+\varepsilon)\approx x_i(t)+\varepsilon\cdot\frac{dx_i(t)}{dt}=x_i(t)+\varepsilon\cdot\frac{\partial K(\mathbf{p}(t))}{\partial p_i} \\
+=x_i(t)+\varepsilon\cdot\frac{\partial\left(\mathbf{p}(t)^T\mathbf{p}(t)/2m\right)}{\partial p_i} = x_i(t)+\varepsilon\cdot\frac{p_i(t)}{m}$$</span><!-- Has MathJax -->
+<p>只要 $\varepsilon$ 夠小的話, 就會夠接近.<br>同理 $p_i(t+\varepsilon)$ 也能用 (7) 估計出來. 總結為以下 update 方法 (令 $m=1$), 而這個方法稱為 Euler’s method:</p>
+<span>$$\begin{align}
+x_i(t+\varepsilon) = x_i(t)+\varepsilon\cdot p_i(t) \\
+p_i(t+\varepsilon) = p_i(t)-\varepsilon\cdot\frac{\partial U(\mathbf{x}(t))}{\partial x_i}
+\end{align}$$</span><!-- Has MathJax -->
+<p>但致命的缺點是一旦時間長了, 估計就愈來愈不準了. 因此實作上會採用 Leapfrog method: <a href="https://www2.atmos.umd.edu/~ekalnay/syllabi/AOSC614/NWP-CH03-2-2.pdf" target="_blank" rel="external">pdf 介紹</a>.<br>我們先看看兩種方法的精確度差異 (取自 DeepBayes 2019 Summer School Day 5, <a href="https://github.com/bayesgroup/deepbayes-2019/blob/master/lectures/day5/1.%20Dmitry%20Kropotov%20-%20MCMC.pdf" target="_blank" rel="external">MCMC slides</a>):</p>
+<p><img src="/2022/05/07/Hamiltonian-Monte-Carlo/Untitled.png" width="80%" height="80%"></p>
+<p>Leapfrog method 描述如下:</p>
+<span>$$\begin{align}
+p_i(t+\varepsilon/2)=p_i(t)-(\varepsilon/2)\cdot\frac{\partial U(\mathbf{x}(t))}{\partial x_i} \\
+x_i(t+\varepsilon)=x_i(t)+\varepsilon \cdot p_i(t+\varepsilon/2) \\
+p_i(t+\varepsilon)=p_i(t+\varepsilon/2)-(\varepsilon/2)\cdot\frac{\partial U(\mathbf{x}(t+\varepsilon))}{\partial x_i}
+\end{align}$$</span><!-- Has MathJax -->
+<p>主要的想法是, 在 update $x_i(t+\varepsilon)$ 時 (式 (8)), 原來使用 $p_i(t)$ 來更新, 改成使用”更準的” $p_i(t+\varepsilon/2)$ 來更新, 如同式 (11). 然後 $p_i(t+\varepsilon)$ 分成兩次的 $\varepsilon/2$ steps 來更新.</p>
+<blockquote>
+<p>抱歉沒有嚴謹的數學來證明 error 的 order.</p>
+</blockquote>
+<p>注意到, 我們只需要 $\nabla_\mathbf{x}U(\mathbf{x})$ 就能更新 $(\mathbf{x},\mathbf{p})$!<br>也就是說只要有 potential energy 的 gradient 就可以模擬 Hamiltonian dynamic!<br>這點很重要, 因為變成 sampling 方法後等同於這句話: 只要有 score function 就能採樣! 而 score function 怎麼估計, <a href="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/" target="_blank" rel="external">Score Matching</a> 是個好方法.<br>Sample codes from (<a href="https://github.com/bayesgroup/deepbayes-2019/blob/master/seminars/day5/Markov%20Chain%20Monte-Carlo%20Solution.ipynb" target="_blank" rel="external">Markov Chain Monte-Carlo Solution.ipynb</a>):</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">_leapfrog</span><span class="params">(self, x, v)</span>:</span></div><div class="line">    self.energy = []</div><div class="line">    <span class="keyword">for</span> _ <span class="keyword">in</span> range(self.n_steps):</div><div class="line">        v -= <span class="number">0.5</span> * self.eps * self.dist.grad_log_density(x)</div><div class="line">        x = x + self.eps * v</div><div class="line">        v -= <span class="number">0.5</span> * self.eps * self.dist.grad_log_density(x)</div><div class="line">        self.energy.append(self._energy(x, v))</div><div class="line">    <span class="keyword">return</span> x, v</div></pre></td></tr></table></figure>
+<h2 id="彈簧例子"><a href="#彈簧例子" class="headerlink" title="彈簧例子"></a>彈簧例子</h2><hr>
+<p>參考自 <strong><strong><a href="https://theclevermachine.wordpress.com/2012/11/18/mcmc-hamiltonian-monte-carlo-a-k-a-hybrid-monte-carlo/" target="_blank" rel="external">MCMC: Hamiltonian Monte Carlo (a.k.a. Hybrid Monte Carlo)</a></strong></strong><br>不知道怎麼來的也沒關係, 反正此時的系統能量為:</p>
+<span>$$U(x)=\frac{x^2}{2} \\
+K(p)=\frac{p^2}{2} \\
+H(x,p)=U(x)+K(p)$$</span><!-- Has MathJax -->
+<p>位置 $x$ 的參考原點定義在彈簧中心, 也就是剛好 potential energy 為 $0$ 的時候. 使用 Leapfrog method 來模擬 Hamiltonian equations 更新狀態 $(\mathbf{x},\mathbf{p})$:</p>
+<p><img src="/2022/05/07/Hamiltonian-Monte-Carlo/hamiltoniandynamics.gif" width="70%" height="70%"></p>
+<p>可以看到 Hamiltonian dynamic 的過程, 能量上 (左下角的圖) 只是 potential 和 kinetic energy 的互相交換 (黃色和青色互相消長), 其總能量是不變的.<br>哎不對~總能量 $H$ 的那條全黃色的 bar 沒有固定不動啊, 看起來還是會小幅度上上下下的.<br>是的, 縱使用了 Leapfrog method, 還是會漂移, 這是因為我們對時間離散化造成的. 想要 error 更小, 就必需切更細碎的時間去逼近.<br>另外需要特別說明, 右下角的 “<strong>Phase Space</strong>” 圖, 畫出了 $(x,p)$ 狀態值的移動路徑. 由於能量守恆, 這路徑代表了相同的 Hamiltonian energy. 為什麼要特別說明這點, 在後面講 sampling 的時候會再次提到.</p>
+<h2 id="能量怎麼看成機率分佈-或反過來"><a href="#能量怎麼看成機率分佈-或反過來" class="headerlink" title="能量怎麼看成機率分佈? 或反過來?"></a>能量怎麼看成機率分佈? 或反過來?</h2><hr>
+<p>給定能量 $E(x)$, 總是可以用下式變成機率分佈 (Gibbs distribution):</p>
+<span>$$p(x)=\frac{1}{Z}e^{-E(x)}$$</span><!-- Has MathJax -->
+<p>$Z$ 就是一個 normalization constant 變成機率分佈用的. 所以能量愈大表示的機率密度就愈小.<br>我們來將 Hamiltonian energy 變機率分佈看看:</p>
+<span>$$p(\mathbf{x},\mathbf{p})=\frac{1}{Z}e^{-H(\mathbf{x},\mathbf{p})} \\
+\propto e^{-(U(\mathbf{x})+K(\mathbf{p}))}
+=e^{-U(\mathbf{x})}e^{-K(\mathbf{p})}
+=p(\mathbf{x})p(\mathbf{p})$$</span><!-- Has MathJax -->
+<p>這裡可以發現 $\mathbf{x}$ 與 $\mathbf{p}$ 互相獨立.<br>原本從物理那邊我們是先定義了能量, 再利用 Gibbs distribution 變成了機率分佈.<br>現在我們反過來操作: 先定義我們要的機率分佈, 然後反推能量長什麼樣.</p>
+<blockquote>
+<p>🤔 題外話, 寫到這我就在想, 反過來從先定義機率分布再推導能量是不是仍然能滿足 energy conservation?<br>i.e. 能量隨時間不變.<br><span>$$\begin{align}
+\frac{dH(x,p)}{dt}=0
+\end{align}$$</span><!-- Has MathJax --><br>但其實不用擔心, 因為只要用 Hamiltonian equations (6), (7) 去更新狀態, 就會滿足 energy conservation.<br>我們考慮 1-D case 即可, 能量為 $H(x(t),p(t))$, 滿足 (6) and (7) 並觀察<br><span>$$\frac{dH(x(t),p(t))}{dt}=\frac{dH}{dx}\frac{dx}{dt}+\frac{dH}{dp}\frac{dp}{dt} \\
+\text{by }(6)=\frac{dH}{dx}\frac{dH}{dp}+\frac{dH}{dp}\frac{dp}{dt} \\
+\text{by }(7)=\frac{dH}{dx}\frac{dH}{dp}-\frac{dH}{dp}\frac{dH}{dx}=0$$</span><!-- Has MathJax --></p>
+</blockquote>
+<p>因為互相獨立, 我們可以先定義 $\mathbf{p}$ 是 normal distribution $\mathcal{N}(\mathbf{p}|0,I)$</p>
+<span>$$p(\mathbf{p})=\frac{1}{Z_\mathbf{p}}e^{-\frac{\mathbf{p}^T\mathbf{p}}{2}}$$</span><!-- Has MathJax -->
+<p>可以看得出來其 (kinetic) energy 為:</p>
+<span>$$\begin{align}
+K(\mathbf{p})=\frac{\mathbf{p}^T\mathbf{p}}{2}
+\end{align}$$</span><!-- Has MathJax -->
+<p>然後不要忘記我們的目的是要從一個目標分佈 <span>$p^*(\mathbf{x})$</span><!-- Has MathJax --> 取樣, 因此 $\mathbf{x}$ 的機率分佈就直接定義成目標分佈. 而其 (potential) energy 為:</p>
+<span>$$\begin{align}
+p^*(\mathbf{x})=\frac{1}{Z_\mathbf{x}}e^{-U(\mathbf{x})} \\
+\Longrightarrow U(\mathbf{x})=-\log p^*(\mathbf{x}) + \text{const.}
+\end{align}$$</span><!-- Has MathJax -->
+<p>還記得我們之前說過這句話嗎? “我們只需要 <span>$\nabla_\mathbf{x}U(\mathbf{x})$</span><!-- Has MathJax --> 就能更新 $(\mathbf{x},\mathbf{p})$!”<br>因此 (16) 的 $\text{const.}$ 就不重要了, 所以 potential energy 這麼定義就可以了:</p>
+<span>$$\begin{align}
+U(\mathbf{x})=-\log p^*(\mathbf{x})
+\end{align}$$</span><!-- Has MathJax -->
+<h2 id="MHC-採樣過程"><a href="#MHC-採樣過程" class="headerlink" title="MHC 採樣過程"></a>MHC 採樣過程</h2><hr>
+<p>好了, 到目前為止我們藉由設定好的 distribution <span>$p^*(\mathbf{x}),\mathcal{N}(\mathbf{p}|0,I)$</span><!-- Has MathJax -->, 可以找到對應的 energy functions $U(\mathbf{x}),K(\mathbf{p})$.<br>那就可以套用  Hamiltonian equations (6), (7) 來模擬能量不變的情形下, $(\mathbf{x},\mathbf{p})$ 隨時間的變化.<br>給定一個初始狀態 $(\mathbf{x}_0,\mathbf{p}_0)$ 可以得到:</p>
+<span>$$(\mathbf{x}_0,\mathbf{p}_0)\xrightarrow[]{(6)(7)}(\mathbf{x}_1,\mathbf{p}_2)\xrightarrow[]{(6)(7)}(\mathbf{x}_3,\mathbf{p}_3)\xrightarrow[]{(6)(7)}...$$</span><!-- Has MathJax -->
+<p>其中 <span>$H(\mathbf{x}_0,\mathbf{p}_0)=H(\mathbf{x}_1,\mathbf{p}_1)=...$</span><!-- Has MathJax --><br>實作上由於每一次 (6), (7) 的更新都採用很小的 $\varepsilon$ (Leapfrog sample codes 裡的 <code>self.eps</code>), 這樣才能確保夠準確.<br>但我們也希望能夠走遠一些 (這對 multi-modual 的 distribution 很有幫助, 如下圖所示), 所以會跑個 $T$ 步 updates (Leapfrog sample codes 裡的 <code>self.n_steps</code>)</p>
+<p><img src="/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 1.png" width="80%" height="80%"></p>
+<p>但就算如此, 由於 energy conservation (13) 的關係, $\mathbf{x}$ 只會在 phase space 上具有相同能量的 contour 上採樣.<br>(Phase space 定義為 $(\mathbf{x},\mathbf{p})$ 的空間)<br>為了能夠採樣出其它的點, 我們需要換到其他能量的 contour, 因此改變 $\mathbf{p}$, 即對它重新採樣即可.<br>(follow 之前定義好的分佈 <span>$\mathcal{N}(\mathbf{p}|0,I)$</span><!-- Has MathJax -->).<br>但是別忘了, Hamiltonian MC 所提出的採樣是 Metorpolis-Hastings 的 proposal distribution. 所以也需要有 accept/reject, 但也得益於 energy conservation 所以會有非常高的 accept rate. 因而採樣效率很好.<br>總結一下 HMC 方法 [<a href="https://github.com/bayesgroup/deepbayes-2019/blob/master/lectures/day5/1.%20Dmitry%20Kropotov%20-%20MCMC.pdf" target="_blank" rel="external">ref 3</a>]:</p>
+<p><img src="/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 2.png" width="80%" height="80%"></p>
+<p>而 Tuning HMC 有幾個要點 [<a href="https://github.com/bayesgroup/deepbayes-2019/blob/master/lectures/day5/1.%20Dmitry%20Kropotov%20-%20MCMC.pdf" target="_blank" rel="external">ref 3</a>]:</p>
+<p><img src="/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 3.png" width="80%" height="80%"></p>
+<p>一般來說要控制 rejection rate 在 $[1/4,3/4]$ 之間會比較好. 還有多跑幾個 threads 來確認收斂狀況.</p>
+<hr>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li><strong><strong><a href="https://zhuanlan.zhihu.com/p/67691581" target="_blank" rel="external">马尔可夫链蒙特卡洛算法 (二) HMC</a></strong></strong></li>
+<li><strong><strong><a href="https://theclevermachine.wordpress.com/2012/11/18/mcmc-hamiltonian-monte-carlo-a-k-a-hybrid-monte-carlo/" target="_blank" rel="external">MCMC: Hamiltonian Monte Carlo (a.k.a. Hybrid Monte Carlo)</a></strong></strong></li>
+<li>DeepBayes 2019 Summer School Day 5, <a href="https://github.com/bayesgroup/deepbayes-2019/blob/master/lectures/day5/1.%20Dmitry%20Kropotov%20-%20MCMC.pdf" target="_blank" rel="external">MCMC slides</a></li>
+<li>MHC sample codes from (<a href="https://github.com/bayesgroup/deepbayes-2019/blob/master/seminars/day5/Markov%20Chain%20Monte-Carlo%20Solution.ipynb" target="_blank" rel="external">https://github.com/bayesgroup/deepbayes-2019/blob/master/seminars/day5/Markov Chain Monte-Carlo Solution.ipynb</a>)</li>
+<li>Leapfrog method: <a href="https://www2.atmos.umd.edu/~ekalnay/syllabi/AOSC614/NWP-CH03-2-2.pdf" target="_blank" rel="external">https://www2.atmos.umd.edu/~ekalnay/syllabi/AOSC614/NWP-CH03-2-2.pdf</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/" title="忘記物理也要搞懂的 Hamiltonian Monte Carlo (HMC) 筆記">http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MCMC/" rel="tag"># MCMC</a>
+          
+            <a href="/tags/HMC/" rel="tag"># HMC</a>
+          
+            <a href="/tags/Metropolis-Hastings/" rel="tag"># Metropolis Hastings</a>
+          
+            <a href="/tags/Hamiltonian-Dynamic/" rel="tag"># Hamiltonian Dynamic</a>
+          
+            <a href="/tags/Hamiltonian-Monte-Carlo/" rel="tag"># Hamiltonian Monte Carlo</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/" rel="next" title="Score Matching 系列 (五) SM 加上 Langevin Dynamics 變成生成模型">
+                <i class="fa fa-chevron-left"></i> Score Matching 系列 (五) SM 加上 Langevin Dynamics 變成生成模型
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">75</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">148</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Hamiltonian-dynamic"><span class="nav-number">1.</span> <span class="nav-text">Hamiltonian dynamic</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#彈簧例子"><span class="nav-number">2.</span> <span class="nav-text">彈簧例子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#能量怎麼看成機率分佈-或反過來"><span class="nav-number">3.</span> <span class="nav-text">能量怎麼看成機率分佈? 或反過來?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MHC-採樣過程"><span class="nav-number">4.</span> <span class="nav-text">MHC 採樣過程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">5.</span> <span class="nav-text">References</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
