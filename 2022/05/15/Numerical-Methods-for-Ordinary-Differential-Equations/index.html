@@ -1,0 +1,888 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Ordinary Differential Equations,ODE,Euler Method,Modified Euler Method,Runge Kutta Methods," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="如果對於 Differential Equation 完全沒概念, 建議先看以下兩分鐘的影片&amp;emsp;- Solving Differential Equations vs. Solving Algebraic Equations主要筆記了 Prof. Jeffrey Chasnov 在 Coursera 的兩門課 針對 numerical solution 解 ODE 的內容:&amp;ems">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Numerical Methods for Ordinary Differential Equations">
+<meta property="og:url" content="http://yoursite.com/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="如果對於 Differential Equation 完全沒概念, 建議先看以下兩分鐘的影片&amp;emsp;- Solving Differential Equations vs. Solving Algebraic Equations主要筆記了 Prof. Jeffrey Chasnov 在 Coursera 的兩門課 針對 numerical solution 解 ODE 的內容:&amp;ems">
+<meta property="og:image" content="http://yoursite.com/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/Untitled.png">
+<meta property="og:image" content="http://yoursite.com/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/Untitled 1.png">
+<meta property="og:image" content="http://yoursite.com/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/Untitled 2.png">
+<meta property="og:image" content="http://yoursite.com/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/Untitled 3.png">
+<meta property="og:image" content="http://yoursite.com/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/Untitled 4.png">
+<meta property="og:updated_time" content="2022-05-15T16:19:06.577Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Numerical Methods for Ordinary Differential Equations">
+<meta name="twitter:description" content="如果對於 Differential Equation 完全沒概念, 建議先看以下兩分鐘的影片&amp;emsp;- Solving Differential Equations vs. Solving Algebraic Equations主要筆記了 Prof. Jeffrey Chasnov 在 Coursera 的兩門課 針對 numerical solution 解 ODE 的內容:&amp;ems">
+<meta name="twitter:image" content="http://yoursite.com/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/Untitled.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/"/>
+
+
+
+
+
+  <title> Numerical Methods for Ordinary Differential Equations | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Numerical Methods for Ordinary Differential Equations
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2022-05-15T23:26:51+08:00">
+                2022-05-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>如果對於 Differential Equation 完全沒概念, 建議先看以下兩分鐘的影片<br>&emsp;- <a href="https://www.youtube.com/watch?v=6cBBBMJZCv4" target="_blank" rel="external">Solving Differential Equations vs. Solving Algebraic Equations</a><br>主要筆記了 Prof. Jeffrey Chasnov 在 Coursera 的兩門課 <strong>針對 numerical solution 解 ODE 的內容</strong>:<br>&emsp;1. <a href="https://www.coursera.org/learn/differential-equations-engineers#syllabus" target="_blank" rel="external">Differential Equations for Engineers</a><br>&emsp;2. <a href="https://www.coursera.org/learn/numerical-methods-engineers?specialization=mathematics-engineers" target="_blank" rel="external">Numerical Methods for Engineers</a><br>本文介紹:<br>&emsp;1️⃣  <strong>Introduction to ODE</strong>: linear? ordinary? n-th order?<br>&emsp;2️⃣  <strong>Euler Method</strong>: 雖然簡單, 但 error 很大<br>&emsp;3️⃣  <strong>Modified Euler Method</strong>: error<span>$O(\Delta t^3)$</span><!-- Has MathJax --><br>&emsp;4️⃣  <strong>Runge Kutta Methods</strong>: Second-order RK 包含了 Modified Euler 方法<br>&emsp;5️⃣  <strong>Higher-order Runge-Kutta Methods</strong>: $n$-th order RK 的 error 為 <span>$O(\Delta t^{n+1})$</span><!-- Has MathJax --><br>&emsp;6️⃣  <strong>Higher-order ODEs and Systems</strong>: 以上都只介紹 first-order ODE 逼近法, 那 higher-order ODE 怎解?</p>
+<blockquote>
+<p>👏 那兩門課的講義教授很佛心得都有附上:<br>Lecture notes: <a href="https://www.math.hkust.edu.hk/~machas/differential-equations-for-engineers.pdf" target="_blank" rel="external">Differential Equations for Engineers</a><br>Lecture notes: <a href="https://www.math.hkust.edu.hk/~machas/numerical-methods-for-engineers.pdf" target="_blank" rel="external">Numerical Methods for Engineers</a></p>
+</blockquote>
+<a id="more"></a>
+<h2 id="1️⃣-Introduction-to-differential-equations-Lecture-1-Differential-Equations-for-Engineers"><a href="#1️⃣-Introduction-to-differential-equations-Lecture-1-Differential-Equations-for-Engineers" class="headerlink" title="1️⃣ Introduction to differential equations | Lecture 1 | Differential Equations for Engineers"></a>1️⃣ <strong>Introduction to differential equations | Lecture 1 | Differential Equations for Engineers</strong></h2><hr>
+<p>[<a href="https://www.youtube.com/watch?v=CYs5wEm2Kic" target="_blank" rel="external">YouTube</a>]<br><span>$$\begin{align}
+L\frac{d^2q}{dt^2}+R\frac{dq}{dt}+\frac{1}{C}q=\varepsilon_0\cos wt \\
+ml\frac{d^2\theta}{dt^2}+cl\frac{d\theta}{dt}+mg\sin\theta=F_0\cos wt \\
+\frac{\partial u}{\partial t}=D\left(\frac{\partial^2u}{\partial x^2}+\frac{\partial^2u}{\partial y^2}+\frac{\partial^2u}{\partial z^2}\right)
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>全部都是 <span>$2^{\text{nd}}$</span><!-- Has MathJax -->-order, 因為 independent variable $t$ 的 order 等於 2.<br>(1) and (2) 是 ordinary differential equation (ODE)<br>(3) 是 partial differential equation (PDE)<br>(1) and (3) 是 linear, (2) 是 nonlinear, 因為有 $\sin\theta$.<br>Linear N-order ODE/PDE 有解析解, 所以 “<strong><a href="https://www.coursera.org/learn/differential-equations-engineers#syllabus" target="_blank" rel="external">Differential Equations for Engineers</a></strong>” 這門課主要講這部分.<br>不過如果是 non-linear <span>$n^\text{th}$</span><!-- Has MathJax -->-order ODE 雖沒有解析解, 但可利用以下介紹的 numerical methods 求近似解.<br>The general linear third-order ode, where $y=y(x)$:<br><span>$$a_3(x)y&apos;&apos;&apos;+a_2(x)y&apos;&apos;+a_1(x)y&apos;+a_0(x)y=b(x)$$</span><!-- Has MathJax --> where the $a$ and $b$ coefficients can be any function of $x$.</p>
+<h2 id="2️⃣-Euler-method-Lecture-2-Differential-Equations-for-Engineers-Lecture-48-Numerical-Methods-for-Engineers"><a href="#2️⃣-Euler-method-Lecture-2-Differential-Equations-for-Engineers-Lecture-48-Numerical-Methods-for-Engineers" class="headerlink" title="2️⃣ Euler method | Lecture 2 | Differential Equations for Engineers | Lecture 48 | Numerical Methods for Engineers"></a>2️⃣ <strong>Euler method | Lecture 2 | Differential Equations for Engineers | Lecture 48 | Numerical Methods for Engineers</strong></h2><hr>
+<p>[<a href="https://www.youtube.com/watch?v=Rbf83OyBzSY" target="_blank" rel="external">YouTube</a>] [<a href="https://www.youtube.com/watch?v=WMQ2Cac4sqw" target="_blank" rel="external">YouTube</a>]<br>討論一個 first-order ode (不只 linear, 也包含 non-linear, 所以一般沒有 analytical solution) 的逼近求解方法.<br><span>$$\frac{dy}{dx}=f(x,y) \\
+y(x_0)=y_0$$</span><!-- Has MathJax --> 用 numerical method 去逼近.</p>
+<p><img src="/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/Untitled.png" width="70%" height="70%"><br><img src="/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/Untitled 1.png" width="70%" height="70%"><br>Euler method 是 first order method.</p>
+<h2 id="3️⃣-Modiﬁed-Euler-Method-Lecture-49-Numerical-Methods-for-Engineers"><a href="#3️⃣-Modiﬁed-Euler-Method-Lecture-49-Numerical-Methods-for-Engineers" class="headerlink" title="3️⃣ Modiﬁed Euler Method | Lecture 49 | Numerical Methods for Engineers"></a>3️⃣ <strong>Modiﬁed Euler Method | Lecture 49 | Numerical Methods for Engineers</strong></h2><hr>
+<p>[<a href="https://www.youtube.com/watch?v=d3sZa3T2TJw" target="_blank" rel="external">YouTube</a>]<br><img src="/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/Untitled 2.png" width="50%" height="50%"><br>原來的 Euler method 要計算 $x_{n+1}$ 的時候用下式逼近<br><span>$$x_{n+1}=x_n+\Delta t\underbrace{f(t_n,x_n)}_\text{slope}$$</span><!-- Has MathJax --> 但可以看到 slope 其實一直在變化. 如果說 slope 改成用 $f(t_n,x_n)$ and <span>$f(t_n+\Delta t,x_{n+1})$</span><!-- Has MathJax --> 的平均呢?<br>這就是 Modified Euler Method 主要想法.</p>
+<blockquote>
+<p>💡 Modified Euler Method 屬於 <span>$2^\text{nd}$</span><!-- Has MathJax -->-order Runge-Kutta Methods (RK2) 的一種.<br>下段介紹 RK 方法時會推導可以知道確實 error order 會比較小<br>注意到 Runge-Kutta 說的 order 指 error 的 order, 跟 ODE 的 order 代表 independent variable 的最高次數微分意思不一樣.</p>
+</blockquote>
+<p>但我們不知道 $x_{n+1}$ 要怎麼算 <span>$f(t_n+\Delta t,x_{n+1})$</span><!-- Has MathJax --> 呢? 所以就先算一個 <span>$x_{n+1}$</span><!-- Has MathJax --> 的 prediction.</p>
+<span>$$\begin{align}
+x_{n+1}^p=x_n+\Delta tf(t_n,x_n) \\
+x_{n+1}=x_n+\frac{\Delta t}{2}\left[f(t_n,x_n)+f(t_n+\Delta n,x_{n+1}^p)\right]
+\end{align}$$</span><!-- Has MathJax -->
+<p>可以簡化一下變成下面幾個 stages:<br><span>$$\begin{align}
+K_1=\Delta t f(t_n,x_n) \\
+K_2=\Delta tf(t_n+\Delta t,x_n+K_1) \\
+x_{n+1}=x_n+\frac{1}{2}(K_1+K_2)
+\end{align}$$</span><!-- Has MathJax --></p>
+<h2 id="4️⃣-Runge-Kutta-Methods-Lecture-50-Numerical-Methods-for-Engineers"><a href="#4️⃣-Runge-Kutta-Methods-Lecture-50-Numerical-Methods-for-Engineers" class="headerlink" title="4️⃣ Runge Kutta Methods | Lecture 50 | Numerical Methods for Engineers"></a>4️⃣ <strong>Runge Kutta Methods | Lecture 50 | Numerical Methods for Engineers</strong></h2><hr>
+<p>[<a href="https://www.youtube.com/watch?v=C4UymmEi3Kw" target="_blank" rel="external">YouTube</a>]<br>對一個 first order linear ODE, 且已知 $x(t_n)=x_n$ initial value 來說<br><span>$$\dot{x}=f(t,x)$$</span><!-- Has MathJax --> 經過時間 $\Delta t$ 後的 <span>$x(t_n+\Delta t)$</span><!-- Has MathJax --> 要怎麼估計比較準? 我們先看 Taylor expansion:<br><span>$$\begin{align}
+x(t_n+\Delta t)=x(t_n)+\Delta tf(t_n,x_n)+\frac{(\Delta t)^2}{2}\left.\frac{d}{dt}f(t,x(t)) \right|_{t=t_n} + O(\Delta t^3)
+\end{align}$$</span><!-- Has MathJax --> 二次微分項我們用 chain rule 繼續展開:<br><span>$$\left.\frac{d}{dt}f(t,x(t))\right|_{t=t_n}=\left.\frac{\partial}{\partial t}f(t,x)\right|_{t=t_n} + 
+\left.\frac{\partial}{\partial x}f(t,x(t))\frac{dx}{dt}\right|_{t=t_n} \\
+= \frac{\partial}{\partial t}f(t_n,x_n) + \left.\frac{\partial}{\partial x}f(t,x(t))f(t,x(t))\right|_{t=t_n} \\
+= \frac{\partial}{\partial t}f(t_n,x_n) + \frac{\partial}{\partial x}f(t_n,x_n)f(t_n,x_n) \\
+\triangleq f_t(t_n,x_n)+f_x(t_n,x_n)f(t_n,x_n)$$</span><!-- Has MathJax --></p>
+<p>代回去 (9) 得到 <span>$x(t_n+\Delta t)$</span><!-- Has MathJax --> 的泰勒展開式:</p>
+<span>$$\begin{align}
+x(t_n+\Delta t)=x_n+\Delta tf(t_n,x_n) + \frac{(\Delta t)^2}{2}(f_t(t_n,x_n)+f_x(t_n,x_n)f(t_n,x_n)) + O(\Delta t^3)
+\end{align}$$</span><!-- Has MathJax --> Second order Runge-Kutta methods 的步驟如下:<br><span>$$\begin{align}
+K_1=\Delta tf(t_n,x_n) \\
+K_2=\Delta tf(t_n+\alpha\Delta t,x_n+\beta K_1) \\
+x_{n+1}=x_n+aK_1+bK_2
+\end{align}$$</span><!-- Has MathJax --> 全部合成一個式子:<br><span>$$\begin{align}
+x_{n+1}=x_n+a\Delta tf(t_n,x_n)+b\Delta t \underbrace{f(t_n+\alpha\Delta t,x_n+\beta \Delta tf(t_n,x_n))}_\text{using Taylor expansion} \\
+=x_n+a\Delta tf(t_n,x_n)+b\Delta t \left[
+f(t_n,x_n) + 
+\alpha\Delta t f_t(t_n,x_n)+\beta\Delta tf(t_n,x_n)f_x(t_n,x_n) + O(\Delta t^2)
+\right] \\
+= x_n+(a+b)\Delta tf(t_n,x_n)+(\Delta t)^2 \left[
+\alpha b f_t(t_n,x_n) + \beta bf(t_n,x_n)f_x(t_n,x_n)
+\right]+O(\Delta t^3)
+\end{align}$$</span><!-- Has MathJax -->
+<p>不管 $O(\Delta t^3)$ 項的情況下, 令 <span>$x(t_n+\Delta t)=x_{n+1}$</span><!-- Has MathJax -->, i.e. (10)=(16) , 得到:<br><span>$$\begin{align}
+a+b=1 \\
+\alpha b=\frac{1}{2}\\
+\beta b=\frac{1}{2}
+\end{align}$$</span><!-- Has MathJax --> 所以結論就是使用 Second order Runge-Kutta methods 的步驟 (11)-(13), 所產生的 error order 為 $O(\Delta t^3)$.</p>
+<blockquote>
+<p>Check (6)-(8) 的 Modified Euler method 步驟再跟 Second order Runge-Kutta methods 的步驟 (11)-(13) 對比.<br>很容易可以發現這是 $a=b=1/2,\alpha=\beta=1$ 的情況, 同時也因為滿足 (17)-(19) 的條件, 所以 Modified Euler method 是  Second order Runge-Kutta methods 的一種情況.<br>另一種 case 是叫 midpoint method: $a=0, b=1, \alpha=\beta=1/2$.</p>
+</blockquote>
+<h2 id="5️⃣-Higher-order-Runge-Kutta-Methods-Lecture-52-Numerical-Methods-for-Engineers"><a href="#5️⃣-Higher-order-Runge-Kutta-Methods-Lecture-52-Numerical-Methods-for-Engineers" class="headerlink" title="5️⃣ Higher-order Runge-Kutta Methods | Lecture 52 | Numerical Methods for Engineers"></a>5️⃣ <strong>Higher-order Runge-Kutta Methods | Lecture 52 | Numerical Methods for Engineers</strong></h2><hr>
+<p>[<a href="https://www.youtube.com/watch?v=40NvJNrmHhw" target="_blank" rel="external">YouTube</a>]<br>Runge-Kutta Methods 的 order 跟精確度有關, 例如 <span>$n^{th}$</span><!-- Has MathJax -->-order 表示 error term 只有 <span>$O(\Delta t^{n+1})$</span><!-- Has MathJax --> 大小.</p>
+<blockquote>
+<p>💡 給定一個可容忍的 error tolerance $\varepsilon$, 怎麼決定 step size $\Delta t$ 多大, 在 RK4/5 是 ok 的, 這樣的決定方法稱為 <a href="https://www.youtube.com/watch?v=6bCBXvsD7gw&amp;feature=youtu.be" target="_blank" rel="external">Adaptive Runge-Kutta methods</a>. 這邊就不筆記了.</p>
+</blockquote>
+<p>大概了解一下愈高 order 所需要的 stages 愈多<br><img src="/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/Untitled 3.png" width="100%" height="100%"><br><span>$4^\text{th}$</span><!-- Has MathJax -->-order 需要 $4$ stages, 但 <span>$5^\text{th}$</span><!-- Has MathJax -->-order 變成要 $6$ stages. 所以 <span>$4^\text{th}$</span><!-- Has MathJax -->-order 很不錯, 稱 RK4.</p>
+<h2 id="6️⃣-Higher-order-ODEs-and-Systems-Lecture-53-Numerical-Methods-for-Engineers"><a href="#6️⃣-Higher-order-ODEs-and-Systems-Lecture-53-Numerical-Methods-for-Engineers" class="headerlink" title="6️⃣ Higher-order ODEs and Systems | Lecture 53 | Numerical Methods for Engineers"></a>6️⃣ <strong>Higher-order ODEs and Systems | Lecture 53 | Numerical Methods for Engineers</strong></h2><hr>
+<p>[<a href="https://www.youtube.com/watch?v=wu1sS1g5ivs" target="_blank" rel="external">YouTube</a>]<br>ODE 的 order 指的是 independent variable 的最高微分次數.<br>例如 $F=ma$ 就是 $2^\text{nd}$-order ODE:<br><span>$$F=m\frac{d^2x}{dt^2}$$</span><!-- Has MathJax --> 建議直接看 <a href="https://www.math.hkust.edu.hk/~machas/numerical-methods-for-engineers.pdf" target="_blank" rel="external">Lecture notes p147</a>.<br>概念就是 $n^\text{th}$-order ODE 可以拆成 $n$ 個 $1^\text{st}$-order ODEs, 然後當成一個 dimension $n$ 的 vector 來看, 套用 Runge Kutta Methods (RK2, RD4 都可以) 來解.</p>
+<p><strong>[Second-order ODE 範例]:</strong><br>Write down the second-order Runge-Kutta modified Euler method (predictor-corrector method) for the following system of two first-order odes:<br><span>$$\dot{x}=f(t,x,y) \\
+\dot{y}=g(t,x,y)$$</span><!-- Has MathJax --></p>
+<p><strong>[Ans:]</strong><br>我們令 <span>$Z=[x,y]^T$</span><!-- Has MathJax -->: (符號有點濫用，不過看得懂就可以)<br><span>$$\nabla_tZ=[\dot{x}, \dot{y}]^T \\
+\nabla_tZ(t_n,Z_n)=[f(t_n,x_n,y_n),g(t_n,x_n,y_n)]^T$$</span><!-- Has MathJax --> 對 $Z$ 做 modified Euler method:<br><span>$$Z_{n+1}^p=Z_n+\Delta t\nabla_tZ(t_n,Z_n) \\
+Z_{n+1}=Z_n+\frac{\Delta t}{2}\left(\nabla_tZ(t_n,Z_n)+\nabla_tZ(t_n+\Delta t,Z_{n+1}^p)\right)$$</span><!-- Has MathJax --> 整理成 Runge-Kutta steps:<br><span>$$A_1=\Delta t\nabla_tZ(t_n,Z_n) \\
+A_2=\Delta t\nabla_tZ(t_n+\Delta t,Z_n+A_1) \\
+Z_{n+1}=Z_n+\frac{1}{2}(A_1+A_2)$$</span><!-- Has MathJax --> 拆開每個維度來看:<br><span>$$A_1=\Delta t[f(t_n,x_n,y_n),g(t_n,x_n,y_n)]^T = [K_1,L_1]^T\\
+A_2=\Delta t \left[\begin{array}{cc}
+f(t_n+\Delta t,x_n+K_1,y_n+L_1) \\
+g(t_n+\Delta t,x_n+K_1,y_n+L_1)
+\end{array}\right]
+=\left[\begin{array}{c}
+K_2\\L_2
+\end{array}\right] \\
+Z_{n+1}=\left[\begin{array}{cc}
+x_{n+1}\\y_{n+1}
+\end{array}\right]
+=\left[\begin{array}{cc}
+x_n+\frac{1}{2}(K_1+K_2) \\ y_n+\frac{1}{2}(L_1+L_2)
+\end{array}\right]$$</span><!-- Has MathJax --> 結論就是可以拆成兩個 parallel 的 update 步驟, 最後的公式:<br><img src="/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/Untitled 4.png" width="70%" height="70%"></p>
+<blockquote>
+<p>🤔 一開始不確定兩個 parallel 的 update 步驟是不是正確的, 因為會互相參照. 但如果當成一個 random vector $Z$, 就如上面推導, 拆開看各個維度就沒錯了.</p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/" title="Numerical Methods for Ordinary Differential Equations">http://yoursite.com/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Ordinary-Differential-Equations/" rel="tag"># Ordinary Differential Equations</a>
+          
+            <a href="/tags/ODE/" rel="tag"># ODE</a>
+          
+            <a href="/tags/Euler-Method/" rel="tag"># Euler Method</a>
+          
+            <a href="/tags/Modified-Euler-Method/" rel="tag"># Modified Euler Method</a>
+          
+            <a href="/tags/Runge-Kutta-Methods/" rel="tag"># Runge Kutta Methods</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/05/07/Hamiltonian-Monte-Carlo/" rel="next" title="忘記物理也要搞懂的 Hamiltonian Monte Carlo (HMC) 筆記">
+                <i class="fa fa-chevron-left"></i> 忘記物理也要搞懂的 Hamiltonian Monte Carlo (HMC) 筆記
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">76</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">153</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1️⃣-Introduction-to-differential-equations-Lecture-1-Differential-Equations-for-Engineers"><span class="nav-number">1.</span> <span class="nav-text">1️⃣ Introduction to differential equations | Lecture 1 | Differential Equations for Engineers</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2️⃣-Euler-method-Lecture-2-Differential-Equations-for-Engineers-Lecture-48-Numerical-Methods-for-Engineers"><span class="nav-number">2.</span> <span class="nav-text">2️⃣ Euler method | Lecture 2 | Differential Equations for Engineers | Lecture 48 | Numerical Methods for Engineers</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3️⃣-Modiﬁed-Euler-Method-Lecture-49-Numerical-Methods-for-Engineers"><span class="nav-number">3.</span> <span class="nav-text">3️⃣ Modiﬁed Euler Method | Lecture 49 | Numerical Methods for Engineers</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4️⃣-Runge-Kutta-Methods-Lecture-50-Numerical-Methods-for-Engineers"><span class="nav-number">4.</span> <span class="nav-text">4️⃣ Runge Kutta Methods | Lecture 50 | Numerical Methods for Engineers</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5️⃣-Higher-order-Runge-Kutta-Methods-Lecture-52-Numerical-Methods-for-Engineers"><span class="nav-number">5.</span> <span class="nav-text">5️⃣ Higher-order Runge-Kutta Methods | Lecture 52 | Numerical Methods for Engineers</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6️⃣-Higher-order-ODEs-and-Systems-Lecture-53-Numerical-Methods-for-Engineers"><span class="nav-number">6.</span> <span class="nav-text">6️⃣ Higher-order ODEs and Systems | Lecture 53 | Numerical Methods for Engineers</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
