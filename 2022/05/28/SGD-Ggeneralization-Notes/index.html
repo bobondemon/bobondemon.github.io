@@ -1,0 +1,867 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Ordinary Differential Equations,ODE,Gradient Descent,Stochastic Gradient Descent,SGD," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Sharp V.S. Flat Local Minimum 的泛化能力先簡單介紹這篇文章:On large-batch training for deep learning: Generalization gap and sharp minima考慮下圖兩個 minimum, 對於 training loss 來說其 losses 一樣. 從圖可以容易理解到, 如果找到太 sharp 的點">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SGD 泛化能力的筆記">
+<meta property="og:url" content="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="Sharp V.S. Flat Local Minimum 的泛化能力先簡單介紹這篇文章:On large-batch training for deep learning: Generalization gap and sharp minima考慮下圖兩個 minimum, 對於 training loss 來說其 losses 一樣. 從圖可以容易理解到, 如果找到太 sharp 的點">
+<meta property="og:image" content="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/Untitled.png">
+<meta property="og:image" content="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/Untitled 1.png">
+<meta property="og:image" content="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/Untitled 2.png">
+<meta property="og:image" content="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/Untitled 3.png">
+<meta property="og:image" content="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/Untitled 4.png">
+<meta property="og:image" content="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/Untitled 5.png">
+<meta property="og:image" content="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/Untitled 6.png">
+<meta property="og:image" content="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/Untitled 7.png">
+<meta property="og:updated_time" content="2022-05-28T14:52:49.430Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SGD 泛化能力的筆記">
+<meta name="twitter:description" content="Sharp V.S. Flat Local Minimum 的泛化能力先簡單介紹這篇文章:On large-batch training for deep learning: Generalization gap and sharp minima考慮下圖兩個 minimum, 對於 training loss 來說其 losses 一樣. 從圖可以容易理解到, 如果找到太 sharp 的點">
+<meta name="twitter:image" content="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/Untitled.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/"/>
+
+
+
+
+
+  <title> SGD 泛化能力的筆記 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                SGD 泛化能力的筆記
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2022-05-28T22:15:58+08:00">
+                2022-05-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Optimization/" itemprop="url" rel="index">
+                    <span itemprop="name">Optimization</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<h2 id="Sharp-V-S-Flat-Local-Minimum-的泛化能力"><a href="#Sharp-V-S-Flat-Local-Minimum-的泛化能力" class="headerlink" title="Sharp V.S. Flat Local Minimum 的泛化能力"></a>Sharp V.S. Flat Local Minimum 的泛化能力</h2><p>先簡單介紹這篇文章:<br><a href="https://arxiv.org/abs/1609.04836" target="_blank" rel="external">On large-batch training for deep learning: Generalization gap and sharp minima</a><br>考慮下圖兩個 minimum, 對於 training loss 來說其 losses 一樣.<br><img src="/2022/05/28/SGD-Ggeneralization-Notes/Untitled.png" width="70%" height="70%"> 從圖可以容易理解到, 如果找到太 sharp 的點, 由於 test and train 的 mismatch, 會導致測試的時候 data 一點偏移就會對 model output 影響很大.<br>論文用實驗的方式, 去評量一個 local minimum 的 sharpness 程度, 簡單說利用 random perturb 到附近其他點, 然後看看該點 loss 變化的程度如何, 變化愈大, 代表該 local minimum 可能愈 sharp.<br>然後找兩個 local minimums, 一個估出來比較 sharp 另一個比較 flat. 接著對這兩點連成的線, 線上的參數值對應的 loss 劃出圖來, 長相如下:<br><img src="/2022/05/28/SGD-Ggeneralization-Notes/Untitled 1.png" width="100%" height="100%"> 這也是目前一個普遍的認知: flat 的 local minimum 泛化能力較好.<br>所以可以想像, step size (learning rate) 如果愈大, 愈有可能跳出 sharp minimum.<br>而 batch size 愈小, 表示 gradient 因為 mini-batch 造成的 noise 愈大, 相當於愈有可能”亂跑”跑出 sharp minimum.<br>但這篇文章<em>僅止於實驗性質上的驗證</em>. Step size and batch size 對於泛化能力, 或是說對於找到比較 flat optimum 的機率會不會比較高? 兩者有什麼關聯呢?<br><strong>DeepMind 的近期 (2021) 兩篇文章給出了很漂亮的理論分析.</strong></p>
+<a id="more"></a>
+<h2 id="Full-Batch-Gradient-Steepest-Descent"><a href="#Full-Batch-Gradient-Steepest-Descent" class="headerlink" title="Full-Batch Gradient (Steepest) Descent"></a>Full-Batch Gradient (Steepest) Descent</h2><hr>
+<p>再來介紹這篇: <strong><a href="https://arxiv.org/abs/2009.11162" target="_blank" rel="external">Implicit Gradient Regularization</a></strong>, DeepMind 出品.<br>想探討為什麼 NN 的泛化能力這麼好? 結論就是跟 Gradient Descent 本身算法特性有關.<br>一般我們對 cost (loss) function 做 gradient (steepest) descent 公式如下:</p>
+<span>$$\begin{align}
+\omega_{n+1}=\omega_n-h\nabla C(\omega)
+\end{align}$$</span><!-- Has MathJax -->
+<p>其中 $h$ 為 step size (learning rate), <span>$\omega\in\mathbb{R}^d$</span><!-- Has MathJax --> 表示 parameters.<br>當 $h\rightarrow 0$, $n$ 變成連續的時間 $t$, 則可視為一個 Ordinary Differential Equation (ODE) system, 整理如下:<br><span>$$\begin{align}
+\text{Cost Function}: C(\omega) \\
+\text{ODE}: \dot{\omega}=f(\omega)=-\nabla C(\omega)
+\end{align}$$</span><!-- Has MathJax --><br>給定 initial point $\omega_0$, 上面的 ODE 求解就是一條連續的 trajectory.</p>
+<blockquote>
+<p>💡 我們在 <a href="https://bobondemon.github.io/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/" target="_blank" rel="external">Numerical Methods for Ordinary Differential Equations</a> 有介紹各種數值方法, 可以知道 gradient descent 就是 Euler method, 而這樣的 error 是 $O(h^2)$.</p>
+</blockquote>
+<p>用式 (1) gradient descent ($h$ 固定) 求解, 會使得 trajectory 跟連續的 ODE (3) 的不同.<br><img src="/2022/05/28/SGD-Ggeneralization-Notes/Untitled 2.png" width="30%" height="30%"> 注意到這裡沒有使用 mini-batch, 用的是 full-batch, 所以不是 Stochastic gradient descent (SGD).</p>
+<p>如果我們能對 gradient descent 的 trajectory 用<strong><em>另一個 ODE</em></strong> system 的 trajectory 代表的話 (怎麼找等等再說), 分析修改過後的 ODE 和原來的 ODE systems 說不定能看到什麼關聯. 這正是這篇論文的重要發現.<br>先來看看修改過後的 ODE 長什麼樣:<br><span>$$\begin{align}
+\text{Cost Function}: \tilde{C}_{gd}(\omega)=C(\omega)+\frac{h}{4}\|\nabla C(\omega)\|^2 \\
+\text{ODE}: \dot{\omega}=\tilde{f}(\omega)=-\nabla\tilde{C}_{gd}(\omega)
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>注意到最佳解與原來的 ODE system 一樣: $C(\omega)$ 和 <span>$\tilde{C}_{gd}(\omega)$</span><!-- Has MathJax --> 最佳解相同.<br>很容易可以看出來因為 minimal points 其 gradient 必定為 $0$.<br>將三條 trajectories 用圖來表示的話如下:<br>&emsp;- Gradient descent 的 trajectory 式 (1): 綠色箭號線<br>&emsp;- ODE 的 trajectory 式 (3): 黑色線<br>&emsp;- 修改後的 ODE 的 trajectory 式 (5): 黃色線, 可以用來代表 gradient descent 的 trajectory<br>(參考自 inFERENCe blog 文章: <a href="https://www.inference.vc/notes-on-the-origin-of-implicit-regularization-in-stochastic-gradient-descent/" target="_blank" rel="external">Notes on the Origin of Implicit Regularization in SGD</a>)<br><img src="/2022/05/28/SGD-Ggeneralization-Notes/Untitled 3.png" width="50%" height="50%"><br>為什麼可以用修改後的 ODE 代表 gradient descent 的 trajectory 呢?<br>因為兩者差異夠小, 為 $O(h^3)$, 比 gradient descent 和原本 ODE 之間的 error $O(h^2)$ 更小.<br>(綠色箭號線比起黑色線更接近黃色線)</p>
+<p>再來我們回答這個問題: 怎麼找到 (4) (5) 這樣的 ODE 可以用來代表 gradient descent 的 trajectory 呢?<br>💡 需利用 backward error analysis, 這裡略過, 請參考 [<a href="https://www.unige.ch/~hairer/poly_geoint/week3.pdf" target="_blank" rel="external">ref1</a>] [<a href="https://webspace.science.uu.nl/~frank011/Classes/numwisk/ch17.pdf" target="_blank" rel="external">ref2</a>]</p>
+<blockquote>
+<p>其中 ref2 裡的二階 Taylor expansion 補充推導:<br><span>$$\left.\frac{d^2}{dt^2}\tilde{y}(t)\right|_{t=t_n}=\left.\frac{d}{dt}\left[
+f(\tilde{y}(t))+hf_1(\tilde{y}(t))
+\right]\right|_{t=t_n} \\
+=\left.\left[
+f&apos;(\tilde{y}(t))\frac{d\tilde{y}(t)}{dt}+hf_1&apos;(\tilde{y}(t))\frac{d\tilde{y}(t)}{dt}
+\right]\right|_{t=t_n} \\
+=\left.\left[
+f&apos;(\tilde{y}(t))\tilde{f}(\tilde{y}(t))+hf_1&apos;(\tilde{y}(t))\tilde{f}(\tilde{y}(t))
+\right]\right|_{t=t_n} \\
+=\left.\left[
+\left( f&apos;(\tilde{y}(t))+hf_1&apos;(\tilde{y}(t)) \right)\tilde{f}(\tilde{y}(t))
+\right]\right|_{t=t_n} \\
+=(f&apos;(\tilde{y}_n)+hf_1&apos;(\tilde{y}_n))\tilde{f}(\tilde{y}_n)$$</span><!-- Has MathJax --></p>
+</blockquote>
+<p>觀察 (4) 的 <span>$\tilde{C}_{gd}(\omega)$</span><!-- Has MathJax -->, 可以發現相當於在原來的 cost function $C(\omega)$ 加上一個正則項. 而該項正比於 gradient norm 的平方.<br>白話就是如果 gradient 愈大, penalty 愈大, 所以優化的時候會傾向於找 gradient 小的區域. 相當於找比較 flat 的區域. 這樣有什麼好處呢? 如同一開始說的, 能提高泛化能力!<br>另外正則項也正比於 step size $h$, 所以如果 step size 愈大, 表示對 sharp 區域的 penalty 愈大, 因此更加傾向找 flat 區域. 這也符合我們之前提到愈有可能跳出 sharp minimum 的觀點. 另外作者的 <a href="https://youtu.be/pZnZSxOttN0?t=230" target="_blank" rel="external">presentation</a> 開頭也用以下例子說明這個現象:<br><img src="/2022/05/28/SGD-Ggeneralization-Notes/Untitled 4.png" width="40%" height="40%"> 大的 learning rate 傾向找比較 flat 的 minimum, 也就是泛化能力較好. 所以對應到上圖顯示的 Test 情況下最好的 learning rate 比 training 的要大.<br>總結來說提供了一個看法, 說明為什麼 NN 的表現這麼好, 特別是泛化能力. 很意外的是, 其實跟我們用的 gradient descent 天生的特性有關.</p>
+<h2 id="Mini-Batch-Stochastic-Gradient-Descent"><a href="#Mini-Batch-Stochastic-Gradient-Descent" class="headerlink" title="Mini-Batch Stochastic Gradient Descent"></a>Mini-Batch Stochastic Gradient Descent</h2><hr>
+<p>上一段都還沒考慮 mini-batch 的情況. 因為一旦變成 mini-batch 相當於 gradient 被加上了 random noise 變的更難分析. 因此 DeepMind 他們發了一篇後續文章: <strong><a href="https://arxiv.org/abs/1609.04836" target="_blank" rel="external">On the Origin of Implicit Regularization in Stochastic Gradient Descent</a></strong>, 將 mini-batch 考量進去, 相當於分析 SGD 算法.<br>由於 mini-batches 在一個 epoch 可能的順序不一樣, 所以一次 trajectory 對應到一個順序.<br>(參考自 inFERENCe blog 文章: <a href="https://www.inference.vc/notes-on-the-origin-of-implicit-regularization-in-stochastic-gradient-descent/" target="_blank" rel="external">Notes on the Origin of Implicit Regularization in SGD</a>)<br><img src="/2022/05/28/SGD-Ggeneralization-Notes/Untitled 5.png" width="50%" height="50%"><br>我們變成要考量的是 “mean” trajectory. 類似地, mean trajectory 一樣可以用一個修改後的 ODE system 來代表它:<br><span>$$\begin{align}
+\text{Mean Trajectory}: \mathbb{E}(\omega_m)=\omega(mh)+O(m^3h^3)\\
+\text{Cost Function}:\tilde{C}_{sgd}(\omega)= \tilde{C}_{gd}(\omega)  +
+\underbrace{\frac{h}{4m}\sum_{i=0}^{m-1}\|\nabla \hat{C}_i(\omega)-\nabla C(\omega)\|^2}_\text{additional regularizer} \\
+\text{ODE}: \dot{\omega}=-\nabla\tilde{C}_{sgd}(\omega)
+\end{align}$$</span><!-- Has MathJax --><br>其中 $m$ 表示整個 training data 可以分成 $m$ 個 mini-batches.<br><span>$\nabla \hat{C}_i(\omega)$</span><!-- Has MathJax --> 表示 i-th mini-batch 的 loss 的 gradient.<br>可以看到多了一項正則項: mini-batches 的 gradients 減掉 full-batch gradient 的 variance.<br>我們就先當 $\omega$ 已經是 local minimum 好了 (<span>$\nabla C(\omega)=0$</span><!-- Has MathJax -->). 所以該正則項簡化成 mini-batches gradients 的 variance.<br>相當於告訴我們, 如果 mini-batches 的那些 gradients 差異都很大的話, penalty 會比較大, 比較不會是 SGD 會找到的解.<br>這樣的特性對於泛化能力有什麼關聯? <a href="https://www.inference.vc/notes-on-the-origin-of-implicit-regularization-in-stochastic-gradient-descent/" target="_blank" rel="external">inFERENCe 文章</a>給了一個很清楚的說明:<br>x-軸是 parameter $\omega$, y-軸是 loss $C(\omega)$.<br><img src="/2022/05/28/SGD-Ggeneralization-Notes/Untitled 6.png" width="100%" height="100%"><br>Variance of mini-batches’ gradients 左圖比右圖小, 因而造成右圖的 penalty 比較大, 所以 (8) 會傾向選擇左圖. 明顯的, 對於 test data 來說左圖的解會比右圖 robust, 因為 test data 可以看成上面不同 batches 的表現.<br>可以從 (7) 看出來, 由於 additional regularizer 的關係, SGD 最佳解會跟原來 full-batch 的最佳解不同了. 除非所有 mini-batches 的 gradients 也都是 $0$.<br>另外 (7) 在論文中也推導成另一個形式:<br><span>$$\mathbb{E}(\tilde{C}_{sgd}(\omega))=\tilde{C}_{sgd}(\omega)+\frac{N-B}{N-1}\frac{\color{orange}{h}}{4\color{orange}{B}}\Gamma(\omega) \\
+\Gamma(\omega)=\frac{1}{N}\sum_{i=1}^N \|\nabla C_i(\omega)-\nabla C(\omega)\|^2$$</span><!-- Has MathJax --> 可以看出 learning rate and batch size 的關係, $h/B$ 如果維持一定比例, 則正則項的影響力大約相同.</p>
+<blockquote>
+<p>作者 presentation 說, 經驗上 batch size double, learning rate 也要 double. [<a href="https://youtu.be/pZnZSxOttN0?t=2151" target="_blank" rel="external">YouTube time</a>]</p>
+</blockquote>
+<p>Performance 應該也維持一樣. 論文做了實驗結果如下:<br><img src="/2022/05/28/SGD-Ggeneralization-Notes/Untitled 7.png" width="50%" height="50%"> Figure 3 (a): Different batch sizes achieve the same test accuracy if the ratio of the learning rate to the batch size $(\varepsilon/B)$ is constant and $B$ is not too large.</p>
+<h2 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h2><hr>
+<p>雖然存在一些假設才會使 SGD 的估計正確</p>
+<blockquote>
+<p>⚠️ 論文推導的假設:</p>
+<ol>
+<li>batch shuffle 的方式取 data, 也就是一個 epoch 會依序跑完 shuffle 後的所有 batches</li>
+<li>learning rate is finite (就是有 lower bound)</li>
+<li>只分析 SGD, 其他更多變形例如 Adam, Adagrad, RMSProp, 等的行為不知道</li>
+<li>$m^3h^3$ 必須要夠小, SGD 的 “mean” trajectory 才會符合 (7), (8) 的 ODE 結果. 一般 dataset 都很大 ($m$ 很大), 所以要把 $h$ 都設定很小, 感覺也有點難符合 (?). 影片: [<a href="https://youtu.be/pZnZSxOttN0?t=1766" target="_blank" rel="external">here</a>]</li>
+</ol>
+</blockquote>
+<p>但總結來說, 在 full-batch 設定下, 實務上使用 steepest descent 從連續變成離散的路徑, 本身就提供了泛化能力的好處. 加上 mini-batch 的設定, 使得泛化能力更好了.</p>
+<p>沒想到已經習以為常的 SGD 方法, 背後竟然藏了這樣的觀點, 太厲害了!</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><hr>
+<ol>
+<li><a href="https://arxiv.org/abs/2009.11162" target="_blank" rel="external">Implicit Gradient Regularization</a></li>
+<li><a href="https://arxiv.org/abs/2101.12176" target="_blank" rel="external">On the Origin of Implicit Regularization in Stochastic Gradient Descent</a></li>
+<li>inFERENCe: <a href="https://www.inference.vc/notes-on-the-origin-of-implicit-regularization-in-stochastic-gradient-descent/" target="_blank" rel="external">Notes on the Origin of Implicit Regularization in SGD</a></li>
+<li><a href="https://bobondemon.github.io/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/" target="_blank" rel="external">Numerical Methods for Ordinary Differential Equations</a></li>
+<li><a href="https://arxiv.org/abs/1609.04836" target="_blank" rel="external">On large-batch training for deep learning: Generalization gap and sharp minima</a></li>
+<li>Paper presentation by author: <a href="https://www.youtube.com/watch?v=pZnZSxOttN0" target="_blank" rel="external">On the Origin of Implicit Regularization in Stochastic Gradient Descent</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/" title="SGD 泛化能力的筆記">http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Ordinary-Differential-Equations/" rel="tag"># Ordinary Differential Equations</a>
+          
+            <a href="/tags/ODE/" rel="tag"># ODE</a>
+          
+            <a href="/tags/Gradient-Descent/" rel="tag"># Gradient Descent</a>
+          
+            <a href="/tags/Stochastic-Gradient-Descent/" rel="tag"># Stochastic Gradient Descent</a>
+          
+            <a href="/tags/SGD/" rel="tag"># SGD</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/" rel="next" title="Numerical Methods for Ordinary Differential Equations">
+                <i class="fa fa-chevron-left"></i> Numerical Methods for Ordinary Differential Equations
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">156</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Sharp-V-S-Flat-Local-Minimum-的泛化能力"><span class="nav-number">1.</span> <span class="nav-text">Sharp V.S. Flat Local Minimum 的泛化能力</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Full-Batch-Gradient-Steepest-Descent"><span class="nav-number">2.</span> <span class="nav-text">Full-Batch Gradient (Steepest) Descent</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Mini-Batch-Stochastic-Gradient-Descent"><span class="nav-number">3.</span> <span class="nav-text">Mini-Batch Stochastic Gradient Descent</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#結論"><span class="nav-number">4.</span> <span class="nav-text">結論</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">5.</span> <span class="nav-text">References</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
