@@ -124,7 +124,7 @@ Data Parallel: GPUs 跑不同的 batches, 但跑同一個完整的模型
 <meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_itr4.png">
 <meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_done.png">
 <meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/lightning_example.png">
-<meta property="og:updated_time" content="2021-06-14T01:37:23.366Z">
+<meta property="og:updated_time" content="2022-06-01T14:51:09.961Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Distributed Data Parallel and Its Pytorch Example">
 <meta name="twitter:description" content="訓練時候的平行化可分為:
@@ -528,11 +528,11 @@ Data Parallel: GPUs 跑不同的 batches, 但跑同一個完整的模型
 <li>model 經過 <code>DistributedDataParallel</code> 包過後 name 會多一個前綴 <code>module.</code>, 如果訓練和加載模型一個使用 DDP 一個沒有 <code>load_state_dict</code> 有可能會因此出錯, 需自行處理</li>
 <li>一些 metrics 如 accuracy/loss 由於在各個 GPUs 計算, 可以利用 <code>torch.distributed.all_reduce</code>, <code>torch.distributed.all_gather</code> 等來 sync<br>See <a href="https://pytorch.org/docs/stable/distributed.html#synchronous-and-asynchronous-collective-operations" target="_blank" rel="external">DISTRIBUTED COMMUNICATION PACKAGE - TORCH.DISTRIBUTED</a></li>
 </ol>
-<p>有一個不錯的 DDP 範例 [<a href="https://coke24h.net/pytorch-distributed-training/" target="_blank" rel="external">2</a>]</p>
+<p>有一個不錯的 DDP 範例 [<a href="https://leimao.github.io/blog/PyTorch-Distributed-Training/" target="_blank" rel="external">2</a>]</p>
 <p>如果可以的話, 推薦使用 <a href="https://github.com/PyTorchLightning/pytorch-lightning" target="_blank" rel="external">PyTorch Lightning</a>, 直接幫你把這些繁瑣的細節包好, 告訴它要用幾張 GPUs 就結束了.</p>
 <p><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/lightning_example.png" width="60%" height="60%" align="center"></p>
 <hr>
-<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><p>[1] <a href="https://andrew.gibiansky.com/blog/machine-learning/baidu-allreduce/" target="_blank" rel="external">Bringing HPC Techniques to Deep Learning</a><br>[2] <a href="https://coke24h.net/pytorch-distributed-training/" target="_blank" rel="external">A good example of DDP in PyTorch</a></p>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><p>[1] <a href="https://andrew.gibiansky.com/blog/machine-learning/baidu-allreduce/" target="_blank" rel="external">Bringing HPC Techniques to Deep Learning</a><br>[2] <a href="https://leimao.github.io/blog/PyTorch-Distributed-Training/" target="_blank" rel="external">A good example of DDP in PyTorch</a></p>
 
       
     </div>
