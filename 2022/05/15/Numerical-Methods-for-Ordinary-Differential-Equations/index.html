@@ -98,7 +98,7 @@
 <meta property="og:image" content="http://yoursite.com/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/Untitled 2.png">
 <meta property="og:image" content="http://yoursite.com/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/Untitled 3.png">
 <meta property="og:image" content="http://yoursite.com/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/Untitled 4.png">
-<meta property="og:updated_time" content="2022-05-15T16:19:06.577Z">
+<meta property="og:updated_time" content="2022-06-06T12:06:39.575Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Numerical Methods for Ordinary Differential Equations">
 <meta name="twitter:description" content="如果對於 Differential Equation 完全沒概念, 建議先看以下兩分鐘的影片&amp;emsp;- Solving Differential Equations vs. Solving Algebraic Equations主要筆記了 Prof. Jeffrey Chasnov 在 Coursera 的兩門課 針對 numerical solution 解 ODE 的內容:&amp;ems">
@@ -434,6 +434,10 @@ f(t_n,x_n) +
 \alpha b f_t(t_n,x_n) + \beta bf(t_n,x_n)f_x(t_n,x_n)
 \right]+O(\Delta t^3)
 \end{align}$$</span><!-- Has MathJax -->
+<blockquote>
+<p>💡 補充一下 (14) 的 Taylor expansion:<br><span>$$f(t_n+\Delta t,x_n+\Delta x)=f(t_n,x_n)+\left[\begin{array}{cc}f_t(t_n,x_n) &amp; f_x(t_n,x_n)\end{array}\right]\left[\begin{array}{c}\Delta t \\ \Delta x\end{array}\right] + O\left( \left\| \left[\begin{array}{c}\Delta t \\ \Delta x\end{array}\right] \right\|^2 \right) \\
+=f(t_n,x_n)+\Delta t f_t(t_n,x_n) + \Delta x f_x(t_n,x_n) + O(\Delta t^2 + \Delta x^2)$$</span><!-- Has MathJax --></p>
+</blockquote>
 <p>不管 $O(\Delta t^3)$ 項的情況下, 令 <span>$x(t_n+\Delta t)=x_{n+1}$</span><!-- Has MathJax -->, i.e. (10)=(16) , 得到:<br><span>$$\begin{align}
 a+b=1 \\
 \alpha b=\frac{1}{2}\\

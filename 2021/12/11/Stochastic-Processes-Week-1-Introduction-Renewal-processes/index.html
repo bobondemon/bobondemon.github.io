@@ -131,7 +131,7 @@ Week 5: Station">
 <meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 21.png">
 <meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 22.png">
 <meta property="og:image" content="http://yoursite.com/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 23.png">
-<meta property="og:updated_time" content="2021-12-12T16:19:15.978Z">
+<meta property="og:updated_time" content="2022-06-06T12:06:28.937Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Stochastic Processes Week 1 Introduction & Renewal processes">
 <meta name="twitter:description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
@@ -526,7 +526,7 @@ Week 5: Station">
 <li><p>給定任兩個 functions (不一定要是 p.d.f. or c.d.f.) $f_1$, $f_2$, 則 <span>$\mathcal{L}_{f_1\ast f_2}(s)=\mathcal{L}_{f_1}(s)\cdot\mathcal{L}_{f_2}(s)$</span><!-- Has MathJax --><br>其中 $\ast$ 是 convolution in terms of <em>density</em><br>[Proof]:<br>Let $f(x)=f_1(x)*f_2(x)$ 則</p>
 <span>$$\mathcal{L}_f(s)=\int_{x=0}^\infty 
 e^{-sx}\left(\int_{y=0}^\infty f_1(x-y)f_2(y)dy\right)dx \\
-=\int_{y=0}^\infty\left(\int_{x=0}^\infty e^{-sx}f_1(x-y)dx\right) \\
+=\int_{y=0}^\infty\left(\int_{x=0}^\infty e^{-sx}f_1(x-y)dx\right)f_2(y)dy \\
 =\int_{y=0}^\infty\left(
 e^{-sy}\int_{x-y=y}^\infty e^{-s(x-y)}f_1(x-y)d(x-y)
 \right) f_2(y)dy \\
