@@ -96,7 +96,7 @@
 <meta property="og:image" content="http://yoursite.com/2022/01/07/Score-Function-and-Fisher-Information-Matrix/Untitled.png">
 <meta property="og:image" content="http://yoursite.com/2022/01/07/Score-Function-and-Fisher-Information-Matrix/Untitled 1.png">
 <meta property="og:image" content="http://yoursite.com/2022/01/07/Score-Function-and-Fisher-Information-Matrix/Untitled 2.png">
-<meta property="og:updated_time" content="2022-01-07T15:50:56.098Z">
+<meta property="og:updated_time" content="2022-09-03T07:40:28.162Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Score Function and Fisher Information Matrix">
 <meta name="twitter:description" content="Bayesian statistics 視 dataset $\mathcal{D}=\{x_1,...,x_n\}$ 為固定, 而 model parameter $\theta$ 為 random variables, 透過假設 prior $p(\theta)$, 利用 Bayes rule 可得 posterior $p(\theta|\mathcal{D})$. 而估計的參數就是">
@@ -392,16 +392,19 @@ s(x,\hat{\theta}) \triangleq \nabla_\theta \log p(x|\hat\theta)
 <p>我們舉個離散的例子來說明式 (2):</p>
 <p><a href="score_function_example.drawio">score_function_example.drawio</a></p>
 <p><img src="/2022/01/07/Score-Function-and-Fisher-Information-Matrix/Untitled.png" width="80%" height="80%"></p>
-<p>可以看到 score function 相當於在描述 parameter 變化對於 log-likelihood 的變化程度<br>而該變化程度在真實 <span>$\theta^*$</span><!-- Has MathJax --> 那點的期望值為 $0$, i.e. 在 <span>$\hat\theta=\theta^*$</span><!-- Has MathJax --> 這點計算 score function 的期望值:<br><span>$$\mathbb{E}_{p(x|\theta^*)}[s(x,\theta^*)] = \int p(x|\theta^*) \nabla_\theta \log p(x|\theta^*) dx \\
+<p>可以看到 score function 相當於在描述 parameter 變化對於 log-likelihood 的變化程度.<br>而該變化程度在真實 <span>$\theta^*$</span><!-- Has MathJax --> 那點的期望值為 $0$, i.e. 在 <span>$\hat\theta=\theta^*$</span><!-- Has MathJax --> 這點計算 score function 的期望值:<br><span>$$\mathbb{E}_{p(x|\theta^*)}[s(x,\theta^*)] = \int p(x|\theta^*) \nabla_\theta \log p(x|\theta^*) dx \\
 = \int p(x|\theta^*)\frac{\nabla_\theta p(x|\theta^*)}{p(x|\theta^*)} dx \\
 = \int \nabla_\theta p(x|\theta^*) dx \\
 = \nabla_\theta \int p(x|\theta^*) dx = \nabla_\theta 1 = 0$$</span><!-- Has MathJax --></p>
 <blockquote>
-<p>💡 注意到計算期望值都是基於真實資料分佈, i.e. $p(x|\theta^*)$</p>
+<p>💡 注意到計算期望值都是基於真實資料分佈, i.e. <span>$p(x|\theta^*)$</span><!-- Has MathJax -->. 為何強調這一點, 是因為我們手頭上的 training data 一般來說都是假設從真實分佈取樣出來的, 也就是說只要用 training data 計算期望值, 隱含的假設就是用 <span>$p(x|\theta^*)$</span><!-- Has MathJax --> 來計算.</p>
 </blockquote>
 <p>因此我們有<br><span>$$\begin{align}
 \mathbb{E}_{p(x|\theta^*)}[s(x,\theta^*)] = 0
 \end{align}$$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>💡 其實對任何其他點 $\hat{\theta}$ 式 (3) 也成立, i.e. $\mathbb{E}_{p(x|\hat{\theta})}[s(x,\hat{\theta})]=0$. 注意到期望值必須基於 $p(x|\hat\theta)$ 而非真實資料分佈了.</p>
+</blockquote>
 <h2 id="Fisher-Information-Matrix"><a href="#Fisher-Information-Matrix" class="headerlink" title="Fisher Information Matrix"></a>Fisher Information Matrix</h2><hr>
 <blockquote>
 <p>💡 <span>$\mathbb{E}_{p(x|\theta^*)}[\cdot]$</span><!-- Has MathJax --> 我們簡寫為 <span>$\mathbb{E}_{p^*}[\cdot]$</span><!-- Has MathJax --></p>
@@ -410,16 +413,22 @@ s(x,\hat{\theta}) \triangleq \nabla_\theta \log p(x|\hat\theta)
 =\mathbb{E}_{p^*}\left[
 s(x,\hat\theta)s(x,\hat\theta)^T
 \right] \\
-= \mathbb{E}_{p^*}\left[\nabla_\theta\log p(x|\hat\theta)\nabla_\theta\log p(x|\hat\theta)^T\right]$$</span><!-- Has MathJax --><br>&emsp;其中 <span>$\theta^*$</span><!-- Has MathJax --> 為真實資料的參數</p>
-<p>Fisher information matrix 在 <span>$\hat\theta=\theta^*$</span><!-- Has MathJax --> 此點上為:<br><span>$$I(\theta^* ; \theta^*)
+= \mathbb{E}_{p^*}\left[\nabla_\theta\log p(x|\hat\theta)\nabla_\theta\log p(x|\hat\theta)^T\right]$$</span><!-- Has MathJax --><br>&emsp;其中 <span>$\theta^*$</span><!-- Has MathJax --> 為真實資料的參數<br><strong><ins>其實就是 score function 的 second moment.</ins></strong></p>
+<p>Fisher information matrix 在 <span>$\hat\theta=\theta^*$</span><!-- Has MathJax --> 此點上為:<br><span>$$\begin{align}
+I(\theta^* ; \theta^*)
 =\mathbb{E}_{p^*}\left[
 (s(x,\theta^*)-0)(s(x,\theta^*)-0)^T
 \right] \\
 = \mathbb{E}_{p^*}\left[
 (s(x,\theta^*)- \mathbb{E}_{p^*}[s(x,\theta^*)] )(s(x,\theta^*)- \mathbb{E}_{p^*}[s(x,\theta^*)] )^T
 \right] \\
-= Cov_{p^*}\left( s(x,\theta^*),s(x,\theta^*) \right)$$</span><!-- Has MathJax --><br>由於我們已經知道 score function 在 <span>$\hat\theta=\theta^*$</span><!-- Has MathJax --> 的期望值是 $0$ , 因此 Fisher information matrix 變成 Covariance matrix of score function<br>示意圖為:<br><a href="score_function_example_on_true_parameters.drawio">score_function_example_on_true_parameters.drawio</a><br><img src="/2022/01/07/Score-Function-and-Fisher-Information-Matrix/Untitled 1.png" width="80%" height="80%"></p>
-<p>另外假如我們思考 score function (gradient) 計算的是一次微分, 可以想成是斜率. 那如果考慮二次微分 (Hseeian matrix), 則可想成是 curvature, 因此示意圖為:<br><a href="Hessian_example_on_true_parameters.drawio">Hessian_example_on_true_parameters.drawio</a><br><a href="curvature_example.pptx">curvature_example.pptx</a><br><img src="/2022/01/07/Score-Function-and-Fisher-Information-Matrix/Untitled 2.png" width="80%" height="80%"><br>紅色的那三條 curves 就是 3 個 data points 的 Hessian matrices. 因此 Hessian matrix (at <span>$\theta^*$</span><!-- Has MathJax -->) 的期望值直觀上可以想成 log-likelihood 的 graph 在 <span>$\theta^*$</span><!-- Has MathJax --> 的彎曲程度 (curvature).<br>以上這個觀點其實跟 Fisher information matrix 有關聯的, 描述如下:<br>“Fisher information matrix = score function 的 covariance matrix” 等於 “負的 Hessian matrix 之期望值”. 注意到這性質成立在 <span>$\theta^\star$</span><!-- Has MathJax -->.</p>
+= Cov_{p^*}\left( s(x,\theta^*),s(x,\theta^*) \right)
+\end{align}$$</span><!-- Has MathJax --><br>由於我們已經知道 score function 在 <span>$\hat\theta=\theta^*$</span><!-- Has MathJax --> 的期望值是 $0$ , 因此 Fisher information matrix 變成 Covariance matrix of score function</p>
+<blockquote>
+<p>💡 同樣對任何其他點 $\hat{\theta}$ 式 (6) 也成立, i.e. $I(\hat\theta ; \hat\theta)=Cov_{\hat p}(s(x,\hat\theta),s(x,\hat\theta))$. 同樣注意到期望值必須基於 $p(x|\hat\theta)$ 而非真實資料分佈了.</p>
+</blockquote>
+<p>示意圖為:<br><a href="score_function_example_on_true_parameters.drawio">score_function_example_on_true_parameters.drawio</a><br><img src="/2022/01/07/Score-Function-and-Fisher-Information-Matrix/Untitled 1.png" width="80%" height="80%"></p>
+<p>另外假如我們思考 score function (gradient) 計算的是一次微分, 可以想成是斜率. 那如果考慮二次微分 (Hseeian matrix), 則可想成是 curvature, 因此示意圖為:<br><a href="Hessian_example_on_true_parameters.drawio">Hessian_example_on_true_parameters.drawio</a><br><a href="curvature_example.pptx">curvature_example.pptx</a><br><img src="/2022/01/07/Score-Function-and-Fisher-Information-Matrix/Untitled 2.png" width="80%" height="80%"><br>紅色的那三條 curves 就是 3 個 data points 的 Hessian matrices. 因此 Hessian matrix (at <span>$\theta^*$</span><!-- Has MathJax -->) 的期望值直觀上可以想成 log-likelihood 的 graph 在 <span>$\theta^*$</span><!-- Has MathJax --> 的彎曲程度 (curvature).<br>以上這個觀點其實跟 Fisher information matrix 有關聯的, 描述如下:<br>“Fisher information matrix = score function 的 covariance matrix” 等於 “負的 Hessian matrix 之期望值”. 注意到這性質成立在 <span>$\theta^\star$</span><!-- Has MathJax -->. (或更精確地說, 任何 $\hat\theta$ 都滿足 $I(\hat\theta,\hat\theta)=-\mathbb{E}_{\hat p}[H(x|\hat\theta)]$, 只是期望值基於 $p(x|\hat\theta)$ 而不是真實資料分佈, 抱歉第三次囉嗦這一點, 不再強調了 XD)</p>
 <blockquote>
 <p>證明可參考 Wiki 的 <a href="https://en.wikipedia.org/wiki/Fisher_information" target="_blank" rel="external">Fisher information</a>, 或參考 Agustinus Kristiadi’s Blog: <a href="https://agustinus.kristia.de/techblog/2018/03/11/fisher-information/" target="_blank" rel="external">Fisher Information Matrix</a>. 這裡就不重複.<br>本篇目的為了解其物理意義.</p>
 </blockquote>
@@ -432,7 +441,7 @@ I(\theta^* ; \theta^*)
 \right]
 \end{align}$$</span><!-- Has MathJax --></p>
 <h2 id="KL-divergence-or-relative-entropy-與-MLE-與-關聯"><a href="#KL-divergence-or-relative-entropy-與-MLE-與-關聯" class="headerlink" title="KL-divergence (or relative entropy) 與 MLE 與  關聯"></a>KL-divergence (or relative entropy) 與 MLE 與 <span>$I(\theta^* ; \theta^*)$</span><!-- Has MathJax --> 關聯</h2><hr>
-<p>KL-divergence 為, 通常 $p(x)$ 表示 ground truth distribution:<br><span>$KL(p(x);q(x))=\int p(x)\log\frac{p(x)}{q(x)}dx$</span><!-- Has MathJax --><br>則我們知道 MLE (maximum log likelihood estimation) 等同於求解最小化 KL-divergence [<a href="https://agustinus.kristia.de/techblog/2017/01/26/kl-mle/" target="_blank" rel="external">ref</a>]<br><span>$$\arg\min_{\theta} KL(p(x|\theta^*);p(x|\theta)) \\
+<p>KL-divergence 為, 通常 $p(x)$ 表示 ground truth distribution:<br><span>$$KL(p(x);q(x))=\int p(x)\log\frac{p(x)}{q(x)}dx$$</span><!-- Has MathJax --><br>則我們知道 MLE (maximum log likelihood estimation) 等同於求解最小化 KL-divergence [<a href="https://agustinus.kristia.de/techblog/2017/01/26/kl-mle/" target="_blank" rel="external">ref</a>]<br><span>$$\arg\min_{\theta} KL(p(x|\theta^*);p(x|\theta)) \\
 =\arg\min_{\theta} \int p(x|\theta^*)\log\frac{p(x|\theta^*)}{p(x|\theta)}dx \\
 =\arg\min_{\theta} 
 \int p(x|\theta^*)\log\frac{1}{p(x|\theta)}dx \\
@@ -445,7 +454,7 @@ KL(p(x|\theta^*); p(x|\theta))
 \frac{\partial^2}{\partial\theta_i\partial\theta_j} \log p(x|\theta)
 \right)_{\theta=\theta^*} dx \\
 =-\mathbb{E}_{p^*}[\nabla_\theta^2\log p(x|\theta^*)] \\
-\text{by (4) } = I(\theta^*; \theta^*)$$</span><!-- Has MathJax --></p>
+\text{by (7) } = I(\theta^*; \theta^*)$$</span><!-- Has MathJax --></p>
 <h2 id="在-Frequentist-statistics-的解釋"><a href="#在-Frequentist-statistics-的解釋" class="headerlink" title=" 在 Frequentist statistics 的解釋"></a><span>$I(\theta^* ; \theta^*)$</span><!-- Has MathJax --> 在 Frequentist statistics 的解釋</h2><hr>
 <p>了解了 Fisher information matrix 的物理意義後, 還能給我們什麼洞見?<br>回到文章開頭說的:</p>
 <blockquote>
@@ -464,7 +473,8 @@ KL(p(x|\theta^*); p(x|\theta))
 <h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><hr>
 <p>本文討論了 score function and Fisher information matrix 的定義和直觀解釋, 同時也說明了 MLE 的估計 <span>$\theta_{mle}$</span><!-- Has MathJax --> 其距離真實參數 <span>$\theta^*$</span><!-- Has MathJax --> 可被 Fisher information matrix <span>$I(\theta^* ; \theta^*)$</span><!-- Has MathJax --> 描述出來 (雖然實務上我們無法算 <span>$I(\theta^* ; \theta^*)$</span><!-- Has MathJax --> 因為不知道 true parameters <span>$\theta^*$</span><!-- Has MathJax -->)</p>
 <p>關於 Fisher information 知乎這篇文章很好: <a href="https://www.zhihu.com/question/26561604" target="_blank" rel="external">费雪信息 (Fisher information) 的直观意义是什么？</a><br>同時 Fisher information 也能描述參數 $\theta$ 和 random variable $x$ 之間的信息量 (這部分本文沒描述), 可參考 <a href="https://towardsdatascience.com/maximum-likelihood-estimation-mle-and-the-fisher-information-1dd53faa369" target="_blank" rel="external">Maximum Likelihood Estimation (MLE) and the Fisher Information</a> 和 <a href="https://arxiv.org/abs/1705.01064" target="_blank" rel="external">A tutorial on Fisher information</a> 利用 binomial distribution 的例子來說明</p>
-<p>最後提一下, 本文定義的 score function 是基於 $\theta$ 的 gradient, 但同時有另一種方法稱 Score Matching [<a href="https://jmlr.csail.mit.edu/papers/volume6/hyvarinen05a/hyvarinen05a.pdf" target="_blank" rel="external">ref 9</a>], 其定義的 score function 是基於 data point $x$ 的 gradient:<br><span>$\nabla_x\log p(x;\theta)$</span><!-- Has MathJax --><br>因此看這 score function 就不是在 parameter space 上觀察, 而是在 input space 上.</p>
+<p>另外與 Natural gradient 的關聯可參考: <a href="https://andrewliao11.github.io/blog/natural-gradient/" target="_blank" rel="external">Natural Gradient</a> by <a href="https://andrewliao11.github.io/" target="_blank" rel="external">Yuan-Hong Liao (Andrew)</a>. 寫得也非常棒! 在基於第 $t$ 次的 $\theta^t$ 時, Natural gradient 要找得 optimize 方向 <span>$d^*$</span><!-- Has MathJax --> 為如下:<br><span>$$d^*=\mathop{\arg\min}_{KL(p(x|\theta^t)\|p(x|\theta^t+d))=c} \mathcal{L}(\theta^t+d)$$</span><!-- Has MathJax --> 也就是說希望 distribution 變化也不要太大. 結論會發現 $d^*$ 的近似解:<br><span>$$d^*\propto-I(\theta^t;\theta^t)^{-1}\nabla_\theta\mathcal{L}(\theta)|_{\theta=\theta^t}$$</span><!-- Has MathJax --> 正好跟 optimization 的 Newton’s method 方法一樣.</p>
+<p>最後提一下, 本文定義的 score function 是基於 $\theta$ 的 gradient, 但同時有另一種方法稱 Score Matching [<a href="https://jmlr.csail.mit.edu/papers/volume6/hyvarinen05a/hyvarinen05a.pdf" target="_blank" rel="external">ref 9</a>], 其定義的 score function 是基於 data point $x$ 的 gradient:<br><span>$$\nabla_x\log p(x;\theta)$$</span><!-- Has MathJax --> 因此看這 score function 就不是在 parameter space 上觀察, 而是在 input space 上.</p>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><hr>
 <ol>
 <li><a href="https://probml.github.io/pml-book/book0.html" target="_blank" rel="external">Machine Learning: a Probabilistic Perspective</a> by <a href="https://www.cs.ubc.ca/~murphyk/" target="_blank" rel="external">Kevin Patrick Murphy</a>. Chapters 5 and 6</li>
@@ -476,6 +486,7 @@ KL(p(x|\theta^*); p(x|\theta))
 <li><a href="https://towardsdatascience.com/maximum-likelihood-estimation-mle-and-the-fisher-information-1dd53faa369" target="_blank" rel="external">Maximum Likelihood Estimation (MLE) and the Fisher Information</a> by Xichu Zhang</li>
 <li><a href="https://yang-song.github.io/blog/2021/score/" target="_blank" rel="external">Yang Song: Generative Modeling by Estimating Gradients of the Data Distribution</a></li>
 <li><a href="https://jmlr.csail.mit.edu/papers/volume6/hyvarinen05a/hyvarinen05a.pdf" target="_blank" rel="external">Estimation of Non-Normalized Statistical Models by Score Matching</a></li>
+<li><a href="https://andrewliao11.github.io/blog/natural-gradient/" target="_blank" rel="external">Natural Gradient</a> by <a href="https://andrewliao11.github.io/" target="_blank" rel="external">Yuan-Hong Liao (Andrew)</a></li>
 </ol>
 
       
