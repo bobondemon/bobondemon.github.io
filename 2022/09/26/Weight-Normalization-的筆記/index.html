@@ -1,0 +1,869 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Weight Normalization,Batch Normalization,Scale Invariant Function," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="使用 SGD 做優化時, 如果 ill-conditioned of Hessian matrix, i.e. $\sigma_1/\sigma_n$ 最大最小的 eigenvalues 之比值, 會使得收斂效率不彰(ref zig-zag).
+
+可以想成 loss function 的曲面愈不像正圓則愈 ill-conditioned (愈扁平).
+
+希望藉由 re-parameteri">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Weight Normalization 的筆記">
+<meta property="og:url" content="http://yoursite.com/2022/09/26/Weight-Normalization-的筆記/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="使用 SGD 做優化時, 如果 ill-conditioned of Hessian matrix, i.e. $\sigma_1/\sigma_n$ 最大最小的 eigenvalues 之比值, 會使得收斂效率不彰(ref zig-zag).
+
+可以想成 loss function 的曲面愈不像正圓則愈 ill-conditioned (愈扁平).
+
+希望藉由 re-parameteri">
+<meta property="og:image" content="http://yoursite.com/2022/09/26/Weight-Normalization-的筆記/Untitled.png">
+<meta property="og:image" content="http://yoursite.com/2022/09/26/Weight-Normalization-的筆記/Untitled 1.png">
+<meta property="og:image" content="http://yoursite.com/2022/09/26/Weight-Normalization-的筆記/Untitled 2.png">
+<meta property="og:image" content="http://yoursite.com/2022/09/26/Weight-Normalization-的筆記/wn_pytorch.png">
+<meta property="og:updated_time" content="2022-09-26T14:32:21.106Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Weight Normalization 的筆記">
+<meta name="twitter:description" content="使用 SGD 做優化時, 如果 ill-conditioned of Hessian matrix, i.e. $\sigma_1/\sigma_n$ 最大最小的 eigenvalues 之比值, 會使得收斂效率不彰(ref zig-zag).
+
+可以想成 loss function 的曲面愈不像正圓則愈 ill-conditioned (愈扁平).
+
+希望藉由 re-parameteri">
+<meta name="twitter:image" content="http://yoursite.com/2022/09/26/Weight-Normalization-的筆記/Untitled.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2022/09/26/Weight-Normalization-的筆記/"/>
+
+
+
+
+
+  <title> Weight Normalization 的筆記 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/09/26/Weight-Normalization-的筆記/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Weight Normalization 的筆記
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2022-09-26T21:37:42+08:00">
+                2022-09-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>使用 SGD 做優化時, 如果 ill-conditioned of Hessian matrix, i.e. $\sigma_1/\sigma_n$ 最大最小的 eigenvalues 之比值, 會使得收斂效率不彰<br>(ref <a href="https://trond.hjorteland.com/thesis/node26.html" target="_blank" rel="external">zig-zag</a>).</p>
+<blockquote>
+<p>可以想成 loss function 的曲面愈不像正圓則愈 ill-conditioned (愈扁平).</p>
+</blockquote>
+<p>希望藉由 re-parameterization 來將 ill-conditioned 狀況降低.<br>一般來說 NN 的 layer 可以這麼寫:<br><span>$$y=\phi(w^Tx+b)$$</span><!-- Has MathJax --> 把 weight vector $w$ 重新改寫如下:</p>
+<span>$$w={g\over\|v\|}v\quad\quad(\star)$$</span><!-- Has MathJax --> WN 就是將 $w$ 拆成用 unit vector $v/||v||$ 和 magnitude $g$ 兩個 variables 來表示<br><br><a id="more"></a>
+<h2 id="對大小-g-的微分"><a href="#對大小-g-的微分" class="headerlink" title="對大小 $g$ 的微分"></a>對大小 $g$ 的微分</h2><hr>
+<p>因此 loss function $L$ 對 $g$ 微分為:<br><span>$$\begin{align}
+\frac{dL}{dg}=\nabla_wL^T\frac{\partial w}{\partial g}=\nabla_wL^T\frac{v}{\|v\|}
+\end{align}$$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>這裡我們寫 gradient vector 都以 column vector 來寫<br>所以如果 loss function $L$ 是 scalar 的話, gradient 就是 transpose of Jacobian matrix (剛好是 1xn 的 row vector)</p>
+</blockquote>
+<h2 id="對方向向量-v-的微分"><a href="#對方向向量-v-的微分" class="headerlink" title="對方向向量 $v$ 的微分"></a>對方向向量 $v$ 的微分</h2><hr>
+<p>Loss function $L$ 對 $v$ 微分為:</p>
+<blockquote>
+<p>這裡要參考到 <a href="https://www.math.uwaterloo.ca/~hwolkowi/matrixcookbook.pdf" target="_blank" rel="external">matrix cookbook</a> equation (130)</p>
+</blockquote>
+<span>$$\begin{align}
+\nabla_vL^T = \nabla_wL^T\left(g\frac{I}{\|v\|}-g\frac{vv^T}{\|v\|^3}\right)\quad \\
+= \nabla_wL^T\frac{g}{\|v\|}\left(
+I-\frac{vv^T}{\|v\|^2}
+\right)\quad
+\end{align}$$</span><!-- Has MathJax -->
+<span>$$\therefore \quad \nabla_vL=\frac{g}{\|v\|}M_v\nabla_wL \quad\text{where}\ M_v:=I-\frac{vv^T}{\|v\|^2}$$</span><!-- Has MathJax -->
+<blockquote>
+<p>論文裡式 (3) 的 gradient 推導可藉由將 (1) 代進到 (2) 裡得到.</p>
+</blockquote>
+<h2 id="nabla-vL-的物理意義"><a href="#nabla-vL-的物理意義" class="headerlink" title="$\nabla_vL$ 的物理意義"></a>$\nabla_vL$ 的物理意義</h2><hr>
+<p>注意到由於 $v$ 跟 $w$ 是同方向但大小不同而已. 所以<br><span>$$M_v=I-\frac{vv^T}{\|v\|^2}=I-\frac{ww^T}{\|w\|^2}=:M_w$$</span><!-- Has MathJax --></p>
+<p><span>$$\begin{align}
+\therefore \quad 
+\nabla_vL=\frac{g}{\|v\|}M_w\nabla_wL \quad\text{where}\ M_w:=I-
+\color{orange}{\frac{ww^T}{\|w\|^2}}
+\end{align}$$</span><!-- Has MathJax --> 觀察一下 $M_w$ 裡的第二項 ((4) 的橘色部分) 乘上一個 vector $x$ 代表的意義:<br><span>$$\frac{w}{\|w\|}\cdot\frac{w^T}{\|w\|}\cdot x$$</span><!-- Has MathJax --> 其中 <span>$w/\|w\|$</span><!-- Has MathJax --> 表示 $w$ 方向的 unit vector, 而 <span>$w^Tx/\|w\|$</span><!-- Has MathJax --> 表示 $x$ 投影在 $w$ 方向上的長度.</p>
+<p><img src="/2022/09/26/Weight-Normalization-的筆記/Untitled.png" width="60%" height="60%"></p>
+<p>所以 <span>$$M_wx=x-\frac{w}{\|w\|}\cdot\frac{w^T}{\|w\|}\cdot x$$</span><!-- Has MathJax --> 因此 <span>$\nabla_vL$</span><!-- Has MathJax --> 意義就很清楚了, 就是將 $x$ 扣掉在 $w$ 方向上的分量.<br>也就是說 <span>$\nabla_vL\perp w$</span><!-- Has MathJax -->, i.e. <span>$w^T\nabla_vL=0$</span><!-- Has MathJax --> (只要利用 (4) 計算就可知道)</p>
+<h2 id="SGD-會使得-v-長度愈來愈大"><a href="#SGD-會使得-v-長度愈來愈大" class="headerlink" title="SGD 會使得 $v$ 長度愈來愈大"></a>SGD 會使得 $v$ 長度愈來愈大</h2><hr>
+<p>用 SGD update $v$ 的時候公式為:<br><span>$$v&apos;=v+\Delta v$$</span><!-- Has MathJax --> 且 <span>$\Delta v\propto\nabla_vL$</span><!-- Has MathJax --> by steepest descent.<br>而因為 <span>$\nabla_vL\perp w$</span><!-- Has MathJax --> 所以 <span>$\Delta v\perp w$</span><!-- Has MathJax -->. (要 update 的向量與目前的 weight 垂直)<br>由最開始的分解 $(\star)$ 我們知道 $v$ 與 weight $w$ 同方向. 所以自然 $\Delta v\perp v$.<br>這就導致了 update 後的 $v’$ 長度會比 $v$ 來得大 (三角不等式), 如下圖:</p>
+<p><img src="/2022/09/26/Weight-Normalization-的筆記/Untitled 1.png" width="50%" height="50%"></p>
+<p>所以經過多次 SGD, $v$ 長度會愈來愈大.</p>
+<h2 id="與-Batch-Normalization-的關聯"><a href="#與-Batch-Normalization-的關聯" class="headerlink" title="與 Batch Normalization 的關聯"></a>與 Batch Normalization 的關聯</h2><hr>
+<p>BN 在過一層 linear weight $v$ 後為:<br><span>$$\begin{align}
+v^Tf_{BN}(x)= v^T\left(g\cdot\frac{x-\mu}{\sigma}+b\right)
+\end{align}$$</span><!-- Has MathJax --> 其中 $\mu,\sigma$ 都是從訓練時的 mini-batch 統計的, 而 $g,b$ 是 trainable 的參數<br>而 WN 對 weight $w$ 為 (不看 non-linear activation 那項):<br><span>$$f_{WN}(x;w)= w^Tx  = {g\over\|v\|}v^Tx \\
+= v^T\left(g\cdot\frac{x}{\|v\|}\right) = v^Tf_{BN}(x)$$</span><!-- Has MathJax --> 對照 BN 可以知道設定 <span>$\sigma=\|v\|,\mu=0,b=0$</span><!-- Has MathJax --> 就變成 WN!<br>但 WN 的好處是不依賴 mini-batch 的設定, 這在如果 batch size 較小的情況會比較有利.</p>
+<h2 id="BN在Conv後會有Conv的Weight具有Scale-Invariant特性"><a href="#BN在Conv後會有Conv的Weight具有Scale-Invariant特性" class="headerlink" title="BN在Conv後會有Conv的Weight具有Scale Invariant特性"></a>BN在Conv後會有Conv的Weight具有<strong>Scale Invariant</strong>特性</h2><hr>
+<p>WN 對於 $v$ 會愈 update 愈大, 考慮 BN 是否也有這樣的狀況?<br>一般來說, 我們會這麼串: <code>activation(BN(convolution(x)))</code><br>將 BN 放在 convolution 後 activation 之前, 這樣可以最後做完 quantizaiton 的時候, convolution 和 BN 的 weight 做融合.<br>令 $w$ 當作 convolution 的 weights, 如果 weights 做 $\alpha$ 倍的 scale: $w’=\alpha w$, 則對 BN 後的結果不會有影響, 這是<strong>因為 $\mu’=\alpha\mu$, and $\sigma’=\alpha\sigma$ 也跟著一起 scale</strong><br><span>$$f_{BN}(\alpha w^Tx)=f_{BN}(w^Tx)$$</span><!-- Has MathJax --> 明確寫出來一個 function $f$ 對 input $w$ 是 scale invariant:<br><span>$$f(\alpha w)=f(w),\quad \forall \alpha\in\mathbb{R}$$</span><!-- Has MathJax --> 微積分我們學過 gradient vector 會跟 coutour 的 level curve 垂直<br>把 scale invariant function 的 “等高線” contour map 畫出來, 示意圖大概這樣:</p>
+<p><img src="/2022/09/26/Weight-Normalization-的筆記/Untitled 2.png" width="80%" height="80%"></p>
+<p>可以看到做 SGD update 的方向會跟 contour 垂直, 導致跟之前討論 WN $v$ 會愈來愈大的狀況一樣, <strong>Convolution 的 weight $w$ 也會隨著 SGD update 愈來愈大</strong>.<br>因此我們在使用 <code>activation(BN(convolution(x)))</code> 這樣的 layer 的時候可能會觀察到這樣的現象.</p>
+<blockquote>
+<p>💡 解決方法可以 update 完 weight 後, 再把 convolution 的 weight 直接 normalized, 因為反正是 scale invariant function, 不影響輸出結果.</p>
+</blockquote>
+<h2 id="v-和-g-的初始化"><a href="#v-和-g-的初始化" class="headerlink" title="$v$ 和 $g$ 的初始化"></a>$v$ 和 $g$ 的初始化</h2><hr>
+<p>可以參考 <strong><strong><a href="https://zhuanlan.zhihu.com/p/55102378" target="_blank" rel="external">模型优化之Weight Normalization</a></strong></strong> 的說明就好.<br>論文有題到 WN 對於 initialization 比較敏感</p>
+<h2 id="Pytorch-的-API"><a href="#Pytorch-的-API" class="headerlink" title="Pytorch 的 API"></a>Pytorch 的 API</h2><hr>
+<p><a href="https://pytorch.org/docs/stable/generated/torch.nn.utils.weight_norm.html" target="_blank" rel="external">torch.nn.utils.weight_norm</a><br>注意 weight normalization 是這種形式:<br><span>$$y=\phi(w^Tx+b)$$</span><!-- Has MathJax --> (markdown渲染怪怪的, 改用圖)<br><img src="/2022/09/26/Weight-Normalization-的筆記/wn_pytorch.png" width="80%" height="80%"></p>
+<p>注意到 conv2d 一次的”內積” 是處理 <code>in_channel * kernel_height * kernel_width</code><br>總共有 <code>out_channel</code> 這麼多個的 “內積”<br>另外, 把 stride or dilation 改動不會影響 <code>weight_g</code> and <code>weight_v</code> 的 size</p>
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><hr>
+<p>WN 直接將參數拆成大小和方向向量分別 update. 希望藉由這樣拆解能減緩 ill-conditioned 狀況, 使模型收斂速度加快. 同時 WN 也不依賴 mini-batch, 這在 batch size 如果比較小的時候不會像 BN 效果變差, 或是比較適用於 RNN.<br>不過拆成這樣參數量也會增加, 但其實 BN 也需要額外的 memory 來存 $\mu,\sigma$, 這樣比就要看誰划算了.<br>另外探討了 <code>activation(BN(convolution(x)))</code> 有時會觀察到 <strong>Convolution 的 weight $w$ 也會隨著 SGD update 愈來愈大.</strong><br>這個現象跟本文 WN 裡面討論到方向向量 $v$ 的大小也會愈 update 愈大道理是很像的.</p>
+<p>不過目前遇到的實務上, 比較少使用 WN, 大部分還是用 BN, LN (Layer Normalization).<br>有效性我自己還要再多觀察</p>
+<p>最後透過看這篇論文, 仔細推導裡面的數學和理解其物理意義, 這對我來說還是很有幫助的.</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><hr>
+<ol>
+<li><a href="https://arxiv.org/abs/1602.07868?context=cs.NE" target="_blank" rel="external">Weight Normalization: A Simple Reparameterization to Accelerate Training of Deep Neural Networks</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/33173246" target="_blank" rel="external">详解深度学习中的Normalization，BN/LN/WN</a></li>
+<li><a href="https://www.zhihu.com/question/55132852/answer/171250929" target="_blank" rel="external">Weight Normalization 相比batch Normalization 有什么优点呢？</a></li>
+<li><a href="https://pytorch.org/docs/stable/generated/torch.nn.utils.weight_norm.html" target="_blank" rel="external">torch.nn.utils.weight_norm</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2022/09/26/Weight-Normalization-的筆記/" title="Weight Normalization 的筆記">http://yoursite.com/2022/09/26/Weight-Normalization-的筆記/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Weight-Normalization/" rel="tag"># Weight Normalization</a>
+          
+            <a href="/tags/Batch-Normalization/" rel="tag"># Batch Normalization</a>
+          
+            <a href="/tags/Scale-Invariant-Function/" rel="tag"># Scale Invariant Function</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/07/20/Why-Stochastic-Weight-Averaging-averaging-results-V-S-averaging-weights/" rel="next" title="Why Stochastic Weight Averaging? averaging results V.S. averaging weights">
+                <i class="fa fa-chevron-left"></i> Why Stochastic Weight Averaging? averaging results V.S. averaging weights
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">79</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">161</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#對大小-g-的微分"><span class="nav-number">1.</span> <span class="nav-text">對大小 $g$ 的微分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#對方向向量-v-的微分"><span class="nav-number">2.</span> <span class="nav-text">對方向向量 $v$ 的微分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#nabla-vL-的物理意義"><span class="nav-number">3.</span> <span class="nav-text">$\nabla_vL$ 的物理意義</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SGD-會使得-v-長度愈來愈大"><span class="nav-number">4.</span> <span class="nav-text">SGD 會使得 $v$ 長度愈來愈大</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#與-Batch-Normalization-的關聯"><span class="nav-number">5.</span> <span class="nav-text">與 Batch Normalization 的關聯</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BN在Conv後會有Conv的Weight具有Scale-Invariant特性"><span class="nav-number">6.</span> <span class="nav-text">BN在Conv後會有Conv的Weight具有Scale Invariant特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#v-和-g-的初始化"><span class="nav-number">7.</span> <span class="nav-text">$v$ 和 $g$ 的初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Pytorch-的-API"><span class="nav-number">8.</span> <span class="nav-text">Pytorch 的 API</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Summary"><span class="nav-number">9.</span> <span class="nav-text">Summary</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">10.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
