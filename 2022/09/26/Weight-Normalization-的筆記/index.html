@@ -105,7 +105,7 @@
 <meta property="og:image" content="http://yoursite.com/2022/09/26/Weight-Normalization-的筆記/Untitled 1.png">
 <meta property="og:image" content="http://yoursite.com/2022/09/26/Weight-Normalization-的筆記/Untitled 2.png">
 <meta property="og:image" content="http://yoursite.com/2022/09/26/Weight-Normalization-的筆記/wn_pytorch.png">
-<meta property="og:updated_time" content="2022-09-26T14:32:21.106Z">
+<meta property="og:updated_time" content="2022-09-27T12:25:19.976Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Weight Normalization 的筆記">
 <meta name="twitter:description" content="使用 SGD 做優化時, 如果 ill-conditioned of Hessian matrix, i.e. $\sigma_1/\sigma_n$ 最大最小的 eigenvalues 之比值, 會使得收斂效率不彰(ref zig-zag).
@@ -425,7 +425,7 @@ I-\frac{vv^T}{\|v\|^2}
 \color{orange}{\frac{ww^T}{\|w\|^2}}
 \end{align}$$</span><!-- Has MathJax --> 觀察一下 $M_w$ 裡的第二項 ((4) 的橘色部分) 乘上一個 vector $x$ 代表的意義:<br><span>$$\frac{w}{\|w\|}\cdot\frac{w^T}{\|w\|}\cdot x$$</span><!-- Has MathJax --> 其中 <span>$w/\|w\|$</span><!-- Has MathJax --> 表示 $w$ 方向的 unit vector, 而 <span>$w^Tx/\|w\|$</span><!-- Has MathJax --> 表示 $x$ 投影在 $w$ 方向上的長度.</p>
 <p><img src="/2022/09/26/Weight-Normalization-的筆記/Untitled.png" width="60%" height="60%"></p>
-<p>所以 <span>$$M_wx=x-\frac{w}{\|w\|}\cdot\frac{w^T}{\|w\|}\cdot x$$</span><!-- Has MathJax --> 因此 <span>$\nabla_vL$</span><!-- Has MathJax --> 意義就很清楚了, 就是將 $x$ 扣掉在 $w$ 方向上的分量.<br>也就是說 <span>$\nabla_vL\perp w$</span><!-- Has MathJax -->, i.e. <span>$w^T\nabla_vL=0$</span><!-- Has MathJax --> (只要利用 (4) 計算就可知道)</p>
+<p>所以 <span>$$M_w\nabla_wL=\nabla_wL-\frac{w}{\|w\|}\cdot\frac{w^T}{\|w\|}\cdot \nabla_wL$$</span><!-- Has MathJax --> <span>$M_w\nabla_wL$</span><!-- Has MathJax --> 就是將 $\nabla_wL$ 扣掉在 $w$ 方向上的分量, 而 <span>$\nabla_vL$</span><!-- Has MathJax --> 只是再多乘一個 scalar,<br>也就是說 <span>$\nabla_vL\perp w$</span><!-- Has MathJax -->, i.e. <span>$w^T\nabla_vL=0$</span><!-- Has MathJax --> (只要利用 (4) 計算就可知道)</p>
 <h2 id="SGD-會使得-v-長度愈來愈大"><a href="#SGD-會使得-v-長度愈來愈大" class="headerlink" title="SGD 會使得 $v$ 長度愈來愈大"></a>SGD 會使得 $v$ 長度愈來愈大</h2><hr>
 <p>用 SGD update $v$ 的時候公式為:<br><span>$$v&apos;=v+\Delta v$$</span><!-- Has MathJax --> 且 <span>$\Delta v\propto\nabla_vL$</span><!-- Has MathJax --> by steepest descent.<br>而因為 <span>$\nabla_vL\perp w$</span><!-- Has MathJax --> 所以 <span>$\Delta v\perp w$</span><!-- Has MathJax -->. (要 update 的向量與目前的 weight 垂直)<br>由最開始的分解 $(\star)$ 我們知道 $v$ 與 weight $w$ 同方向. 所以自然 $\Delta v\perp v$.<br>這就導致了 update 後的 $v’$ 長度會比 $v$ 來得大 (三角不等式), 如下圖:</p>
 <p><img src="/2022/09/26/Weight-Normalization-的筆記/Untitled 1.png" width="50%" height="50%"></p>
@@ -446,7 +446,7 @@ v^Tf_{BN}(x)= v^T\left(g\cdot\frac{x-\mu}{\sigma}+b\right)
 <p>可以參考 <strong><strong><a href="https://zhuanlan.zhihu.com/p/55102378" target="_blank" rel="external">模型优化之Weight Normalization</a></strong></strong> 的說明就好.<br>論文有題到 WN 對於 initialization 比較敏感</p>
 <h2 id="Pytorch-的-API"><a href="#Pytorch-的-API" class="headerlink" title="Pytorch 的 API"></a>Pytorch 的 API</h2><hr>
 <p><a href="https://pytorch.org/docs/stable/generated/torch.nn.utils.weight_norm.html" target="_blank" rel="external">torch.nn.utils.weight_norm</a><br>注意 weight normalization 是這種形式:<br><span>$$y=\phi(w^Tx+b)$$</span><!-- Has MathJax --> (markdown渲染怪怪的, 改用圖)<br><img src="/2022/09/26/Weight-Normalization-的筆記/wn_pytorch.png" width="80%" height="80%"></p>
-<p>注意到 conv2d 一次的”內積” 是處理 <code>in_channel * kernel_height * kernel_width</code><br>總共有 <code>out_channel</code> 這麼多個的 “內積”<br>另外, 把 stride or dilation 改動不會影響 <code>weight_g</code> and <code>weight_v</code> 的 size</p>
+<p>注意到 conv2d 一次的”內積” 是處理 <code>in_channel * kernel_height * kernel_width</code>, 所以一個 $w$ 的維度也是如此.<br>總共有 <code>out_channel</code> 這麼多個的 “內積”, 也就是有這麼多的 $w$.<br>另外, 把 stride or dilation 改動不會影響 <code>weight_g</code> and <code>weight_v</code> 的 size</p>
 <h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><hr>
 <p>WN 直接將參數拆成大小和方向向量分別 update. 希望藉由這樣拆解能減緩 ill-conditioned 狀況, 使模型收斂速度加快. 同時 WN 也不依賴 mini-batch, 這在 batch size 如果比較小的時候不會像 BN 效果變差, 或是比較適用於 RNN.<br>不過拆成這樣參數量也會增加, 但其實 BN 也需要額外的 memory 來存 $\mu,\sigma$, 這樣比就要看誰划算了.<br>另外探討了 <code>activation(BN(convolution(x)))</code> 有時會觀察到 <strong>Convolution 的 weight $w$ 也會隨著 SGD update 愈來愈大.</strong><br>這個現象跟本文 WN 裡面討論到方向向量 $v$ 的大小也會愈 update 愈大道理是很像的.</p>
 <p>不過目前遇到的實務上, 比較少使用 WN, 大部分還是用 BN, LN (Layer Normalization).<br>有效性我自己還要再多觀察</p>
