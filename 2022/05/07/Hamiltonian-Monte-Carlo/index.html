@@ -106,7 +106,7 @@
 <meta property="og:image" content="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 1.png">
 <meta property="og:image" content="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 2.png">
 <meta property="og:image" content="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 3.png">
-<meta property="og:updated_time" content="2022-05-07T12:39:53.434Z">
+<meta property="og:updated_time" content="2022-09-28T14:22:40.355Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="忘記物理也要搞懂的 Hamiltonian Monte Carlo (HMC) 筆記">
 <meta name="twitter:description" content="先說我物理什麼的都還給老師了, 只能用自己理解的方式, 筆記下 Hamiltonian dynamic.
@@ -412,14 +412,16 @@ K(\mathbf{p})=\frac{\mathbf{p}^T\mathbf{p}}{2m}\left(=\frac{1}{2}m\mathbf{v}^2\r
 H(\mathbf{x},\mathbf{p})=U(\mathbf{x})+K(\mathbf{p}) \\
 =m\mathbf{g}^T\mathbf{x}+\frac{\mathbf{p}^T\mathbf{p}}{2m}
 \end{align}$$</span><!-- Has MathJax -->
-<p>根據能量守恆, 不管時間 $t$ 是什麼, 整個系統的能量 $H(\mathbf{x},\mathbf{p})$ 都維持相同.<br>此時如果我們知道該物體的初始狀態 $(\mathbf{x}_0,\mathbf{p}_0)$ 的話, 事實上可以知道任何時間 $t$ 下的位置和動量 $(\mathbf{x},\mathbf{p})$<br>而這樣的關係可以由下面的 <strong>Hamiltonian equations</strong> 描述出來:</p>
+<p>根據<strong>能量守恆 (energy conservation)</strong>, 不管時間 $t$ 是什麼, 整個系統的能量 $H(\mathbf{x},\mathbf{p})$ 都維持相同.<br>此時如果我們知道該物體的初始狀態 $(\mathbf{x}_0,\mathbf{p}_0)$ 的話, 事實上可以知道任何時間 $t$ 下的位置和動量 $(\mathbf{x},\mathbf{p})$<br>而這樣的關係可以由下面的 <strong>Hamiltonian equations</strong> 描述出來:</p>
 <span>$$\begin{align}
 \frac{dx_i}{dt}=\frac{\partial H}{\partial p_i} \\
 \frac{dp_i}{dt}=-\frac{\partial H}{\partial x_i}
 \end{align}$$</span><!-- Has MathJax -->
 <p>其中 <span>$i\in\{1,..,d\}$</span><!-- Has MathJax -->, $d$ 表空間的維度.</p>
 <blockquote>
-<p>只要使用 $\mathbf{p}=m\mathbf{v}$, 速度 $\mathbf{v}$ 是 $\mathbf{x}$ 對時間的微分, 速度對時間的微分等於加速度 $\mathbf{g}$, 就可以從 (5) 推導出 (6) 和 (7).</p>
+<p>只要使用 $\mathbf{p}=m\mathbf{v}$, 速度 $\mathbf{v}$ 是 $\mathbf{x}$ 對時間的微分, 以及<br>速度對時間的微分等於負加速度 $-\mathbf{g}$ (座標系統定義為往上的座標是正的, 而重力加速度是向下的, 所以值為負)<br>就可以從 (5) 推導出 (6) 和 (7).<br><span>$$\frac{\partial H}{\partial p_i}=\frac{\partial K(\mathbf{p})}{\partial p_i}=\frac{\partial}{\partial p_i}\frac{\sum_j p_j^2}{2m}=\frac{p_i}{m}=\frac{m v_i}{m}=v_i=\frac{dx_i}{dt}
+\\
+\frac{\partial H}{\partial x_i}=\frac{\partial U(\mathbf{x})}{\partial x_i}=\frac{\partial m\sum_j g_jx_j}{\partial x_i}=mg_i=m\frac{d(-v_i)}{dt}=-\frac{dmv_i}{dt}=-\frac{dp_i}{dt}$$</span><!-- Has MathJax --></p>
 </blockquote>
 <p>所以如果已知時間 $t$ 的位置 $x_i(t)$, 想預估 $t+\varepsilon$ 的位置 $x_i(t+\varepsilon)$ 的話, 可以透過 (6) 的方式更新:</p>
 <span>$$x_i(t+\varepsilon)\approx x_i(t)+\varepsilon\cdot\frac{dx_i(t)}{dt}=x_i(t)+\varepsilon\cdot\frac{\partial K(\mathbf{p}(t))}{\partial p_i} \\
@@ -487,15 +489,15 @@ U(\mathbf{x})=-\log p^*(\mathbf{x})
 <span>$$(\mathbf{x}_0,\mathbf{p}_0)\xrightarrow[]{(6)(7)}(\mathbf{x}_1,\mathbf{p}_1)\xrightarrow[]{(6)(7)}(\mathbf{x}_2,\mathbf{p}_2)\xrightarrow[]{(6)(7)}...$$</span><!-- Has MathJax -->
 <p>其中 <span>$H(\mathbf{x}_0,\mathbf{p}_0)=H(\mathbf{x}_1,\mathbf{p}_1)=...$</span><!-- Has MathJax --><br>實作上由於每一次 (6), (7) 的更新都採用很小的 $\varepsilon$ (Leapfrog sample codes 裡的 <code>self.eps</code>), 這樣才能確保夠準確.<br>但我們也希望能夠走遠一些 (這對 multi-modual 的 distribution 很有幫助, 如下圖所示), 所以會跑個 $T$ 步 updates (Leapfrog sample codes 裡的 <code>self.n_steps</code>)</p>
 <p><img src="/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 1.png" width="80%" height="80%"></p>
-<p>但就算如此, 由於 energy conservation (13) 的關係, $\mathbf{x}$ 只會在 phase space 上具有相同能量的 contour 上採樣.<br>(Phase space 定義為 $(\mathbf{x},\mathbf{p})$ 的空間)<br>為了能夠採樣出其它的點, 我們需要換到其他能量的 contour, 因此改變 $\mathbf{p}$, 即對它重新採樣即可.<br>(follow 之前定義好的分佈 <span>$\mathcal{N}(\mathbf{p}|0,I)$</span><!-- Has MathJax -->).<br>但是別忘了, Hamiltonian MC 所提出的採樣是 Metorpolis-Hastings 的 proposal distribution. 所以也需要有 accept/reject, 但也得益於 energy conservation 所以會有非常高的 accept rate. 因而採樣效率很好.<br>總結一下 HMC 方法 [<a href="https://github.com/bayesgroup/deepbayes-2019/blob/master/lectures/day5/1.%20Dmitry%20Kropotov%20-%20MCMC.pdf" target="_blank" rel="external">ref 3</a>]:</p>
+<p>但就算如此, 由於 energy conservation (13) 的關係, $\mathbf{x}$ 只會在 phase space 上具有相同能量的 contour 上採樣.<br>(Phase space 定義為 $(\mathbf{x},\mathbf{p})$ 的空間)<br>為了能夠採樣出其它的點, 我們需要換到其他能量的 contour, 因此改變 $\mathbf{p}$, 即對它重新採樣即可.<br>(follow 之前定義好的分佈 <span>$\mathcal{N}(\mathbf{p}|0,I)$</span><!-- Has MathJax -->).<br>但是別忘了, Hamiltonian MC 所提出的採樣是 Metorpolis-Hastings 的 <strong>proposal distribution</strong>. 所以也需要有 accept/reject, 但也得益於 energy conservation 所以會有非常高的 accept rate. 因而採樣效率很好.<br>總結一下 HMC 方法 [<a href="https://github.com/bayesgroup/deepbayes-2019/blob/master/lectures/day5/1.%20Dmitry%20Kropotov%20-%20MCMC.pdf" target="_blank" rel="external">ref 3</a>]:</p>
 <p><img src="/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 2.png" width="80%" height="80%"></p>
 <p>而 Tuning HMC 有幾個要點 [<a href="https://github.com/bayesgroup/deepbayes-2019/blob/master/lectures/day5/1.%20Dmitry%20Kropotov%20-%20MCMC.pdf" target="_blank" rel="external">ref 3</a>]:</p>
 <p><img src="/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 3.png" width="80%" height="80%"></p>
 <p>一般來說要控制 rejection rate 在 $[1/4,3/4]$ 之間會比較好. 還有多跑幾個 threads 來確認收斂狀況.</p>
 <hr>
 <h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
-<li><strong><strong><a href="https://zhuanlan.zhihu.com/p/67691581" target="_blank" rel="external">马尔可夫链蒙特卡洛算法 (二) HMC</a></strong></strong></li>
-<li><strong><strong><a href="https://theclevermachine.wordpress.com/2012/11/18/mcmc-hamiltonian-monte-carlo-a-k-a-hybrid-monte-carlo/" target="_blank" rel="external">MCMC: Hamiltonian Monte Carlo (a.k.a. Hybrid Monte Carlo)</a></strong></strong></li>
+<li><a href="https://zhuanlan.zhihu.com/p/67691581" target="_blank" rel="external">马尔可夫链蒙特卡洛算法 (二) HMC</a></li>
+<li><a href="https://theclevermachine.wordpress.com/2012/11/18/mcmc-hamiltonian-monte-carlo-a-k-a-hybrid-monte-carlo/" target="_blank" rel="external">MCMC: Hamiltonian Monte Carlo (a.k.a. Hybrid Monte Carlo)</a></li>
 <li>DeepBayes 2019 Summer School Day 5, <a href="https://github.com/bayesgroup/deepbayes-2019/blob/master/lectures/day5/1.%20Dmitry%20Kropotov%20-%20MCMC.pdf" target="_blank" rel="external">MCMC slides</a></li>
 <li>MHC sample codes from (<a href="https://github.com/bayesgroup/deepbayes-2019/blob/master/seminars/day5/Markov%20Chain%20Monte-Carlo%20Solution.ipynb" target="_blank" rel="external">https://github.com/bayesgroup/deepbayes-2019/blob/master/seminars/day5/Markov Chain Monte-Carlo Solution.ipynb</a>)</li>
 <li>Leapfrog method: <a href="https://www2.atmos.umd.edu/~ekalnay/syllabi/AOSC614/NWP-CH03-2-2.pdf" target="_blank" rel="external">https://www2.atmos.umd.edu/~ekalnay/syllabi/AOSC614/NWP-CH03-2-2.pdf</a></li>
