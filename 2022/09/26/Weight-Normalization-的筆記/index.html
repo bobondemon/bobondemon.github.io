@@ -105,7 +105,7 @@
 <meta property="og:image" content="http://yoursite.com/2022/09/26/Weight-Normalization-的筆記/Untitled 1.png">
 <meta property="og:image" content="http://yoursite.com/2022/09/26/Weight-Normalization-的筆記/Untitled 2.png">
 <meta property="og:image" content="http://yoursite.com/2022/09/26/Weight-Normalization-的筆記/wn_pytorch.png">
-<meta property="og:updated_time" content="2022-09-27T12:25:19.976Z">
+<meta property="og:updated_time" content="2022-10-15T11:58:14.077Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Weight Normalization 的筆記">
 <meta name="twitter:description" content="使用 SGD 做優化時, 如果 ill-conditioned of Hessian matrix, i.e. $\sigma_1/\sigma_n$ 最大最小的 eigenvalues 之比值, 會使得收斂效率不彰(ref zig-zag).
@@ -438,9 +438,9 @@ v^Tf_{BN}(x)= v^T\left(g\cdot\frac{x-\mu}{\sigma}+b\right)
 <h2 id="BN在Conv後會有Conv的Weight具有Scale-Invariant特性"><a href="#BN在Conv後會有Conv的Weight具有Scale-Invariant特性" class="headerlink" title="BN在Conv後會有Conv的Weight具有Scale Invariant特性"></a>BN在Conv後會有Conv的Weight具有<strong>Scale Invariant</strong>特性</h2><hr>
 <p>WN 對於 $v$ 會愈 update 愈大, 考慮 BN 是否也有這樣的狀況?<br>一般來說, 我們會這麼串: <code>activation(BN(convolution(x)))</code><br>將 BN 放在 convolution 後 activation 之前, 這樣可以最後做完 quantizaiton 的時候, convolution 和 BN 的 weight 做融合.<br>令 $w$ 當作 convolution 的 weights, 如果 weights 做 $\alpha$ 倍的 scale: $w’=\alpha w$, 則對 BN 後的結果不會有影響, 這是<strong>因為 $\mu’=\alpha\mu$, and $\sigma’=\alpha\sigma$ 也跟著一起 scale</strong><br><span>$$f_{BN}(\alpha w^Tx)=f_{BN}(w^Tx)$$</span><!-- Has MathJax --> 明確寫出來一個 function $f$ 對 input $w$ 是 scale invariant:<br><span>$$f(\alpha w)=f(w),\quad \forall \alpha\in\mathbb{R}$$</span><!-- Has MathJax --> 微積分我們學過 gradient vector 會跟 coutour 的 level curve 垂直<br>把 scale invariant function 的 “等高線” contour map 畫出來, 示意圖大概這樣:</p>
 <p><img src="/2022/09/26/Weight-Normalization-的筆記/Untitled 2.png" width="80%" height="80%"></p>
-<p>可以看到做 SGD update 的方向會跟 contour 垂直, 導致跟之前討論 WN $v$ 會愈來愈大的狀況一樣, <strong>Convolution 的 weight $w$ 也會隨著 SGD update 愈來愈大</strong>.<br>因此我們在使用 <code>activation(BN(convolution(x)))</code> 這樣的 layer 的時候可能會觀察到這樣的現象.</p>
+<p>可以看到做 SGD update 的方向會跟 contour 垂直, 導致跟之前討論 WN $v$ 會愈來愈大的狀況一樣, <strong>Convolution 的 weight $w$ 也會隨著 SGD update 愈來愈大</strong>.<br>因此我們在使用 <code>activation(BN(convolution(x)))</code> 這樣的 layer 的時候可能會觀察到這樣的現象.<br>到這邊我們可能會擔心, 會不會訓練下去 <span>$\|w\|_2$</span><!-- Has MathJax --> 會發散?<br>通常來說不用擔心, 因為離零點愈遠則 gradient 愈小. 這是因為 loss surface 只跟角度有關, 離零點愈遠的 loss surface 會愈稀疏、平坦. 這樣一來雖然每次 update <span>$\|w\|_2$</span><!-- Has MathJax --> 都會變大, 但變大的幅度愈來愈小. 這篇 <a href="https://www.inference.vc/exponentially-growing-learning-rate-implications-of-scale-invariance-induced-by-batchnorm/" target="_blank" rel="external">blog 文章</a> (by <a href="https://www.inference.vc/" target="_blank" rel="external">inFERENCe</a>) 也有描述, 裡面的圖也解釋得很好.</p>
 <blockquote>
-<p>💡 解決方法可以 update 完 weight 後, 再把 convolution 的 weight 直接 normalized, 因為反正是 scale invariant function, 不影響輸出結果.</p>
+<p>💡 另外也可以 update 完 weight 後, 再把 convolution 的 weight 直接 normalized, 因為反正是 scale invariant function, 不影響輸出結果.</p>
 </blockquote>
 <h2 id="v-和-g-的初始化"><a href="#v-和-g-的初始化" class="headerlink" title="$v$ 和 $g$ 的初始化"></a>$v$ 和 $g$ 的初始化</h2><hr>
 <p>可以參考 <strong><strong><a href="https://zhuanlan.zhihu.com/p/55102378" target="_blank" rel="external">模型优化之Weight Normalization</a></strong></strong> 的說明就好.<br>論文有題到 WN 對於 initialization 比較敏感</p>
@@ -457,6 +457,7 @@ v^Tf_{BN}(x)= v^T\left(g\cdot\frac{x-\mu}{\sigma}+b\right)
 <li><a href="https://zhuanlan.zhihu.com/p/33173246" target="_blank" rel="external">详解深度学习中的Normalization，BN/LN/WN</a></li>
 <li><a href="https://www.zhihu.com/question/55132852/answer/171250929" target="_blank" rel="external">Weight Normalization 相比batch Normalization 有什么优点呢？</a></li>
 <li><a href="https://pytorch.org/docs/stable/generated/torch.nn.utils.weight_norm.html" target="_blank" rel="external">torch.nn.utils.weight_norm</a></li>
+<li><a href="https://www.inference.vc/exponentially-growing-learning-rate-implications-of-scale-invariance-induced-by-batchnorm/" target="_blank" rel="external">Exponentially Growing Learning Rate? Implications of Scale Invariance induced by Batch Normalization</a> by <a href="https://www.inference.vc/" target="_blank" rel="external">inFERENCe</a></li>
 </ol>
 
       
