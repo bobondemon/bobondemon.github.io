@@ -1,0 +1,837 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="PyTorch,Quantization Aware Training (QAT),Fake Quantization,Observer," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="看完本文會知道什麼是 fake quantization 以及跟 QAT (Quantization Aware Training) 的關聯同時了解 pytorch 的 torch.ao.quantization.fake_quantize.FakeQuantize 這個 class 做了什麼
+Fake quantization 是什麼?
+我們知道給定 zero ($z$) and sca">
+<meta property="og:type" content="article">
+<meta property="og:title" content="搞懂 Quantization Aware Training 中的 Fake Quantization">
+<meta property="og:url" content="http://yoursite.com/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="看完本文會知道什麼是 fake quantization 以及跟 QAT (Quantization Aware Training) 的關聯同時了解 pytorch 的 torch.ao.quantization.fake_quantize.FakeQuantize 這個 class 做了什麼
+Fake quantization 是什麼?
+我們知道給定 zero ($z$) and sca">
+<meta property="og:image" content="http://yoursite.com/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/Untitled.png">
+<meta property="og:image" content="http://yoursite.com/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/Untitled 1.png">
+<meta property="og:image" content="http://yoursite.com/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/Untitled 2.png">
+<meta property="og:image" content="http://yoursite.com/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/Untitled 3.png">
+<meta property="og:updated_time" content="2022-11-19T12:36:28.782Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="搞懂 Quantization Aware Training 中的 Fake Quantization">
+<meta name="twitter:description" content="看完本文會知道什麼是 fake quantization 以及跟 QAT (Quantization Aware Training) 的關聯同時了解 pytorch 的 torch.ao.quantization.fake_quantize.FakeQuantize 這個 class 做了什麼
+Fake quantization 是什麼?
+我們知道給定 zero ($z$) and sca">
+<meta name="twitter:image" content="http://yoursite.com/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/Untitled.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/"/>
+
+
+
+
+
+  <title> 搞懂 Quantization Aware Training 中的 Fake Quantization | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                搞懂 Quantization Aware Training 中的 Fake Quantization
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2022-11-19T20:09:14+08:00">
+                2022-11-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>看完本文會知道什麼是 fake quantization 以及跟 QAT (Quantization Aware Training) 的關聯<br>同時了解 pytorch 的 <a href="https://github.com/pytorch/pytorch/blob/master/torch/ao/quantization/fake_quantize.py#L114" target="_blank" rel="external"><code>torch.ao.quantization.fake_quantize.FakeQuantize</code></a> 這個 class 做了什麼</p>
+<h2 id="Fake-quantization-是什麼"><a href="#Fake-quantization-是什麼" class="headerlink" title="Fake quantization 是什麼?"></a>Fake quantization 是什麼?</h2><hr>
+<p>我們知道給定 zero ($z$) and scale ($s$) 情況下, float 數值 $r$ 和 integer 數值 $q$ 的關係如下:</p>
+<span>$$\begin{align}
+r=s(q-z) \\
+q=\text{round_to_int}(r/s)+z
+\end{align}$$</span><!-- Has MathJax --> 其中 $s$ 為 scale value 也是 float, 而 $z$ 為 zero point 也是 integer, 例如 <code>int8</code><br>Fake quantization 主要概念就是用 256 個 float 點 (e.g. 用 <code>int8</code>) 來表示所有 float values, 因此一個 float value 就使用256點中最近的一點 float 來替換<br>則原來的 floating training 流程都不用變, 同時也能模擬因為 quantization 造成的精度損失, 這種訓練方式稱做 Quantization Aware Training (QAT) (See <a href="https://bobondemon.github.io/2020/10/03/Quantization-%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B/" target="_blank" rel="external">Quantization 的那些事</a>)<br><a id="more"></a>
+<p>令一個 tensor <code>x</code> 如下, 數值參考 pytorch 官方範例 (<a href="https://pytorch.org/docs/stable/generated/torch.fake_quantize_per_tensor_affine.html" target="_blank" rel="external">link</a>):<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> torch</div><div class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</div><div class="line"></div><div class="line">x = torch.tensor([ <span class="number">0.0552</span>,  <span class="number">0.9730</span>,  <span class="number">0.3973</span>, <span class="number">-1.0780</span>]).requires_grad_(<span class="keyword">True</span>)</div></pre></td></tr></table></figure></p>
+<p>同時令 zero and scale 和 integer 為 <code>int8</code><br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">scale, zero = <span class="number">0.1</span>, <span class="number">0</span></div><div class="line">quant_min, quant_max = <span class="number">0</span>, <span class="number">255</span></div></pre></td></tr></table></figure></p>
+<p>則我們可以使用 <code>torch.fake_quantize_per_tensor_affine</code> (<a href="https://pytorch.org/docs/stable/generated/torch.fake_quantize_per_tensor_affine.html" target="_blank" rel="external">link</a>) 來找出哪一個256點的 float 最接近原來的 <code>x</code> 的 float 值<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">fq_x = torch.fake_quantize_per_tensor_affine(x, scale, zero, quant_min, quant_max)</div><div class="line">print(f<span class="string">'fake quant of x = &#123;fq_x&#125; by funtion `fake_quantize_per_tensor_affine`'</span>)</div><div class="line"><span class="comment"># fake quant of x = tensor([0.1000, 1.0000, 0.4000, 0.0000],</span></div><div class="line"><span class="comment">#      grad_fn=&lt;FakeQuantizePerTensorAffineCachemaskBackward0&gt;) by funtion `fake_quantize_per_tensor_affine`</span></div></pre></td></tr></table></figure></p>
+<p>其實我們也可以用式 (2) 先算出 quantized 的值, 然後再用 (1) 回算最靠近的 float, 這樣計算應該要跟上面使用 <code>torch.fake_quantize_per_tensor_affine</code> 的結果一樣:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># We manually check fake quantization results</span></div><div class="line">x_copy = x.clone().detach().numpy()</div><div class="line">x_int = np.clip(np.floor(x_copy/scale + <span class="number">0.5</span>) + zero, quant_min, quant_max)</div><div class="line">print(f<span class="string">'quantize x to int = &#123;x_int&#125;'</span>)</div><div class="line"><span class="comment"># quantize x to int = [1.0, 10.0, 4.0, 0.0]</span></div><div class="line">x_back_to_float = (x_int - zero) * scale</div><div class="line">print(f<span class="string">'fake quant of x = &#123;x_back_to_float&#125; by manual calculation'</span>)</div><div class="line"><span class="comment"># fake quant of x = [0.1, 1.0, 0.4, 0.0] by manual calculation</span></div></pre></td></tr></table></figure></p>
+<h2 id="Fake-quantization-必須要能微分"><a href="#Fake-quantization-必須要能微分" class="headerlink" title="Fake quantization 必須要能微分"></a>Fake quantization 必須要能微分</h2><hr>
+<p>既然要做 QAT, 也就是說在 back propagation 時, fake quantization 這個 function 也要能微分<br>我們看一下 fake quantization function 長相:<br><img src="/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/Untitled.png" width="50%" height="50%"><br>基本上就是一個 step function, 除了在有限的不連續點外, 其餘全部都是平的, 所以 gradient 都是 $0$.<br>這導致沒法做 back propagation. 為了讓 gradient 流回去, 我們使用 identity mapping (假裝沒有 fake quantization) 的 gradient:<br><img src="/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/Untitled 1.png" width="50%" height="50%"><br>那讀者可能會問, 這樣 gradient 不就跟沒有 fake quantization 一樣了嗎? 如何模擬 quantization 造成的精度損失?<br>我們來看看加上 loss 後的情形, 就可以解答這個問題<br>隨便假設一個 loss function 如下(可以是非常複雜的函數, 例如裡面含有NN):<br><span>$$\begin{align}
+loss=(x-0.1)^2
+\end{align}$$</span><!-- Has MathJax --></p>
+<p><img src="/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/Untitled 2.png" width="80%" height="80%"></p>
+<p>原來的 training flow 是上圖中的上面子圖, loss function 使用 $x$ 代入計算, 而使用 fake quantization training 的話必須代入 <span>$\text{fq_x}$</span><!-- Has MathJax -->. 這樣就能在計算 loss 的時候模擬精度損失.<br>我們觀察一下 gradient:<br><span>$$\begin{align}
+\frac{d\text{loss}}{dx}=\frac{d\text{loss}}{d\text{fq_x}}\cdot\frac{d\text{fq_x}}{d\text{x}}= 2(\text{fq_x}-0.1)\cdot \{0\quad\text{or}\quad1\}
+\end{align}$$</span><!-- Has MathJax --> 因此精度損失反應在 <span>$\frac{d\text{loss}}{d\text{fq_x}}$</span><!-- Has MathJax --> 這一項上<br>接續上面的 codes 我們來驗算一下 gradient 是不是如同 (4) 這樣<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Note that x = [0.0552,  0.9730,  0.3973, -1.0780]</span></div><div class="line"><span class="comment"># and fq_x = [0.1000, 1.0000, 0.4000, 0.0000]</span></div><div class="line">loss = torch.sum((fq_x<span class="number">-0.1</span>)**<span class="number">2</span>)</div><div class="line"><span class="comment"># loss = tensor(0.9100)</span></div><div class="line">loss.backward()</div><div class="line">print(f<span class="string">'gradient of x = &#123;x.grad&#125;'</span>)</div><div class="line"><span class="comment"># tensor([0.0000, 1.8000, 0.6000, -0.0000])</span></div></pre></td></tr></table></figure></p>
+<p>注意到 <code>x.grad[-1]</code> 的值是 $0$, 這是因為 <code>x[-1]</code> 已經小於 <code>quant_min</code> 了, 所以 fake quantization 的 gradient, <span>$\frac{d\text{fq_x}}{d\text{x}}=0$</span><!-- Has MathJax -->, 其他情況都是 <span>$2(\text{fq_x}-0.1)$</span><!-- Has MathJax -->.</p>
+<h2 id="加入-observer"><a href="#加入-observer" class="headerlink" title="加入 observer"></a>加入 observer</h2><hr>
+<p>要做 fake quantization 必須給定 zero and scale $(z,s)$, 而這個值又必須從 input (或說 activation) 的值域分布來統計<br>因此我們通常會安插一個 <a href="https://github.com/pytorch/pytorch/blob/master/torch/ao/quantization/observer.py" target="_blank" rel="external"><code>observer</code></a> 來做這件事情<br>pytorch 提供了不同種類的統計方式來計算 $(z,s)$, 例如:</p>
+<ul>
+<li>MinMaxObserver and MovingAverageMinMaxObserver</li>
+<li>PerChannelMinMaxObserver and MovingAveragePerChannelMinMaxObserver</li>
+<li>HistogramObserver</li>
+<li>FixedQParamsObserver</li>
+</ul>
+<p>因此一個完整個 fake quantization 包含了 observer 以及做 fake quantization 的 function, <a href="https://github.com/pytorch/pytorch/blob/master/torch/ao/quantization/fake_quantize.py#L114" target="_blank" rel="external"><code>FakeQuantize</code></a> 這個 pytorch class 就是這個功能:</p>
+<p><img src="/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/Untitled 3.png" width="100%" height="100%"></p>
+<blockquote>
+<p><code>observer</code> 只是用來給 $(z,s)$ 不需要做 back propagation</p>
+</blockquote>
+<p>因此我們可以看到要 create <a href="https://github.com/pytorch/pytorch/blob/master/torch/ao/quantization/fake_quantize.py#L114" target="_blank" rel="external"><code>FakeQuantize</code></a> 時, 它的 init 有包含給一個 <code>observer</code>:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">FakeQuantize</span><span class="params">(FakeQuantizeBase)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, observer=MovingAverageMinMaxObserver, quant_min=None, quant_max=None, **observer_kwargs)</span>:</span></div><div class="line">          ...</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">calculate_qparams</span><span class="params">(self)</span>:</span></div><div class="line">          <span class="comment">#  使用 observer 來計算 zero and scale</span></div><div class="line">         ...</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span><span class="params">(self, X)</span>:</span></div><div class="line">          ********<span class="keyword">if</span> self.observer_enabled[<span class="number">0</span>] == <span class="number">1</span>:</div><div class="line">                <span class="comment"># 呼叫 `calculate_qparams` 計算 zeros and scale</span></div><div class="line">               ...</div><div class="line">        <span class="keyword">if</span> self.fake_quant_enabled[<span class="number">0</span>] == <span class="number">1</span>:</div><div class="line">               <span class="comment"># 使用 `torch.fake_quantize_per_channel_affine` 來做 fake quantization</span></div><div class="line">                ...</div><div class="line">        <span class="keyword">return</span> X</div></pre></td></tr></table></figure></p>
+<p><code>FakeQuantize</code> 這個 class 是 <code>nn.Module</code>, 只要 <code>forward</code> 裡面的每個 operation 都有定義 <code>backward</code> (都可微分), 就自動可以做 back propagation</p>
+<blockquote>
+<p>本文最開頭有展示 <code>torch.fake_quantize_per_tensor_affine</code> 可以做 <code>backward</code>, 是可以微分的 op</p>
+</blockquote>
+<p>最後, 在什麼地方安插 <a href="https://github.com/pytorch/pytorch/blob/master/torch/ao/quantization/fake_quantize.py#L114" target="_blank" rel="external"><code>FakeQuantize</code></a> 會根據不同的 module (e.g. CNN, dethwise CNN, LSTM, GRU, … etc.) 而不同, 同時也必須考量如果有 batch normalization, concate operation, add operation 則會有一些 fusion, requantize 狀況要注意</p>
+<h2 id="Figure-Backup"><a href="#Figure-Backup" class="headerlink" title="Figure Backup"></a>Figure Backup</h2><hr>
+<p><a href="fake_quant.drawio">fake_quant.drawio</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/" title="搞懂 Quantization Aware Training 中的 Fake Quantization">http://yoursite.com/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/PyTorch/" rel="tag"># PyTorch</a>
+          
+            <a href="/tags/Quantization-Aware-Training-QAT/" rel="tag"># Quantization Aware Training (QAT)</a>
+          
+            <a href="/tags/Fake-Quantization/" rel="tag"># Fake Quantization</a>
+          
+            <a href="/tags/Observer/" rel="tag"># Observer</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/09/26/Weight-Normalization-的筆記/" rel="next" title="Weight Normalization 的筆記">
+                <i class="fa fa-chevron-left"></i> Weight Normalization 的筆記
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">80</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">163</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Fake-quantization-是什麼"><span class="nav-number">1.</span> <span class="nav-text">Fake quantization 是什麼?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Fake-quantization-必須要能微分"><span class="nav-number">2.</span> <span class="nav-text">Fake quantization 必須要能微分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#加入-observer"><span class="nav-number">3.</span> <span class="nav-text">加入 observer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Figure-Backup"><span class="nav-number">4.</span> <span class="nav-text">Figure Backup</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
