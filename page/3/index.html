@@ -1025,7 +1025,7 @@ L = \mathbb{E}_{y\sim\alpha}[\text{NN}_2(y;\nu)]
 <p>由於 Data Parallel 跑同一個完整模型且各 GPU 都用自己複製的一份, 在 update 參數時要如何確保更新一致? 可分為 synchronous 和 asynchronous update. (文章後面會詳細討論)</p>
 <p><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/sync_and_asnyc_data_parallelism.png" width="75%" height="75%" align="center"></p>
 <blockquote>
-<p>本文討論 <em>Data Parallel with asynchronous update</em>.</p>
+<p>本文討論 <em>Data Parallel with <strong>Synchronous</strong> update</em>.</p>
 </blockquote>
 <p>既然要做 data parallel, 第一件事情便是如何對不同 GPU 分派不同的 batches, 接下來我們就使用 PyTorch 做這件事.</p>
           <!--noindex-->
