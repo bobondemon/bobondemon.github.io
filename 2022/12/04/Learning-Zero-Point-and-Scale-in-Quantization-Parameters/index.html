@@ -1,0 +1,866 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="PyTorch,Quantization Aware Training (QAT),Fake Quantization,LSQ,LSQ+," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="在上一篇 搞懂 Quantization Aware Training 中的 Fake Quantization 我們討論了 fake quantization 以及 QAT提到了 observer 負責計算 zero point and scale $(z,s)$, 一般來說只需要透過統計觀測值的 min/max 範圍就能給定, 所以也不需要參與 backward 計算
+直觀上我們希望找">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Learning Zero Point and Scale in Quantization Parameters">
+<meta property="og:url" content="http://yoursite.com/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="在上一篇 搞懂 Quantization Aware Training 中的 Fake Quantization 我們討論了 fake quantization 以及 QAT提到了 observer 負責計算 zero point and scale $(z,s)$, 一般來說只需要透過統計觀測值的 min/max 範圍就能給定, 所以也不需要參與 backward 計算
+直觀上我們希望找">
+<meta property="og:image" content="http://yoursite.com/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/Untitled 1.png">
+<meta property="og:image" content="http://yoursite.com/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/gradient_multiplier.png">
+<meta property="og:image" content="http://yoursite.com/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/gradients_of_zero_point.png">
+<meta property="og:image" content="http://yoursite.com/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/pytorch_implementation.png">
+<meta property="og:updated_time" content="2022-12-04T14:23:26.499Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Learning Zero Point and Scale in Quantization Parameters">
+<meta name="twitter:description" content="在上一篇 搞懂 Quantization Aware Training 中的 Fake Quantization 我們討論了 fake quantization 以及 QAT提到了 observer 負責計算 zero point and scale $(z,s)$, 一般來說只需要透過統計觀測值的 min/max 範圍就能給定, 所以也不需要參與 backward 計算
+直觀上我們希望找">
+<meta name="twitter:image" content="http://yoursite.com/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/Untitled 1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/"/>
+
+
+
+
+
+  <title> Learning Zero Point and Scale in Quantization Parameters | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Learning Zero Point and Scale in Quantization Parameters
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2022-12-04T21:14:45+08:00">
+                2022-12-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>在上一篇 <a href="https://bobondemon.github.io/2022/11/19/%E6%90%9E%E6%87%82-Quantization-Aware-Training-%E4%B8%AD%E7%9A%84-Fake-Quantization/" target="_blank" rel="external">搞懂 Quantization Aware Training 中的 Fake Quantization</a> 我們討論了 fake quantization 以及 QAT<br>提到了 <code>observer</code> 負責計算 zero point and scale $(z,s)$, 一般來說只需要透過統計觀測值的 min/max 範圍就能給定, 所以也不需要參與 backward 計算</p>
+<p>直觀上我們希望找到的 zero/scale 使得 quantization error 盡量小, 但其實如果能對任務的 loss 優化, 應該才是最佳的<br>這就必須讓 $(z,s)$ 參與到 backward 的計算, 這種可以計算 gradient 並更新的做法稱為 learnable quantization parameters</p>
+<p>本文主要參考這兩篇論文:<br>&emsp;1. LSQ: <a href="https://arxiv.org/abs/1902.08153" target="_blank" rel="external">Learned Step Size Quantization</a><br>&emsp;2. LSQ+: <a href="https://arxiv.org/abs/2004.09576" target="_blank" rel="external">Improving low-bit quantization through learnable offsets and better initialization</a></p>
+<blockquote>
+<p>LSQ 只討論 updating scale, 而 LSQ+ 擴展到 zero point 也能學習, 本文只推導關鍵的 gradients 不說明論文裡的實驗結果</p>
+</blockquote>
+<p>很快定義一下 notations:<br>&emsp;- $v$: full precision input value<br>&emsp;- $s$: quantizer step size (scale)<br>&emsp;- $z$: zero point (offset)<br>&emsp;- <span>$Q_P,Q_N$</span><!-- Has MathJax -->: the number of positive and negative quantization levels<br>&emsp;&emsp;e.g.: for $b$ bits, unsigned <span>$Q_N=0,Q_P=2^b-1$</span><!-- Has MathJax -->, for signed <span>$Q_N=2^{b-1},Q_P=2^{b-1}-1$</span><!-- Has MathJax --><br>&emsp;- <span>$\lfloor x \rceil$</span><!-- Has MathJax -->: round $x$ to nearest integer<br>將 $v$ quantize 到 $\bar{v}$ (1), 再將 $\bar{v}$ dequantize 回 $\hat{v}$ (2), 而 $v-\hat{v}$ 就是 precision loss<br><span>$$\begin{align}
+\bar{v}={clip(\lfloor v/s \rceil+z,-Q_N,Q_P)} \\
+\hat{v}=(\bar{v}-z)\times s\\
+\end{align}$$</span><!-- Has MathJax --></p>
+<a id="more"></a>
+<h2 id="學習-Scale"><a href="#學習-Scale" class="headerlink" title="學習 Scale"></a>學習 Scale</h2><hr>
+<p>因為在 forward 的時候是 $\hat{v}$ 去參與 Loss $L$ 的計算 (不是 $v$), 所以計算 $s$ 的 gradient 時 Loss $L$ 必須對 $\hat{v}$ 去微分, 因此<br><span>$$\begin{align}
+\frac{\partial L}{\partial s}=\frac{\partial L}{\partial \hat{v}}\cdot\frac{\partial \hat{v}}{\partial s}
+\end{align}$$</span><!-- Has MathJax --> 其中 <span>${\partial L}/{\partial \hat{v}}$</span><!-- Has MathJax --> 是做 backprop 時會傳進來的, 所以需要計算 <span>${\partial \hat{v}}/{\partial s}$</span><!-- Has MathJax --><br><span>$$\begin{align}
+\frac{\partial \hat{v}}{\partial s}=\frac{\partial(\bar{v}-z)s}{\partial s}=s\cdot
+{\color{orange}{\frac{\partial \bar{v}}{\partial s}}}
++\bar{v}-z \\
+=s\cdot \left\{
+\begin{array}{ll}
+&minus;vs^{-2} &amp; \text{if }-Q_N&lt;v/s+z&lt;Q_P \\
+0 &amp; \text{otherwise}
+\end{array}
+\right.
++\bar{v} - z
+\end{align}$$</span><!-- Has MathJax --> 橘色的地方 <span>$\color{orange}{\partial\bar{v}/{\partial s}}$</span><!-- Has MathJax --> 必須使用 STE (Straight Through Estimate) (參考<a href="https://bobondemon.github.io/2022/11/19/%E6%90%9E%E6%87%82-Quantization-Aware-Training-%E4%B8%AD%E7%9A%84-Fake-Quantization/" target="_blank" rel="external">上一篇筆記</a>)<br>將 $\bar{v}$ 用這樣表達:<br><span>$$\begin{align}
+\bar{v}=
+\left\{
+\begin{array}{ll}
+\lfloor v/s \rceil + z &amp; \text{if }-Q_N&lt;v/s+z&lt;Q_P \\
+-Q_N &amp; \text{if }v/s+z \leq -Q_N \\
+Q_P &amp; \text{if }Q_P \leq v/s+z
+\end{array}
+\right.
+\end{align}$$</span><!-- Has MathJax --> 所以代回去 (5) 得到我們要的 <strong>scale 的 gradients</strong>:<br><span>$$\begin{align}
+\frac{\partial \hat{v}}{\partial s}= \left\{
+\begin{array}{ll}
+&minus;v/s+\lfloor v/s \rceil &amp; \text{if }-Q_N&lt;v/s+z&lt;Q_P \\
+-Q_N - z &amp; \text{if }v/s+z\leq -Q_N \\
+Q_P - z &amp; \text{if }v/s+z\geq Q_P 
+\end{array}
+\right.
+\end{align}$$</span><!-- Has MathJax --> 在 LSQ 這篇的作者把 gradients <span>$\partial\hat{v}/\partial s$</span><!-- Has MathJax --> 畫出來, 可以看到在 quantization 的 transition 處, LSQ 能體現出 gradient 變動很大 (另外兩個方法沒有)</p>
+<p><img src="/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/Untitled 1.png" width="100%" height="100%"></p>
+<h2 id="Scale-的-Gradient-要做調整"><a href="#Scale-的-Gradient-要做調整" class="headerlink" title="Scale 的 Gradient 要做調整"></a>Scale 的 Gradient 要做調整</h2><hr>
+<p>LSQ 作者實驗認為 weights 和 scale 的 gradients 大小, 再除以各自的參數數量後, 如果在比例上一樣的話效果比較好:</p>
+<p><span>$R=\left.\left|\frac{\nabla_s L}{s}\right|\right/\frac{\|\nabla_w L\|}{\|w\|}\approx 1$</span><!-- Has MathJax --> 要讓更新的相對大小是接近的, 因此會把 gradients 乘上如下的 scale 值: <span>$g=1/\sqrt{NQ_P}$</span><!-- Has MathJax -->, 其中 $N$ 是那一層的 (pytorch) tensor 總數量 <code>.numel</code></p>
+<blockquote>
+<p>Weight tensor $W$ 就是 <code>W.numel</code>, 而如果要處理 scale $s$ 的話, 假設處理的是 activations $X$, 那就是 <code>X.numel</code></p>
+</blockquote>
+<p>實作<br><img src="/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/gradient_multiplier.png" width="100%" height="100%"></p>
+<blockquote>
+<p>這個 gradient scale 的技巧很好, 可以用在任何不想改變 output 大小, 而又希望改變 gradient 大小的場合使用</p>
+</blockquote>
+<h2 id="學習-Zero-Point"><a href="#學習-Zero-Point" class="headerlink" title="學習 Zero Point"></a>學習 Zero Point</h2><hr>
+<p>推導 zero point 的 gradient (式子打不出來很怪, 只能用圖片):<br><img src="/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/gradients_of_zero_point.png" width="80%" height="80%"></p>
+<h2 id="對照-PyTorch-實作"><a href="#對照-PyTorch-實作" class="headerlink" title="對照 PyTorch 實作"></a>對照 PyTorch 實作</h2><hr>
+<p>Pytorch 實作: <a href="https://github.com/pytorch/pytorch/blob/f1fb586bc64b96264f4409421d758e9336f19eef/aten/src/ATen/native/quantized/FakeQuantPerTensorAffine.cpp#L161" target="_blank" rel="external">_fake_quantize_learnable_per_tensor_affine_backward</a> 裡面註解寫著如下的敘述:<br>The gradients for scale and zero point are calculated as below:<br>Let <span>$X_{fq}$</span><!-- Has MathJax --> be the fake quantized version of $X$.<br>Let <span>$X_q$</span><!-- Has MathJax --> be the quantized version of $X$ (clamped at <span>$q_\text{min}$</span><!-- Has MathJax --> and <span>$q_\text{max}$</span><!-- Has MathJax -->).<br>Let $\Delta$ and $z$ be the scale and the zero point.</p>
+<p>式子打不出來很怪, 只能用圖片:<br><img src="/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/pytorch_implementation.png" width="80%" height="80%"></p>
+<p>可以發現與 gradient of scale (7) 和 gradient of zero point (12) 能對照起來</p>
+<h2 id="一些訓練說明"><a href="#一些訓練說明" class="headerlink" title="一些訓練說明"></a>一些訓練說明</h2><hr>
+<p>有關 initialization 可以從 post quantization 開始, 不一定要照論文的方式<br>其中第一和最後一層都使用 8-bits (我覺得甚至用 32-bits 都可以), 這兩層用高精度能使得效果顯著提升, 已經是個標準做法了<br>另一個標準做法是 intial 都從 full precision 開始</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><hr>
+<ol>
+<li>LSQ: <a href="https://arxiv.org/abs/1902.08153" target="_blank" rel="external">Learned Step Size Quantization</a></li>
+<li>LSQ+: <a href="https://arxiv.org/abs/2004.09576" target="_blank" rel="external">Improving low-bit quantization through learnable offsets and better initialization</a></li>
+<li><a href="https://www.yuque.com/yahei/hey-yahei/quantization-retrain_differentiable#paDzq" target="_blank" rel="external">重训练量化·可微量化参数</a>: 有 zero point 的微分推導</li>
+<li>Pytorch 實作: <a href="https://github.com/pytorch/pytorch/blob/f1fb586bc64b96264f4409421d758e9336f19eef/aten/src/ATen/native/quantized/FakeQuantPerTensorAffine.cpp#L161" target="_blank" rel="external">_fake_quantize_learnable_per_tensor_affine_backward</a></li>
+<li><a href="https://mp.weixin.qq.com/s?__biz=Mzg4ODA3MDkyMA==&amp;mid=2247484124&amp;idx=1&amp;sn=c60cd14409f8003900f58327261488b4&amp;chksm=cf81f4bbf8f67dad85f6a7518599ada51313c0f80d4cf5b3280dd713b8c6f55fe37d73f63c49&amp;scene=21#wechat_redirect" target="_blank" rel="external">量化训练之可微量化参数—LSQ</a></li>
+<li>別人的實作: <strong><a href="https://github.com/zhutmost/lsq-net" target="_blank" rel="external">lsq-net</a>:</strong> <a href="https://github.com/zhutmost/lsq-net/blob/master/quan/quantizer/lsq.py" target="_blank" rel="external">https://github.com/zhutmost/lsq-net/blob/master/quan/quantizer/lsq.py</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/" title="Learning Zero Point and Scale in Quantization Parameters">http://yoursite.com/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/PyTorch/" rel="tag"># PyTorch</a>
+          
+            <a href="/tags/Quantization-Aware-Training-QAT/" rel="tag"># Quantization Aware Training (QAT)</a>
+          
+            <a href="/tags/Fake-Quantization/" rel="tag"># Fake Quantization</a>
+          
+            <a href="/tags/LSQ/" rel="tag"># LSQ</a>
+          
+            <a href="/tags/LSQ/" rel="tag"># LSQ+</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/" rel="next" title="搞懂 Quantization Aware Training 中的 Fake Quantization">
+                <i class="fa fa-chevron-left"></i> 搞懂 Quantization Aware Training 中的 Fake Quantization
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">79</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">165</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#學習-Scale"><span class="nav-number">1.</span> <span class="nav-text">學習 Scale</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Scale-的-Gradient-要做調整"><span class="nav-number">2.</span> <span class="nav-text">Scale 的 Gradient 要做調整</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#學習-Zero-Point"><span class="nav-number">3.</span> <span class="nav-text">學習 Zero Point</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#對照-PyTorch-實作"><span class="nav-number">4.</span> <span class="nav-text">對照 PyTorch 實作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一些訓練說明"><span class="nav-number">5.</span> <span class="nav-text">一些訓練說明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">6.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
