@@ -1,0 +1,929 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="PyTorch,Gumbel distribution,L0 regularization,Concrete distribution,Hard Concrete distribution," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="這是一篇論文Learning Sparse Neural Networks through L0 Regularization 的詳細筆記, 同時自己實作做實驗 [My Github]主要以詳解每個部分並自己能回憶起為目的, 所以或許不是很好閱讀
+Introduction
+NN model 參數 $\theta$, 我們希望非$0$的個數愈少愈好, i.e. $|\theta|_0$ 愈小">
+<meta property="og:type" content="article">
+<meta property="og:title" content="L0 Regularization 詳細攻略">
+<meta property="og:url" content="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="這是一篇論文Learning Sparse Neural Networks through L0 Regularization 的詳細筆記, 同時自己實作做實驗 [My Github]主要以詳解每個部分並自己能回憶起為目的, 所以或許不是很好閱讀
+Introduction
+NN model 參數 $\theta$, 我們希望非$0$的個數愈少愈好, i.e. $|\theta|_0$ 愈小">
+<meta property="og:image" content="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/gumbel_pdf_cdf.png">
+<meta property="og:image" content="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/Untitled 2.png">
+<meta property="og:image" content="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/concrete_dist.png">
+<meta property="og:image" content="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/Untitled 3.png">
+<meta property="og:image" content="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/Untitled 4.png">
+<meta property="og:image" content="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/binary_concrete_cdf.png">
+<meta property="og:image" content="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/L0_entropy_loss_with_mask.png">
+<meta property="og:image" content="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/Untitled 5.png">
+<meta property="og:image" content="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/Untitled 6.png">
+<meta property="og:image" content="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/inception_forward.png">
+<meta property="og:image" content="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/L_C0.png">
+<meta property="og:updated_time" content="2023-01-15T09:49:24.160Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="L0 Regularization 詳細攻略">
+<meta name="twitter:description" content="這是一篇論文Learning Sparse Neural Networks through L0 Regularization 的詳細筆記, 同時自己實作做實驗 [My Github]主要以詳解每個部分並自己能回憶起為目的, 所以或許不是很好閱讀
+Introduction
+NN model 參數 $\theta$, 我們希望非$0$的個數愈少愈好, i.e. $|\theta|_0$ 愈小">
+<meta name="twitter:image" content="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/gumbel_pdf_cdf.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/"/>
+
+
+
+
+
+  <title> L0 Regularization 詳細攻略 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                L0 Regularization 詳細攻略
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2023-01-15T10:50:25+08:00">
+                2023-01-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>這是一篇論文<strong><em><a href="https://arxiv.org/abs/1712.01312" target="_blank" rel="external">Learning Sparse Neural Networks through L0 Regularization</a></em></strong> 的詳細筆記<strong><em>,</em></strong> 同時自己實作做實驗 [<a href="https://github.com/bobondemon/l0_regularization_practice" target="_blank" rel="external">My Github</a>]<br>主要以詳解每個部分並自己能回憶起為目的, 所以或許不是很好閱讀</p>
+<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><hr>
+<p>NN model 參數 $\theta$, 我們希望<strong>非$0$的個數</strong>愈少愈好, i.e. $|\theta|_0$ 愈小愈好, 所以會加如下的 regularization term:<br><span>$$\mathcal{L}_C^0(\theta)=\|\theta\|_0=\sum_{j=1}^{|\theta|}\mathbb{I}[\theta_j\neq0]$$</span><!-- Has MathJax --> 所以 Loss 為:</p>
+<span>$$\mathcal{L}_E(\theta)=\frac{1}{N}\left(
+\sum_{i=1}^N\mathcal{L}(NN(x_i;\theta),y_i)
+\right) \\
+\mathcal{L}(\theta)=\mathcal{L}_E(\theta)+\mathcal{L}_C^0(\theta)$$</span><!-- Has MathJax -->
+<p>但實務上我們怎麼實現 $\theta$ 非 $0$ 呢?<br>一種方式為使用一個 mask random variable <span>$Z=\{Z_1,...,Z_{|\theta|}\}$</span><!-- Has MathJax --> (~Bernoulli distribution, 參數 <span>$q=\{q_1,...,q_{|\theta|}\}$</span><!-- Has MathJax -->), 因此 Loss 改寫如下: (注意到 $\mathcal{L}_C^0$ 可以有 closed form 並且與 $\theta$ 無關了)</p>
+<span>$$\begin{align}
+\mathcal{L}_C^0(\theta, q)=\mathbb{E}_{Z\sim\text{Bernoulli}(q)}\left[
+\sum_{j=1}^{|\theta|}\mathbb{I}[\theta_j\odot Z_j\neq0]
+\right] = \mathbb{E}_{Z\sim\text{Bernoulli}(q)}\left[
+\sum_{j=1}^{|\theta|} Z_j
+\right] = \sum_j^{|\theta|} q_j\\
+\mathcal{L}_E(\theta,q)=\mathbb{E}_{Z\sim\text{Bernoulli}(q)}\left[
+\frac{1}{N}\left(
+\sum_{i=1}^N\mathcal{L}(NN(x_i;\theta\odot Z_i),y_i)
+\right)
+\right] \\
+\mathcal{L}(\theta,q)=\mathcal{L}_E(\theta,q)+\lambda\mathcal{L}_C^0(q)
+\end{align}$$</span><!-- Has MathJax -->
+<p>現在最大的麻煩是 entropy loss $\mathcal{L}_E$, 原因是 Bernoulli 採樣沒辦法對 $q$ 微分, 因為 <span>$\nabla_q\mathcal{L}_E(\theta,q)$</span><!-- Has MathJax --> 在計算期望值時, 採樣的機率分佈也跟 $q$ 有關</p>
+<blockquote>
+<p>參考 <strong><a href="https://bobondemon.github.io/2021/08/07/Gumbel-Max-Trick/" target="_blank" rel="external">Gumbel-Max Trick</a></strong> 開頭的介紹說明</p>
+</blockquote>
+<p>好消息是, 可以藉由 reparameterization (Gumbel Softmax) 方法使得採樣從一個與 $q$ 無關的 r.v. 採樣 (所以可以微分了), 因此也就能在 NN 訓練使用 backpropagation.<br>以下依序說明: (參考這篇 <strong>[<a href="https://www.zybuluo.com/pearl3344/note/1221157" target="_blank" rel="external">L0 norm稀疏性: hard concrete门变量</a></strong>] 整理的順序, 但補足一些內容以及參考論文的東西)<br>Gumbel max trick $\Rightarrow$ Gumbel softmax trick (so called concrete distribution)<br>$\Rightarrow$ Binary Concrete distribution $\Rightarrow$ Hard (Binary) Concrete distribution $\Rightarrow$ L0 regularization<br>最後補上對 GoogleNet 架構加上 $L0$ regularization 在 CIFAR10 上的模型壓縮實驗</p>
+<p>文長…</p>
+<a id="more"></a>
+<h2 id="Gumbel-Distribution"><a href="#Gumbel-Distribution" class="headerlink" title="Gumbel Distribution"></a>Gumbel Distribution</h2><hr>
+<span>$G\sim\text{Gumbel}(\mu,\beta)$</span><!-- Has MathJax -->, 其 CDF $F(x)$ 為<br><br><span>$$F(x):=P(G\leq x)=e^{-e^{-(x-\mu)/\beta}}$$</span><!-- Has MathJax -->
+<p>當 $\mu=0,\beta=1$ 時為 standard Gumbel r.v., 所以 CDF 為 <span>$\exp{(-\exp{(-x)}})$</span><!-- Has MathJax --> <strong>[<a href="https://en.wikipedia.org/wiki/Gumbel_distribution" target="_blank" rel="external">wiki</a>]</strong></p>
+<p><img src="/2023/01/15/L0-Regularization-詳細攻略/gumbel_pdf_cdf.png" width="100%" height="100%"></p>
+<p>CDF 是一個 monotonely increasing function, 存在 inverse function:</p>
+<span>$$\begin{align}
+F^{-1}(F(x))=x \Rightarrow F^{-1}\left(e^{-e^{-(x-\mu)/\beta}}\right)=x \\
+\Longrightarrow F^{-1}(p)= \mu-\beta\ln(-\ln(p))
+\end{align}$$</span><!-- Has MathJax -->
+<blockquote>
+<p>CDF 的 inverse function 又稱 quantile function (<a href="https://stats.stackexchange.com/questions/212813/help-me-understand-the-quantile-inverse-cdf-function" target="_blank" rel="external">Help me understand the quantile (inverse CDF) function</a>)<br><img src="/2023/01/15/L0-Regularization-詳細攻略/Untitled 2.png" width="50%" height="50%"></p>
+</blockquote>
+<p>所以如果 <span>$F^{-1}(U)$</span><!-- Has MathJax --> where <span>$U\sim\text{Uniform}(0,1)$</span><!-- Has MathJax -->, 等於照機率分佈取 Gumbel random variable.</p>
+<ul>
+<li>Inverse transform sampling [<a href="https://en.wikipedia.org/wiki/Inverse_transform_sampling" target="_blank" rel="external">wiki</a>]<br>  假設有一個 strictly monotone transfromation (所以存在 inverse) <span>$T:[0,1]\rightarrow\mathbb{R}$</span><!-- Has MathJax -->, 使得 <span>$T(U)=_dX$</span><!-- Has MathJax -->, 其中 <span>$U\sim\text{Uniform}(0,1)$</span><!-- Has MathJax -->. 那我們就可以使用 $T$ 來做 $X$ 的採樣<br>  令 $X$ 的 CDF 為 $F_X(x)$, 則:<br>  <span>$$F_X(x)=Pr(X\leq x)=Pr(T(U)\leq x) \\
+=Pr(U\leq T^{-1}(x))=T^{-1}(x)$$</span><!-- Has MathJax --> 則我們發現 $T$ 是 <span>$F_X^{-1}$</span><!-- Has MathJax -->. 因此 <span>$F_X^{-1}(U)$</span><!-- Has MathJax --> 就可以用來採樣 $X$.</li>
+</ul>
+<p>Let <span>$U\sim\text{Uniform}(0,1)$</span><!-- Has MathJax -->, then <span>$F^{-1}(U)=\mu-\beta\ln(-\ln(U))\sim\text{Gumbel}(\mu,\beta)$</span><!-- Has MathJax -->.<br>另外, 兩個 Gumbel r.v.s 的 difference 服從 <a href="https://en.wikipedia.org/wiki/Logistic_distribution" target="_blank" rel="external">Logistic distribution</a>.<br>If <span>$X\sim\text{Gumbel}(\mu_X,\beta)$</span><!-- Has MathJax --> and <span>$Y\sim\text{Gumbel}(\mu_Y,\beta)$</span><!-- Has MathJax --> are independent, then, <span>$X-Y\sim\text{Logistic}(\mu_X-\mu_Y, \beta)$</span><!-- Has MathJax --><br>Logistic random variable 其 CDF 是 sigmoid function.</p>
+<h2 id="Categorical-Distribution-and-Gumbel-Max-Trick"><a href="#Categorical-Distribution-and-Gumbel-Max-Trick" class="headerlink" title="Categorical Distribution and Gumbel Max Trick"></a>Categorical Distribution and Gumbel Max Trick</h2><hr>
+<p><span>$X\sim\text{Categorical}(\alpha_1,\alpha_2,...,\alpha_n)$</span><!-- Has MathJax --> 表示取到第 $i$ 類的機率是 $\alpha_i$.<br>並且有如下的 reparameterization 方式:<br><span>$$X&apos;\sim\arg\max\left(G_1+\ln\alpha_1,...,G_n+\ln\alpha_n\right)$$</span><!-- Has MathJax --> 其中 <span>$(G_1,...,G_n)$</span><!-- Has MathJax --> 為 $n$ 個獨立的 Gumbel r.v.s.<br>則 $X=_dX’$.</p>
+<h2 id="Concrete-Random-Variable"><a href="#Concrete-Random-Variable" class="headerlink" title="Concrete Random Variable"></a>Concrete Random Variable</h2><hr>
+<p>簡單講, 將 Gumbel max trick 中的 $\arg\max$ 改成 softmax (with temperature $\tau$)<br><span>$$X\sim\text{Concrete}((\alpha_1,\alpha_2,..,\alpha_n),\tau)$$</span><!-- Has MathJax --> 其中 <span>$\tau\in(0,\infty)$</span><!-- Has MathJax --> and <span>$\alpha_k\in(0, \infty)$</span><!-- Has MathJax -->.<br>則 $X$ 的取法為:<br>&emsp;1. Sample $n$ 個獨立的 Gumbel r.v.s: <span>$(g_1,...,g_n)\sim(G_1,...,G_n)$</span><!-- Has MathJax -->, 視為 Gumbel noises<br>&emsp;2. 將 logits, $\ln\alpha_k$, 加上這 $n$ 個 Gumbel noises 並做 softmax (with temperature $\tau$) 成為 distribution:<br><img src="/2023/01/15/L0-Regularization-詳細攻略/concrete_dist.png" width="75%" height="75%"><br>更多請參考 <strong><strong><a href="https://arxiv.org/abs/1611.00712" target="_blank" rel="external">The Concrete Distribution: A Continuous Relaxation of Discrete Random Variables</a></strong></strong><br>簡而言之, Concrete distirbution 是將 discrete 的 categorical r.v. relax 成 continuous 版本, 意即取出來的 random variable 不再是 simplex 的 one-hot 形式, 而是連續的數值, 論文裡的圖示很清楚 (圖中的 $\lambda$ 為 temperature $\tau$)<br><img src="/2023/01/15/L0-Regularization-詳細攻略/Untitled 3.png" width="75%" height="75%"><br>當 $\tau\rightarrow 0$, 則 concrete distribution 變成 categorical distribution.</p>
+<h2 id="Binary-Concrete-Distribution"><a href="#Binary-Concrete-Distribution" class="headerlink" title="Binary Concrete Distribution"></a>Binary Concrete Distribution</h2><hr>
+<p>Concrete distribution 只剩下 binary 的話, 可以做化簡剩兩個參數 $(\alpha,\tau)$.<br>$$X=(X_1,X_2)\sim\text{Concrete}((\alpha_1,\alpha_2),\tau), \\<br>(X_1,X_2)\sim\left[\frac{e^{(G_1+\ln\alpha_1)/\tau}}{e^{(G_1+\ln\alpha_1)/\tau}+e^{(G_2+\ln\alpha_2)/\tau}},\frac{e^{(G_2+\ln\alpha_2)/\tau}}{e^{(G_1+\ln\alpha_1)/\tau}+e^{(G_2+\ln\alpha_2)/\tau}}\right] \\<br>\Longrightarrow X_1\sim\frac{e^{(G_1+\ln\alpha_1)/\tau}}{e^{(G_1+\ln\alpha_1)/\tau}+e^{(G_2+\ln\alpha_2)/\tau}} = \frac{1}{1+e^{(G_2-G_1+\ln\alpha_2-\ln\alpha_1)/\tau}} \\<br>=\sigma\left(\frac{G_1-G_2+\ln\alpha_1-\ln\alpha_2}{\tau}\right) = \sigma\left(\frac{L+\ln\alpha_1-\ln\alpha_2}{\tau}\right)\\<br>=\sigma\left(\frac{L+\ln(\alpha_1/\alpha_2)-{\color{orange}0}}{\tau}\right)=\sigma\left(\frac{L+\ln(\alpha_1/\alpha_2)-{\color{orange}\ln1}}{\tau}\right)<br>$$ 其中 <span>$\sigma(x)=1/(1+e^{-x})$</span><!-- Has MathJax --> 為 sigmoid function, 且已知兩個 Gumbel r.v.s 相減, <span>$(G_1-G_2)=L\sim \text{Logistic}$</span><!-- Has MathJax -->, 是 Logistic, 而 <span>$L=\ln U-\ln(1-U)$</span><!-- Has MathJax -->, where <span>$U\sim\text{Uniform}(0,1)$</span><!-- Has MathJax -->.</p>
+<p>想成 <span>$\alpha_1&apos;=\alpha_1/\alpha_2$</span><!-- Has MathJax -->, 且 <span>$\alpha_2&apos;=1$</span><!-- Has MathJax -->, 則 <span>$X=(X_1,1-X_1)\sim\text{Concrete}((\alpha_1&apos;,\alpha_2&apos;),\tau)$</span><!-- Has MathJax -->, 代入 <span>$\alpha_2&apos;=1$</span><!-- Has MathJax --> 後把下標 $1$ 去掉得到 Binary Concrete random variable:<br>$$<br>\begin{align}<br>(X,1-X)\sim\text{Concrete}((\alpha,1),\tau)\\<br>\Longrightarrow<br>{\color{orange}{<br>X\sim\text{BinConcrete}(\alpha,\tau):=\sigma\left(\frac{L+\ln\alpha}{\tau}\right)<br>=\sigma\left(\frac{\ln U-\ln(1-U)+\ln\alpha}{\tau}\right)}<br>}<br>\end{align}<br>$$<br><img src="/2023/01/15/L0-Regularization-詳細攻略/Untitled 4.png" width="100%" height="100%"><br>圖改自 <strong><strong><a href="https://arxiv.org/abs/1611.00712" target="_blank" rel="external">The Concrete Distribution: A Continuous Relaxation of Discrete Random Variables</a></strong></strong><br>可以觀察到 $\tau$ 愈接近 $0$, 則 $X$ 的值愈有可能是 $0$ or $1$ 的 binary case.<br>Binary Concrete 的 CDF 為 <span>${\color{orange}{P(X&lt;x)=\sigma(\tau(\ln x-\ln(1-x))-\ln\alpha)}}$</span><!-- Has MathJax --> 推導如下:<br><img src="/2023/01/15/L0-Regularization-詳細攻略/binary_concrete_cdf.png" width="40%" height="40%"><br>已知 $L\sim \text{Logistic}$, 所以 $P(L&lt;\tau(\ln x-\ln(1-x))-\ln\alpha)=\sigma(\tau(\ln x-\ln(1-x))-\ln\alpha)$</p>
+<blockquote>
+<p>官方 implementation [<a href="https://github.com/AMLab-Amsterdam/L0_regularization/blob/39a5fe68062c9b8540dba732339c1f5def451f1b/l0_layers.py#L56" target="_blank" rel="external">codes</a>]</p>
+</blockquote>
+<h2 id="Hard-Binary-Concrete-Distribution"><a href="#Hard-Binary-Concrete-Distribution" class="headerlink" title="Hard (Binary) Concrete Distribution"></a>Hard (Binary) Concrete Distribution</h2><hr>
+<p>主要就是將 Binary concrete r.v. 拉伸平移, 並 clip 在 $(0,1)$ 區間<br>Hard binary concrete r.v. 取法為:<br>&emsp;1. $X\sim\text{BinConcrete}(\alpha,\tau)=\sigma\left((\ln U-\ln(1-U)+\ln\alpha)/\tau\right)$.<br>&emsp;2. Stretch: $\bar{X}=X(b-a)+a$, 將 $X$ 拉伸平移.<br>&emsp;3. Hard-sigmoid to produce Gating r.v.: $Z=\min(1,\max(0,\bar{X}))$.<br>其中 $a&lt;0&lt;1&lt;b$.<br>當 $0&lt;X&lt;-a/(b-a)$, 則 $Z=0$,<br>當 $(1-a)/(b-a)&lt;X&lt;1$, 則 $Z=1$,<br>否則 $(1-a)/(b-a)&lt;X&lt;-a/(b-a)$, $Z=\bar{X}$.</p>
+<blockquote>
+<p>Stretch + hard-sigmoid functions 是為了把 Binary Concrete random variable 真的是 $0$ or $1$ 的機會再變更大<br>請參考 “Binary Concrete Distribution” 段落裡的圖就能想像</p>
+</blockquote>
+<p>所以 $P(Z=0)=P(X&lt;-a/(b-a))$.<br>我們由 Binary Concrete 的 CDF 為 $P(X&lt;x)=\sigma(\tau(\ln x-\ln(1-x))-\ln\alpha)$ 可以得知:<br>$$<br>{\color{orange}{P(Z\neq0)}}=1-P\left(X&lt;\frac{-a}{b-a}\right) \\<br>=1-\sigma\left(\tau\left(\ln \frac{-a}{b-a}-\ln\left(1-\frac{-a}{b-a}\right)\right)-\ln\alpha\right) \\<br>=1-\sigma\left(-\ln\alpha+\tau\ln\frac{-a}{b}\right)<br>{\color{orange}{=\sigma\left(\ln\alpha-\tau\ln\frac{-a}{b}\right)}}<br>$$ 所以最後 Gating random variable $Z\neq0$ 的機率, $P(Z\neq0)$, 我們可以得到 closed form.</p>
+<h2 id="mathcal-L-0-Regularization"><a href="#mathcal-L-0-Regularization" class="headerlink" title="$\mathcal{L}_0$ Regularization"></a>$\mathcal{L}_0$ Regularization</h2><hr>
+<p>$P(Z\neq0)$ <strong>其實這就是 $L_0$ regularization term 了!</strong><br>$$<br>\mathcal{L}_C^0(\phi)=\sum_j P(Z_j\neq0|\phi_j)=\sum_j \sigma\left(\ln\alpha_j-\tau_j\ln\frac{-a}{b}\right)<br>$$ 其中 $\phi_j=\{\alpha_j,\tau_j\}$ 表示 Binary Concrete r.v. 的參數</p>
+<blockquote>
+<p>實務上 $\ln\alpha_j$ 是 learnable 的參數, 而 $\tau_j$ 一般直接給定</p>
+</blockquote>
+<p>而原本的 loss 就是 weights $\theta$ 乘上 gating variable $Z$:<br><img src="/2023/01/15/L0-Regularization-詳細攻略/L0_entropy_loss_with_mask.png" width="65%" height="65%"><br>注意到 $\text{BinConcrete}$ 可以藉由 reparameterization trick (變成 sample 這個 operation 跟參數無關, i.e. 利用 standard Uniform or Logistic r.v.s 取 samples) 來做 backpropagation.<br>Total loss 就是<br>$$<br>\mathcal{L}(\theta,\phi)=\mathcal{L}_E(\theta,\phi)+\lambda\mathcal{L}_C^0(\phi)<br>$$</p>
+<p>論文考慮了如果加入 L2-norm 的 regularization 怎麼改動.<br>原本的 $\mathcal{L}_2$ regularization 只是參數的 square: $\sum_j \theta_j^2$, 但為了跟 $\mathcal{L}_0$ 有個比較好的結合, 改成如下: (細節請參考<a href="https://arxiv.org/pdf/1712.01312.pdf" target="_blank" rel="external">論文</a>)</p>
+<p>$$<br>\mathcal{L}_C^2(\theta,\phi)=\sum_j \theta_j^2 P(Z_j\neq0|\phi_j)<br>$$</p>
+<p>所以結合後的 regularization term 如下:<br>$$<br>\mathcal{L}_C(\theta,\phi)=\lambda_2\cdot 0.5\cdot\mathcal{L}_C^2(\theta,\phi)+\lambda_0\cdot\mathcal{L}_C^0(\phi) \\<br>= \sum_j \left( \lambda_2\cdot0.5\cdot\theta_j^2 + \lambda_0<br>\right)P(Z_j\neq0|\phi_j)<br>$$</p>
+<p>因此 Total loss 就是<br>$$<br>\mathcal{L}(\theta,\phi)=\mathcal{L}_E(\theta,\phi)+\lambda\mathcal{L}_C(\theta,\phi)<br>$$</p>
+<h2 id="Experimental-Codes-and-Results"><a href="#Experimental-Codes-and-Results" class="headerlink" title="Experimental Codes and Results"></a>Experimental Codes and Results</h2><hr>
+<h3 id="Network-Structure"><a href="#Network-Structure" class="headerlink" title="Network Structure"></a>Network Structure</h3><p>使用 GoogleNet 在 CIFAR10 上做實驗 [<a href="https://github.com/bobondemon/l0_regularization_practice" target="_blank" rel="external">Github repo</a>]<br>具體怎麼做 L0 purning 呢? 以 convolution 舉例, 我們對 output channel 做 masking, 因此每個 channel 會對應一個 hard binary concrete r.v. $Z_i$, 由於 hard binary concrete r.v. 傾向 sample 出 exactly $0$ or $1$ (中間數值也有可能, 只是很低機率), 因此造成 output dimension 會直接下降, 所以給下一層的 layer 的 channel 數量就減少, 圖示如下:<br><img src="/2023/01/15/L0-Regularization-詳細攻略/Untitled 5.png" width="100%" height="100%"><br>有關 hard concrete r.v. 的 module 參考 <code>class L0Gate(nn.Module)</code> [<a href="https://github.com/bobondemon/l0_regularization_practice/blob/main/sparsereg/model/basic_l0_blocks.py#L11" target="_blank" rel="external">link</a>]<br>因此 Inception block 會多了一些 <code>L0Gate</code> layers:<br><img src="/2023/01/15/L0-Regularization-詳細攻略/Untitled 6.png" width="70%" height="70%"><br>所以 inception layer 的 <a href="https://github.com/bobondemon/l0_regularization_practice/blob/main/sparsereg/model/googlenet.py#L91" target="_blank" rel="external">forward()</a> 大概就是長這樣:<br><img src="/2023/01/15/L0-Regularization-詳細攻略/inception_forward.png" width="75%" height="75%"><br>再來就是用這些包含 L0Gate 的 inception blocks 去建立整個 GoogleNet 的 NN 了.</p>
+<h3 id="Results"><a href="#Results" class="headerlink" title="Results"></a>Results</h3><hr>
+<p>Recap 一下 Loss:<br>$$<br>\mathcal{L}(\theta,\phi)=\mathcal{L}_E(\theta,\phi)+\lambda\mathcal{L}_C^0(\phi)<br>$$ 其中 $\phi_j=\{\alpha_j,\tau_j\}$ 表示 Binary Concrete r.v. 的參數, 一般來說只有 $\ln\alpha_j$ 是 learnable, 而 $\lambda$ 表示 L0 regularization 的比重<br>我們將 L0Gate 的參數, i.e. $\ln\alpha_j$, 與 NN 的參數 $\theta$ 一起從頭訓練起<br>對比沒有 L0 regularization 的就是原始的 GoogleNet</p>
+<table>
+<thead>
+<tr>
+<th>GoogleNet</th>
+<th>Validation Accuracy</th>
+<th>Test Accuracy</th>
+<th>Sparsity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NO L0</td>
+<td>90.12%</td>
+<td>89.57%</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>with L0, lambda=0.25</td>
+<td>88.66%</td>
+<td>87.87%</td>
+<td>0.94</td>
+</tr>
+<tr>
+<td>with L0, lambda=0.5</td>
+<td>86.9%</td>
+<td>86.56%</td>
+<td>0.78</td>
+</tr>
+<tr>
+<td>with L0, lambda=1.0</td>
+<td>83.2%</td>
+<td>82.79%</td>
+<td>0.45</td>
+</tr>
+</tbody>
+</table>
+<p>其中 sparsity 的計算為所有因為 gate 為 $0$ 而造成參數無效的比例<br>可以觀察到隨著 $\lambda$ 愈大, 會 pruning 更多 ($\mathcal{L}_C^0$ 的收斂值會更低), 但也造成 accuracy 的下降<br>對比下面的圖也可以看到 $\lambda$ 對 $\mathcal{L}_C^0$ 的收斂值的影響<br><img src="/2023/01/15/L0-Regularization-詳細攻略/L_C0.png" width="75%" height="75%"> 實務上乘 gate $0$ 等於事先將 weight 變成 $0$, 而因為我們使用 structure pruning, 所以可以將 convolution kernel 變小.</p>
+<blockquote>
+<p>後來我發現比起將 $\ln\alpha_j$, 與 NN 的參數 $\theta$ 一起從頭訓練起<br>NN $\theta$ init 使用之前 pre-train 好的 model (沒有 L0), 然後再加入 L0 regularization, 此時將 $\ln\alpha$ 初始成比較大的值 (接近 $1$, i.e. 讓 gate 打開), 這樣在同樣 sparsity 效果下, accuracy 會比較高</p>
+</blockquote>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><hr>
+<ol>
+<li><a href="https://www.zybuluo.com/pearl3344/note/1221157" target="_blank" rel="external">L0 norm稀疏性: hard concrete门变量</a></li>
+<li><a href="https://arxiv.org/abs/1611.00712" target="_blank" rel="external">The Concrete Distribution: A Continuous Relaxation of Discrete Random Variables</a></li>
+<li>L0 Regularization Practice [<a href="https://github.com/bobondemon/l0_regularization_practice" target="_blank" rel="external">My Github</a>]</li>
+<li>In paperswithcode: [<a href="https://paperswithcode.com/paper/learning-sparse-neural-networks-through-l_0" target="_blank" rel="external">link</a>]</li>
+<li><a href="https://intellabs.github.io/distiller/tutorial-struct_pruning.html?fbclid=IwAR1GrDb3Mcy6G9t_epxYUZXw3iOww-n-dkMc9RngydflI81OCCH_nNBaCSE" target="_blank" rel="external">Pruning Filters &amp; Channels</a> in <a href="https://intellabs.github.io/distiller/" target="_blank" rel="external">Neural Network Distiller</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/" title="L0 Regularization 詳細攻略">http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/PyTorch/" rel="tag"># PyTorch</a>
+          
+            <a href="/tags/Gumbel-distribution/" rel="tag"># Gumbel distribution</a>
+          
+            <a href="/tags/L0-regularization/" rel="tag"># L0 regularization</a>
+          
+            <a href="/tags/Concrete-distribution/" rel="tag"># Concrete distribution</a>
+          
+            <a href="/tags/Hard-Concrete-distribution/" rel="tag"># Hard Concrete distribution</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/" rel="next" title="Learning Zero Point and Scale in Quantization Parameters">
+                <i class="fa fa-chevron-left"></i> Learning Zero Point and Scale in Quantization Parameters
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">80</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">168</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Gumbel-Distribution"><span class="nav-number">2.</span> <span class="nav-text">Gumbel Distribution</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Categorical-Distribution-and-Gumbel-Max-Trick"><span class="nav-number">3.</span> <span class="nav-text">Categorical Distribution and Gumbel Max Trick</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Concrete-Random-Variable"><span class="nav-number">4.</span> <span class="nav-text">Concrete Random Variable</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Binary-Concrete-Distribution"><span class="nav-number">5.</span> <span class="nav-text">Binary Concrete Distribution</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hard-Binary-Concrete-Distribution"><span class="nav-number">6.</span> <span class="nav-text">Hard (Binary) Concrete Distribution</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mathcal-L-0-Regularization"><span class="nav-number">7.</span> <span class="nav-text">$\mathcal{L}_0$ Regularization</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Experimental-Codes-and-Results"><span class="nav-number">8.</span> <span class="nav-text">Experimental Codes and Results</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Network-Structure"><span class="nav-number">8.1.</span> <span class="nav-text">Network Structure</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Results"><span class="nav-number">8.2.</span> <span class="nav-text">Results</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">9.</span> <span class="nav-text">References</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
