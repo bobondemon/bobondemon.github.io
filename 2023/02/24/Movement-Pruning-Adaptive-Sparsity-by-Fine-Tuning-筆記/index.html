@@ -1,0 +1,877 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Movement pruning," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="先引用這篇論文的論點 Train Large, Then Compress: Rethinking Model Size for Efficient Training and Inference of Transformers [pdf]
+
+同樣的小 model size, 從頭訓練還不如先用大的 model size 做出好效果, 再壓縮到需要的大小所以 pruning 不僅能壓小 mo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Movement Pruning Adaptive Sparsity by Fine-Tuning 筆記">
+<meta property="og:url" content="http://yoursite.com/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="先引用這篇論文的論點 Train Large, Then Compress: Rethinking Model Size for Efficient Training and Inference of Transformers [pdf]
+
+同樣的小 model size, 從頭訓練還不如先用大的 model size 做出好效果, 再壓縮到需要的大小所以 pruning 不僅能壓小 mo">
+<meta property="og:image" content="http://yoursite.com/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/train_large_then_compress.png">
+<meta property="og:image" content="http://yoursite.com/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/Untitled.png">
+<meta property="og:image" content="http://yoursite.com/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/Untitled 1.png">
+<meta property="og:image" content="http://yoursite.com/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/Untitled 2.png">
+<meta property="og:updated_time" content="2023-02-24T15:43:08.798Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Movement Pruning Adaptive Sparsity by Fine-Tuning 筆記">
+<meta name="twitter:description" content="先引用這篇論文的論點 Train Large, Then Compress: Rethinking Model Size for Efficient Training and Inference of Transformers [pdf]
+
+同樣的小 model size, 從頭訓練還不如先用大的 model size 做出好效果, 再壓縮到需要的大小所以 pruning 不僅能壓小 mo">
+<meta name="twitter:image" content="http://yoursite.com/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/train_large_then_compress.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/"/>
+
+
+
+
+
+  <title> Movement Pruning Adaptive Sparsity by Fine-Tuning 筆記 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Movement Pruning Adaptive Sparsity by Fine-Tuning 筆記
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2023-02-24T22:47:40+08:00">
+                2023-02-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>先引用這篇論文的論點 Train Large, Then Compress: Rethinking Model Size for Efficient Training and Inference of Transformers [<a href="https://arxiv.org/abs/2002.11794" target="_blank" rel="external">pdf</a>]</p>
+<p><img src="/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/train_large_then_compress.png" width="75%" height="75%"></p>
+<p>同樣的小 model size, 從頭訓練還不如先用大的 model size 做出好效果, 再壓縮到需要的大小<br>所以 pruning 不僅能壓小 model size, 同樣對 performance 可能也是個好策略</p>
+<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><hr>
+<p>使用單純的 absolutely magnitude pruning 對於在 SSL model 不好. 因為原來的 weight 是對 SSL 的 loss 計算的, 並不能保證後來的 fine tune (down stream task loss) 有一樣的重要性關聯.<br>例如傳統上的 magnitude pruning 作法, 如這一篇 2015 NIPS 文章 [<a href="https://arxiv.org/abs/1506.02626" target="_blank" rel="external">Learning both Weights and Connections for Efficient Neural Networks</a>] (cited 5xxx) 作法很簡單:<br>&emsp;先對 model train 到收斂, 然後 prune, 接著繼續訓練 (prune 的 weight 就 fix 為 $0$), 然侯再多 prune … iterative 下去到需要的 prune 數量<br>但作者認為, 只靠 magnitude 大小判斷效果不好, 因為在 fine tune 過程中, 如果某一個 weight 雖然 magnitude 很大, <strong>但 gradient 傾向把它變小, 就表示它重要性應該降低才對, 這是本篇的精華思想</strong><br>因此作者對每一個參數都引入一個 score, 命為 $S$, 希望能代表 weight 的重要性. 而在 fine-tune 的過程, 除了對 weight $W$ update 之外, score $S$  也會 update<br>如果 score $S$ 能反映 weight 的 gradient 傾向 (值愈大愈重要), 就能根據 $S$ 來決定最終我們要 prune 那些 weights</p>
+<p>要這麼做的話, 我們還需要回答兩個問題:</p>
+<ol>
+<li>怎麼引入 score $S$?</li>
+<li>Score $S$ 能代表重要性? 換句話說能反映 weight 的 gradient 傾向 (值愈大愈重要) 嗎?</li>
+</ol>
+<a id="more"></a>
+<h2 id="怎麼引入-score-S"><a href="#怎麼引入-score-S" class="headerlink" title="怎麼引入 score $S$?"></a>怎麼引入 score $S$?</h2><hr>
+<p>首先, 看一下 $W$ and $S$ 的 gradients</p>
+<p><u> <strong>Forward:</strong> </u><br>$$<br>a=(W\odot M)x<br>$$</p>
+<p>$W$是 weight matrix, 而 $M$是 mask matrix 每一個 element $\in\{0,1\}$, $M$ 通常是從一個 score matrix $S$ 搭配上 masking function e.g. $\text{Top}_v$ 而來:<br><span>$$M_{ij}=\text{Top}_v(S)_{ij}=\left\{
+\begin{array}{ll}
+1, &amp; S_{ij}\quad\text{in top }v\% \\
+0, &amp; \text{o.w.}
+\end{array}
+\right.$$</span><!-- Has MathJax --> 而 magnitude based pruning 定義 <span>$S_{ij}=|W_{ij}|$</span><!-- Has MathJax --><br>算 $W$ 的 gradients:<br><span>$$\begin{align}
+\frac{\partial L}{\partial W_{ij}}=\frac{\partial L}{\partial a_i}M_{ij}x_{j}
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>而算 $S$ 的 gradients 時發現因為 <span>$\text{Top}_v$</span><!-- Has MathJax --> 無法微分<br>所以用 <em>straight-through estimator (STE)</em>, i.e. 假裝沒有 <span>$\text{Top}_v$</span><!-- Has MathJax --> 這個 function.</p>
+<p><u> <strong>針對 Backward relaxing 的 forward:</strong> </u><br>改成讓 forward 假裝沒有過 <span>$\text{Top}_v$</span><!-- Has MathJax --> (因為 <span>$\text{Top}_v$</span><!-- Has MathJax --> 無法微分):<br>$$<br>a=(W\odot {\color{orange}S})x<br>$$</p>
+<p>所以 $S$ 的 gradients:<br><span>$$\begin{align}
+\frac{\partial L}{\partial S_{ij}} = \frac{\partial L}{\partial a_i}\frac{\partial a_i}{\partial S_{ij}}=\frac{\partial L}{\partial a_i}W_{ij}x_j
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>所以 $S$ 仍然會被 update, 就算對應的 weight 已經在 forward 被 mask 了</p>
+<blockquote>
+<p>這種作法稱 Straigth Through Estimate (STE)<br>Appendix A.1 證明 training loss 會收斂 (原論文有幾個推導當下沒看懂, 後來自己補足了一些推導, 見本文最後面段落)</p>
+</blockquote>
+<h2 id="Score-S-能代表重要性"><a href="#Score-S-能代表重要性" class="headerlink" title="Score $S$ 能代表重要性?"></a>Score $S$ 能代表重要性?</h2><hr>
+<p>先回顧一個觀念<br><span>$$\frac{\partial \mathcal{L}}{\partial W_{ij}}&gt;0$$</span><!-- Has MathJax --> 表示 loss function <span>$\mathcal{L}$</span><!-- Has MathJax --> 與 <span>$W_{ij}$</span><!-- Has MathJax --> 方向一致, 換句話說</p>
+<span>$$W_{ij}\uparrow \iff \mathcal{L}\uparrow \\
+W_{ij}\downarrow \iff \mathcal{L}\downarrow \\$$</span><!-- Has MathJax --> 如果<br><span>$$\frac{\partial \mathcal{L}}{\partial W_{ij}}&lt;0$$</span><!-- Has MathJax --> 則表示方向相反<br>我們現在觀察 $S$ 和 $W$ 在 update 時候之間的關係, 由 (1) and (2) 的關係可以寫成如下:<br><span>$$\begin{align}
+\frac{\partial L}{\partial S_{ij}} = \frac{\partial L}{\partial W_{ij}}W_{ij} / M_{ij}
+\end{align}$$</span><!-- Has MathJax -->
+<p>首先我們注意到如果 <span>$\partial L / \partial S_{ij} &lt; 0$</span><!-- Has MathJax -->, 表示 $L$ 和 <span>$S_{ij}$</span><!-- Has MathJax --> 方向相反, 因為我們希望 <span>$L\downarrow$</span><!-- Has MathJax -->, 所以此時 <span>$S_{ij}\uparrow$</span><!-- Has MathJax -->.<br>要讓 <span>$\partial L / \partial S_{ij} &lt; 0$</span><!-- Has MathJax --> 根據 (3) 只會有兩種情形 (我們不管 <span>$M_{ij}$</span><!-- Has MathJax -->, 因為它 $\geq0$):<br>&emsp;Case 1: <span>$\partial L / \partial W_{ij} &lt; 0$</span><!-- Has MathJax --> and <span>$W_{ij}&gt;0$</span><!-- Has MathJax -->. Weight 是<strong>正的</strong>, 且它的行為跟 $L$ 方向<strong>相反</strong>. 所以更新後 weight 會變得更大 (away from zero)<br>&emsp;Case 2: <span>$\partial L / \partial W_{ij} &gt; 0$</span><!-- Has MathJax --> and <span>$W_{ij}&lt;0$</span><!-- Has MathJax -->. Weight 是<strong>負的</strong>, 且它的行為跟 $L$ 方向<strong>相同</strong>. 所以更新後 weight 會變得更小 (away from zero)<br>上述兩種 weight 都會離 $0$ 愈來愈遠 (magnitude 會變更大).<br>結論就是 update 過程如果 <strong><span>$S_{ij}\uparrow$</span><!-- Has MathJax --> 表示 <span>$W_{ij}$</span><!-- Has MathJax --> 遠離 $0$</strong>.<br>同樣的推理, 如果 <span>$\partial L / \partial S_{ij} &gt; 0$</span><!-- Has MathJax -->, 表示 <strong><span>$S_{ij}\downarrow$</span><!-- Has MathJax --> 的情形發生在 <span>$W_{ij}$</span><!-- Has MathJax --> 更靠近 $0$ 了</strong>.<br>所以我們得到一個結論:<br>&emsp;因為 $S$ 升高對應到 $W$ 變大; $S$ 降低對應到 $W$ 變小. 所以合理認為 $S$ 代表的是重要性</p>
+<blockquote>
+<p>有意思的是, 上述結論似乎跟 masking function 是否用 <span>$\text{Top}_v$</span><!-- Has MathJax --> 無關<br>意思是如果 masking function 用 <span>$\text{Bottom}_v$</span><!-- Has MathJax --> (選最小的那 $v\%$) 也會有 “$S$ 升高對應到 $W$ 變大; $S$ 降低對應到 $W$ 變小, 因此 $S$ 是重要性” 這個結論<br>但怎麼感覺哪裡怪怪的<br>不過其實邏輯上不衝突, 我這邊的理解是這樣的:<br>Score $S$ 代表重要性是沒問題的, 只是這個重要性現在只針對 <span>$\text{Bottom}_v$</span><!-- Has MathJax --> 的那些 weights 去看<br>同時, Appendix A.1 證明 loss 能收斂也是基於 <span>$\text{Top}_v$</span><!-- Has MathJax --> 能得到保證, 因此用 <span>$\text{Bottom}_v$</span><!-- Has MathJax --> 搞不好收斂不起來</p>
+</blockquote>
+<p>$S$ 的更新過程可以視為 movement (重要性) 的累積 (只要初始給 $0$ ??)</p>
+<h2 id="Results"><a href="#Results" class="headerlink" title="Results"></a>Results</h2><hr>
+<p>在 low sparsity (more than 70% of remaining weights), magnitude pruning 比 movement pruning 好<br>在 high sparsity (less than 15% of remaining weights), 則 movement pruning 好得很明顯</p>
+<p><img src="/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/Untitled.png" width="100%" height="100%"></p>
+<p>總體來說在 high sparsity case, Soft movement pruning (SMvP) &gt; Movement Pruning (MvP) &gt; L0 regularization &gt; Magnitude Pruning (MaP)<br>作者強調了一下 MvP or SMvP 比 L0 簡單又更好<br>最後作者在 pruning 過程中加了 distillation loss, 顯示 <strong>distillation 對所有 pruning methods 都有幫助</strong>.</p>
+<p><img src="/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/Untitled 1.png" width="100%" height="100%"></p>
+<p>Fig 4(a) 不意外<br>Fig 4(b) 比較有意思, score 大的那些 weight 都不會 $0$ 靠近 (v-shape)<br>作者實驗了 global/local NN 的 pruning, 之前是說 global 讓 NN 自己決定每個 layers 要 prune 多少比例, 所以通常比較好 (尤其在 high sparsity)<br>但作者在自己的實驗, 發現兩者在效果上沒太大差異<br>最後分析一下每個 layer 的 sparsity, 發現在愈後面的 layer prune 愈多</p>
+<p><img src="/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/Untitled 2.png" width="50%" height="50%"></p>
+<h2 id="Appendix-A-1-Guarantees-on-the-decrease-of-the-training-loss"><a href="#Appendix-A-1-Guarantees-on-the-decrease-of-the-training-loss" class="headerlink" title="Appendix A.1 Guarantees on the decrease of the training loss"></a>Appendix A.1 Guarantees on the decrease of the training loss</h2><hr>
+<p>補充推導, 先回顧一下</p>
+<p><u> <strong>Forward:</strong> </u><br>$$<br>a=(W\odot M)x<br>$$</p>
+<p><u> <strong>針對 Backward relaxing 的 forward:</strong> </u><br>$$<br>a=(W\odot S)x<br>$$</p>
+<p>其中 <span>$M=\text{Top}_k(S)$</span><!-- Has MathJax -->, score matrix 經過選擇變成 mask matrix. 不失一般性, 我們定義 score 都為正, <span>$S_{ij}&gt;0$</span><!-- Has MathJax -->.<br>算 $W$ 的 gradients:<br><span>$$\frac{\partial L}{\partial W_{ij}}=\frac{\partial L}{\partial a_i}M_{ij}x_{j} \\
+\frac{\partial L}{\partial W_{kl}}=\frac{\partial L}{\partial a_k}M_{kl}x_{l}$$</span><!-- Has MathJax --></p>
+<p>算 $S$ 的 gradients, 不過由於 <span>$\text{Top}_k$</span><!-- Has MathJax --> 無法算微分, 所以只好用 Backward relaxing 的替代方式</p>
+<span>$$\frac{\partial L}{\partial S_{ij}} = \frac{\partial L}{\partial a_i}\frac{\partial a_i}{\partial S_{ij}}=\frac{\partial L}{\partial a_i}W_{ij}x_j \\
+\frac{\partial L}{\partial S_{kl}} = \frac{\partial L}{\partial a_k}\frac{\partial a_k}{\partial S_{kl}}=\frac{\partial L}{\partial a_k}W_{kl}x_l$$</span><!-- Has MathJax --> 要證明, movement pruning 算法造成的 <span>$\text{Top}_k$</span><!-- Has MathJax --> 變化, 仍會使得 loss 愈來愈低.<br><br>先將問題簡化為 <span>$\text{Top}_1$</span><!-- Has MathJax -->, 在 iteration $t$ 最高分的是 index $(i,j)$, i.e. <span>$\forall u,v,S_{uv}^{(t)}\leq S_{ij}^{(t)}$</span><!-- Has MathJax -->. 然後 update 一次後, 變成 index $(k,l)$ 是最大.<br><span>$$\left\{
+\begin{array}{ll}
+\text{At } t, &amp; \forall1\leq u,v\leq n,\quad S_{uv}^{(t)}\leq S_{ij}^{(t)} \\
+\text{At } t+1, &amp; \forall1\leq u,v\leq n,\quad S_{uv}^{(t+1)}\leq S_{kl}^{(t+1)}
+\end{array}
+\right.$$</span><!-- Has MathJax -->
+<p>所以有 <span>$S_{kl}^{(t+1)}-S_{kl}^{(t)} \geq S_{ij}^{(t+1)}-S_{ij}^{(t)}$</span><!-- Has MathJax -->.<br>我們從定義出發:<br><span>$$\frac{\partial L}{\partial S_{ij}^{(t)}}=\lim_{|\Delta|\rightarrow0}\frac{L\left(S^{(t+1)}\right) - L\left(S^{(t)}\right)}{S_{ij}^{(t+1)}-S_{ij}^{(t)}},\quad\text{where }\Delta=S_{ij}^{(t+1)}-S_{ij}^{(t)}$$</span><!-- Has MathJax --></p>
+<span>$$\therefore \quad \frac{L\left(S^{(t+1)}\right)-L\left(S^{(t)}\right)}{S_{ij}^{(t+1)}-S_{ij}^{(t)}} \geq \frac{L\left(S^{(t+1)}\right)-L\left(S^{(t)}\right)}{S_{kl}^{(t+1)}-S_{kl}^{(t)}} \\
+\text{limit both side}\Longrightarrow \frac{\partial L}{\partial S_{ij}^{(t)}} \geq \frac{\partial L}{\partial S_{kl}^{(t)}} \\
+\begin{align}
+\Longrightarrow \frac{\partial L}{\partial a_i}W_{ij}^{(t)}x_j \geq \frac{\partial L}{\partial a_k}W_{kl}^{(t)}x_l
+\qquad \ldots \end{align}$$</span><!-- Has MathJax --> 這就是論文裡 equation (7) 的推導,<br>因此我們觀察兩次的 losses 差異:<br><span>$$L(a_i^{(t+1)},a_k^{(t+1)})-L(a_i^{(t)},a_k^{(t)}) \\ \\
+\approx \frac{\partial L}{\partial a_k}(a_k^{(t+1)}-a_k^{(t)}) + \frac{\partial L}{\partial a_i}(a_i^{(t+1)}-a_i^{(t)}) \\ \\
+=\frac{\partial L}{\partial a_k}W_{kl}^{(t+1)}x_l - \frac{\partial L}{\partial a_i}W_{ij}^{(t)}x_j \\ \\
+= \frac{\partial L}{\partial a_k}W_{kl}^{(t+1)}x_l + (-\frac{\partial L}{\partial a_k}W_{kl}^{(t)}x_l + \frac{\partial L}{\partial a_k}W_{kl}^{(t)}x_l) - \frac{\partial L}{\partial a_i}W_{ij}^{(t)}x_j \\ \\
+= \frac{\partial L}{\partial a_k}(W_{kl}^{(t+1)}x_l-W_{kl}^{(t)}x_l) + (\frac{\partial L}{\partial a_k}W_{kl}^{(t)}x_l - \frac{\partial L}{\partial a_i}W_{ij}^{(t)}x_j) \\ \\
+= \underbrace{\frac{\partial L}{\partial a_k}x_l(-\alpha_W\frac{\partial L}{\partial a_k}x_lm(S^{(t)})_{kl})}_{\text{term1}=0} + \underbrace{(\frac{\partial L}{\partial a_k}W_{kl}^{(t)}x_l - \frac{\partial L}{\partial a_i}W_{ij}^{(t)}x_j)}_{\text{term2}&lt;0}$$</span><!-- Has MathJax -->
+<p>第二行的 $\approx$ 使用泰勒展開式</p>
+<blockquote>
+<p>二維的泰勒展開式<br><span>$$f(t_n+\Delta t,x_n+\Delta x)=f(t_n,x_n)+\left[\begin{array}{cc}f_t(t_n,x_n) &amp; f_x(t_n,x_n)\end{array}\right]\left[\begin{array}{c}\Delta t \\ \Delta x\end{array}\right] + O\left( \left\| \left[\begin{array}{c}\Delta t \\ \Delta x\end{array}\right] \right\|^2 \right) \\
+=f(t_n,x_n)+\Delta t f_t(t_n,x_n) + \Delta x f_x(t_n,x_n) + O(\Delta t^2 + \Delta x^2)$$</span><!-- Has MathJax --></p>
+</blockquote>
+<p>第二到第三行的推導, 由於 <span>$a=(W\odot M)x$</span><!-- Has MathJax -->, 且因為 $(t)$ 的時候 <span>$a_k^{(t+1)}=0$</span><!-- Has MathJax -->, 且 $(t+1)$ 的時候 <span>$a_i^{(t+1)}=0$</span><!-- Has MathJax --> 發生 top 1 switch 的關係<br>然後最後一行的 term1 由下面關係可以得到:<br><span>$$\frac{\partial L}{\partial W_{kl}}=\frac{\partial L}{\partial a_k}M_{kl}x_{l} \\
+W_{kl}^{(t+1)} = W_{kl}^{(t)} - \alpha_W\frac{\partial L}{\partial W_{kl}}$$</span><!-- Has MathJax --> 注意到 term1 為 $0$, 這是因為 <span>$m(S^{(t)})_{kl}=0$</span><!-- Has MathJax --> (index $(k,l)$ 在 iteration $t$ 不是最大的)<br>而 term2 &lt;0, 由 (4) 得知. 因此</p>
+<p><span>$$L(a_i^{(t+1)},a_k^{(t+1)})-L(a_i^{(t)},a_k^{(t)}) &lt; 0$$</span><!-- Has MathJax --> Update 後 loss 會下降</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><hr>
+<ol>
+<li>In paperswithcode: [<a href="https://paperswithcode.com/paper/movement-pruning-adaptive-sparsity-by-fine" target="_blank" rel="external">link</a>]</li>
+<li>Codes 請參考 paperswithcode 裡提供的連結, or [<a href="https://github.com/huggingface/block_movement_pruning" target="_blank" rel="external">github</a>]</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="http://yoursite.com/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/" title="Movement Pruning Adaptive Sparsity by Fine-Tuning 筆記">http://yoursite.com/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Movement-pruning/" rel="tag"># Movement pruning</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/01/15/L0-Regularization-詳細攻略/" rel="next" title="L0 Regularization 詳細攻略">
+                <i class="fa fa-chevron-left"></i> L0 Regularization 詳細攻略
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">81</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">169</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#怎麼引入-score-S"><span class="nav-number">2.</span> <span class="nav-text">怎麼引入 score $S$?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Score-S-能代表重要性"><span class="nav-number">3.</span> <span class="nav-text">Score $S$ 能代表重要性?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Results"><span class="nav-number">4.</span> <span class="nav-text">Results</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Appendix-A-1-Guarantees-on-the-decrease-of-the-training-loss"><span class="nav-number">5.</span> <span class="nav-text">Appendix A.1 Guarantees on the decrease of the training loss</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">6.</span> <span class="nav-text">References</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
