@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="PyTorch,Quantization Aware Training (QAT),Fake Quantization,LSQ,LSQ+," />
+  <meta name="keywords" content="PyTorch,Straight Through Estimate (STE),Quantization Aware Training (QAT),Fake Quantization,LSQ,LSQ+," />
 
 
 
@@ -99,7 +99,7 @@
 <meta property="og:image" content="http://yoursite.com/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/gradient_multiplier.png">
 <meta property="og:image" content="http://yoursite.com/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/gradients_of_zero_point.png">
 <meta property="og:image" content="http://yoursite.com/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/pytorch_implementation.png">
-<meta property="og:updated_time" content="2022-12-04T14:23:26.499Z">
+<meta property="og:updated_time" content="2023-02-26T02:02:19.538Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Learning Zero Point and Scale in Quantization Parameters">
 <meta name="twitter:description" content="在上一篇 搞懂 Quantization Aware Training 中的 Fake Quantization 我們討論了 fake quantization 以及 QAT提到了 observer 負責計算 zero point and scale $(z,s)$, 一般來說只需要透過統計觀測值的 min/max 範圍就能給定, 所以也不需要參與 backward 計算
@@ -497,6 +497,8 @@ Q_P - z &amp; \text{if }v/s+z\geq Q_P
           
             <a href="/tags/PyTorch/" rel="tag"># PyTorch</a>
           
+            <a href="/tags/Straight-Through-Estimate-STE/" rel="tag"># Straight Through Estimate (STE)</a>
+          
             <a href="/tags/Quantization-Aware-Training-QAT/" rel="tag"># Quantization Aware Training (QAT)</a>
           
             <a href="/tags/Fake-Quantization/" rel="tag"># Fake Quantization</a>
@@ -622,7 +624,7 @@ Q_P - z &amp; \text{if }v/s+z\geq Q_P
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">169</span>
+                <span class="site-state-item-count">171</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>
