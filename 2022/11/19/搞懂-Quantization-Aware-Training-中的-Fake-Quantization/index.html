@@ -92,22 +92,22 @@ Fake quantization 是什麼?
 我們知道給定 zero ($z$) and sca">
 <meta property="og:type" content="article">
 <meta property="og:title" content="搞懂 Quantization Aware Training 中的 Fake Quantization">
-<meta property="og:url" content="http://yoursite.com/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/index.html">
+<meta property="og:url" content="https://bobondemon.github.io/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="看完本文會知道什麼是 fake quantization 以及跟 QAT (Quantization Aware Training) 的關聯同時了解 pytorch 的 torch.ao.quantization.fake_quantize.FakeQuantize 這個 class 做了什麼
 Fake quantization 是什麼?
 我們知道給定 zero ($z$) and sca">
-<meta property="og:image" content="http://yoursite.com/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/Untitled.png">
-<meta property="og:image" content="http://yoursite.com/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/Untitled 1.png">
-<meta property="og:image" content="http://yoursite.com/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/Untitled 2.png">
-<meta property="og:image" content="http://yoursite.com/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/Untitled 3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/Untitled.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/Untitled 1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/Untitled 2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/Untitled 3.png">
 <meta property="og:updated_time" content="2023-02-27T15:49:26.730Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="搞懂 Quantization Aware Training 中的 Fake Quantization">
 <meta name="twitter:description" content="看完本文會知道什麼是 fake quantization 以及跟 QAT (Quantization Aware Training) 的關聯同時了解 pytorch 的 torch.ao.quantization.fake_quantize.FakeQuantize 這個 class 做了什麼
 Fake quantization 是什麼?
 我們知道給定 zero ($z$) and sca">
-<meta name="twitter:image" content="http://yoursite.com/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/Untitled.png">
+<meta name="twitter:image" content="https://bobondemon.github.io/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/Untitled.png">
 
 
 
@@ -135,7 +135,7 @@ Fake quantization 是什麼?
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/"/>
+  <link rel="canonical" href="https://bobondemon.github.io/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/"/>
 
 
 
@@ -280,7 +280,7 @@ Fake quantization 是什麼?
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -389,7 +389,7 @@ Fake quantization 是什麼?
 <span>$$\begin{align}
 r=s(q-z) \\
 q=\text{round_to_int}(r/s)+z
-\end{align}$$</span><!-- Has MathJax --> 其中 $s$ 為 scale value 也是 float, 而 $z$ 為 zero point 也是 integer, 例如 <code>int8</code><br>Fake quantization 主要概念就是用 256 個 float 點 (e.g. 用 <code>int8</code>) 來表示所有 float values, 因此一個 float value 就使用256點中最近的一點 float 來替換<br>則原來的 floating training 流程都不用變, 同時也能模擬因為 quantization 造成的精度損失, 這種訓練方式稱做 Quantization Aware Training (QAT) (See <a href="https://bobondemon.github.io/2020/10/03/Quantization-%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B/" target="_blank" rel="external">Quantization 的那些事</a>)<br><a id="more"></a>
+\end{align}$$</span><!-- Has MathJax --> 其中 $s$ 為 scale value 也是 float, 而 $z$ 為 zero point 也是 integer, 例如 <code>int8</code><br>Fake quantization 主要概念就是用 256 個 float 點 (e.g. 用 <code>int8</code>) 來表示所有 float values, 因此一個 float value 就使用256點中最近的一點 float 來替換<br>則原來的 floating training 流程都不用變, 同時也能模擬因為 quantization 造成的精度損失, 這種訓練方式稱做 Quantization Aware Training (QAT) (See <a href="https://bobondemon.github.io/2020/10/03/Quantization-%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B/">Quantization 的那些事</a>)<br><a id="more"></a>
 <p>令一個 tensor <code>x</code> 如下, 數值參考 pytorch 官方範例 (<a href="https://pytorch.org/docs/stable/generated/torch.fake_quantize_per_tensor_affine.html" target="_blank" rel="external">link</a>):<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> torch</div><div class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</div><div class="line"></div><div class="line">x = torch.tensor([ <span class="number">0.0552</span>,  <span class="number">0.9730</span>,  <span class="number">0.3973</span>, <span class="number">-1.0780</span>]).requires_grad_(<span class="keyword">True</span>)</div></pre></td></tr></table></figure></p>
 <p>同時令 zero and scale 和 integer 為 <code>int8</code><br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">scale, zero = <span class="number">0.1</span>, <span class="number">0</span></div><div class="line">quant_min, quant_max = <span class="number">0</span>, <span class="number">255</span></div></pre></td></tr></table></figure></p>
 <p>則我們可以使用 <code>torch.fake_quantize_per_tensor_affine</code> (<a href="https://pytorch.org/docs/stable/generated/torch.fake_quantize_per_tensor_affine.html" target="_blank" rel="external">link</a>) 來找出哪一個256點的 float 最接近原來的 <code>x</code> 的 float 值<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">fq_x = torch.fake_quantize_per_tensor_affine(x, scale, zero, quant_min, quant_max)</div><div class="line">print(f<span class="string">'fake quant of x = &#123;fq_x&#125; by funtion `fake_quantize_per_tensor_affine`'</span>)</div><div class="line"><span class="comment"># fake quant of x = tensor([0.1000, 1.0000, 0.4000, 0.0000],</span></div><div class="line"><span class="comment">#      grad_fn=&lt;FakeQuantizePerTensorAffineCachemaskBackward0&gt;) by funtion `fake_quantize_per_tensor_affine`</span></div></pre></td></tr></table></figure></p>
@@ -464,7 +464,7 @@ loss=(x-0.1)^2
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/" title="搞懂 Quantization Aware Training 中的 Fake Quantization">http://yoursite.com/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/</a>
+      <a href="https://bobondemon.github.io/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/" title="搞懂 Quantization Aware Training 中的 Fake Quantization">https://bobondemon.github.io/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>

@@ -90,29 +90,29 @@
 <meta name="description" content="Udacity term2 (Sensor Fusion, Localization, and Control) 的第一個 Project 就是用 KF and EKF 將 Lidar and Radar 的資訊做 fusion 並且可以 tracking。由於 KF/EKF 的數學符號很多，因此想筆記一下方便日後回想，所以主要以我自己看的角度，可能有些地方會沒有明確說明。本篇的筆記來源是">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Notes for Kalman Filter and Extended KF">
-<meta property="og:url" content="http://yoursite.com/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/index.html">
+<meta property="og:url" content="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="Udacity term2 (Sensor Fusion, Localization, and Control) 的第一個 Project 就是用 KF and EKF 將 Lidar and Radar 的資訊做 fusion 並且可以 tracking。由於 KF/EKF 的數學符號很多，因此想筆記一下方便日後回想，所以主要以我自己看的角度，可能有些地方會沒有明確說明。本篇的筆記來源是">
-<meta property="og:image" content="http://yoursite.com/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/cover.png">
-<meta property="og:image" content="http://yoursite.com/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/formula_3_4.png">
-<meta property="og:image" content="http://yoursite.com/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/formula_5_6.png">
-<meta property="og:image" content="http://yoursite.com/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/update_1.png">
-<meta property="og:image" content="http://yoursite.com/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/KF.png">
-<meta property="og:image" content="http://yoursite.com/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/F.png">
-<meta property="og:image" content="http://yoursite.com/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/acc1.png">
-<meta property="og:image" content="http://yoursite.com/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/acc2.png">
-<meta property="og:image" content="http://yoursite.com/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Q.png">
-<meta property="og:image" content="http://yoursite.com/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/radar_polar.png">
-<meta property="og:image" content="http://yoursite.com/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Jaccobian.png">
-<meta property="og:image" content="http://yoursite.com/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/fusion_flow.png">
-<meta property="og:image" content="http://yoursite.com/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/F.png">
-<meta property="og:image" content="http://yoursite.com/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Q.png">
-<meta property="og:image" content="http://yoursite.com/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Jaccobian.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/cover.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/formula_3_4.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/formula_5_6.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/update_1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/KF.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/F.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/acc1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/acc2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Q.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/radar_polar.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Jaccobian.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/fusion_flow.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/F.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Q.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Jaccobian.png">
 <meta property="og:updated_time" content="2017-04-03T15:16:52.181Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Notes for Kalman Filter and Extended KF">
 <meta name="twitter:description" content="Udacity term2 (Sensor Fusion, Localization, and Control) 的第一個 Project 就是用 KF and EKF 將 Lidar and Radar 的資訊做 fusion 並且可以 tracking。由於 KF/EKF 的數學符號很多，因此想筆記一下方便日後回想，所以主要以我自己看的角度，可能有些地方會沒有明確說明。本篇的筆記來源是">
-<meta name="twitter:image" content="http://yoursite.com/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/cover.png">
+<meta name="twitter:image" content="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/cover.png">
 
 
 
@@ -140,7 +140,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/"/>
+  <link rel="canonical" href="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/"/>
 
 
 
@@ -285,7 +285,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -555,7 +555,7 @@ where \(R_k\) sensor noise covariance matrix 由廠商提供, and <span>$$h(x)=
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/" title="Notes for Kalman Filter and Extended KF">http://yoursite.com/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/</a>
+      <a href="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/" title="Notes for Kalman Filter and Extended KF">https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>

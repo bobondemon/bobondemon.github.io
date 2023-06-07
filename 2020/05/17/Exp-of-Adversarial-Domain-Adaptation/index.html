@@ -90,22 +90,22 @@
 <meta name="description" content="Domain Adaptation 是希望在 source domain 有 label 但是 target domain 無 label 的情況下, 能針對 target domain (或同時也能對 source domain) 進行分類任務. “Adversarial” 的意思是利用 GAN 的 “對抗” 想法: Label predictor 雖然只能保證 source domai">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Exp of Adversarial Domain Adaptation">
-<meta property="og:url" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/index.html">
+<meta property="og:url" content="https://bobondemon.github.io/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="Domain Adaptation 是希望在 source domain 有 label 但是 target domain 無 label 的情況下, 能針對 target domain (或同時也能對 source domain) 進行分類任務. “Adversarial” 的意思是利用 GAN 的 “對抗” 想法: Label predictor 雖然只能保證 source domai">
-<meta property="og:image" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/cover.jpg">
-<meta property="og:image" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/domain_adversarial_training.png">
-<meta property="og:image" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/mnist_m.png">
-<meta property="og:image" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/before_dann.png">
-<meta property="og:image" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/gan_too_weak.png">
-<meta property="og:image" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/gan_too_strong.png">
-<meta property="og:image" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/recog_results.png">
-<meta property="og:image" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/dann.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/cover.jpg">
+<meta property="og:image" content="https://bobondemon.github.io/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/domain_adversarial_training.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/mnist_m.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/before_dann.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/gan_too_weak.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/gan_too_strong.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/recog_results.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/dann.png">
 <meta property="og:updated_time" content="2021-07-03T14:43:57.557Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Exp of Adversarial Domain Adaptation">
 <meta name="twitter:description" content="Domain Adaptation 是希望在 source domain 有 label 但是 target domain 無 label 的情況下, 能針對 target domain (或同時也能對 source domain) 進行分類任務. “Adversarial” 的意思是利用 GAN 的 “對抗” 想法: Label predictor 雖然只能保證 source domai">
-<meta name="twitter:image" content="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/cover.jpg">
+<meta name="twitter:image" content="https://bobondemon.github.io/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/cover.jpg">
 
 
 
@@ -133,7 +133,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/"/>
+  <link rel="canonical" href="https://bobondemon.github.io/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/"/>
 
 
 
@@ -278,7 +278,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -386,7 +386,7 @@
 <p><img src="/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/cover.jpg" width="60%" height="60%" align="center"></p>
 <p>接著嘗試複現了一次 <a href="https://arxiv.org/abs/1505.07818" target="_blank" rel="external">Domain-Adversarial Training of Neural Networks</a> 的 mnist(source) to mnist_m(target) 的實驗.</p>
 <a id="more"></a>
-<p><a href="https://bobondemon.github.io/2020/05/11/Note-for-Framework-of-GAN/" target="_blank" rel="external">上一篇</a>說明 GAN 的 framework:</p>
+<p><a href="https://bobondemon.github.io/2020/05/11/Note-for-Framework-of-GAN/">上一篇</a>說明 GAN 的 framework:</p>
 <span>$$\begin{align}
 Div\left(P_d\|P_G\right) = \max_D\left[ E_{x\sim P_d} D(x) - E_{x\sim P_G}f^*(D(x)) \right] \\
 G^*=\arg\min_G{Div\left(P_d\|P_G\right)} + reg(G) \\
@@ -423,7 +423,7 @@ G^*=\arg\min_G{Div\left(P_d\|P_G\right)} + reg(G) \\
 <h3 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h3><p>雖然理論上的理解很容易, 但實作起來卻發現很難調整. GAN 就是那麼難搞阿….</p>
 <hr>
 <h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
-<li><a href="https://bobondemon.github.io/2020/05/11/Note-for-Framework-of-GAN/" target="_blank" rel="external">GAN framework</a></li>
+<li><a href="https://bobondemon.github.io/2020/05/11/Note-for-Framework-of-GAN/">GAN framework</a></li>
 <li><a href="https://arxiv.org/abs/1505.07818" target="_blank" rel="external">Domain-Adversarial Training of Neural Networks</a></li>
 <li>參考產生 mnist_m 的 codes <a href="https://github.com/Daipuwei/DANN-MNIST" target="_blank" rel="external">Daipuwei/DANN-MNIST</a></li>
 <li>Domain-Adversarial Training of Neural Networks with TF2.0: <a href="https://github.com/lancerane/Adversarial-domain-adaptation" target="_blank" rel="external">lancerane/Adversarial-domain-adaptation</a></li>
@@ -458,7 +458,7 @@ G^*=\arg\min_G{Div\left(P_d\|P_G\right)} + reg(G) \\
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/" title="Exp of Adversarial Domain Adaptation">http://yoursite.com/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/</a>
+      <a href="https://bobondemon.github.io/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/" title="Exp of Adversarial Domain Adaptation">https://bobondemon.github.io/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>

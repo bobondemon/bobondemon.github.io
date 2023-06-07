@@ -90,25 +90,25 @@
 <meta name="description" content="Bayes Filter Introduction前幾篇討論了很多 Kalman Filter 以及它相關的變形，如: EKF and UKF。這些方法我們都可以放在 Bayes Filter 的框架下來看，這麼做的話，KF 就只是其中一個特例了 (都是高斯分布的情形)。而如果我們只考慮幾個離散點的機率，並用蒙地卡羅法來模擬取樣的話，這種實作方式就會是 Particle Filter 。所">
 <meta property="og:type" content="article">
 <meta property="og:title" content="統一的框架 Bayes Filter">
-<meta property="og:url" content="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/index.html">
+<meta property="og:url" content="https://bobondemon.github.io/2017/05/10/Bayes-Filter-for-Localization/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="Bayes Filter Introduction前幾篇討論了很多 Kalman Filter 以及它相關的變形，如: EKF and UKF。這些方法我們都可以放在 Bayes Filter 的框架下來看，這麼做的話，KF 就只是其中一個特例了 (都是高斯分布的情形)。而如果我們只考慮幾個離散點的機率，並用蒙地卡羅法來模擬取樣的話，這種實作方式就會是 Particle Filter 。所">
-<meta property="og:image" content="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/cover.png">
-<meta property="og:image" content="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/BayesFilterIntro.png">
-<meta property="og:image" content="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/variables.png">
-<meta property="og:image" content="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/1d-feature-map.png">
-<meta property="og:image" content="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/observation-vector.png">
-<meta property="og:image" content="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/believe.png">
-<meta property="og:image" content="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/localization-bayes-rule.png">
-<meta property="og:image" content="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/MotionModelRecursion.png">
-<meta property="og:image" content="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/ObservationModelSimplified.png">
-<meta property="og:image" content="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/BayesFilterSummary.png">
-<meta property="og:image" content="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/ParticleFilter.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/05/10/Bayes-Filter-for-Localization/cover.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/05/10/Bayes-Filter-for-Localization/BayesFilterIntro.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/05/10/Bayes-Filter-for-Localization/variables.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/05/10/Bayes-Filter-for-Localization/1d-feature-map.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/05/10/Bayes-Filter-for-Localization/observation-vector.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/05/10/Bayes-Filter-for-Localization/believe.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/05/10/Bayes-Filter-for-Localization/localization-bayes-rule.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/05/10/Bayes-Filter-for-Localization/MotionModelRecursion.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/05/10/Bayes-Filter-for-Localization/ObservationModelSimplified.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/05/10/Bayes-Filter-for-Localization/BayesFilterSummary.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/05/10/Bayes-Filter-for-Localization/ParticleFilter.png">
 <meta property="og:updated_time" content="2017-05-11T15:31:37.473Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="統一的框架 Bayes Filter">
 <meta name="twitter:description" content="Bayes Filter Introduction前幾篇討論了很多 Kalman Filter 以及它相關的變形，如: EKF and UKF。這些方法我們都可以放在 Bayes Filter 的框架下來看，這麼做的話，KF 就只是其中一個特例了 (都是高斯分布的情形)。而如果我們只考慮幾個離散點的機率，並用蒙地卡羅法來模擬取樣的話，這種實作方式就會是 Particle Filter 。所">
-<meta name="twitter:image" content="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/cover.png">
+<meta name="twitter:image" content="https://bobondemon.github.io/2017/05/10/Bayes-Filter-for-Localization/cover.png">
 
 
 
@@ -136,7 +136,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/"/>
+  <link rel="canonical" href="https://bobondemon.github.io/2017/05/10/Bayes-Filter-for-Localization/"/>
 
 
 
@@ -281,7 +281,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2017/05/10/Bayes-Filter-for-Localization/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -384,14 +384,14 @@
 </script>
 
 <hr>
-<h3 id="Bayes-Filter-Introduction"><a href="#Bayes-Filter-Introduction" class="headerlink" title="Bayes Filter Introduction"></a>Bayes Filter Introduction</h3><p>前幾篇討論了很多 Kalman Filter 以及它相關的變形，如: <a href="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/" target="_blank" rel="external">EKF</a> and <a href="https://bobondemon.github.io/2017/04/12/Unscented-Kalman-Filter-Notes/" target="_blank" rel="external">UKF</a>。這些方法我們都可以放在 Bayes Filter 的框架下來看，這麼做的話，KF 就只是其中一個特例了 (都是高斯分布的情形)。而如果我們只考慮幾個離散點的機率，並用蒙地卡羅法來模擬取樣的話，這種實作方式就會是 Particle Filter 。所以掌握了 Bayes Filter 背後的運作方式對於理解這些方法是很有幫助的。<br>一些變數的意義仍然跟前幾篇一樣:</p>
+<h3 id="Bayes-Filter-Introduction"><a href="#Bayes-Filter-Introduction" class="headerlink" title="Bayes Filter Introduction"></a>Bayes Filter Introduction</h3><p>前幾篇討論了很多 Kalman Filter 以及它相關的變形，如: <a href="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/">EKF</a> and <a href="https://bobondemon.github.io/2017/04/12/Unscented-Kalman-Filter-Notes/">UKF</a>。這些方法我們都可以放在 Bayes Filter 的框架下來看，這麼做的話，KF 就只是其中一個特例了 (都是高斯分布的情形)。而如果我們只考慮幾個離散點的機率，並用蒙地卡羅法來模擬取樣的話，這種實作方式就會是 Particle Filter 。所以掌握了 Bayes Filter 背後的運作方式對於理解這些方法是很有幫助的。<br>一些變數的意義仍然跟前幾篇一樣:</p>
 <ul>
 <li>z: measurement，也就是我們實際上經由 sensor 得到的測量值 (會有noise)</li>
 <li>x: state，我們希望估計出來的值，在 Localization 一般就是座標值</li>
 </ul>
 <p><img src="/2017/05/10/Bayes-Filter-for-Localization/cover.png" width="100%" height="100%"></p>
 <a id="more"></a>
-<p>發現了嗎? 在上圖右 KF 的兩個步驟: Measurement Update 和 State Prediction 實際上就是上圖左邊的兩個數學式關係。搭配下圖文字一起看，Measurement Update 理解為得到一個觀察值 $z$ 後，我們用 <strong>Bayes Rule</strong> 可以估測出 state $x$ 的<strong>事後機率</strong> $P(x|z)$，而該事後機率經由 motion model (eg. <a href="https://bobondemon.github.io/2017/04/11/CTRV-Motion-Model/" target="_blank" rel="external">CTRV</a>) 可以估測出下一個時間點的 x 機率分佈 $P(x’)$ (此步驟為 State Prediction)。得到新的 $P(x’)$ 就可以當成<strong>下一個時間點的事前機率</strong>，所以 Bayes rule 就可以接著下去重複此 loop。<br><img src="/2017/05/10/Bayes-Filter-for-Localization/BayesFilterIntro.png" width="80%" height="80%"></p>
+<p>發現了嗎? 在上圖右 KF 的兩個步驟: Measurement Update 和 State Prediction 實際上就是上圖左邊的兩個數學式關係。搭配下圖文字一起看，Measurement Update 理解為得到一個觀察值 $z$ 後，我們用 <strong>Bayes Rule</strong> 可以估測出 state $x$ 的<strong>事後機率</strong> $P(x|z)$，而該事後機率經由 motion model (eg. <a href="https://bobondemon.github.io/2017/04/11/CTRV-Motion-Model/">CTRV</a>) 可以估測出下一個時間點的 x 機率分佈 $P(x’)$ (此步驟為 State Prediction)。得到新的 $P(x’)$ 就可以當成<strong>下一個時間點的事前機率</strong>，所以 Bayes rule 就可以接著下去重複此 loop。<br><img src="/2017/05/10/Bayes-Filter-for-Localization/BayesFilterIntro.png" width="80%" height="80%"></p>
 <h4 id="與-Maximum-a-Posteriori-MAP-Adaptation-的關係"><a href="#與-Maximum-a-Posteriori-MAP-Adaptation-的關係" class="headerlink" title="與 Maximum a Posteriori (MAP) Adaptation 的關係"></a>與 Maximum a Posteriori (MAP) Adaptation 的關係</h4><p>事實上，這樣的框架也跟 MAP Adaptation 息息相關! 例如當事前機率是某些特別的機率分佈 (exponential family)，經由 Bayes rule 得到的事後機率，它的機率分佈會跟事前機率是同一類型的，(例如都是 Gaussian)。而這樣的選擇我們稱為 <a href="https://en.wikipedia.org/wiki/Conjugate_prior" target="_blank" rel="external">conjugate prior</a>。<strong>由於 “事後” 與 “事前” 機率是同一種類型的機率分佈，因此把 “事後機率” 在當成下一次資料來臨時的 “事前機率” 也就很自然了!</strong> 這就是 MAP Adaptation 的核心概念，與 Bayes filter 一模一樣阿!</p>
 <hr>
 <h3 id="Localization-詳細定義"><a href="#Localization-詳細定義" class="headerlink" title="Localization 詳細定義"></a>Localization 詳細定義</h3><p>好的，我們來針對 Localization 詳細解釋吧，名詞定義如下:</p>
@@ -406,7 +406,7 @@ bel(x_t)=p(x_t|z_{1:t},u_{1:t},m)
 <p>假設目前的時間點為 $t$，我們知道要計算的 believe $bel(x_t)$ 代表事後機率，再套用 Bayes rule 之後，可以得到上面的表示。</p>
 <ul>
 <li>事後機率 (Believe): 特別把時間點 t 的觀測值從原先定義拉出來，這是要強調我們在得到最新的觀測值 $z_t$ 後，希望去計算最新的 believe</li>
-<li>事前機率 (Motion Model): 稱為 Motion Model 是因為假設我們目前在時間點 $t-1$，接著拿到下一次的控制 $u_t$ 後，我們希望估測出下一次的狀態值 $x_t$ 是什麼。有看過前幾篇的讀者應該馬上就能想到，可以利用 <a href="https://bobondemon.github.io/2017/04/11/CTRV-Motion-Model/" target="_blank" rel="external">CTRV</a> 之類的 motion model 去計算。</li>
+<li>事前機率 (Motion Model): 稱為 Motion Model 是因為假設我們目前在時間點 $t-1$，接著拿到下一次的控制 $u_t$ 後，我們希望估測出下一次的狀態值 $x_t$ 是什麼。有看過前幾篇的讀者應該馬上就能想到，可以利用 <a href="https://bobondemon.github.io/2017/04/11/CTRV-Motion-Model/">CTRV</a> 之類的 motion model 去計算。</li>
 <li>觀測值機率 (Observation Model): 這個是要計算當下的觀測值的機率分佈，這部分通常就是經由 sensor data 得到後，我們假設是高斯分布來計算。</li>
 </ul>
 <h4 id="Motion-Model-遞迴"><a href="#Motion-Model-遞迴" class="headerlink" title="Motion Model 遞迴"></a>Motion Model 遞迴</h4><p><img src="/2017/05/10/Bayes-Filter-for-Localization/MotionModelRecursion.png" width="100%" height="100%"></p>
@@ -453,7 +453,7 @@ bel(x_t)=p(x_t|z_{1:t},u_{1:t},m)
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/" title="統一的框架 Bayes Filter">http://yoursite.com/2017/05/10/Bayes-Filter-for-Localization/</a>
+      <a href="https://bobondemon.github.io/2017/05/10/Bayes-Filter-for-Localization/" title="統一的框架 Bayes Filter">https://bobondemon.github.io/2017/05/10/Bayes-Filter-for-Localization/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>

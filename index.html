@@ -89,7 +89,7 @@
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="棒棒生">
-<meta property="og:url" content="http://yoursite.com/index.html">
+<meta property="og:url" content="https://bobondemon.github.io/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="棒棒生">
@@ -120,7 +120,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/"/>
+  <link rel="canonical" href="https://bobondemon.github.io/"/>
 
 
 
@@ -267,7 +267,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -373,11 +373,15 @@
 <p><img src="/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/train_large_then_compress.png" width="75%" height="75%"></p>
 <p>同樣的小 model size, 從頭訓練還不如先用大的 model size 做出好效果, 再壓縮到需要的大小<br>所以 pruning 不僅能壓小 model size, 同樣對 performance 可能也是個好策略</p>
 <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><hr>
-<p>使用單純的 absolutely magnitude pruning 對於在 SSL model 不好. 因為原來的 weight 是對 SSL 的 loss 計算的, 並不能保證後來的 fine tune (down stream task loss) 有一樣的重要性關聯.<br>例如傳統上的 magnitude pruning 作法, 如這一篇 2015 NIPS 文章 [<a href="https://arxiv.org/abs/1506.02626">Learning both Weights and Connections for Efficient Neural Networks</a>] (cited 5xxx) 作法很簡單:<br>&emsp;先對 model train 到收斂, 然後 prune, 接著繼續訓練 (prune 的 weight 就 fix 為 $0$), 然侯再多 prune … iterative 下去到需要的 prune 數量<br>但作者認為, 只靠 magnitude 大小判斷效果不好, 因為在 fine tune 過程中, 如果某一個 weight 雖然 magnitude 很大, <strong>但 gradient 傾向把它變小, 就表示它重要性應該降低才對, 這是本篇的精華思想</strong><br>因此作者對每一個參數都引入一個 score, 命為 $S$, 希望能代表 weight 的重要性. 而在 fine-tune 的過程, 除了對 weight $W$ update 之外, score $S$  也會 update<br>如果 score $S$ 能反映 weight 的 gradient 傾向 (值愈大愈重要), 就能根據 $S$ 來決定最終我們要 prune 那些 weights</p>
+<p>使用單純的 absolutely magnitude pruning 對於在 SSL model 不好. 因為原來的 weight 是對 SSL 的 loss 計算的, 並不能保證後來的 fine tune (down stream task loss) 有一樣的重要性關聯.<br>例如傳統上的 magnitude pruning 作法, 如這一篇 2015 NIPS 文章 [<a href="https://arxiv.org/abs/1506.02626">Learning both Weights and Connections for Efficient Neural Networks</a>] (cited 5xxx) 作法很簡單:<br>&emsp;先對 model train 到收斂, 然後 prune, 接著繼續訓練 (prune 的 weight 就 fix 為 $0$), 然侯再多 prune … iterative 下去到需要的 prune 數量<br>但作者認為, 只靠 magnitude 大小判斷效果不好, 因為在 fine tune 過程中, <strong>如果某一個 weight 雖然 magnitude 很大, 但 gradient update 後傾向把 magnitude 變小, 就表示它重要性應該降低才對, 這是本篇的精華思想</strong></p>
+<blockquote>
+<p>因此我們先定義重要性就是代表 weight 的 magnitude 會變大還是變小, 變大就是重要性大, 反之</p>
+</blockquote>
+<p>因此作者對每一個參數都引入一個 score, 命為 $S$, 希望能代表 weight 的重要性. 而在 fine-tune 的過程, 除了對 weight $W$ update 之外, score $S$  也會 update<br>如果 score $S$ 正好能反映 weight 的 gradient 傾向, 即 $S$ 愈大剛好表示該對應的 weight 在 fine-tune 過程會傾向讓 magnitude 變大, 反之亦然, 那這樣的 $S$ 正好就是我們要找的.</p>
 <p>要這麼做的話, 我們還需要回答兩個問題:</p>
 <ol>
 <li>怎麼引入 score $S$?</li>
-<li>Score $S$ 能代表重要性? 換句話說能反映 weight 的 gradient 傾向 (值愈大愈重要) 嗎?</li>
+<li>Score $S$ 正好能代表重要性? 換句話說能反映 weight 在 fine tune 過程的 magnitude 傾向嗎?</li>
 </ol>
           <!--noindex-->
           <div class="post-button text-center">
@@ -427,7 +431,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2023/01/15/L0-Regularization-詳細攻略/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -604,7 +608,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -764,7 +768,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -921,7 +925,7 @@ q=\text{round_to_int}(r/s)+z
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/09/26/Weight-Normalization-的筆記/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/09/26/Weight-Normalization-的筆記/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -1077,7 +1081,7 @@ q=\text{round_to_int}(r/s)+z
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/07/20/Why-Stochastic-Weight-Averaging-averaging-results-V-S-averaging-weights/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/07/20/Why-Stochastic-Weight-Averaging-averaging-results-V-S-averaging-weights/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -1231,7 +1235,7 @@ q=\text{round_to_int}(r/s)+z
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/05/28/SGD-Ggeneralization-Notes/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -1382,7 +1386,7 @@ q=\text{round_to_int}(r/s)+z
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -1536,7 +1540,7 @@ q=\text{round_to_int}(r/s)+z
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -1692,7 +1696,7 @@ q=\text{round_to_int}(r/s)+z
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">

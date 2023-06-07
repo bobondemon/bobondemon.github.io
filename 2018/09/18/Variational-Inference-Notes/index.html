@@ -90,25 +90,25 @@
 <meta name="description" content="前一陣子學習了 Variational Inference, 因為自己記性只有 LSTM 沒有 L, 所以趕快記下筆記. 學得還是很粗淺, 又是一個大坑阿.監督學習不外乎就是 training 和 testing (inference). 而 inference 在做的事情就是在計算後驗概率 $p(z|x)$. 在 PGM 中通常是 intractable, 或要找到 exact solu">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Variational Inference and VAE Notes">
-<meta property="og:url" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/index.html">
+<meta property="og:url" content="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="前一陣子學習了 Variational Inference, 因為自己記性只有 LSTM 沒有 L, 所以趕快記下筆記. 學得還是很粗淺, 又是一個大坑阿.監督學習不外乎就是 training 和 testing (inference). 而 inference 在做的事情就是在計算後驗概率 $p(z|x)$. 在 PGM 中通常是 intractable, 或要找到 exact solu">
-<meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/cover.png">
-<meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/ELBO_gradient.png">
-<meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/vae_encoder_decoder.png">
-<meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/vae_encoder_decoder2.png">
-<meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/cvae_encoder_decoder.png">
-<meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/0_4.png">
-<meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/1_3.png">
-<meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/cond_value.png">
-<meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/MFVI1.png">
-<meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/MFVI2.png">
-<meta property="og:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/em_ELBO.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/cover.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/ELBO_gradient.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/vae_encoder_decoder.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/vae_encoder_decoder2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/cvae_encoder_decoder.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/0_4.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/1_3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/cond_value.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/MFVI1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/MFVI2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/em_ELBO.png">
 <meta property="og:updated_time" content="2018-10-03T16:03:01.569Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Variational Inference and VAE Notes">
 <meta name="twitter:description" content="前一陣子學習了 Variational Inference, 因為自己記性只有 LSTM 沒有 L, 所以趕快記下筆記. 學得還是很粗淺, 又是一個大坑阿.監督學習不外乎就是 training 和 testing (inference). 而 inference 在做的事情就是在計算後驗概率 $p(z|x)$. 在 PGM 中通常是 intractable, 或要找到 exact solu">
-<meta name="twitter:image" content="http://yoursite.com/2018/09/18/Variational-Inference-Notes/cover.png">
+<meta name="twitter:image" content="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/cover.png">
 
 
 
@@ -136,7 +136,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/09/18/Variational-Inference-Notes/"/>
+  <link rel="canonical" href="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/"/>
 
 
 
@@ -281,7 +281,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/18/Variational-Inference-Notes/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -645,7 +645,7 @@ KL\left(p(z|x,\theta^{old})\Vert p(z|x,\theta^{old})\right)+\mathcal{L}(p(z|x,\t
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2018/09/18/Variational-Inference-Notes/" title="Variational Inference and VAE Notes">http://yoursite.com/2018/09/18/Variational-Inference-Notes/</a>
+      <a href="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/" title="Variational Inference and VAE Notes">https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>

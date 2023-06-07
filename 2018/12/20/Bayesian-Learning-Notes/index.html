@@ -92,20 +92,20 @@
 圖片來自 wiki, 我也好想要這個裝飾燈. 就這麼一個 Baye’s Rule, 撐起了統計機器學習的基石!">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Bayesian Learning Notes">
-<meta property="og:url" content="http://yoursite.com/2018/12/20/Bayesian-Learning-Notes/index.html">
+<meta property="og:url" content="https://bobondemon.github.io/2018/12/20/Bayesian-Learning-Notes/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="枉費我學習 ML 這麼久, 最近才完整了解 Bayesian learning 大架構, 以及與 MLE, MAP, Variational Inference, Sampling 之間的關聯. 這才終於有了見樹又見林的港覺阿! 筆記整理如下 …
 
 圖片來自 wiki, 我也好想要這個裝飾燈. 就這麼一個 Baye’s Rule, 撐起了統計機器學習的基石!">
-<meta property="og:image" content="http://yoursite.com/2018/12/20/Bayesian-Learning-Notes/cover.jpg">
-<meta property="og:image" content="http://yoursite.com/2018/12/20/Bayesian-Learning-Notes/summary.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/12/20/Bayesian-Learning-Notes/cover.jpg">
+<meta property="og:image" content="https://bobondemon.github.io/2018/12/20/Bayesian-Learning-Notes/summary.png">
 <meta property="og:updated_time" content="2018-12-21T15:57:42.616Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Bayesian Learning Notes">
 <meta name="twitter:description" content="枉費我學習 ML 這麼久, 最近才完整了解 Bayesian learning 大架構, 以及與 MLE, MAP, Variational Inference, Sampling 之間的關聯. 這才終於有了見樹又見林的港覺阿! 筆記整理如下 …
 
 圖片來自 wiki, 我也好想要這個裝飾燈. 就這麼一個 Baye’s Rule, 撐起了統計機器學習的基石!">
-<meta name="twitter:image" content="http://yoursite.com/2018/12/20/Bayesian-Learning-Notes/cover.jpg">
+<meta name="twitter:image" content="https://bobondemon.github.io/2018/12/20/Bayesian-Learning-Notes/cover.jpg">
 
 
 
@@ -133,7 +133,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/12/20/Bayesian-Learning-Notes/"/>
+  <link rel="canonical" href="https://bobondemon.github.io/2018/12/20/Bayesian-Learning-Notes/"/>
 
 
 
@@ -278,7 +278,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/12/20/Bayesian-Learning-Notes/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2018/12/20/Bayesian-Learning-Notes/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -397,7 +397,7 @@ p(y^*|x^*,X,Y)=\color{red}{\int p(y^*|x^*,\theta)p(\theta|X,Y)\,d\theta}
 \end{align}$$</span><!-- Has MathJax -->
 <p>注意到關鍵的兩個紅色積分通常都是不容易算, 或根本算不出來. 此時我們有兩種選擇:</p>
 <ol>
-<li>使用 <a href="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/" target="_blank" rel="external">Variational Inference</a> 找出一個 $q(\theta)$ 來逼近 $p(\theta|X,Y)$</li>
+<li>使用 <a href="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/">Variational Inference</a> 找出一個 $q(\theta)$ 來逼近 $p(\theta|X,Y)$</li>
 <li>使用 sampling 方法. 理解一下這個積分的形式, 可以發現這是在算<strong>根據某個機率分佈$p(x)$計算$f(x)$的期望值</strong>. 因此, 如果我們直接根據 $p(x)$ sample 出 $M$ 個 $x$, 就可以用如下的平均算出近似值了.</li>
 </ol>
 <span>$$\begin{align}
@@ -435,7 +435,7 @@ p(y^*|x^*,\theta_{MP})
 </blockquote>
 <p>可以使用 EM algorithm 來找出 MLE 或 MAP . 其中 E-step 為 “令 $q(z)$ 等於 $p(z|x,\theta^{odd})$”, 這又回到如同式 (1) 求 posterior 會遇到分母積分項的問題. 如果我們的 $z$ 的值有限個的 (如 GMM, $z$ 的值就是 component 的 index), $p(z|x,\theta^{odd})$ 可以直接算出來. 但複雜一點就不行了, 所以情況又變得跟原來的 Bayesian learning 一樣, 兩種選擇:</p>
 <ol>
-<li>使用 <a href="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/" target="_blank" rel="external">Variational Inference</a>, 這時稱為 <em>Variational EM</em>.</li>
+<li>使用 <a href="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/">Variational Inference</a>, 這時稱為 <em>Variational EM</em>.</li>
 <li>使用 sampling 方法. Sampling 通常採用 <a href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo" target="_blank" rel="external">MCMC</a> 方式, 這時稱為 <em>MCMC EM</em>.</li>
 </ol>
 <hr>
@@ -469,7 +469,7 @@ p(y^*|x^*,\theta_{MP})
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2018/12/20/Bayesian-Learning-Notes/" title="Bayesian Learning Notes">http://yoursite.com/2018/12/20/Bayesian-Learning-Notes/</a>
+      <a href="https://bobondemon.github.io/2018/12/20/Bayesian-Learning-Notes/" title="Bayesian Learning Notes">https://bobondemon.github.io/2018/12/20/Bayesian-Learning-Notes/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>

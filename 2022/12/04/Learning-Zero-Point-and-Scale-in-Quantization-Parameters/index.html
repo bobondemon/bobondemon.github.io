@@ -91,20 +91,20 @@
 直觀上我們希望找">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Learning Zero Point and Scale in Quantization Parameters">
-<meta property="og:url" content="http://yoursite.com/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/index.html">
+<meta property="og:url" content="https://bobondemon.github.io/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="在上一篇 搞懂 Quantization Aware Training 中的 Fake Quantization 我們討論了 fake quantization 以及 QAT提到了 observer 負責計算 zero point and scale $(z,s)$, 一般來說只需要透過統計觀測值的 min/max 範圍就能給定, 所以也不需要參與 backward 計算
 直觀上我們希望找">
-<meta property="og:image" content="http://yoursite.com/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/Untitled 1.png">
-<meta property="og:image" content="http://yoursite.com/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/gradient_multiplier.png">
-<meta property="og:image" content="http://yoursite.com/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/gradients_of_zero_point.png">
-<meta property="og:image" content="http://yoursite.com/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/pytorch_implementation.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/Untitled 1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/gradient_multiplier.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/gradients_of_zero_point.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/pytorch_implementation.png">
 <meta property="og:updated_time" content="2023-02-27T15:49:14.649Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Learning Zero Point and Scale in Quantization Parameters">
 <meta name="twitter:description" content="在上一篇 搞懂 Quantization Aware Training 中的 Fake Quantization 我們討論了 fake quantization 以及 QAT提到了 observer 負責計算 zero point and scale $(z,s)$, 一般來說只需要透過統計觀測值的 min/max 範圍就能給定, 所以也不需要參與 backward 計算
 直觀上我們希望找">
-<meta name="twitter:image" content="http://yoursite.com/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/Untitled 1.png">
+<meta name="twitter:image" content="https://bobondemon.github.io/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/Untitled 1.png">
 
 
 
@@ -132,7 +132,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/"/>
+  <link rel="canonical" href="https://bobondemon.github.io/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/"/>
 
 
 
@@ -277,7 +277,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -380,7 +380,7 @@
 </script>
 
 <hr>
-<p>在上一篇 <a href="https://bobondemon.github.io/2022/11/19/%E6%90%9E%E6%87%82-Quantization-Aware-Training-%E4%B8%AD%E7%9A%84-Fake-Quantization/" target="_blank" rel="external">搞懂 Quantization Aware Training 中的 Fake Quantization</a> 我們討論了 fake quantization 以及 QAT<br>提到了 <code>observer</code> 負責計算 zero point and scale $(z,s)$, 一般來說只需要透過統計觀測值的 min/max 範圍就能給定, 所以也不需要參與 backward 計算</p>
+<p>在上一篇 <a href="https://bobondemon.github.io/2022/11/19/%E6%90%9E%E6%87%82-Quantization-Aware-Training-%E4%B8%AD%E7%9A%84-Fake-Quantization/">搞懂 Quantization Aware Training 中的 Fake Quantization</a> 我們討論了 fake quantization 以及 QAT<br>提到了 <code>observer</code> 負責計算 zero point and scale $(z,s)$, 一般來說只需要透過統計觀測值的 min/max 範圍就能給定, 所以也不需要參與 backward 計算</p>
 <p>直觀上我們希望找到的 zero/scale 使得 quantization error 盡量小, 但其實如果能對任務的 loss 優化, 應該才是最佳的<br>這就必須讓 $(z,s)$ 參與到 backward 的計算, 這種可以計算 gradient 並更新的做法稱為 learnable quantization parameters</p>
 <p>本文主要參考這兩篇論文:<br>&emsp;1. LSQ: <a href="https://arxiv.org/abs/1902.08153" target="_blank" rel="external">Learned Step Size Quantization</a><br>&emsp;2. LSQ+: <a href="https://arxiv.org/abs/2004.09576" target="_blank" rel="external">Improving low-bit quantization through learnable offsets and better initialization</a></p>
 <blockquote>
@@ -405,7 +405,7 @@
 \end{array}
 \right.
 +\bar{v} - z
-\end{align}$$</span><!-- Has MathJax --> 橘色的地方 <span>$\color{orange}{\partial\bar{v}/{\partial s}}$</span><!-- Has MathJax --> 必須使用 STE (Straight Through Estimator) (參考<a href="https://bobondemon.github.io/2022/11/19/%E6%90%9E%E6%87%82-Quantization-Aware-Training-%E4%B8%AD%E7%9A%84-Fake-Quantization/" target="_blank" rel="external">上一篇筆記</a>)<br>將 $\bar{v}$ 用這樣表達:<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 橘色的地方 <span>$\color{orange}{\partial\bar{v}/{\partial s}}$</span><!-- Has MathJax --> 必須使用 STE (Straight Through Estimator) (參考<a href="https://bobondemon.github.io/2022/11/19/%E6%90%9E%E6%87%82-Quantization-Aware-Training-%E4%B8%AD%E7%9A%84-Fake-Quantization/">上一篇筆記</a>)<br>將 $\bar{v}$ 用這樣表達:<br><span>$$\begin{align}
 \bar{v}=
 \left\{
 \begin{array}{ll}
@@ -479,7 +479,7 @@ Q_P - z &amp; \text{if }v/s+z\geq Q_P
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/" title="Learning Zero Point and Scale in Quantization Parameters">http://yoursite.com/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/</a>
+      <a href="https://bobondemon.github.io/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/" title="Learning Zero Point and Scale in Quantization Parameters">https://bobondemon.github.io/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>

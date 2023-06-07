@@ -91,18 +91,18 @@
 前言基於 Score Matching, 提出 Denoising Score Matching (DSM) 的目標函式, 好處是在">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Score Matching 系列 (二) Denoising Score Matching (DSM) 改善效率並可 Scalable">
-<meta property="og:url" content="http://yoursite.com/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/index.html">
+<meta property="og:url" content="https://bobondemon.github.io/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="這是一篇論文筆記: “A Connection Between Score Matching and Denoising Autoencoders”建議看本文前請先參前一篇: Score Matching 系列 (一) Non-normalized 模型估計
 前言基於 Score Matching, 提出 Denoising Score Matching (DSM) 的目標函式, 好處是在">
-<meta property="og:image" content="http://yoursite.com/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/Untitled.png">
-<meta property="og:image" content="http://yoursite.com/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/Untitled 1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/Untitled.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/Untitled 1.png">
 <meta property="og:updated_time" content="2022-03-06T02:32:05.892Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Score Matching 系列 (二) Denoising Score Matching (DSM) 改善效率並可 Scalable">
 <meta name="twitter:description" content="這是一篇論文筆記: “A Connection Between Score Matching and Denoising Autoencoders”建議看本文前請先參前一篇: Score Matching 系列 (一) Non-normalized 模型估計
 前言基於 Score Matching, 提出 Denoising Score Matching (DSM) 的目標函式, 好處是在">
-<meta name="twitter:image" content="http://yoursite.com/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/Untitled.png">
+<meta name="twitter:image" content="https://bobondemon.github.io/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/Untitled.png">
 
 
 
@@ -130,7 +130,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/"/>
+  <link rel="canonical" href="https://bobondemon.github.io/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/"/>
 
 
 
@@ -275,7 +275,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -378,7 +378,7 @@
 </script>
 
 <hr>
-<p>這是一篇論文筆記: “A Connection Between Score Matching and Denoising Autoencoders”<br>建議看本文前請先參前一篇: <a href="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/" target="_blank" rel="external">Score Matching 系列 (一) Non-normalized 模型估計</a></p>
+<p>這是一篇論文筆記: “A Connection Between Score Matching and Denoising Autoencoders”<br>建議看本文前請先參前一篇: <a href="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/">Score Matching 系列 (一) Non-normalized 模型估計</a></p>
 <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>基於 Score Matching, 提出 Denoising Score Matching (DSM) 的目標函式, 好處是在 energy-based model 下:</p>
 <ol>
 <li>不用將 score function 的 gradients 也納入 loss 去計算 (避免二次微分做 backprop 提高效率)</li>
@@ -389,7 +389,7 @@
 <li>最多只能學到加 noise 後的分布</li>
 <li>加 noise 的 level 不好調整</li>
 </ol>
-<p>這兩個缺點在下一篇 <a href="https://bobondemon.github.io/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/" target="_blank" rel="external">Sliced Score Matching (SSM)</a> 可以得到改善<br>這篇論文最後也點出了 denoising autoencoder 跟 score matching 的關係 (實際上就是 DSM loss)</p>
+<p>這兩個缺點在下一篇 <a href="https://bobondemon.github.io/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/">Sliced Score Matching (SSM)</a> 可以得到改善<br>這篇論文最後也點出了 denoising autoencoder 跟 score matching 的關係 (實際上就是 DSM loss)</p>
 <p>以下正文開始<br><a id="more"></a></p>
 <h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><hr>
 <p>$q(x)$ 表示 data (真實資料) 的 pdf, $p(x;\theta)$ 表示 model 參數為 $\theta$ 的 pdf<br>Explicit Score Matching (ESM) 為:<br><span>$$\begin{align}
@@ -472,7 +472,7 @@ J_{DSM,q_\sigma}(\theta)=\mathbb{E}_{q_\sigma(x,\tilde{x})}\left[
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/" title="Score Matching 系列 (二) Denoising Score Matching (DSM) 改善效率並可 Scalable">http://yoursite.com/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/</a>
+      <a href="https://bobondemon.github.io/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/" title="Score Matching 系列 (二) Denoising Score Matching (DSM) 改善效率並可 Scalable">https://bobondemon.github.io/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>

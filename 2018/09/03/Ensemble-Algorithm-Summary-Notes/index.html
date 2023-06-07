@@ -91,22 +91,22 @@
 以前第一次接觸到 Adaboost 的時候就被它深深著迷了, 當時 face detection 可商用算法無不採用經典的 Viola and Jones adaboost method. 在現在 DNN 成主流的時候, 雖然 adaboost 光環已退去,">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Ensemble Algorithm Summary Notes">
-<meta property="og:url" content="http://yoursite.com/2018/09/03/Ensemble-Algorithm-Summary-Notes/index.html">
+<meta property="og:url" content="https://bobondemon.github.io/2018/09/03/Ensemble-Algorithm-Summary-Notes/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="這是用自己理解的方式整理了林軒田老師 ML 課程. 其中 Decision tree and Random Forest 沒紀錄.
 以前第一次接觸到 Adaboost 的時候就被它深深著迷了, 當時 face detection 可商用算法無不採用經典的 Viola and Jones adaboost method. 在現在 DNN 成主流的時候, 雖然 adaboost 光環已退去,">
-<meta property="og:image" content="http://yoursite.com/2018/09/03/Ensemble-Algorithm-Summary-Notes/ada_reweighting.png">
-<meta property="og:image" content="http://yoursite.com/2018/09/03/Ensemble-Algorithm-Summary-Notes/adaboost_algorithm.png">
-<meta property="og:image" content="http://yoursite.com/2018/09/03/Ensemble-Algorithm-Summary-Notes/error_function.png">
-<meta property="og:image" content="http://yoursite.com/2018/09/03/Ensemble-Algorithm-Summary-Notes/adaboost_best_h_selection.png">
-<meta property="og:image" content="http://yoursite.com/2018/09/03/Ensemble-Algorithm-Summary-Notes/GBDT.png">
-<meta property="og:image" content="http://yoursite.com/2018/09/03/Ensemble-Algorithm-Summary-Notes/Boosting_FD_ref.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/09/03/Ensemble-Algorithm-Summary-Notes/ada_reweighting.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/09/03/Ensemble-Algorithm-Summary-Notes/adaboost_algorithm.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/09/03/Ensemble-Algorithm-Summary-Notes/error_function.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/09/03/Ensemble-Algorithm-Summary-Notes/adaboost_best_h_selection.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/09/03/Ensemble-Algorithm-Summary-Notes/GBDT.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/09/03/Ensemble-Algorithm-Summary-Notes/Boosting_FD_ref.png">
 <meta property="og:updated_time" content="2018-09-07T15:12:32.447Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Ensemble Algorithm Summary Notes">
 <meta name="twitter:description" content="這是用自己理解的方式整理了林軒田老師 ML 課程. 其中 Decision tree and Random Forest 沒紀錄.
 以前第一次接觸到 Adaboost 的時候就被它深深著迷了, 當時 face detection 可商用算法無不採用經典的 Viola and Jones adaboost method. 在現在 DNN 成主流的時候, 雖然 adaboost 光環已退去,">
-<meta name="twitter:image" content="http://yoursite.com/2018/09/03/Ensemble-Algorithm-Summary-Notes/ada_reweighting.png">
+<meta name="twitter:image" content="https://bobondemon.github.io/2018/09/03/Ensemble-Algorithm-Summary-Notes/ada_reweighting.png">
 
 
 
@@ -134,7 +134,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/09/03/Ensemble-Algorithm-Summary-Notes/"/>
+  <link rel="canonical" href="https://bobondemon.github.io/2018/09/03/Ensemble-Algorithm-Summary-Notes/"/>
 
 
 
@@ -279,7 +279,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/03/Ensemble-Algorithm-Summary-Notes/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2018/09/03/Ensemble-Algorithm-Summary-Notes/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -396,7 +396,7 @@
 <li>待研究: <a href="https://github.com/dmlc/xgboost" target="_blank" rel="external">XGBoost</a> (Kaggle 比賽神器)</li>
 </ol>
 <hr>
-<h3 id="Bagging-or-bootstrap"><a href="#Bagging-or-bootstrap" class="headerlink" title="Bagging (or bootstrap)"></a>Bagging (or bootstrap)</h3><p>還記得我們在 <a href="https://bobondemon.github.io/2017/03/13/Why-Aggregation-Work/" target="_blank" rel="external">Why-Aggregation-Work</a> 這篇提到, 當我們有很多 weak learner ${g_t}$ 時, 要得到一個 strong learner $G$ 最簡單的方法就是投票(或平均). 所以一個關鍵問題是要怎麼產生很多的 $g_t$?<br>Bagging (or bootstrap) 提供了一個簡單的方法: 假設 dataset $D$ 有 $N$ 筆資料, bagging 就是從 $D$ 中<strong>重複</strong>採樣出 $N’$ 筆, 我們稱 $D’$, 然後 $g_t$ 就可以用 $D’$ 訓練出來.<br>既然現在可以方便地產生很多 ${g_t}$, 然後就 $G$ 就採用平均方式, ensemble algorithm 就結束了?! 當然沒有, 別忘了有一個很關鍵的特性是, 當 ${g_t}$ 意見愈分歧時產生出來的 $G$ 效果愈好!<br>那我們就問了, bagging 不就採樣嗎? 我怎麼知道這次採樣出來的 $D’$ 所訓練出來的 $g_t$ 會跟之前一次的意見分歧?<br>我們就是能知道! (神奇吧) 要了解為什麼, 我們必須先將 bagging 擴展一下, 想成是對 <strong>weighted</strong> $D$ 採樣, 其中每一筆資料 $x_n$ 的 weight $u_n$ 代表抽中的機率. 如果 bagging 是對 weighted $D$ 採樣的話, 在第 t 輪的 $g_t$ 得到方式如下:</p>
+<h3 id="Bagging-or-bootstrap"><a href="#Bagging-or-bootstrap" class="headerlink" title="Bagging (or bootstrap)"></a>Bagging (or bootstrap)</h3><p>還記得我們在 <a href="https://bobondemon.github.io/2017/03/13/Why-Aggregation-Work/">Why-Aggregation-Work</a> 這篇提到, 當我們有很多 weak learner ${g_t}$ 時, 要得到一個 strong learner $G$ 最簡單的方法就是投票(或平均). 所以一個關鍵問題是要怎麼產生很多的 $g_t$?<br>Bagging (or bootstrap) 提供了一個簡單的方法: 假設 dataset $D$ 有 $N$ 筆資料, bagging 就是從 $D$ 中<strong>重複</strong>採樣出 $N’$ 筆, 我們稱 $D’$, 然後 $g_t$ 就可以用 $D’$ 訓練出來.<br>既然現在可以方便地產生很多 ${g_t}$, 然後就 $G$ 就採用平均方式, ensemble algorithm 就結束了?! 當然沒有, 別忘了有一個很關鍵的特性是, 當 ${g_t}$ 意見愈分歧時產生出來的 $G$ 效果愈好!<br>那我們就問了, bagging 不就採樣嗎? 我怎麼知道這次採樣出來的 $D’$ 所訓練出來的 $g_t$ 會跟之前一次的意見分歧?<br>我們就是能知道! (神奇吧) 要了解為什麼, 我們必須先將 bagging 擴展一下, 想成是對 <strong>weighted</strong> $D$ 採樣, 其中每一筆資料 $x_n$ 的 weight $u_n$ 代表抽中的機率. 如果 bagging 是對 weighted $D$ 採樣的話, 在第 t 輪的 $g_t$ 得到方式如下:</p>
 <span>$$\begin{align}
 g_t=\arg\min_{h\in \mathcal{H}}\left(\sum_{n=1}^N u_n^{(t)} \mathbb{I}[y_n\neq h(x_n)] \right)
 \end{align}$$</span><!-- Has MathJax -->
@@ -607,7 +607,7 @@ g_T=\min_h\sum_{n=1}^N\exp\left(-y_n\left(f_{T-1}(x_n)+\eta h(x_n)\right)\right)
 <h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
 <li><a href="https://www.youtube.com/playlist?list=PL1AVtvtzG0LYN-dOGPYyRrzzyI5fk_D4H&amp;pbjreload=10" target="_blank" rel="external">林軒田老師 ML 課程</a></li>
 <li><a href="https://book.douban.com/subject/10590856/" target="_blank" rel="external">李航 統計學習方法</a></li>
-<li><a href="https://bobondemon.github.io/2017/03/13/Why-Aggregation-Work/" target="_blank" rel="external">Why-Aggregation-Work</a></li>
+<li><a href="https://bobondemon.github.io/2017/03/13/Why-Aggregation-Work/">Why-Aggregation-Work</a></li>
 <li>以前 Adaboost and face detection paper survey<br><img src="/2018/09/03/Ensemble-Algorithm-Summary-Notes/Boosting_FD_ref.png" width="100%" height="100%"></li>
 <li>其中<a href="http://wearables.cc.gatech.edu/paper_of_week/viola01rapid.pdf" target="_blank" rel="external">Rapid object detection using a boosted cascade of simple features</a>, 2001, <strong>cited 17597</strong></li>
 <li><a href="https://www.msra.cn/zh-cn/news/features/deep-neural-network-20161212" target="_blank" rel="external">深度神经网络中深度究竟带来了什么？</a></li>
@@ -643,7 +643,7 @@ g_T=\min_h\sum_{n=1}^N\exp\left(-y_n\left(f_{T-1}(x_n)+\eta h(x_n)\right)\right)
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2018/09/03/Ensemble-Algorithm-Summary-Notes/" title="Ensemble Algorithm Summary Notes">http://yoursite.com/2018/09/03/Ensemble-Algorithm-Summary-Notes/</a>
+      <a href="https://bobondemon.github.io/2018/09/03/Ensemble-Algorithm-Summary-Notes/" title="Ensemble Algorithm Summary Notes">https://bobondemon.github.io/2018/09/03/Ensemble-Algorithm-Summary-Notes/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>

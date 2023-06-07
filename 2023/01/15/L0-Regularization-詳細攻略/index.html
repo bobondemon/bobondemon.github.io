@@ -92,29 +92,29 @@ Introduction
 NN model 參數 $\theta$, 我們希望非$0$的個數愈少愈好, i.e. $|\theta|_0$ 愈小">
 <meta property="og:type" content="article">
 <meta property="og:title" content="L0 Regularization 詳細攻略">
-<meta property="og:url" content="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/index.html">
+<meta property="og:url" content="https://bobondemon.github.io/2023/01/15/L0-Regularization-詳細攻略/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="這是一篇論文Learning Sparse Neural Networks through L0 Regularization 的詳細筆記, 同時自己實作做實驗 [My Github]主要以詳解每個部分並自己能回憶起為目的, 所以或許不是很好閱讀
 Introduction
 NN model 參數 $\theta$, 我們希望非$0$的個數愈少愈好, i.e. $|\theta|_0$ 愈小">
-<meta property="og:image" content="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/gumbel_pdf_cdf.png">
-<meta property="og:image" content="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/Untitled 2.png">
-<meta property="og:image" content="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/concrete_dist.png">
-<meta property="og:image" content="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/Untitled 3.png">
-<meta property="og:image" content="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/Untitled 4.png">
-<meta property="og:image" content="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/binary_concrete_cdf.png">
-<meta property="og:image" content="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/L0_entropy_loss_with_mask.png">
-<meta property="og:image" content="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/Untitled 5.png">
-<meta property="og:image" content="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/Untitled 6.png">
-<meta property="og:image" content="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/inception_forward.png">
-<meta property="og:image" content="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/L_C0.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/01/15/L0-Regularization-詳細攻略/gumbel_pdf_cdf.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/01/15/L0-Regularization-詳細攻略/Untitled 2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/01/15/L0-Regularization-詳細攻略/concrete_dist.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/01/15/L0-Regularization-詳細攻略/Untitled 3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/01/15/L0-Regularization-詳細攻略/Untitled 4.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/01/15/L0-Regularization-詳細攻略/binary_concrete_cdf.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/01/15/L0-Regularization-詳細攻略/L0_entropy_loss_with_mask.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/01/15/L0-Regularization-詳細攻略/Untitled 5.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/01/15/L0-Regularization-詳細攻略/Untitled 6.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/01/15/L0-Regularization-詳細攻略/inception_forward.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/01/15/L0-Regularization-詳細攻略/L_C0.png">
 <meta property="og:updated_time" content="2023-02-27T15:48:55.454Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="L0 Regularization 詳細攻略">
 <meta name="twitter:description" content="這是一篇論文Learning Sparse Neural Networks through L0 Regularization 的詳細筆記, 同時自己實作做實驗 [My Github]主要以詳解每個部分並自己能回憶起為目的, 所以或許不是很好閱讀
 Introduction
 NN model 參數 $\theta$, 我們希望非$0$的個數愈少愈好, i.e. $|\theta|_0$ 愈小">
-<meta name="twitter:image" content="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/gumbel_pdf_cdf.png">
+<meta name="twitter:image" content="https://bobondemon.github.io/2023/01/15/L0-Regularization-詳細攻略/gumbel_pdf_cdf.png">
 
 
 
@@ -142,7 +142,7 @@ NN model 參數 $\theta$, 我們希望非$0$的個數愈少愈好, i.e. $|\theta
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/"/>
+  <link rel="canonical" href="https://bobondemon.github.io/2023/01/15/L0-Regularization-詳細攻略/"/>
 
 
 
@@ -287,7 +287,7 @@ NN model 參數 $\theta$, 我們希望非$0$的個數愈少愈好, i.e. $|\theta
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2023/01/15/L0-Regularization-詳細攻略/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -413,7 +413,7 @@ NN model 參數 $\theta$, 我們希望非$0$的個數愈少愈好, i.e. $|\theta
 \end{align}$$</span><!-- Has MathJax -->
 <p>現在最大的麻煩是 entropy loss $\mathcal{L}_E$, 原因是 Bernoulli 採樣沒辦法對 $q$ 微分, 因為 <span>$\nabla_q\mathcal{L}_E(\theta,q)$</span><!-- Has MathJax --> 在計算期望值時, 採樣的機率分佈也跟 $q$ 有關</p>
 <blockquote>
-<p>參考 <strong><a href="https://bobondemon.github.io/2021/08/07/Gumbel-Max-Trick/" target="_blank" rel="external">Gumbel-Max Trick</a></strong> 開頭的介紹說明</p>
+<p>參考 <strong><a href="https://bobondemon.github.io/2021/08/07/Gumbel-Max-Trick/">Gumbel-Max Trick</a></strong> 開頭的介紹說明</p>
 </blockquote>
 <p>好消息是, 可以藉由 reparameterization (Gumbel Softmax) 方法使得採樣從一個與 $q$ 無關的 r.v. 採樣 (所以可以微分了), 因此也就能在 NN 訓練使用 backpropagation.<br>以下依序說明: (參考這篇 <strong>[<a href="https://www.zybuluo.com/pearl3344/note/1221157" target="_blank" rel="external">L0 norm稀疏性: hard concrete门变量</a></strong>] 整理的順序, 但補足一些內容以及參考論文的東西)<br>Gumbel max trick $\Rightarrow$ Gumbel softmax trick (so called concrete distribution)<br>$\Rightarrow$ Binary Concrete distribution $\Rightarrow$ Hard (Binary) Concrete distribution $\Rightarrow$ L0 regularization<br>最後補上對 GoogleNet 架構加上 $L0$ regularization 在 CIFAR10 上的模型壓縮實驗</p>
 <p>文長…</p>
@@ -542,7 +542,7 @@ F^{-1}(F(x))=x \Rightarrow F^{-1}\left(e^{-e^{-(x-\mu)/\beta}}\right)=x \\
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/" title="L0 Regularization 詳細攻略">http://yoursite.com/2023/01/15/L0-Regularization-詳細攻略/</a>
+      <a href="https://bobondemon.github.io/2023/01/15/L0-Regularization-詳細攻略/" title="L0 Regularization 詳細攻略">https://bobondemon.github.io/2023/01/15/L0-Regularization-詳細攻略/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>

@@ -91,23 +91,23 @@
 動機介紹在 Machine Learning 中, 我們常常希望用參數 $\theta$ 估出來的 pdf $p(.;\theta)$ 能跟真實 da">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Score Matching 系列 (一) Non-normalized 模型估計">
-<meta property="og:url" content="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/index.html">
+<meta property="og:url" content="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="這是一篇論文筆記: “Estimation of Non-Normalized Statistical Models by Score Matching”, 其實推薦直接讀論文, 數學式很清楚, 表達也明確, 只是想順著自己的說法做一下筆記
 動機介紹在 Machine Learning 中, 我們常常希望用參數 $\theta$ 估出來的 pdf $p(.;\theta)$ 能跟真實 da">
-<meta property="og:image" content="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled.png">
-<meta property="og:image" content="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 1.png">
-<meta property="og:image" content="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 2.png">
-<meta property="og:image" content="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 3.png">
-<meta property="og:image" content="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 4.png">
-<meta property="og:image" content="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 5.png">
-<meta property="og:image" content="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 6.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 4.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 5.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 6.png">
 <meta property="og:updated_time" content="2022-03-06T02:32:08.249Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Score Matching 系列 (一) Non-normalized 模型估計">
 <meta name="twitter:description" content="這是一篇論文筆記: “Estimation of Non-Normalized Statistical Models by Score Matching”, 其實推薦直接讀論文, 數學式很清楚, 表達也明確, 只是想順著自己的說法做一下筆記
 動機介紹在 Machine Learning 中, 我們常常希望用參數 $\theta$ 估出來的 pdf $p(.;\theta)$ 能跟真實 da">
-<meta name="twitter:image" content="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled.png">
+<meta name="twitter:image" content="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled.png">
 
 
 
@@ -135,7 +135,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/"/>
+  <link rel="canonical" href="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/"/>
 
 
 
@@ -280,7 +280,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -457,7 +457,7 @@ tr(\nabla_\xi\psi(\xi;\theta))+\frac{1}{2}\|\psi(\xi;\theta)\|_2^2
 <blockquote>
 <p>後續在這篇文章 “<a href="http://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf" target="_blank" rel="external">A Connection Between Score Matching and Denoising Autoencoders</a>”, 作者提出 Denoising Score Matching (DSM) 目標函式, 可以不需要將 gradient 也納入 loss 中.<br>其想法就是將每個 data $x$ 根據 Gaussian pdf 做些擾動, 所以一個副作用是永遠學不到最準的 data pdf (除非沒有擾動), 但可藉由加入的擾動愈小, 讓估計愈真實</p>
 </blockquote>
-<p>Score matching 的作法是 2005 年, 而作者 Aapo Hyv¨arinen 其實也是 Noise Contrastive Estimation (NCE) 的作者. (參考之前的 <a href="https://bobondemon.github.io/2021/06/05/Noise-Contrastive-Estimation-NCE-%E7%AD%86%E8%A8%98/" target="_blank" rel="external">NCE 筆記</a>)<br>NCE 也是在做一樣的事情: 想辦法避開 $Z(\theta)$ 來估計真實資料的 pdf. 但發表在 2010 年.</p>
+<p>Score matching 的作法是 2005 年, 而作者 Aapo Hyv¨arinen 其實也是 Noise Contrastive Estimation (NCE) 的作者. (參考之前的 <a href="https://bobondemon.github.io/2021/06/05/Noise-Contrastive-Estimation-NCE-%E7%AD%86%E8%A8%98/">NCE 筆記</a>)<br>NCE 也是在做一樣的事情: 想辦法避開 $Z(\theta)$ 來估計真實資料的 pdf. 但發表在 2010 年.</p>
 <blockquote>
 <p>這一問題, probabilistic model flexibility 與 tractability 的 trade-off, 在 Machine Learning 是被探討很久的問題, 這篇 <a href="https://arxiv.org/abs/1503.03585" target="_blank" rel="external">Deep Unsupervised Learning using Nonequilibrium Thermodynamics</a>, (Diffusion Probabilistic Model 開始的重要文章) 的 introduction 描述一些主要方法, 可以盡量滿足 flexibility 情況下, 又能 tractable.<br><img src="/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 6.png" width="50%" height="50%"></p>
 </blockquote>
@@ -491,7 +491,7 @@ tr(\nabla_\xi\psi(\xi;\theta))+\frac{1}{2}\|\psi(\xi;\theta)\|_2^2
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/" title="Score Matching 系列 (一) Non-normalized 模型估計">http://yoursite.com/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/</a>
+      <a href="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/" title="Score Matching 系列 (一) Non-normalized 模型估計">https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>

@@ -94,18 +94,18 @@
 但還是建議先看 MCMC by Gibbs and Metropolis-Hasting Sampling, 因為這篇要說的 Hamiltonian Monte Carlo (HMC) 是 Metropolis-Hasting">
 <meta property="og:type" content="article">
 <meta property="og:title" content="忘記物理也要搞懂的 Hamiltonian Monte Carlo (HMC) 筆記">
-<meta property="og:url" content="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/index.html">
+<meta property="og:url" content="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="先說我物理什麼的都還給老師了, 只能用自己理解的方式, 筆記下 Hamiltonian dynamic.
 
 　💡 如果連我都能懂, 相信大家都能理解 HMC 了
 
 但還是建議先看 MCMC by Gibbs and Metropolis-Hasting Sampling, 因為這篇要說的 Hamiltonian Monte Carlo (HMC) 是 Metropolis-Hasting">
-<meta property="og:image" content="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/Untitled.png">
-<meta property="og:image" content="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/hamiltoniandynamics.gif">
-<meta property="og:image" content="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 1.png">
-<meta property="og:image" content="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 2.png">
-<meta property="og:image" content="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/Untitled.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/hamiltoniandynamics.gif">
+<meta property="og:image" content="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 3.png">
 <meta property="og:updated_time" content="2022-09-28T14:22:40.355Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="忘記物理也要搞懂的 Hamiltonian Monte Carlo (HMC) 筆記">
@@ -114,7 +114,7 @@
 　💡 如果連我都能懂, 相信大家都能理解 HMC 了
 
 但還是建議先看 MCMC by Gibbs and Metropolis-Hasting Sampling, 因為這篇要說的 Hamiltonian Monte Carlo (HMC) 是 Metropolis-Hasting">
-<meta name="twitter:image" content="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/Untitled.png">
+<meta name="twitter:image" content="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/Untitled.png">
 
 
 
@@ -142,7 +142,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/"/>
+  <link rel="canonical" href="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/"/>
 
 
 
@@ -287,7 +287,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -394,7 +394,7 @@
 <blockquote>
 <p>　💡 如果連我都能懂, 相信大家都能理解 HMC 了</p>
 </blockquote>
-<p>但還是<strong>建議先看 <a href="https://bobondemon.github.io/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/" target="_blank" rel="external">MCMC by Gibbs and Metropolis-Hasting Sampling</a></strong>, 因為這篇要說的 Hamiltonian Monte Carlo (HMC) 是 Metropolis-Hastings (MH) 方法的一種, 只是 proposal distribution 從 random walk 改成使用 Hamiltonian dynamics 來做, 因而變的非常有效率 (accept rate 很高), 且對於高維度資料採樣也很有效.</p>
+<p>但還是<strong>建議先看 <a href="https://bobondemon.github.io/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/">MCMC by Gibbs and Metropolis-Hasting Sampling</a></strong>, 因為這篇要說的 Hamiltonian Monte Carlo (HMC) 是 Metropolis-Hastings (MH) 方法的一種, 只是 proposal distribution 從 random walk 改成使用 Hamiltonian dynamics 來做, 因而變的非常有效率 (accept rate 很高), 且對於高維度資料採樣也很有效.</p>
 <p>首先粗體字如 <span>$\mathbf{x}, \mathbf{v}, \mathbf{p}$</span><!-- Has MathJax --> 都是 column vector, 而非粗體字表 scalar, e.g. $m,t$</p>
 <a id="more"></a>
 <h2 id="Hamiltonian-dynamic"><a href="#Hamiltonian-dynamic" class="headerlink" title="Hamiltonian dynamic"></a><strong>Hamiltonian dynamic</strong></h2><hr>
@@ -443,7 +443,7 @@ p_i(t+\varepsilon)=p_i(t+\varepsilon/2)-(\varepsilon/2)\cdot\frac{\partial U(\ma
 <blockquote>
 <p>抱歉沒有嚴謹的數學來證明 error 的 order.</p>
 </blockquote>
-<p>注意到, 我們只需要 $\nabla_\mathbf{x}U(\mathbf{x})$ 就能更新 $(\mathbf{x},\mathbf{p})$!<br>也就是說只要有 potential energy 的 gradient 就可以模擬 Hamiltonian dynamic!<br>這點很重要, 因為變成 sampling 方法後等同於這句話: 只要有 score function 就能採樣! 而 score function 怎麼估計, <a href="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/" target="_blank" rel="external">Score Matching</a> 是個好方法.<br>Sample codes from (<a href="https://github.com/bayesgroup/deepbayes-2019/blob/master/seminars/day5/Markov%20Chain%20Monte-Carlo%20Solution.ipynb" target="_blank" rel="external">Markov Chain Monte-Carlo Solution.ipynb</a>):</p>
+<p>注意到, 我們只需要 $\nabla_\mathbf{x}U(\mathbf{x})$ 就能更新 $(\mathbf{x},\mathbf{p})$!<br>也就是說只要有 potential energy 的 gradient 就可以模擬 Hamiltonian dynamic!<br>這點很重要, 因為變成 sampling 方法後等同於這句話: 只要有 score function 就能採樣! 而 score function 怎麼估計, <a href="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/">Score Matching</a> 是個好方法.<br>Sample codes from (<a href="https://github.com/bayesgroup/deepbayes-2019/blob/master/seminars/day5/Markov%20Chain%20Monte-Carlo%20Solution.ipynb" target="_blank" rel="external">Markov Chain Monte-Carlo Solution.ipynb</a>):</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">_leapfrog</span><span class="params">(self, x, v)</span>:</span></div><div class="line">    self.energy = []</div><div class="line">    <span class="keyword">for</span> _ <span class="keyword">in</span> range(self.n_steps):</div><div class="line">        v -= <span class="number">0.5</span> * self.eps * self.dist.grad_log_density(x)</div><div class="line">        x = x + self.eps * v</div><div class="line">        v -= <span class="number">0.5</span> * self.eps * self.dist.grad_log_density(x)</div><div class="line">        self.energy.append(self._energy(x, v))</div><div class="line">    <span class="keyword">return</span> x, v</div></pre></td></tr></table></figure>
 <h2 id="彈簧例子"><a href="#彈簧例子" class="headerlink" title="彈簧例子"></a>彈簧例子</h2><hr>
 <p>參考自 <strong><strong><a href="https://theclevermachine.wordpress.com/2012/11/18/mcmc-hamiltonian-monte-carlo-a-k-a-hybrid-monte-carlo/" target="_blank" rel="external">MCMC: Hamiltonian Monte Carlo (a.k.a. Hybrid Monte Carlo)</a></strong></strong><br>不知道怎麼來的也沒關係, 反正此時的系統能量為:</p>
@@ -530,7 +530,7 @@ U(\mathbf{x})=-\log p^*(\mathbf{x})
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/" title="忘記物理也要搞懂的 Hamiltonian Monte Carlo (HMC) 筆記">http://yoursite.com/2022/05/07/Hamiltonian-Monte-Carlo/</a>
+      <a href="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/" title="忘記物理也要搞懂的 Hamiltonian Monte Carlo (HMC) 筆記">https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>

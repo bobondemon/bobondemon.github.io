@@ -90,28 +90,28 @@
 <meta name="description" content="記得當年念博的時候，對於SVM頗有愛，也覺得掌握度很高惹，就是 kernel method + convex optimization 的完美合體。直到某天看到 structureSVM，看了老半天實在不得要領，當時就放下沒再管了。多年後 (2015)，剛好台大李宏毅教授教的課程最後一堂 Project demo，有請我們部門介紹做的一些內容給學生，才看到了強大的李老師的課程內容。他所教的">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Structure Perceptron and Structure SVM">
-<meta property="og:url" content="http://yoursite.com/2017/05/20/Structure-Perceptron-and-Structure-SVM/index.html">
+<meta property="og:url" content="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="記得當年念博的時候，對於SVM頗有愛，也覺得掌握度很高惹，就是 kernel method + convex optimization 的完美合體。直到某天看到 structureSVM，看了老半天實在不得要領，當時就放下沒再管了。多年後 (2015)，剛好台大李宏毅教授教的課程最後一堂 Project demo，有請我們部門介紹做的一些內容給學生，才看到了強大的李老師的課程內容。他所教的">
-<meta property="og:image" content="http://yoursite.com/2017/05/20/Structure-Perceptron-and-Structure-SVM/pic.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/05/20/Structure-Perceptron-and-Structure-SVM/problem1.png">
-<meta property="og:image" content="http://yoursite.com/2017/05/20/Structure-Perceptron-and-Structure-SVM/problem2.png">
-<meta property="og:image" content="http://yoursite.com/2017/05/20/Structure-Perceptron-and-Structure-SVM/problem3.png">
-<meta property="og:image" content="http://yoursite.com/2017/05/20/Structure-Perceptron-and-Structure-SVM/example_of_problem3.png">
-<meta property="og:image" content="http://yoursite.com/2017/05/20/Structure-Perceptron-and-Structure-SVM/structure_perceptron.png">
-<meta property="og:image" content="http://yoursite.com/2017/05/20/Structure-Perceptron-and-Structure-SVM/cost_function.png">
-<meta property="og:image" content="http://yoursite.com/2017/05/20/Structure-Perceptron-and-Structure-SVM/negative_example_weight.png">
-<meta property="og:image" content="http://yoursite.com/2017/05/20/Structure-Perceptron-and-Structure-SVM/min_upper_bd.png">
-<meta property="og:image" content="http://yoursite.com/2017/05/20/Structure-Perceptron-and-Structure-SVM/proof_of_min_upper_bd.png">
-<meta property="og:image" content="http://yoursite.com/2017/05/20/Structure-Perceptron-and-Structure-SVM/svm_primal.png">
-<meta property="og:image" content="http://yoursite.com/2017/05/20/Structure-Perceptron-and-Structure-SVM/cutting_plane_p1.png">
-<meta property="og:image" content="http://yoursite.com/2017/05/20/Structure-Perceptron-and-Structure-SVM/cutting_plane_algo.png">
-<meta property="og:image" content="http://yoursite.com/2017/05/20/Structure-Perceptron-and-Structure-SVM/most_violate.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/pic.jpg">
+<meta property="og:image" content="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/problem1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/problem2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/problem3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/example_of_problem3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/structure_perceptron.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/cost_function.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/negative_example_weight.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/min_upper_bd.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/proof_of_min_upper_bd.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/svm_primal.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/cutting_plane_p1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/cutting_plane_algo.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/most_violate.png">
 <meta property="og:updated_time" content="2017-05-21T03:36:42.377Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Structure Perceptron and Structure SVM">
 <meta name="twitter:description" content="記得當年念博的時候，對於SVM頗有愛，也覺得掌握度很高惹，就是 kernel method + convex optimization 的完美合體。直到某天看到 structureSVM，看了老半天實在不得要領，當時就放下沒再管了。多年後 (2015)，剛好台大李宏毅教授教的課程最後一堂 Project demo，有請我們部門介紹做的一些內容給學生，才看到了強大的李老師的課程內容。他所教的">
-<meta name="twitter:image" content="http://yoursite.com/2017/05/20/Structure-Perceptron-and-Structure-SVM/pic.jpg">
+<meta name="twitter:image" content="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/pic.jpg">
 
 
 
@@ -139,7 +139,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/05/20/Structure-Perceptron-and-Structure-SVM/"/>
+  <link rel="canonical" href="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/"/>
 
 
 
@@ -284,7 +284,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/20/Structure-Perceptron-and-Structure-SVM/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -525,7 +525,7 @@ For \forall{y}\neq{\hat{y}^n}: w\cdot (\phi(x^n,\hat{y}^n)-\phi(x^n,y))\leq \tri
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2017/05/20/Structure-Perceptron-and-Structure-SVM/" title="Structure Perceptron and Structure SVM">http://yoursite.com/2017/05/20/Structure-Perceptron-and-Structure-SVM/</a>
+      <a href="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/" title="Structure Perceptron and Structure SVM">https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>

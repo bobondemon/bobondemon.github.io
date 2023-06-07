@@ -92,22 +92,22 @@
 同樣的小 model size, 從頭訓練還不如先用大的 model size 做出好效果, 再壓縮到需要的大小所以 pruning 不僅能壓小 mo">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Movement Pruning Adaptive Sparsity by Fine-Tuning 筆記">
-<meta property="og:url" content="http://yoursite.com/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/index.html">
+<meta property="og:url" content="https://bobondemon.github.io/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="先引用這篇論文的論點 Train Large, Then Compress: Rethinking Model Size for Efficient Training and Inference of Transformers [pdf]
 
 同樣的小 model size, 從頭訓練還不如先用大的 model size 做出好效果, 再壓縮到需要的大小所以 pruning 不僅能壓小 mo">
-<meta property="og:image" content="http://yoursite.com/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/train_large_then_compress.png">
-<meta property="og:image" content="http://yoursite.com/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/Untitled.png">
-<meta property="og:image" content="http://yoursite.com/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/Untitled 1.png">
-<meta property="og:image" content="http://yoursite.com/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/Untitled 2.png">
-<meta property="og:updated_time" content="2023-02-27T15:48:43.913Z">
+<meta property="og:image" content="https://bobondemon.github.io/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/train_large_then_compress.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/Untitled.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/Untitled 1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/Untitled 2.png">
+<meta property="og:updated_time" content="2023-06-07T14:44:40.258Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Movement Pruning Adaptive Sparsity by Fine-Tuning 筆記">
 <meta name="twitter:description" content="先引用這篇論文的論點 Train Large, Then Compress: Rethinking Model Size for Efficient Training and Inference of Transformers [pdf]
 
 同樣的小 model size, 從頭訓練還不如先用大的 model size 做出好效果, 再壓縮到需要的大小所以 pruning 不僅能壓小 mo">
-<meta name="twitter:image" content="http://yoursite.com/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/train_large_then_compress.png">
+<meta name="twitter:image" content="https://bobondemon.github.io/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/train_large_then_compress.png">
 
 
 
@@ -135,7 +135,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/"/>
+  <link rel="canonical" href="https://bobondemon.github.io/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/"/>
 
 
 
@@ -280,7 +280,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -387,11 +387,15 @@
 <p><img src="/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/train_large_then_compress.png" width="75%" height="75%"></p>
 <p>同樣的小 model size, 從頭訓練還不如先用大的 model size 做出好效果, 再壓縮到需要的大小<br>所以 pruning 不僅能壓小 model size, 同樣對 performance 可能也是個好策略</p>
 <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><hr>
-<p>使用單純的 absolutely magnitude pruning 對於在 SSL model 不好. 因為原來的 weight 是對 SSL 的 loss 計算的, 並不能保證後來的 fine tune (down stream task loss) 有一樣的重要性關聯.<br>例如傳統上的 magnitude pruning 作法, 如這一篇 2015 NIPS 文章 [<a href="https://arxiv.org/abs/1506.02626" target="_blank" rel="external">Learning both Weights and Connections for Efficient Neural Networks</a>] (cited 5xxx) 作法很簡單:<br>&emsp;先對 model train 到收斂, 然後 prune, 接著繼續訓練 (prune 的 weight 就 fix 為 $0$), 然侯再多 prune … iterative 下去到需要的 prune 數量<br>但作者認為, 只靠 magnitude 大小判斷效果不好, 因為在 fine tune 過程中, 如果某一個 weight 雖然 magnitude 很大, <strong>但 gradient 傾向把它變小, 就表示它重要性應該降低才對, 這是本篇的精華思想</strong><br>因此作者對每一個參數都引入一個 score, 命為 $S$, 希望能代表 weight 的重要性. 而在 fine-tune 的過程, 除了對 weight $W$ update 之外, score $S$  也會 update<br>如果 score $S$ 能反映 weight 的 gradient 傾向 (值愈大愈重要), 就能根據 $S$ 來決定最終我們要 prune 那些 weights</p>
+<p>使用單純的 absolutely magnitude pruning 對於在 SSL model 不好. 因為原來的 weight 是對 SSL 的 loss 計算的, 並不能保證後來的 fine tune (down stream task loss) 有一樣的重要性關聯.<br>例如傳統上的 magnitude pruning 作法, 如這一篇 2015 NIPS 文章 [<a href="https://arxiv.org/abs/1506.02626" target="_blank" rel="external">Learning both Weights and Connections for Efficient Neural Networks</a>] (cited 5xxx) 作法很簡單:<br>&emsp;先對 model train 到收斂, 然後 prune, 接著繼續訓練 (prune 的 weight 就 fix 為 $0$), 然侯再多 prune … iterative 下去到需要的 prune 數量<br>但作者認為, 只靠 magnitude 大小判斷效果不好, 因為在 fine tune 過程中, <strong>如果某一個 weight 雖然 magnitude 很大, 但 gradient update 後傾向把 magnitude 變小, 就表示它重要性應該降低才對, 這是本篇的精華思想</strong></p>
+<blockquote>
+<p>因此我們先定義重要性就是代表 weight 的 magnitude 會變大還是變小, 變大就是重要性大, 反之</p>
+</blockquote>
+<p>因此作者對每一個參數都引入一個 score, 命為 $S$, 希望能代表 weight 的重要性. 而在 fine-tune 的過程, 除了對 weight $W$ update 之外, score $S$  也會 update<br>如果 score $S$ 正好能反映 weight 的 gradient 傾向, 即 $S$ 愈大剛好表示該對應的 weight 在 fine-tune 過程會傾向讓 magnitude 變大, 反之亦然, 那這樣的 $S$ 正好就是我們要找的.</p>
 <p>要這麼做的話, 我們還需要回答兩個問題:</p>
 <ol>
 <li>怎麼引入 score $S$?</li>
-<li>Score $S$ 能代表重要性? 換句話說能反映 weight 的 gradient 傾向 (值愈大愈重要) 嗎?</li>
+<li>Score $S$ 正好能代表重要性? 換句話說能反映 weight 在 fine tune 過程的 magnitude 傾向嗎?</li>
 </ol>
 <a id="more"></a>
 <h2 id="怎麼引入-score-S"><a href="#怎麼引入-score-S" class="headerlink" title="怎麼引入 score $S$?"></a>怎麼引入 score $S$?</h2><hr>
@@ -406,13 +410,13 @@
 \frac{\partial L}{\partial W_{ij}}=\frac{\partial L}{\partial a_i}M_{ij}x_{j}
 \end{align}$$</span><!-- Has MathJax --></p>
 <p>而算 $S$ 的 gradients 時發現因為 <span>$\text{Top}_v$</span><!-- Has MathJax --> 無法微分<br>所以用 <em>straight-through estimator (STE)</em>, i.e. 假裝沒有 <span>$\text{Top}_v$</span><!-- Has MathJax --> 這個 function.</p>
-<p><u> <strong>針對 Backward relaxing 的 forward:</strong> </u><br>改成讓 forward 假裝沒有過 <span>$\text{Top}_v$</span><!-- Has MathJax --> (因為 <span>$\text{Top}_v$</span><!-- Has MathJax --> 無法微分):<br>$$<br>a=(W\odot {\color{orange}S})x<br>$$</p>
+<p><u> <strong>修改為可微分的 forward:</strong> </u><br>改成讓 forward 假裝沒有過 <span>$\text{Top}_v$</span><!-- Has MathJax --> (因為 <span>$\text{Top}_v$</span><!-- Has MathJax --> 無法微分):<br>$$<br>a=(W\odot {\color{orange}S})x<br>$$</p>
 <p>所以 $S$ 的 gradients:<br><span>$$\begin{align}
 \frac{\partial L}{\partial S_{ij}} = \frac{\partial L}{\partial a_i}\frac{\partial a_i}{\partial S_{ij}}=\frac{\partial L}{\partial a_i}W_{ij}x_j
 \end{align}$$</span><!-- Has MathJax --></p>
 <p>所以 $S$ 仍然會被 update, 就算對應的 weight 已經在 forward 被 mask 了</p>
 <blockquote>
-<p>這種作法稱 Straigth Through Estimate (STE)<br>Appendix A.1 證明 training loss 會收斂 (原論文有幾個推導當下沒看懂, 後來自己補足了一些推導, 見本文最後面段落)</p>
+<p>這種作法稱 Straigth Through Estimator (STE)<br>Appendix A.1 證明 training loss 會收斂 (原論文有幾個推導當下沒看懂, 後來自己補足了一些推導, 見本文最後面段落)</p>
 </blockquote>
 <h2 id="Score-S-能代表重要性"><a href="#Score-S-能代表重要性" class="headerlink" title="Score $S$ 能代表重要性?"></a>Score $S$ 能代表重要性?</h2><hr>
 <p>先回顧一個觀念<br><span>$$\frac{\partial \mathcal{L}}{\partial W_{ij}}&gt;0$$</span><!-- Has MathJax --> 表示 loss function <span>$\mathcal{L}$</span><!-- Has MathJax --> 與 <span>$W_{ij}$</span><!-- Has MathJax --> 方向一致, 換句話說</p>
@@ -420,7 +424,7 @@
 W_{ij}\downarrow \iff \mathcal{L}\downarrow \\$$</span><!-- Has MathJax --> 如果<br><span>$$\frac{\partial \mathcal{L}}{\partial W_{ij}}&lt;0$$</span><!-- Has MathJax --> 則表示方向相反<br>我們現在觀察 $S$ 和 $W$ 在 update 時候之間的關係, 由 (1) and (2) 的關係可以寫成如下:<br><span>$$\begin{align}
 \frac{\partial L}{\partial S_{ij}} = \frac{\partial L}{\partial W_{ij}}W_{ij} / M_{ij}
 \end{align}$$</span><!-- Has MathJax -->
-<p>首先我們注意到如果 <span>$\partial L / \partial S_{ij} &lt; 0$</span><!-- Has MathJax -->, 表示 $L$ 和 <span>$S_{ij}$</span><!-- Has MathJax --> 方向相反, 因為我們希望 <span>$L\downarrow$</span><!-- Has MathJax -->, 所以此時 <span>$S_{ij}\uparrow$</span><!-- Has MathJax -->.<br>要讓 <span>$\partial L / \partial S_{ij} &lt; 0$</span><!-- Has MathJax --> 根據 (3) 只會有兩種情形 (我們不管 <span>$M_{ij}$</span><!-- Has MathJax -->, 因為它 $\geq0$):<br>&emsp;Case 1: <span>$\partial L / \partial W_{ij} &lt; 0$</span><!-- Has MathJax --> and <span>$W_{ij}&gt;0$</span><!-- Has MathJax -->. Weight 是<strong>正的</strong>, 且它的行為跟 $L$ 方向<strong>相反</strong>. 所以更新後 weight 會變得更大 (away from zero)<br>&emsp;Case 2: <span>$\partial L / \partial W_{ij} &gt; 0$</span><!-- Has MathJax --> and <span>$W_{ij}&lt;0$</span><!-- Has MathJax -->. Weight 是<strong>負的</strong>, 且它的行為跟 $L$ 方向<strong>相同</strong>. 所以更新後 weight 會變得更小 (close to zero)<br>上述兩種 weight 都會離 $0$ 愈來愈遠 (magnitude 會變更大).<br>結論就是 update 過程如果 <strong><span>$S_{ij}\uparrow$</span><!-- Has MathJax --> 表示 <span>$W_{ij}$</span><!-- Has MathJax --> 遠離 $0$</strong>.<br>同樣的推理, 如果 <span>$\partial L / \partial S_{ij} &gt; 0$</span><!-- Has MathJax -->, 表示 <strong><span>$S_{ij}\downarrow$</span><!-- Has MathJax --> 的情形發生在 <span>$W_{ij}$</span><!-- Has MathJax --> 更靠近 $0$ 了</strong>.<br>所以我們得到一個結論:<br>&emsp;因為 $S$ 升高對應到 $W$ 變大; $S$ 降低對應到 $W$ 變小. 所以合理認為 $S$ 代表的是重要性</p>
+<p>首先我們注意到如果 <span>$\partial L / \partial S_{ij} &lt; 0$</span><!-- Has MathJax -->, 表示 $L$ 和 <span>$S_{ij}$</span><!-- Has MathJax --> 方向相反, 因為我們希望 <span>$L\downarrow$</span><!-- Has MathJax -->, 所以此時 <span>$S_{ij}\uparrow$</span><!-- Has MathJax -->.<br>要讓 <span>$\partial L / \partial S_{ij} &lt; 0$</span><!-- Has MathJax --> 根據 (3) 只會有兩種情形 (我們不管 <span>$M_{ij}$</span><!-- Has MathJax -->, 因為它 $\geq0$):<br>&emsp;Case 1: <span>$\partial L / \partial W_{ij} &lt; 0$</span><!-- Has MathJax --> and <span>$W_{ij}&gt;0$</span><!-- Has MathJax -->. Weight 是<strong>正的</strong>, 且它的行為跟 $L$ 方向<strong>相反</strong>. 所以更新後 weight 會變得更大 (away from zero)<br>&emsp;Case 2: <span>$\partial L / \partial W_{ij} &gt; 0$</span><!-- Has MathJax --> and <span>$W_{ij}&lt;0$</span><!-- Has MathJax -->. Weight 是<strong>負的</strong>, 且它的行為跟 $L$ 方向<strong>相同</strong>. 所以更新後 weight 會變得更小 (close to zero)<br>上述兩種 weight 都會離 $0$ 愈來愈遠 (magnitude 會變更大).<br>結論就是 update 過程如果 <strong><span>$S_{ij}\uparrow$</span><!-- Has MathJax --> 表示 <span>$W_{ij}$</span><!-- Has MathJax --> 遠離 $0$</strong>.<br>同樣的推理, 如果 <span>$\partial L / \partial S_{ij} &gt; 0$</span><!-- Has MathJax -->, 表示 <strong><span>$S_{ij}\downarrow$</span><!-- Has MathJax --> 的情形發生在 <span>$W_{ij}$</span><!-- Has MathJax --> 更靠近 $0$ 了</strong>.<br>所以我們得到一個結論:<br>&emsp;因為 $S$ 升高對應到 $|W|$ 變大; $S$ 降低對應到 $|W|$ 變小. 所以合理認為 $S$ 代表的是重要性</p>
 <blockquote>
 <p>有意思的是, 上述結論似乎跟 masking function 是否用 <span>$\text{Top}_v$</span><!-- Has MathJax --> 無關<br>意思是如果 masking function 用 <span>$\text{Bottom}_v$</span><!-- Has MathJax --> (選最小的那 $v\%$) 也會有 “$S$ 升高對應到 $W$ 變大; $S$ 降低對應到 $W$ 變小, 因此 $S$ 是重要性” 這個結論<br>但怎麼感覺哪裡怪怪的<br>不過其實邏輯上不衝突, 我這邊的理解是這樣的:<br>Score $S$ 代表重要性是沒問題的, 只是這個重要性現在只針對 <span>$\text{Bottom}_v$</span><!-- Has MathJax --> 的那些 weights 去看<br>同時, Appendix A.1 證明 loss 能收斂也是基於 <span>$\text{Top}_v$</span><!-- Has MathJax --> 能得到保證, 因此用 <span>$\text{Bottom}_v$</span><!-- Has MathJax --> 搞不好收斂不起來</p>
 </blockquote>
@@ -432,6 +436,10 @@ W_{ij}\downarrow \iff \mathcal{L}\downarrow \\$$</span><!-- Has MathJax --> 如�
 <p><img src="/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/Untitled 1.png" width="100%" height="100%"></p>
 <p>Fig 4(a) 不意外<br>Fig 4(b) 比較有意思, score 大的那些 weight 都不會 $0$ 靠近 (v-shape)<br>作者實驗了 global/local NN 的 pruning, 之前是說 global 讓 NN 自己決定每個 layers 要 prune 多少比例, 所以通常比較好 (尤其在 high sparsity)<br>但作者在自己的實驗, 發現兩者在效果上沒太大差異<br>最後分析一下每個 layer 的 sparsity, 發現在愈後面的 layer prune 愈多</p>
 <p><img src="/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/Untitled 2.png" width="50%" height="50%"></p>
+<h2 id="Codes"><a href="#Codes" class="headerlink" title="Codes"></a>Codes</h2><hr>
+<p>HuggingFace 有實現這段 <a href="https://github.com/huggingface/nn_pruning/blob/0cef2b2435d575f141feb12885f632b173df8f93/nn_pruning/modules/binarizer.py#L73" target="_blank" rel="external">codes</a>:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">TopKBinarizer</span><span class="params">(autograd.Function)</span>:</span></div><div class="line"><span class="meta">    @staticmethod</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span><span class="params">(ctx, inputs: torch.tensor, threshold: float)</span>:</span></div><div class="line">        <span class="comment"># Get the subnetwork by sorting the inputs and using the top threshold %</span></div><div class="line">        mask = inputs.clone()</div><div class="line">        _, idx = inputs.flatten().sort(descending=<span class="keyword">True</span>)</div><div class="line">        j = int(threshold * inputs.numel())</div><div class="line"></div><div class="line">        <span class="comment"># flat_out and mask access the same memory.</span></div><div class="line">        flat_out = mask.flatten()</div><div class="line">        flat_out[idx[j:]] = <span class="number">0</span></div><div class="line">        flat_out[idx[:j]] = <span class="number">1</span></div><div class="line">        <span class="keyword">return</span> mask</div><div class="line"></div><div class="line"><span class="meta">    @staticmethod</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">backward</span><span class="params">(ctx, gradOutput)</span>:</span></div><div class="line">        <span class="keyword">return</span> gradOutput, <span class="keyword">None</span></div></pre></td></tr></table></figure>
+<p>注意到繼承 <code>autograd.Function</code> 就要 implement <code>forward</code> and <code>backward</code> 方法, 讓它可以微分<br>我們可以看到 <code>backward</code> 什麼事都沒做, 這是因為 STE (Straight-Through Estimator) 的關係<br>所以在 <code>forward</code> 的時候 <code>inputs</code> tensor 就給 score matrix $S$, 這樣可以求出對應的 <code>mask</code> $M$, 同時這個 TopK 又可以微分</p>
 <h2 id="Appendix-A-1-Guarantees-on-the-decrease-of-the-training-loss"><a href="#Appendix-A-1-Guarantees-on-the-decrease-of-the-training-loss" class="headerlink" title="Appendix A.1 Guarantees on the decrease of the training loss"></a>Appendix A.1 Guarantees on the decrease of the training loss</h2><hr>
 <p>補充推導, 先回顧一下</p>
 <p><u> <strong>Forward:</strong> </u><br>$$<br>a=(W\odot M)x<br>$$</p>
@@ -498,7 +506,7 @@ W_{kl}^{(t+1)} = W_{kl}^{(t)} - \alpha_W\frac{\partial L}{\partial W_{kl}}$$</sp
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/" title="Movement Pruning Adaptive Sparsity by Fine-Tuning 筆記">http://yoursite.com/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/</a>
+      <a href="https://bobondemon.github.io/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/" title="Movement Pruning Adaptive Sparsity by Fine-Tuning 筆記">https://bobondemon.github.io/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>
@@ -668,7 +676,7 @@ W_{kl}^{(t+1)} = W_{kl}^{(t)} - \alpha_W\frac{\partial L}{\partial W_{kl}}$$</sp
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#怎麼引入-score-S"><span class="nav-number">2.</span> <span class="nav-text">怎麼引入 score $S$?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Score-S-能代表重要性"><span class="nav-number">3.</span> <span class="nav-text">Score $S$ 能代表重要性?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Results"><span class="nav-number">4.</span> <span class="nav-text">Results</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Appendix-A-1-Guarantees-on-the-decrease-of-the-training-loss"><span class="nav-number">5.</span> <span class="nav-text">Appendix A.1 Guarantees on the decrease of the training loss</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">6.</span> <span class="nav-text">References</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#怎麼引入-score-S"><span class="nav-number">2.</span> <span class="nav-text">怎麼引入 score $S$?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Score-S-能代表重要性"><span class="nav-number">3.</span> <span class="nav-text">Score $S$ 能代表重要性?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Results"><span class="nav-number">4.</span> <span class="nav-text">Results</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Codes"><span class="nav-number">5.</span> <span class="nav-text">Codes</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Appendix-A-1-Guarantees-on-the-decrease-of-the-training-loss"><span class="nav-number">6.</span> <span class="nav-text">Appendix A.1 Guarantees on the decrease of the training loss</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">7.</span> <span class="nav-text">References</span></a></li></ol></div>
             
 
           </div>

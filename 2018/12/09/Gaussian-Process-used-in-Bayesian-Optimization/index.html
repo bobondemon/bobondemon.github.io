@@ -90,33 +90,33 @@
 <meta name="description" content="上了 Coursera 的 Bayesian Methods for Machine Learning, 其中最後一週的課程介紹了 Gaussian processes &amp;amp; Bayesian optimization 覺得很有收穫, 因為做 ML 最痛苦的就是 hyper-parameter tuning, 常見的方法就是手動調, grid search or random sea">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Gaussian Process used in Bayesian Optimization">
-<meta property="og:url" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/index.html">
+<meta property="og:url" content="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="上了 Coursera 的 Bayesian Methods for Machine Learning, 其中最後一週的課程介紹了 Gaussian processes &amp;amp; Bayesian optimization 覺得很有收穫, 因為做 ML 最痛苦的就是 hyper-parameter tuning, 常見的方法就是手動調, grid search or random sea">
-<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/cover.png">
-<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GP_def.png">
-<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GP_stationary_def.png">
-<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/kernel_def.png">
-<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/typical_kernel.png">
-<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/Stationary_exp.png">
-<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GP_regression1.png">
-<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GP_regression2.png">
-<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GP_regression3.png">
-<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GPy1.png">
-<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GPy2.png">
-<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GPy3.png">
-<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GPy4.png">
-<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/optimize_kernel.png">
-<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/optimize_kernel2.png">
-<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/optimize_kernel3.png">
-<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/black_box_opt.png">
-<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GPyOpt1.png">
-<meta property="og:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GPyOpt2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/cover.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GP_def.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GP_stationary_def.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/kernel_def.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/typical_kernel.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/Stationary_exp.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GP_regression1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GP_regression2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GP_regression3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GPy1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GPy2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GPy3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GPy4.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/optimize_kernel.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/optimize_kernel2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/optimize_kernel3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/black_box_opt.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GPyOpt1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GPyOpt2.png">
 <meta property="og:updated_time" content="2018-12-13T13:47:50.427Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Gaussian Process used in Bayesian Optimization">
 <meta name="twitter:description" content="上了 Coursera 的 Bayesian Methods for Machine Learning, 其中最後一週的課程介紹了 Gaussian processes &amp;amp; Bayesian optimization 覺得很有收穫, 因為做 ML 最痛苦的就是 hyper-parameter tuning, 常見的方法就是手動調, grid search or random sea">
-<meta name="twitter:image" content="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/cover.png">
+<meta name="twitter:image" content="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/cover.png">
 
 
 
@@ -144,7 +144,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/"/>
+  <link rel="canonical" href="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/"/>
 
 
 
@@ -289,7 +289,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -525,7 +525,7 @@ p(f(x_1),f(x_2),f(x_3))=p(f(x_1+t),f(x_2+t),f(x_3+t))
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/" title="Gaussian Process used in Bayesian Optimization">http://yoursite.com/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/</a>
+      <a href="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/" title="Gaussian Process used in Bayesian Optimization">https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>

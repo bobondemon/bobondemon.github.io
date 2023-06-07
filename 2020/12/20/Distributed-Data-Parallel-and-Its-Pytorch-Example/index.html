@@ -96,7 +96,7 @@ Data Parallel: GPUs 跑不同的 batches, 但跑同一個完整的模型
 由於 Data Parallel 跑同一個完整模型且各 GPU 都用自己複製的一份, 在 update 參數時要如何確保更新一致? 可分為 synchronous 和 asyn">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Distributed Data Parallel and Its Pytorch Example">
-<meta property="og:url" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/index.html">
+<meta property="og:url" content="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="訓練時候的平行化可分為:
 
@@ -105,26 +105,26 @@ Data Parallel: GPUs 跑不同的 batches, 但跑同一個完整的模型
 
 
 由於 Data Parallel 跑同一個完整模型且各 GPU 都用自己複製的一份, 在 update 參數時要如何確保更新一致? 可分為 synchronous 和 asyn">
-<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/model_data_parallel.png">
-<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/sync_and_asnyc_data_parallelism.png">
-<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/distributed_data_results.png">
-<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/Async_case1.png">
-<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/Async_case2.png">
-<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/parameter_server.png">
-<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/ring_allreduce.png">
-<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/chunks.png">
-<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/scatter_reduce_itr1.png">
-<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/scatter_reduce_itr2.png">
-<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/scatter_reduce_itr3.png">
-<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/scatter_reduce_itr4.png">
-<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/scatter_reduce_done.png">
-<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_itr1.png">
-<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_itr2.png">
-<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_itr3.png">
-<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_itr4.png">
-<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_done.png">
-<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/lightning_example.png">
-<meta property="og:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_reduce_example_results.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/model_data_parallel.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/sync_and_asnyc_data_parallelism.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/distributed_data_results.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/Async_case1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/Async_case2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/parameter_server.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/ring_allreduce.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/chunks.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/scatter_reduce_itr1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/scatter_reduce_itr2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/scatter_reduce_itr3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/scatter_reduce_itr4.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/scatter_reduce_done.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_itr1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_itr2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_itr3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_itr4.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_done.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/lightning_example.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_reduce_example_results.png">
 <meta property="og:updated_time" content="2022-11-23T14:46:18.532Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Distributed Data Parallel and Its Pytorch Example">
@@ -135,7 +135,7 @@ Data Parallel: GPUs 跑不同的 batches, 但跑同一個完整的模型
 
 
 由於 Data Parallel 跑同一個完整模型且各 GPU 都用自己複製的一份, 在 update 參數時要如何確保更新一致? 可分為 synchronous 和 asyn">
-<meta name="twitter:image" content="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/model_data_parallel.png">
+<meta name="twitter:image" content="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/model_data_parallel.png">
 
 
 
@@ -163,7 +163,7 @@ Data Parallel: GPUs 跑不同的 batches, 但跑同一個完整的模型
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/"/>
+  <link rel="canonical" href="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/"/>
 
 
 
@@ -308,7 +308,7 @@ Data Parallel: GPUs 跑不同的 batches, 但跑同一個完整的模型
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -568,7 +568,7 @@ Data Parallel: GPUs 跑不同的 batches, 但跑同一個完整的模型
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/" title="Distributed Data Parallel and Its Pytorch Example">http://yoursite.com/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/</a>
+      <a href="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/" title="Distributed Data Parallel and Its Pytorch Example">https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>

@@ -91,18 +91,18 @@
 上一篇最後雖然使用 fixed beamformer 得到了 response-invariant beamformer, 但這個方法限制是 filter 一旦設計好就寫死了, 沒">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Far Field Notes (2) LCMV filter and Frost's algorithm">
-<meta property="og:url" content="http://yoursite.com/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/index.html">
+<meta property="og:url" content="https://bobondemon.github.io/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="這是 far field 筆記系列第二篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 Microphone Array Signal Processing Ch4 和 Frost’s algorithm
 上一篇最後雖然使用 fixed beamformer 得到了 response-invariant beamformer, 但這個方法限制是 filter 一旦設計好就寫死了, 沒">
-<meta property="og:image" content="http://yoursite.com/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/frost-structure.png">
-<meta property="og:image" content="http://yoursite.com/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/varOrder.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/frost-structure.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/varOrder.png">
 <meta property="og:updated_time" content="2019-04-12T13:11:09.946Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Far Field Notes (2) LCMV filter and Frost's algorithm">
 <meta name="twitter:description" content="這是 far field 筆記系列第二篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 Microphone Array Signal Processing Ch4 和 Frost’s algorithm
 上一篇最後雖然使用 fixed beamformer 得到了 response-invariant beamformer, 但這個方法限制是 filter 一旦設計好就寫死了, 沒">
-<meta name="twitter:image" content="http://yoursite.com/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/frost-structure.png">
+<meta name="twitter:image" content="https://bobondemon.github.io/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/frost-structure.png">
 
 
 
@@ -130,7 +130,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/"/>
+  <link rel="canonical" href="https://bobondemon.github.io/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/"/>
 
 
 
@@ -275,7 +275,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -379,13 +379,13 @@
 
 <hr>
 <p>這是 far field 筆記系列第二篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 <a href="https://www.springer.com/in/book/9783540786115" target="_blank" rel="external">Microphone Array Signal Processing</a> Ch4 和 <a href="http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=1450747" target="_blank" rel="external">Frost’s algorithm</a></p>
-<p><a href="https://bobondemon.github.io/2019/02/26/Far-Field-Notes-1-Beampattern/" target="_blank" rel="external">上一篇</a>最後雖然使用 fixed beamformer 得到了 response-invariant beamformer, 但這個方法限制是 filter 一旦設計好就寫死了, 沒辦法自己 update (所以才叫 “fixed” beamformer). 這引入一個問題是, 如果剛好有一個 inteference noise 在衰減不那麼大的角度時, 就無法壓得很好. 而這篇要介紹的 LCMV (Linear Constrained minimum variance) filter 以及 Frost’s beamformer 能針對給定的方向抽取訊號, 並且對其他方向的 inteference nosie 壓抑的最好. 注意 sound source 方向必須給定, LCMV 求得的 weights 會想辦法對其他方向的 inteference 壓抑.</p>
+<p><a href="https://bobondemon.github.io/2019/02/26/Far-Field-Notes-1-Beampattern/">上一篇</a>最後雖然使用 fixed beamformer 得到了 response-invariant beamformer, 但這個方法限制是 filter 一旦設計好就寫死了, 沒辦法自己 update (所以才叫 “fixed” beamformer). 這引入一個問題是, 如果剛好有一個 inteference noise 在衰減不那麼大的角度時, 就無法壓得很好. 而這篇要介紹的 LCMV (Linear Constrained minimum variance) filter 以及 Frost’s beamformer 能針對給定的方向抽取訊號, 並且對其他方向的 inteference nosie 壓抑的最好. 注意 sound source 方向必須給定, LCMV 求得的 weights 會想辦法對其他方向的 inteference 壓抑.</p>
 <p>如同 LCMV 字面上的意思一樣. 會將整個問題轉換成 minimize variance subject to some linear constraints. 另外相當經典的 Frost’s beamformer (1972年呢!) 則將 filter 的 optimal 求解改成使用 stochastic gradient descent 方式, 所以非常適合實際的 real time 系統, 這些下文會詳細說明.</p>
 <a id="more"></a>
 <hr>
-<h3 id="架構設定和-Signal-Model"><a href="#架構設定和-Signal-Model" class="headerlink" title="架構設定和 Signal Model"></a>架構設定和 Signal Model</h3><p>架構如下圖 (圖片來源:<a href="http://www.labbookpages.co.uk/audio/beamforming/frost.html" target="_blank" rel="external">ref</a>), 第一步是一個 delay stage, 這相當於是針對一個 steering direction 補償每個 mic 之間的 time delay (訊號對齊好). 第二步才是 beamformer, 我們知道 time domain 使用 filter-and-sum 架構, 如果是 frequency domain 則使用拆頻的架構. 忘了可參考<a href="https://bobondemon.github.io/2019/02/26/Far-Field-Notes-1-Beampattern/" target="_blank" rel="external">第一篇</a>.</p>
+<h3 id="架構設定和-Signal-Model"><a href="#架構設定和-Signal-Model" class="headerlink" title="架構設定和 Signal Model"></a>架構設定和 Signal Model</h3><p>架構如下圖 (圖片來源:<a href="http://www.labbookpages.co.uk/audio/beamforming/frost.html" target="_blank" rel="external">ref</a>), 第一步是一個 delay stage, 這相當於是針對一個 steering direction 補償每個 mic 之間的 time delay (訊號對齊好). 第二步才是 beamformer, 我們知道 time domain 使用 filter-and-sum 架構, 如果是 frequency domain 則使用拆頻的架構. 忘了可參考<a href="https://bobondemon.github.io/2019/02/26/Far-Field-Notes-1-Beampattern/">第一篇</a>.</p>
 <p><img src="/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/frost-structure.png" width="80%" height="80%"></p>
-<p>本文以 filter-and-sum 來筆記, 另外 signal model 以下推導將會使用 anechoic model, <a href="https://bobondemon.github.io/2019/02/26/Far-Field-Notes-1-Beampattern/" target="_blank" rel="external">第一篇</a>有定義可回去查閱. 同時本文接下來的 notation 會與圖中的不同. 上圖只是用來顯示 filter-and-sum 架構.</p>
+<p>本文以 filter-and-sum 來筆記, 另外 signal model 以下推導將會使用 anechoic model, <a href="https://bobondemon.github.io/2019/02/26/Far-Field-Notes-1-Beampattern/">第一篇</a>有定義可回去查閱. 同時本文接下來的 notation 會與圖中的不同. 上圖只是用來顯示 filter-and-sum 架構.</p>
 <hr>
 <h3 id="Notations"><a href="#Notations" class="headerlink" title="Notations"></a>Notations</h3><p>一些 notations 我們先定義起來. $N$ 是麥克風數量, $L$ 是 filter tap 數量, 我們 aligned 好的 anechoic model 如下:<br><span>$$\begin{align}
 \mathbf{y}(k)=s(k)\mathbf{\alpha}+\mathbf{v}(k)
@@ -568,7 +568,7 @@ u_{L-1}\cdot s(k-L+1)
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/" title="Far Field Notes (2) LCMV filter and Frost's algorithm">http://yoursite.com/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/</a>
+      <a href="https://bobondemon.github.io/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/" title="Far Field Notes (2) LCMV filter and Frost's algorithm">https://bobondemon.github.io/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>

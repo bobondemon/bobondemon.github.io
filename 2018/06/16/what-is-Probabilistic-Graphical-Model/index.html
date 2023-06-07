@@ -93,43 +93,43 @@
 What i">
 <meta property="og:type" content="article">
 <meta property="og:title" content="(what is) Probabilistic Graphical Models">
-<meta property="og:url" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/index.html">
+<meta property="og:url" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="本篇主要介紹什麼是 PGM, 以及一個很重要的應用 Part-of-Speech tagging. PGM 的部分主要圍繞在 “它是什麼?” 也就是 Koller 課程的 Representation. Inference 不討論, 因為自己也沒讀很深入 (汗), 而 Learning 就相當於 ML 裡的 training, 會在介紹 POS 時推導一下.
 文章結構如下:
 
 What i">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/perfect_map.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/BN_MN_examples.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic1.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic2.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic3.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic4.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic5.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic6.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic7.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic8.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic9.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic10.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic11.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic12.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic13.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic14.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic15.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic16.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic17.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic18.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic19.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic20.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic21.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic22.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic23.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic24.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic25.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic26.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic27.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic28.png">
-<meta property="og:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/pic29.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/perfect_map.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/BN_MN_examples.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic4.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic5.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic6.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic7.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic8.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic9.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic10.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic11.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic12.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic13.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic14.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic15.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic16.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic17.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic18.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic19.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic20.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic21.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic22.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic23.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic24.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic25.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic26.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic27.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic28.png">
+<meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic29.png">
 <meta property="og:updated_time" content="2018-06-16T07:25:33.991Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="(what is) Probabilistic Graphical Models">
@@ -137,7 +137,7 @@ What i">
 文章結構如下:
 
 What i">
-<meta name="twitter:image" content="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/perfect_map.png">
+<meta name="twitter:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/perfect_map.png">
 
 
 
@@ -165,7 +165,7 @@ What i">
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/"/>
+  <link rel="canonical" href="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/"/>
 
 
 
@@ -310,7 +310,7 @@ What i">
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -590,7 +590,7 @@ Z=\sum_x\prod_{c\in\mathcal{C}}\psi_c(x_c)
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/" title="(what is) Probabilistic Graphical Models">http://yoursite.com/2018/06/16/what-is-Probabilistic-Graphical-Model/</a>
+      <a href="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/" title="(what is) Probabilistic Graphical Models">https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>

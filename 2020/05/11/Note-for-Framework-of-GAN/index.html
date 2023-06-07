@@ -91,26 +91,26 @@
 MMGAN(最原始的GAN), NSGAN(跟MMGAN差別在 G 的 update 目標函式有點不同), f-GAN, WGAN, ADDA (Adversarial Discriminative Domain Adaptation), i">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Framework of GAN">
-<meta property="og:url" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/index.html">
+<meta property="og:url" content="https://bobondemon.github.io/2020/05/11/Note-for-Framework-of-GAN/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="說來汗顏, 自從17年三月筆記完 WGAN 後, 就沒再碰 GAN 相關的東西了. 惡補了一下 李宏毅GAN 的課程和其他相關資料, 因此筆記一下.
 MMGAN(最原始的GAN), NSGAN(跟MMGAN差別在 G 的 update 目標函式有點不同), f-GAN, WGAN, ADDA (Adversarial Discriminative Domain Adaptation), i">
-<meta property="og:image" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/f-divergence.png">
-<meta property="og:image" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/Fenchel_conjugate.png">
-<meta property="og:image" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/Fenchel_conjugate2.png">
-<meta property="og:image" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/f-divergence_f_functions.png">
-<meta property="og:image" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/f-divergence_fstar_functions.png">
-<meta property="og:image" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/domain_adversarial_training.png">
-<meta property="og:image" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/adda.png">
-<meta property="og:image" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/infoGAN1.png">
-<meta property="og:image" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/infoGAN2.png">
-<meta property="og:image" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/VAEGAN.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/05/11/Note-for-Framework-of-GAN/f-divergence.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/05/11/Note-for-Framework-of-GAN/Fenchel_conjugate.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/05/11/Note-for-Framework-of-GAN/Fenchel_conjugate2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/05/11/Note-for-Framework-of-GAN/f-divergence_f_functions.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/05/11/Note-for-Framework-of-GAN/f-divergence_fstar_functions.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/05/11/Note-for-Framework-of-GAN/domain_adversarial_training.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/05/11/Note-for-Framework-of-GAN/adda.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/05/11/Note-for-Framework-of-GAN/infoGAN1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/05/11/Note-for-Framework-of-GAN/infoGAN2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2020/05/11/Note-for-Framework-of-GAN/VAEGAN.png">
 <meta property="og:updated_time" content="2022-03-26T09:36:09.596Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Framework of GAN">
 <meta name="twitter:description" content="說來汗顏, 自從17年三月筆記完 WGAN 後, 就沒再碰 GAN 相關的東西了. 惡補了一下 李宏毅GAN 的課程和其他相關資料, 因此筆記一下.
 MMGAN(最原始的GAN), NSGAN(跟MMGAN差別在 G 的 update 目標函式有點不同), f-GAN, WGAN, ADDA (Adversarial Discriminative Domain Adaptation), i">
-<meta name="twitter:image" content="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/f-divergence.png">
+<meta name="twitter:image" content="https://bobondemon.github.io/2020/05/11/Note-for-Framework-of-GAN/f-divergence.png">
 
 
 
@@ -138,7 +138,7 @@ MMGAN(最原始的GAN), NSGAN(跟MMGAN差別在 G 的 update 目標函式有點�
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/"/>
+  <link rel="canonical" href="https://bobondemon.github.io/2020/05/11/Note-for-Framework-of-GAN/"/>
 
 
 
@@ -283,7 +283,7 @@ MMGAN(最原始的GAN), NSGAN(跟MMGAN差別在 G 的 update 目標函式有點�
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2020/05/11/Note-for-Framework-of-GAN/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -489,7 +489,7 @@ Div_f(P||Q)\geq \int_x q(x) \left[ \frac{p(x)}{q(x)}\hat{D}(x) - f^*(\hat{D}(x))
 <p><img src="/2020/05/11/Note-for-Framework-of-GAN/f-divergence_fstar_functions.png" width="50%" height="50%" align="center"></p>
 <p>因此我們可以發現 MMGAN 和 LSGAN 都是 f-GAN 的一種特例.</p>
 <hr>
-<h3 id="WGAN"><a href="#WGAN" class="headerlink" title="WGAN"></a>WGAN</h3><p>具體請參考之前自己筆記的<a href="https://bobondemon.github.io/2017/03/17/WGAN-Part-2/" target="_blank" rel="external">文章</a></p>
+<h3 id="WGAN"><a href="#WGAN" class="headerlink" title="WGAN"></a>WGAN</h3><p>具體請參考之前自己筆記的<a href="https://bobondemon.github.io/2017/03/17/WGAN-Part-2/">文章</a></p>
 <p>李老師的講義對於 Earth Mover’s Distance (或稱 Wasserstein distance) 講解得很清楚, 其中的一個<a href="https://vincentherrmann.github.io/blog/wasserstein/" target="_blank" rel="external">參考連結</a>更解釋了 Wasserstein distance 如何轉換成求解 $\max_D$ 且 $D$ 必須限制在 Lipschitz 條件下.</p>
 <p>總之這裡要說的是, Wasserstein distance 不屬於 f-divergence, 但也完全 follow 我們一開始說的 (1) &amp; (2) 的架構:</p>
 <p>令 $f^*(x)=x$ 同時多一個限制是 $D\in k-Lipschitz$</p>
@@ -528,7 +528,7 @@ Div\left(P_d\|P_G\right) = \max_{D\in k-Lipschitz}\left[ E_{x\sim P_d} D(x) - E_
 <li><a href="https://www.youtube.com/playlist?list=PLJV_el3uVTsMq6JEFPW35BCiOQTsoqwNw" target="_blank" rel="external">李宏毅GAN</a></li>
 <li><a href="https://arxiv.org/abs/1606.00709" target="_blank" rel="external">f-GAN: Training Generative Neural Samplers using Variational Divergence Minimization</a></li>
 <li><a href="https://zhuanlan.zhihu.com/p/25071913" target="_blank" rel="external">令人拍案叫绝的Wasserstein GAN</a></li>
-<li><a href="https://bobondemon.github.io/2017/03/17/WGAN-Part-2/" target="_blank" rel="external">WGAN筆記</a></li>
+<li><a href="https://bobondemon.github.io/2017/03/17/WGAN-Part-2/">WGAN筆記</a></li>
 <li><a href="https://vincentherrmann.github.io/blog/wasserstein/" target="_blank" rel="external">Wasserstein GAN and the Kantorovich-Rubinstein Duality</a></li>
 <li><a href="https://arxiv.org/abs/1802.05957" target="_blank" rel="external">Spectral Normalization for Generative Adversarial Networks</a></li>
 <li><a href="https://zhuanlan.zhihu.com/p/58184683" target="_blank" rel="external">GAN论文阅读笔记3：WGAN的各种变体</a> by 林小北</li>
@@ -566,7 +566,7 @@ Div\left(P_d\|P_G\right) = \max_{D\in k-Lipschitz}\left[ E_{x\sim P_d} D(x) - E_
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/" title="Framework of GAN">http://yoursite.com/2020/05/11/Note-for-Framework-of-GAN/</a>
+      <a href="https://bobondemon.github.io/2020/05/11/Note-for-Framework-of-GAN/" title="Framework of GAN">https://bobondemon.github.io/2020/05/11/Note-for-Framework-of-GAN/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>

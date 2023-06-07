@@ -90,18 +90,18 @@
 <meta name="description" content="Maximum Mutual Information (MMI) 序列的鑑別性訓練方法從早期的 GMM-HMM, 到現今就算使用了深度學習同樣十分有用, 如 Kaldi chain model 在 DNN-HMM 的基礎上加上序列鑑別訓練, 性能會再進一步提升. 前一陣子讀了俞棟、鄧力的這本 語音識別實踐, 對我來說整理得滿好的, 就是數學部分的推導有點簡潔了些, 所以這篇就基於該書的推導">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Maximum Mutual Information in Speech Recognition">
-<meta property="og:url" content="http://yoursite.com/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/index.html">
+<meta property="og:url" content="https://bobondemon.github.io/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="Maximum Mutual Information (MMI) 序列的鑑別性訓練方法從早期的 GMM-HMM, 到現今就算使用了深度學習同樣十分有用, 如 Kaldi chain model 在 DNN-HMM 的基礎上加上序列鑑別訓練, 性能會再進一步提升. 前一陣子讀了俞棟、鄧力的這本 語音識別實踐, 對我來說整理得滿好的, 就是數學部分的推導有點簡潔了些, 所以這篇就基於該書的推導">
-<meta property="og:image" content="http://yoursite.com/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/MMI_computational_graph2.png">
-<meta property="og:image" content="http://yoursite.com/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/MMI_computational_graph1.png">
-<meta property="og:image" content="http://yoursite.com/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/MMI_computational_graph2.png">
-<meta property="og:image" content="http://yoursite.com/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/eq18_details.jpg">
+<meta property="og:image" content="https://bobondemon.github.io/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/MMI_computational_graph2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/MMI_computational_graph1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/MMI_computational_graph2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/eq18_details.jpg">
 <meta property="og:updated_time" content="2018-09-17T13:59:56.907Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Maximum Mutual Information in Speech Recognition">
 <meta name="twitter:description" content="Maximum Mutual Information (MMI) 序列的鑑別性訓練方法從早期的 GMM-HMM, 到現今就算使用了深度學習同樣十分有用, 如 Kaldi chain model 在 DNN-HMM 的基礎上加上序列鑑別訓練, 性能會再進一步提升. 前一陣子讀了俞棟、鄧力的這本 語音識別實踐, 對我來說整理得滿好的, 就是數學部分的推導有點簡潔了些, 所以這篇就基於該書的推導">
-<meta name="twitter:image" content="http://yoursite.com/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/MMI_computational_graph2.png">
+<meta name="twitter:image" content="https://bobondemon.github.io/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/MMI_computational_graph2.png">
 
 
 
@@ -129,7 +129,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/"/>
+  <link rel="canonical" href="https://bobondemon.github.io/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/"/>
 
 
 
@@ -274,7 +274,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -377,7 +377,7 @@
 </script>
 
 <hr>
-<p>Maximum Mutual Information (MMI) 序列的鑑別性訓練方法從早期的 GMM-HMM, 到現今就算使用了深度學習同樣十分有用, 如 <a href="http://www.kaldi-asr.org/doc/chain.html" target="_blank" rel="external">Kaldi chain model</a> 在 DNN-HMM 的基礎上加上序列鑑別訓練, 性能會再進一步提升. 前一陣子讀了俞棟、鄧力的這本 <a href="https://www.amazon.cn/gp/product/B01H2AXN1I/ref=ox_sc_act_image_3?psc=1&amp;smid=A1AJ19PSB66TGU" target="_blank" rel="external">語音識別實踐</a>, 對我來說整理得滿好的, 就是數學部分的推導有點簡潔了些, 所以這篇就基於該書的推導, 補齊了較詳細的步驟, 並且嘗試使用 <a href="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/" target="_blank" rel="external">Computational graph</a> 的方式理解 MMI 的訓練. 那麼就開始吧!</p>
+<p>Maximum Mutual Information (MMI) 序列的鑑別性訓練方法從早期的 GMM-HMM, 到現今就算使用了深度學習同樣十分有用, 如 <a href="http://www.kaldi-asr.org/doc/chain.html" target="_blank" rel="external">Kaldi chain model</a> 在 DNN-HMM 的基礎上加上序列鑑別訓練, 性能會再進一步提升. 前一陣子讀了俞棟、鄧力的這本 <a href="https://www.amazon.cn/gp/product/B01H2AXN1I/ref=ox_sc_act_image_3?psc=1&amp;smid=A1AJ19PSB66TGU" target="_blank" rel="external">語音識別實踐</a>, 對我來說整理得滿好的, 就是數學部分的推導有點簡潔了些, 所以這篇就基於該書的推導, 補齊了較詳細的步驟, 並且嘗試使用 <a href="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/">Computational graph</a> 的方式理解 MMI 的訓練. 那麼就開始吧!</p>
 <p>用自己畫的 MMI 的計算圖譜當封面吧 :)</p>
 <p><img src="/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/MMI_computational_graph2.png" width="50%" height="50%"></p>
 <a id="more"></a>
@@ -397,7 +397,7 @@ J_{MMI}(\theta\|o,w)
 \end{align}$$</span><!-- Has MathJax -->
 <p>其中定義<br><span>$e_t^L=\triangledown_{z_t^L}J_{MMI}(\theta\|o,w)$</span><!-- Has MathJax --></p>
 <p>語音聲學模型 (AM) 傳統上使用 GMM 來 model, 而現在都是基於 DNN, 其中最後的 output layer 假設為第 $L$ 層: $z_t^L$, 過了 softmax 之後我們定義為 $v_t^L$, 而其 index $r$, <strong>$v_t^L(r)=P(r|o_t)$ 就是給定某一個時間 $t$ 的 observation $o_t$ 是 state $r$ 的機率.</strong></p>
-<p>讀者別緊張, 我們用 <a href="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/" target="_blank" rel="external">Computational graph</a> 的方式將上式直接<strong>畫出來</strong>:</p>
+<p>讀者別緊張, 我們用 <a href="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/">Computational graph</a> 的方式將上式直接<strong>畫出來</strong>:</p>
 <h3 id="MMI-Computational-Graph-表達"><a href="#MMI-Computational-Graph-表達" class="headerlink" title="MMI Computational Graph 表達"></a>MMI Computational Graph 表達</h3><p><img src="/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/MMI_computational_graph1.png" width="80%" height="80%"><br><img src="/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/MMI_computational_graph2.png" width="80%" height="80%"></p>
 <p>上圖用 computational graph 清楚的表達了式 (3) 的計算, 因為所有參數 $\theta$ 在所有的時間 $t$ 上是共享的, 因此要 $\sum_t$, 也就是要累加上圖所有紅色的 gradient path.</p>
 <p>計算 $\partial z_t^L / \partial\theta$ 很容易, 就是 DNN 的計算圖譜的 gradient, 因此重點就在如何計算 $e_t^L$, 而整個 MMI 最核心的地方就是在計算這個了!</p>
@@ -496,7 +496,7 @@ e_t^L(i)=K\left(\gamma_t^{DEN}(i)-\gamma_t^{NUM}(i)\right)
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/" title="Maximum Mutual Information in Speech Recognition">http://yoursite.com/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/</a>
+      <a href="https://bobondemon.github.io/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/" title="Maximum Mutual Information in Speech Recognition">https://bobondemon.github.io/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>

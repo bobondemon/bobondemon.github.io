@@ -90,24 +90,24 @@
 <meta name="description" content="上一篇說明了 time domain 的 adaptive filters, 由於是 sample-by-sample 處理, 因此太慢了不可用, 真正可用的都是基於 frequency domain. 不過在深入之前, 一定要先了解 convolution 在 input 為 block-by-block 的情況下如何加速. 本文內容主要參考 Partitioned convolutio">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Adaptive Filters 簡介 (2) Fast Convolution and Frequency Domain">
-<meta property="og:url" content="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/index.html">
+<meta property="og:url" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="上一篇說明了 time domain 的 adaptive filters, 由於是 sample-by-sample 處理, 因此太慢了不可用, 真正可用的都是基於 frequency domain. 不過在深入之前, 一定要先了解 convolution 在 input 為 block-by-block 的情況下如何加速. 本文內容主要參考 Partitioned convolutio">
-<meta property="og:image" content="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/classes_of_convolution_algo.png">
-<meta property="og:image" content="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/ola1.png">
-<meta property="og:image" content="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/ols1.png">
-<meta property="og:image" content="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/def_circular_conv.png">
-<meta property="og:image" content="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/linear_conv_with_circular_conv.png">
-<meta property="og:image" content="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/fast_conv.png">
-<meta property="og:image" content="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/fast_conv_ola.png">
-<meta property="og:image" content="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/fast_conv_ols.png">
-<meta property="og:image" content="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/FDAF.png">
-<meta property="og:image" content="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/upols.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/classes_of_convolution_algo.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/ola1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/ols1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/def_circular_conv.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/linear_conv_with_circular_conv.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/fast_conv.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/fast_conv_ola.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/fast_conv_ols.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/FDAF.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/upols.png">
 <meta property="og:updated_time" content="2021-07-06T01:43:36.931Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Adaptive Filters 簡介 (2) Fast Convolution and Frequency Domain">
 <meta name="twitter:description" content="上一篇說明了 time domain 的 adaptive filters, 由於是 sample-by-sample 處理, 因此太慢了不可用, 真正可用的都是基於 frequency domain. 不過在深入之前, 一定要先了解 convolution 在 input 為 block-by-block 的情況下如何加速. 本文內容主要參考 Partitioned convolutio">
-<meta name="twitter:image" content="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/classes_of_convolution_algo.png">
+<meta name="twitter:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/classes_of_convolution_algo.png">
 
 
 
@@ -135,7 +135,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/"/>
+  <link rel="canonical" href="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/"/>
 
 
 
@@ -280,7 +280,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -460,7 +460,7 @@
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/" title="Adaptive Filters 簡介 (2) Fast Convolution and Frequency Domain">http://yoursite.com/2019/06/08/Adaptive-Filters-Notes-2/</a>
+      <a href="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/" title="Adaptive Filters 簡介 (2) Fast Convolution and Frequency Domain">https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>

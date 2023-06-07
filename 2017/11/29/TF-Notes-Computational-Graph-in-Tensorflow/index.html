@@ -90,34 +90,34 @@
 <meta name="description" content="這篇介紹 computational graph (計算圖譜), 主要來源參考自李宏毅教授的課程內容. 並且我們使用 tensorflow 的求導函數 tf.gradients 來驗證 computational graph. 最後我們在 MNIST 上驗證整個 DNN/CNN 的 backpropagation 可以利用 computational graph 的計算方式訓練.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="TF Notes (3), Computational Graph in Tensorflow">
-<meta property="og:url" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/index.html">
+<meta property="og:url" content="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="這篇介紹 computational graph (計算圖譜), 主要來源參考自李宏毅教授的課程內容. 並且我們使用 tensorflow 的求導函數 tf.gradients 來驗證 computational graph. 最後我們在 MNIST 上驗證整個 DNN/CNN 的 backpropagation 可以利用 computational graph 的計算方式訓練.">
-<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/cover.gif">
-<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic1.png">
-<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic2.png">
-<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic3.png">
-<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic4.png">
-<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic5.png">
-<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic6.png">
-<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic7.png">
-<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic8.png">
-<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic9.png">
-<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic10.png">
-<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic11.png">
-<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic12.png">
-<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic13.png">
-<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic14.png">
-<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic15.png">
-<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic15.png">
-<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic17.png">
-<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic18.png">
-<meta property="og:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic19.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/cover.gif">
+<meta property="og:image" content="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic4.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic5.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic6.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic7.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic8.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic9.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic10.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic11.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic12.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic13.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic14.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic15.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic15.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic17.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic18.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/pic19.png">
 <meta property="og:updated_time" content="2017-12-16T17:47:03.492Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="TF Notes (3), Computational Graph in Tensorflow">
 <meta name="twitter:description" content="這篇介紹 computational graph (計算圖譜), 主要來源參考自李宏毅教授的課程內容. 並且我們使用 tensorflow 的求導函數 tf.gradients 來驗證 computational graph. 最後我們在 MNIST 上驗證整個 DNN/CNN 的 backpropagation 可以利用 computational graph 的計算方式訓練.">
-<meta name="twitter:image" content="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/cover.gif">
+<meta name="twitter:image" content="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/cover.gif">
 
 
 
@@ -145,7 +145,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/"/>
+  <link rel="canonical" href="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/"/>
 
 
 
@@ -290,7 +290,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -485,7 +485,7 @@ gy1y0=\frac{\partial y1}{\partial y0}gy2y1 \\
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/" title="TF Notes (3), Computational Graph in Tensorflow">http://yoursite.com/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/</a>
+      <a href="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/" title="TF Notes (3), Computational Graph in Tensorflow">https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>

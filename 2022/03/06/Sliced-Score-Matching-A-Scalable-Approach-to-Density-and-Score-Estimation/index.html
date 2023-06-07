@@ -91,18 +91,18 @@
 雖然 DSM (文章在系列二) 比起 SM 可以非常有效率的訓練, 但最多只能還原到 noisy 的分">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Score Matching 系列 (三) Sliced Score Matching (SSM) 同時保持效率和效果">
-<meta property="og:url" content="http://yoursite.com/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/index.html">
+<meta property="og:url" content="https://bobondemon.github.io/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="這是一篇論文筆記: “Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation”建議看本文前請先參前兩篇: Score Matching 系列 (一) 和 Score Matching 系列 (二)
 雖然 DSM (文章在系列二) 比起 SM 可以非常有效率的訓練, 但最多只能還原到 noisy 的分">
-<meta property="og:image" content="http://yoursite.com/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/Untitled.png">
-<meta property="og:image" content="http://yoursite.com/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/Untitled 1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/Untitled.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/Untitled 1.png">
 <meta property="og:updated_time" content="2022-03-06T02:37:29.891Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Score Matching 系列 (三) Sliced Score Matching (SSM) 同時保持效率和效果">
 <meta name="twitter:description" content="這是一篇論文筆記: “Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation”建議看本文前請先參前兩篇: Score Matching 系列 (一) 和 Score Matching 系列 (二)
 雖然 DSM (文章在系列二) 比起 SM 可以非常有效率的訓練, 但最多只能還原到 noisy 的分">
-<meta name="twitter:image" content="http://yoursite.com/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/Untitled.png">
+<meta name="twitter:image" content="https://bobondemon.github.io/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/Untitled.png">
 
 
 
@@ -130,7 +130,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/"/>
+  <link rel="canonical" href="https://bobondemon.github.io/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/"/>
 
 
 
@@ -275,7 +275,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -378,7 +378,7 @@
 </script>
 
 <hr>
-<p>這是一篇論文筆記: “Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation”<br>建議看本文前請先參前兩篇: <a href="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/" target="_blank" rel="external">Score Matching 系列 (一)</a> 和 <a href="https://bobondemon.github.io/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/" target="_blank" rel="external">Score Matching 系列 (二)</a></p>
+<p>這是一篇論文筆記: “Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation”<br>建議看本文前請先參前兩篇: <a href="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/">Score Matching 系列 (一)</a> 和 <a href="https://bobondemon.github.io/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/">Score Matching 系列 (二)</a></p>
 <p>雖然 DSM (文章在系列二) 比起 SM 可以非常有效率的訓練, 但最多只能還原到 noisy 的分布, 且加噪的強度不易調整.<br>本篇 SSM or SSM-VR 則不會有此缺點, 且效果可以接近原來的 SM.</p>
 <a id="more"></a>
 <h2 id="背景回顧"><a href="#背景回顧" class="headerlink" title="背景回顧"></a>背景回顧</h2><p>真實資料的 pdf $p_d(x)$ 和其 score function 定義如下:<br><span>$$s_d(x) \triangleq \nabla_x \log p_d(x)$$</span><!-- Has MathJax --></p>
@@ -456,7 +456,7 @@ v^T\nabla_x s_m(x;\theta)v + \frac{1}{2}(v^Ts_m(x;\theta))^2
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/" title="Score Matching 系列 (三) Sliced Score Matching (SSM) 同時保持效率和效果">http://yoursite.com/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/</a>
+      <a href="https://bobondemon.github.io/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/" title="Score Matching 系列 (三) Sliced Score Matching (SSM) 同時保持效率和效果">https://bobondemon.github.io/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>

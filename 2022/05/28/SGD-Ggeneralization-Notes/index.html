@@ -90,22 +90,22 @@
 <meta name="description" content="Sharp V.S. Flat Local Minimum 的泛化能力先簡單介紹這篇文章:On large-batch training for deep learning: Generalization gap and sharp minima考慮下圖兩個 minimum, 對於 training loss 來說其 losses 一樣. 從圖可以容易理解到, 如果找到太 sharp 的點">
 <meta property="og:type" content="article">
 <meta property="og:title" content="SGD 泛化能力的筆記">
-<meta property="og:url" content="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/index.html">
+<meta property="og:url" content="https://bobondemon.github.io/2022/05/28/SGD-Ggeneralization-Notes/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="Sharp V.S. Flat Local Minimum 的泛化能力先簡單介紹這篇文章:On large-batch training for deep learning: Generalization gap and sharp minima考慮下圖兩個 minimum, 對於 training loss 來說其 losses 一樣. 從圖可以容易理解到, 如果找到太 sharp 的點">
-<meta property="og:image" content="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/Untitled.png">
-<meta property="og:image" content="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/Untitled 1.png">
-<meta property="og:image" content="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/Untitled 2.png">
-<meta property="og:image" content="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/Untitled 3.png">
-<meta property="og:image" content="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/Untitled 4.png">
-<meta property="og:image" content="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/Untitled 5.png">
-<meta property="og:image" content="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/Untitled 6.png">
-<meta property="og:image" content="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/Untitled 7.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/05/28/SGD-Ggeneralization-Notes/Untitled.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/05/28/SGD-Ggeneralization-Notes/Untitled 1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/05/28/SGD-Ggeneralization-Notes/Untitled 2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/05/28/SGD-Ggeneralization-Notes/Untitled 3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/05/28/SGD-Ggeneralization-Notes/Untitled 4.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/05/28/SGD-Ggeneralization-Notes/Untitled 5.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/05/28/SGD-Ggeneralization-Notes/Untitled 6.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/05/28/SGD-Ggeneralization-Notes/Untitled 7.png">
 <meta property="og:updated_time" content="2022-07-20T14:06:40.963Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SGD 泛化能力的筆記">
 <meta name="twitter:description" content="Sharp V.S. Flat Local Minimum 的泛化能力先簡單介紹這篇文章:On large-batch training for deep learning: Generalization gap and sharp minima考慮下圖兩個 minimum, 對於 training loss 來說其 losses 一樣. 從圖可以容易理解到, 如果找到太 sharp 的點">
-<meta name="twitter:image" content="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/Untitled.png">
+<meta name="twitter:image" content="https://bobondemon.github.io/2022/05/28/SGD-Ggeneralization-Notes/Untitled.png">
 
 
 
@@ -133,7 +133,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/"/>
+  <link rel="canonical" href="https://bobondemon.github.io/2022/05/28/SGD-Ggeneralization-Notes/"/>
 
 
 
@@ -278,7 +278,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/05/28/SGD-Ggeneralization-Notes/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chih-Sheng Chen">
@@ -393,7 +393,7 @@
 \text{ODE}: \dot{\omega}=f(\omega)=-\nabla C(\omega)
 \end{align}$$</span><!-- Has MathJax --><br>給定 initial point $\omega_0$, 上面的 ODE 求解就是一條連續的 trajectory.</p>
 <blockquote>
-<p>💡 我們在 <a href="https://bobondemon.github.io/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/" target="_blank" rel="external">Numerical Methods for Ordinary Differential Equations</a> 有介紹各種數值方法, 可以知道 gradient descent 就是 Euler method, 而這樣的 error 是 $O(h^2)$.</p>
+<p>💡 我們在 <a href="https://bobondemon.github.io/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/">Numerical Methods for Ordinary Differential Equations</a> 有介紹各種數值方法, 可以知道 gradient descent 就是 Euler method, 而這樣的 error 是 $O(h^2)$.</p>
 </blockquote>
 <p>用式 (1) gradient descent ($h$ 固定) 求解, 會使得 trajectory 跟連續的 ODE (3) 的不同.<br><img src="/2022/05/28/SGD-Ggeneralization-Notes/Untitled 2.png" width="30%" height="30%"> 注意到這裡沒有使用 mini-batch, 用的是 full-batch, 所以不是 Stochastic gradient descent (SGD).</p>
 <p>如果我們能對 gradient descent 的 trajectory 用<strong><em>另一個 ODE</em></strong> system 的 trajectory 代表的話 (怎麼找等等再說), 分析修改過後的 ODE 和原來的 ODE systems 說不定能看到什麼關聯. 這正是這篇論文的重要發現.<br>先來看看修改過後的 ODE 長什麼樣:<br><span>$$\begin{align}
@@ -447,7 +447,7 @@ f&apos;(\tilde{y}(t))\tilde{f}(\tilde{y}(t))+hf_1&apos;(\tilde{y}(t))\tilde{f}(\
 <li><a href="https://arxiv.org/abs/2009.11162" target="_blank" rel="external">Implicit Gradient Regularization</a></li>
 <li><a href="https://arxiv.org/abs/2101.12176" target="_blank" rel="external">On the Origin of Implicit Regularization in Stochastic Gradient Descent</a></li>
 <li>inFERENCe: <a href="https://www.inference.vc/notes-on-the-origin-of-implicit-regularization-in-stochastic-gradient-descent/" target="_blank" rel="external">Notes on the Origin of Implicit Regularization in SGD</a></li>
-<li><a href="https://bobondemon.github.io/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/" target="_blank" rel="external">Numerical Methods for Ordinary Differential Equations</a></li>
+<li><a href="https://bobondemon.github.io/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/">Numerical Methods for Ordinary Differential Equations</a></li>
 <li><a href="https://arxiv.org/abs/1609.04836" target="_blank" rel="external">On large-batch training for deep learning: Generalization gap and sharp minima</a></li>
 <li>Paper presentation by author: <a href="https://www.youtube.com/watch?v=pZnZSxOttN0" target="_blank" rel="external">On the Origin of Implicit Regularization in Stochastic Gradient Descent</a></li>
 </ol>
@@ -479,7 +479,7 @@ f&apos;(\tilde{y}(t))\tilde{f}(\tilde{y}(t))+hf_1&apos;(\tilde{y}(t))\tilde{f}(\
     </li>
     <li class="post-copyright-link">
       <strong>Post link：</strong>
-      <a href="http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/" title="SGD 泛化能力的筆記">http://yoursite.com/2022/05/28/SGD-Ggeneralization-Notes/</a>
+      <a href="https://bobondemon.github.io/2022/05/28/SGD-Ggeneralization-Notes/" title="SGD 泛化能力的筆記">https://bobondemon.github.io/2022/05/28/SGD-Ggeneralization-Notes/</a>
     </li>
     <li class="post-copyright-license">
       <strong>Copyright Notice： </strong>
