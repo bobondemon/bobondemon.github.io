@@ -1,0 +1,873 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Pruning,LoRA,PEFT,LoRAPrune," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="這篇論文 [LoRAPrune: arxiv] 使用 first-order Taylor importance 的 pruning 方法 (需計算 gradients) 來對每個 weight 計算重要性, 然後根據重要性剪枝. 但是現在模型已經愈來愈大, 對所有 weights 都須計算 gradient 的負擔太大.
+另一方面, 在 LLM 中對於大模型的 fine tuning 使">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Pruning Meets Low-Rank Parameter-Efficient Fine-Tuning 筆記">
+<meta property="og:url" content="https://bobondemon.github.io/2023/10/09/Pruning-Meets-Low-Rank-Parameter-Efficient-Fine-Tuning-筆記/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="這篇論文 [LoRAPrune: arxiv] 使用 first-order Taylor importance 的 pruning 方法 (需計算 gradients) 來對每個 weight 計算重要性, 然後根據重要性剪枝. 但是現在模型已經愈來愈大, 對所有 weights 都須計算 gradient 的負擔太大.
+另一方面, 在 LLM 中對於大模型的 fine tuning 使">
+<meta property="og:image" content="https://bobondemon.github.io/2023/10/09/Pruning-Meets-Low-Rank-Parameter-Efficient-Fine-Tuning-筆記/ProgressivePruning.png">
+<meta property="og:updated_time" content="2023-10-09T14:39:08.648Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Pruning Meets Low-Rank Parameter-Efficient Fine-Tuning 筆記">
+<meta name="twitter:description" content="這篇論文 [LoRAPrune: arxiv] 使用 first-order Taylor importance 的 pruning 方法 (需計算 gradients) 來對每個 weight 計算重要性, 然後根據重要性剪枝. 但是現在模型已經愈來愈大, 對所有 weights 都須計算 gradient 的負擔太大.
+另一方面, 在 LLM 中對於大模型的 fine tuning 使">
+<meta name="twitter:image" content="https://bobondemon.github.io/2023/10/09/Pruning-Meets-Low-Rank-Parameter-Efficient-Fine-Tuning-筆記/ProgressivePruning.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2023/10/09/Pruning-Meets-Low-Rank-Parameter-Efficient-Fine-Tuning-筆記/"/>
+
+
+
+
+
+  <title> Pruning Meets Low-Rank Parameter-Efficient Fine-Tuning 筆記 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2023/10/09/Pruning-Meets-Low-Rank-Parameter-Efficient-Fine-Tuning-筆記/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Pruning Meets Low-Rank Parameter-Efficient Fine-Tuning 筆記
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2023-10-09T17:29:38+08:00">
+                2023-10-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>這篇論文 [LoRAPrune: <a href="https://arxiv.org/abs/2305.18403" target="_blank" rel="external">arxiv</a>] 使用 first-order Taylor importance 的 pruning 方法 (需計算 gradients) 來對每個 weight 計算重要性, 然後根據重要性剪枝. 但是現在模型已經愈來愈大, 對所有 weights 都須計算 gradient 的負擔太大.</p>
+<p>另一方面, 在 LLM 中對於大模型的 fine tuning 使用 <a href="https://arxiv.org/abs/2106.09685" target="_blank" rel="external">LoRA</a> (PEFT, Parameter Efficient Fine Tuning, 的一種) 來計算 gradients 非常有效率. 但是更新的不是原來 model 的參數, 而是 LoRA 外掛的參數. 因此無法對原來的參數 pruning.</p>
+<p>如何 pruning 原來的參數又能利用上 LoRA 的效率就是此篇論文的工作.</p>
+<span>$$\begin{array}{|c |c |c |}
+\hline  &amp; 能否對原來的參數做剪枝? &amp; 是否很有效率? \\
+\hline \text{1st order pruning} &amp; \text{Yes} &amp; \text{No} \\
+\hline \text{LoRA} &amp; \text{No} &amp; \text{Yes} \\
+\hline \text{LoRAPrune} &amp; \text{Yes} &amp; \text{Yes} \\
+\hline
+\end{array}$$</span><!-- Has MathJax -->
+<p>以下會先介紹 first-order Taylor importance 的 pruning 方法, 再來介紹 LoRA, 最後說明如何取兩者之優點得出此篇的方法: LoRAPrune</p>
+<a id="more"></a>
+<h2 id="First-order-Taylor-Importance-Pruning"><a href="#First-order-Taylor-Importance-Pruning" class="headerlink" title="First-order Taylor Importance Pruning"></a>First-order Taylor Importance Pruning</h2><hr>
+<p>對 weight <span>$w_{ij}$</span><!-- Has MathJax --> 的 importance score 估計, 是以該 weight 被 prune 掉的話 (<span>$w_{ij}=0$</span><!-- Has MathJax -->), 對 loss 有多少影響來當依據, 所以:</p>
+<blockquote>
+<p><span>$(W_0)_{ij}$</span><!-- Has MathJax --> 用 <span>$w_{ij}$</span><!-- Has MathJax --> 表示</p>
+</blockquote>
+<span>$$\begin{align}
+\mathcal{I}_{ij}=(\mathcal{L}(x,y,W_0)-\mathcal{L}(x,y,W_0|w_{ij}=0))^2
+\end{align}$$</span><!-- Has MathJax -->
+<blockquote>
+<p>複習一下 Taylor expansion<br><span>$$f(x)=f(a)+{f&apos;(a)\over 1!}(x-a)+{f&apos;&apos;(a)\over 2!}(x-a)^2+{f&apos;&apos;&apos;(a)\over 3!}(x-a)^3+...$$</span><!-- Has MathJax --> 所以<br><span>$$\mathcal{L}(W-\delta W) = \mathcal{L}(W)
++ \nabla_W \mathcal{L}^T\cdot(-\delta W)
++ {1\over2}(-\delta W)^T\cdot(\nabla_W^2 \mathcal{L})\cdot(-\delta W)
++... \\
+\Longrightarrow
+\mathcal{L}(W)-\mathcal{L}(W-\delta W)=
+\nabla_W \mathcal{L}^T\cdot(\delta W)
+- {1\over2}\delta W^T\cdot(\nabla_W^2 \mathcal{L})\cdot\delta W + ...$$</span><!-- Has MathJax --></p>
+</blockquote>
+<p>假設二次項之後影響都比一次項小很多, 因此我們可以把參數 <span>$w_{ij}$</span><!-- Has MathJax --> 的 importance score 設定成一次項的 power:<br>(這時的 <span>$\delta W=w_{ij}$</span><!-- Has MathJax -->)<br><span>$$\begin{align}
+\mathcal{\hat I}_{ij}=\left(
+{\partial\mathcal{L}\over\partial w_{ij}}w_{ij}
+\right)^2
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>我們就根據 <span>$\mathcal{\hat I}_{ij}$</span><!-- Has MathJax --> 來逐步剪枝不要的參數</p>
+<h2 id="LoRA"><a href="#LoRA" class="headerlink" title="LoRA"></a>LoRA</h2><hr>
+<p>LoRA (Low-Rank Adaptation) 公式為:<br><span>$$\begin{align}
+z=xW_0+xBA
+\end{align}$$</span><!-- Has MathJax --> 其中 <span>$W_0\in\mathbf{R}^{d\times k}$</span><!-- Has MathJax --> 是原來 model 的參數, <span>$A\in\mathbf{R}^{r\times k}$</span><!-- Has MathJax --> and <span>$B\in\mathbf{R}^{d\times r}$</span><!-- Has MathJax --> 是 LoRA 的兩個 learnable low rank (rank $r$) 參數.<br>會將 $W_0$ fixed 住, 只學 $A$ and $B$, 且由於 rank $r$ 通常都不大, 因此很有效率. 注意到為了保證 initial 的時候 performance (output) 跟原來一樣, 會將 $B$ initial 成 $0$ matrix ($A$ random Guassian 即可)<br>學完之後, 可將 $A,B$ 的參數 merge 回 $W_0$, 所以 inference 不會增加額外計算量<br><span>$$\begin{align}
+W=W_0+BA
+\end{align}$$</span><!-- Has MathJax --></p>
+<h2 id="LoRAPrune"><a href="#LoRAPrune" class="headerlink" title="LoRAPrune"></a>LoRAPrune</h2><hr>
+<p>如果要將 <span>$w_{ij}$</span><!-- Has MathJax --> prune 掉的話, 相當於設定 <span>$(BA)_{ij}=-w_{ij}$</span><!-- Has MathJax -->, 所以 importance score (1) 改寫如下:<br><span>$$\begin{align}
+\mathcal{I}_{ij}=(\mathcal{L}(x,y,W_0)-\mathcal{L}(x,y,W_0|(BA)_{ij}=-w_{ij}))^2
+\end{align}$$</span><!-- Has MathJax --> 如同上面一樣 first order Taylor approximation 為:</p>
+<span>$$\begin{align}
+\mathcal{\hat I}_{ij}=\left(
+{\partial\mathcal{L}\over\partial (BA)_{ij}}((BA)_{ij}+w_{ij})
+\right)^2
+\end{align}$$</span><!-- Has MathJax --> 注意到 $W_0$ 是 fixed 住, 而 $A,B$ 才是 learnable parameters, 所以是對 <span>$(BA)_{ij}$</span><!-- Has MathJax --> 偏微分<br>其中由於 SGD update 公式的關係, (6) 的偏微分那項可這麼看待:<br><span>$$\begin{align}
+{\partial\mathcal{L}\over\partial(BA)_{ij}}\propto (BA)_{ij}|_t - (BA)_{ij}|_{t+1}
+\end{align}$$</span><!-- Has MathJax --> $t$ 為當下的 weights, $t+1$ 是要 update 的 SGD iteration, 繼續拆解如下:<br><span>$$\begin{align}
+{\partial\mathcal{L}\over\partial(BA)_{ij}}\propto\left[
+B_{i:}A_{:j}-
+\left(B_{i:}-\frac{\partial\mathcal{L}}{\partial B_{i:}}\right)
+\left(A_{:j}-\frac{\partial\mathcal{L}}{\partial A_{:j}}\right)
+\right] \\
+=\left[
+\frac{\partial\mathcal{L}}{\partial B_{i:}}A_{:j} + B_{i:}\frac{\partial\mathcal{L}}{\partial A_{:j}} - \frac{\partial\mathcal{L}}{\partial B_{i:}}\frac{\partial\mathcal{L}}{\partial A_{:j}}
+\right]
+\end{align}$$</span><!-- Has MathJax --> 將 (9) 代回 (6) 得到:<br><span>$$\begin{align}
+\mathcal{\hat I}_{ij}=\left(
+(\nabla B \cdot A + B\cdot\nabla A - \nabla B\cdot\nabla A)\odot(BA+W_0)
+\right)^2
+\end{align}$$</span><!-- Has MathJax -->
+<p>其中 <span>$\odot$</span><!-- Has MathJax --> 表示 element-wised 相乘, 到這裡我們發現只使用 $A,B$ 的 gradients, 因此保有了 LoRA 效率的好處.</p>
+<h2 id="Progressive-LoRAPrune"><a href="#Progressive-LoRAPrune" class="headerlink" title="Progressive LoRAPrune"></a>Progressive LoRAPrune</h2><hr>
+<p>在計算 forward and backward 的時候是使用 masking 的方式計算:<br><span>$$\begin{align}
+z=(xW_0+xBA)\odot M
+\end{align}$$</span><!-- Has MathJax --> 其中 $M$ 是 binary mask, 是根據 importance score <span>$\mathcal{\bar I}$</span><!-- Has MathJax --> 計算得到, 而 <span>$\mathcal{\bar I}$</span><!-- Has MathJax --> 只是個 smoothed 過後的 <span>$\mathcal{\hat I}$</span><!-- Has MathJax --> (10) 而已<br><span>$$\begin{align}
+\mathcal{\bar I}|_t=\lambda\mathcal{\bar I}|_{t-1}+(1-\lambda)\mathcal{\hat I}|_t
+\end{align}$$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>注意到由於直接乘 mask $M$, 沒有特別使用 <a href="https://hassanaskary.medium.com/intuitive-explanation-of-straight-through-estimators-with-pytorch-implementation-71d99d25d9d0#what-is-a-straight-through-estimator" target="_blank" rel="external">STE</a> 來讓 mask = 0 的地方的 gradient 流通, 因此被 mask 的 $i,j$ 會沒有 gradients, 但其實 <span>$B_{i:}$</span><!-- Has MathJax --> 或 <span>$A_{:j}$</span><!-- Has MathJax --> 還是有機會被其他位置的 gradients 更新到, 例如 <span>$M_{ik}\neq0$</span><!-- Has MathJax --> 則 <span>$B_{i:}$</span><!-- Has MathJax --> 還是會被 update, <span>$M_{lj}\neq0$</span><!-- Has MathJax --> 則 <span>$A_{:j}$</span><!-- Has MathJax --> 也會被 update, 綜合起來 <span>$(BA)_{ij}$</span><!-- Has MathJax --> 也被改變了. 也因此就算 <span>$M_{ij}=0$</span><!-- Has MathJax -->, $w_{ij}$ 還是有敗部復活的機會.</p>
+</blockquote>
+<p>所以 progressive LoRAPrune 流程如下<br><img src="/2023/10/09/Pruning-Meets-Low-Rank-Parameter-Efficient-Fine-Tuning-筆記/ProgressivePruning.png" width="100%" height="100%"></p>
+<p>論文後面有些實驗很有意思, 例如使用 <span>$\frac{\partial\mathcal{L}}{\partial w_{ij}}$</span><!-- Has MathJax --> 來替換 (6) 中的 <span>$\frac{\partial\mathcal{L}}{\partial (BA)_{ij}}$</span><!-- Has MathJax -->. 再請有興趣的讀者自行閱讀論文.</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><hr>
+<ol>
+<li>LoRAPrune: Pruning Meets Low-Rank Parameter-Efficient Fine-Tuning [<a href="https://arxiv.org/abs/2305.18403" target="_blank" rel="external">arxiv</a>]</li>
+<li>LoRA: Low-Rank Adaptation of Large Language Models [<a href="https://arxiv.org/abs/2106.09685" target="_blank" rel="external">arxiv</a>]</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2023/10/09/Pruning-Meets-Low-Rank-Parameter-Efficient-Fine-Tuning-筆記/" title="Pruning Meets Low-Rank Parameter-Efficient Fine-Tuning 筆記">https://bobondemon.github.io/2023/10/09/Pruning-Meets-Low-Rank-Parameter-Efficient-Fine-Tuning-筆記/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Pruning/" rel="tag"># Pruning</a>
+          
+            <a href="/tags/LoRA/" rel="tag"># LoRA</a>
+          
+            <a href="/tags/PEFT/" rel="tag"># PEFT</a>
+          
+            <a href="/tags/LoRAPrune/" rel="tag"># LoRAPrune</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/" rel="next" title="Movement Pruning Adaptive Sparsity by Fine-Tuning 筆記">
+                <i class="fa fa-chevron-left"></i> Movement Pruning Adaptive Sparsity by Fine-Tuning 筆記
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">82</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">174</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#First-order-Taylor-Importance-Pruning"><span class="nav-number">1.</span> <span class="nav-text">First-order Taylor Importance Pruning</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LoRA"><span class="nav-number">2.</span> <span class="nav-text">LoRA</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LoRAPrune"><span class="nav-number">3.</span> <span class="nav-text">LoRAPrune</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Progressive-LoRAPrune"><span class="nav-number">4.</span> <span class="nav-text">Progressive LoRAPrune</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">5.</span> <span class="nav-text">References</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
