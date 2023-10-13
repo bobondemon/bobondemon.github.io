@@ -87,20 +87,20 @@
 
 
 
-<meta name="description" content="這篇論文 [LoRAPrune: arxiv] 使用 first-order Taylor importance 的 pruning 方法 (需計算 gradients) 來對每個 weight 計算重要性, 然後根據重要性剪枝. 但是現在模型已經愈來愈大, 對所有 weights 都須計算 gradient 的負擔太大.
-另一方面, 在 LLM 中對於大模型的 fine tuning 使">
+<meta name="description" content="本文是這篇論文 “LoRAPrune: Pruning Meets Low-Rank Parameter-Efficient Fine-Tuning [arxiv]” 的筆記.
+一般來說使用 first-order Taylor importance 的 pruning 方法 (需計算 gradients) 來對每個 weight 計算重要性, 然後根據重要性剪枝. 但是現在模型已經愈來愈">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Pruning Meets Low-Rank Parameter-Efficient Fine-Tuning 筆記">
 <meta property="og:url" content="https://bobondemon.github.io/2023/10/09/Pruning-Meets-Low-Rank-Parameter-Efficient-Fine-Tuning-筆記/index.html">
 <meta property="og:site_name" content="棒棒生">
-<meta property="og:description" content="這篇論文 [LoRAPrune: arxiv] 使用 first-order Taylor importance 的 pruning 方法 (需計算 gradients) 來對每個 weight 計算重要性, 然後根據重要性剪枝. 但是現在模型已經愈來愈大, 對所有 weights 都須計算 gradient 的負擔太大.
-另一方面, 在 LLM 中對於大模型的 fine tuning 使">
+<meta property="og:description" content="本文是這篇論文 “LoRAPrune: Pruning Meets Low-Rank Parameter-Efficient Fine-Tuning [arxiv]” 的筆記.
+一般來說使用 first-order Taylor importance 的 pruning 方法 (需計算 gradients) 來對每個 weight 計算重要性, 然後根據重要性剪枝. 但是現在模型已經愈來愈">
 <meta property="og:image" content="https://bobondemon.github.io/2023/10/09/Pruning-Meets-Low-Rank-Parameter-Efficient-Fine-Tuning-筆記/ProgressivePruning.png">
-<meta property="og:updated_time" content="2023-10-09T14:39:08.648Z">
+<meta property="og:updated_time" content="2023-10-13T13:26:59.422Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Pruning Meets Low-Rank Parameter-Efficient Fine-Tuning 筆記">
-<meta name="twitter:description" content="這篇論文 [LoRAPrune: arxiv] 使用 first-order Taylor importance 的 pruning 方法 (需計算 gradients) 來對每個 weight 計算重要性, 然後根據重要性剪枝. 但是現在模型已經愈來愈大, 對所有 weights 都須計算 gradient 的負擔太大.
-另一方面, 在 LLM 中對於大模型的 fine tuning 使">
+<meta name="twitter:description" content="本文是這篇論文 “LoRAPrune: Pruning Meets Low-Rank Parameter-Efficient Fine-Tuning [arxiv]” 的筆記.
+一般來說使用 first-order Taylor importance 的 pruning 方法 (需計算 gradients) 來對每個 weight 計算重要性, 然後根據重要性剪枝. 但是現在模型已經愈來愈">
 <meta name="twitter:image" content="https://bobondemon.github.io/2023/10/09/Pruning-Meets-Low-Rank-Parameter-Efficient-Fine-Tuning-筆記/ProgressivePruning.png">
 
 
@@ -377,7 +377,8 @@
 </script>
 
 <hr>
-<p>這篇論文 [LoRAPrune: <a href="https://arxiv.org/abs/2305.18403" target="_blank" rel="external">arxiv</a>] 使用 first-order Taylor importance 的 pruning 方法 (需計算 gradients) 來對每個 weight 計算重要性, 然後根據重要性剪枝. 但是現在模型已經愈來愈大, 對所有 weights 都須計算 gradient 的負擔太大.</p>
+<p>本文是這篇論文 “LoRAPrune: Pruning Meets Low-Rank Parameter-Efficient Fine-Tuning [<a href="https://arxiv.org/abs/2305.18403" target="_blank" rel="external">arxiv</a>]” 的筆記.</p>
+<p>一般來說使用 first-order Taylor importance 的 pruning 方法 (需計算 gradients) 來對每個 weight 計算重要性, 然後根據重要性剪枝. 但是現在模型已經愈來愈大, 對所有 weights 都須計算 gradient 的負擔太大.</p>
 <p>另一方面, 在 LLM 中對於大模型的 fine tuning 使用 <a href="https://arxiv.org/abs/2106.09685" target="_blank" rel="external">LoRA</a> (PEFT, Parameter Efficient Fine Tuning, 的一種) 來計算 gradients 非常有效率. 但是更新的不是原來 model 的參數, 而是 LoRA 外掛的參數. 因此無法對原來的參數 pruning.</p>
 <p>如何 pruning 原來的參數又能利用上 LoRA 的效率就是此篇論文的工作.</p>
 <span>$$\begin{array}{|c |c |c |}
