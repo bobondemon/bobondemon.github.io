@@ -54,7 +54,7 @@ def do_empirical_qerror_scanning(w, smax, zero, bit_num, scalar_num=100, smax_ra
     quant_min, quant_max = -(2 ** (bit_num - 1)), 2 ** (bit_num - 1) - 1
     qerrors = []
     clipping_scalars = np.linspace(1e-8, smax * smax_ratio, scalar_num)
-    # for loop for each scale
+    # for loop for each scalar
     for cs in clipping_scalars:
         w_q = torch.fake_quantize_per_tensor_affine(
             torch.as_tensor(w), 2 * cs / 2**bit_num, zero, quant_min, quant_max
@@ -130,7 +130,7 @@ def run():
     load_pretrained_model_and_save(mdl_path, resnet_version=50)
     weight17, weight45 = load_params_and_get_weights_17_45(mdl_path)
 
-    # plot_weight_hist(weight17, weight45)
+    plot_weight_hist(weight17, weight45)
     clipping_scalar_num = 200
     smax_ratio = 7.0
 
