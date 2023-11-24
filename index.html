@@ -373,7 +373,7 @@
 <p>DFQ 共四步, 對照圖看, 需照順序:<br><img src="/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled.png" width="100%" height="100%"></p>
 <ol>
 <li><strong>Cross-Layer Equalization (CLE)</strong>: 輸入 fused BN 後的 float model <span>$M_f^1$</span><!-- Has MathJax -->, floating 操作對 weights 做調整使得更均衡方便 per tensor 量化, 為 step 3 的前置作業, 輸出仍為 float model <span>$M_f^2$</span><!-- Has MathJax -->.</li>
-<li><strong>Bias Bbsorption (BA)</strong>: 輸入 CLE 後的 float model <span>$M_f^2$</span><!-- Has MathJax -->, floating 操作對 activations 做調整使得更均衡方便 per tensor 量化, 為 step 3 的前置作業, 輸出仍為 float model <span>$M_f^3$</span><!-- Has MathJax -->.</li>
+<li><strong>Bias Absorption (BA)</strong>: 輸入 CLE 後的 float model <span>$M_f^2$</span><!-- Has MathJax -->, floating 操作對 activations 做調整使得更均衡方便 per tensor 量化, 為 step 3 的前置作業, 輸出仍為 float model <span>$M_f^3$</span><!-- Has MathJax -->.</li>
 <li><strong>PTQ 量化</strong>: 輸入 CLE+BA 後的 float model <span>$M_f^3$</span><!-- Has MathJax -->, 此時不管 weights or activations 都適合做 per-tensor 量化了, 所以直接 PTQ 輸出 int model <span>$M_i^1$</span><!-- Has MathJax -->.</li>
 <li><strong>Bias Correction (BC)</strong>: 輸入 float model <span>$M_f^1$</span><!-- Has MathJax --> 和 step 3 的 <span>$M_i^1$</span><!-- Has MathJax -->, 並且(option)給一些 unlabeled 的代表 data, BC 會對 <span>$M_i^1$</span><!-- Has MathJax --> 的 bias 參數補償因為量化造成的數值 mean 偏移, 輸出為最終 fixed point model <span>$M_i^2$</span><!-- Has MathJax -->.</li>
 </ol>
