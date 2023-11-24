@@ -1,0 +1,874 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Quantization Aware Training (QAT),Data Free Quantization (DFQ),Post Training Quantization (PTQ),AIMET," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="總歸來說 Data-Free Quantization (DFQ) 的目的是讓 floating model 做 weights 各種調整, 使得不管是 weights or activations 都變得適合 per tensor 量化.這樣理想上就不需用到 per channel 量化, 因為 per channel 雖然效果很好, 但硬體比較不友善, 且花的運算量較高. 另外 DFQ">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Qualcomm Data-Free Quantization 詳讀">
+<meta property="og:url" content="https://bobondemon.github.io/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="總歸來說 Data-Free Quantization (DFQ) 的目的是讓 floating model 做 weights 各種調整, 使得不管是 weights or activations 都變得適合 per tensor 量化.這樣理想上就不需用到 per channel 量化, 因為 per channel 雖然效果很好, 但硬體比較不友善, 且花的運算量較高. 另外 DFQ">
+<meta property="og:image" content="https://bobondemon.github.io/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled 1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled 2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled 3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled 4.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/absorbing_bias-row.drawio.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/eq8.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/eq_9_12.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled 5.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled 6.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled 7.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled 8.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled 9.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled 10.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled 11.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/appendix1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/appendix2.png">
+<meta property="og:updated_time" content="2023-11-24T17:55:18.861Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Qualcomm Data-Free Quantization 詳讀">
+<meta name="twitter:description" content="總歸來說 Data-Free Quantization (DFQ) 的目的是讓 floating model 做 weights 各種調整, 使得不管是 weights or activations 都變得適合 per tensor 量化.這樣理想上就不需用到 per channel 量化, 因為 per channel 雖然效果很好, 但硬體比較不友善, 且花的運算量較高. 另外 DFQ">
+<meta name="twitter:image" content="https://bobondemon.github.io/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/"/>
+
+
+
+
+
+  <title> Qualcomm Data-Free Quantization 詳讀 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Qualcomm Data-Free Quantization 詳讀
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2023-11-24T23:20:05+08:00">
+                2023-11-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SP/" itemprop="url" rel="index">
+                    <span itemprop="name">SP</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>總歸來說 Data-Free Quantization (DFQ) 的目的是讓 floating model 做 weights 各種調整, 使得不管是 weights or activations 都變得適合 per tensor 量化.這樣理想上就不需用到 per channel 量化, 因為 per channel 雖然效果很好, 但硬體比較不友善, 且花的運算量較高. 另外 DFQ 屬於 Post-Training Quantization (PTQ) 方法. PTQ 對佈署到 edge 端很方便, 但一般來說 PTQ 都不如 Quantization-Aware Training (QAT) 的效果好, 因此 DFQ 嘗試提升效果.</p>
+<p>DFQ 共四步, 對照圖看, 需照順序:<br><img src="/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled.png" width="100%" height="100%"></p>
+<ol>
+<li><strong>Cross-Layer Equalization (CLE)</strong>: 輸入 fused BN 後的 float model <span>$M_f^1$</span><!-- Has MathJax -->, floating 操作對 weights 做調整使得更均衡方便 per tensor 量化, 為 step 3 的前置作業, 輸出仍為 float model <span>$M_f^2$</span><!-- Has MathJax -->.</li>
+<li><strong>Bias Bbsorption (BA)</strong>: 輸入 CLE 後的 float model <span>$M_f^2$</span><!-- Has MathJax -->, floating 操作對 activations 做調整使得更均衡方便 per tensor 量化, 為 step 3 的前置作業, 輸出仍為 float model <span>$M_f^3$</span><!-- Has MathJax -->.</li>
+<li><strong>PTQ 量化</strong>: 輸入 CLE+BA 後的 float model <span>$M_f^3$</span><!-- Has MathJax -->, 此時不管 weights or activations 都適合做 per-tensor 量化了, 所以直接 PTQ 輸出 int model <span>$M_i^1$</span><!-- Has MathJax -->.</li>
+<li><strong>Bias Correction (BC)</strong>: 輸入 float model <span>$M_f^1$</span><!-- Has MathJax --> 和 step 3 的 <span>$M_i^1$</span><!-- Has MathJax -->, 並且(option)給一些 unlabeled 的代表 data, BC 會對 <span>$M_i^1$</span><!-- Has MathJax --> 的 bias 參數補償因為量化造成的數值 mean 偏移, 輸出為最終 fixed point model <span>$M_i^2$</span><!-- Has MathJax -->.</li>
+</ol>
+<blockquote>
+<p>Qualcomm AI Lab 的 tool <a href="https://quic.github.io/aimet-pages/releases/latest/user_guide/index.html" target="_blank" rel="external">AIMET</a> 說 BC 這一步驟可以用 <a href="https://quic.github.io/aimet-pages/releases/latest/user_guide/adaround.html#ug-adaround" target="_blank" rel="external">AdaRound</a> (需要一小部分的 unlabelled training data) 取代</p>
+</blockquote>
+<p>其實認真看完論文, 覺得限制有點多啊! 很多時候不能套 CLE, 有時 BA 也用不了. 把限制條列一下:<br><a id="more"></a></p>
+<p>⚠️ <strong>CLE 限制</strong>:<br>&emsp;1. Activation functions $f(\cdot)$ 需為 piece-wise linear (e.g. ReLU, ReLU6, LeakyReLU, …)<br>&emsp;2. 如果有 BN (Batch normalization) layer, 先把它 fuse 到 Conv 裡面, 所以第3點的限制才可以忽略 BN layer.<br>&emsp;3. 相鄰的 layers 只能很單純是 $f(W^{(2)}f(W^{(1)}x+b^{(1)})+b^{(2)})$, 所以如果有 residual add 或 concat 才給 $W^{(2)}$ 作用的話就不行.<br>⚠️ <strong>BA 限制</strong>:<br>&emsp;1. activations 的每個維度是高斯分佈, 或能取得其分布, 例如透過 <code>observer</code>; 但在 <a href="https://quic.github.io/aimet-pages/releases/latest/user_guide/post_training_quant_techniques.html" target="_blank" rel="external">AIMET 工具</a>是假設有 BN 所以是高斯分布, 否則不用套用 BA<br>&emsp;2. Activation functions $f(\cdot)$ 需為 ReLU (or ReLU6), LeakyReLU 這種不行<br>⚠️ <strong>BC 限制</strong>:<br>&emsp;Empirical BC 需要給 representative data (可以是 unlabeled). 如果 Analytical BC (data-free) 則需有 BN —&gt; ReLU —&gt; Conv/FC 這樣順序的假設才能補償因 quantize 後 Conv/FC 這層輸出的 mean 偏移</p>
+<p>接著我們描述一下 CLE, BA 和 BC 的動機, 然後再詳細介紹論文提出的這三個方法</p>
+<h2 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h2><hr>
+<h3 id="CLE-動機"><a href="#CLE-動機" class="headerlink" title="CLE 動機"></a>CLE 動機</h3><p>Convolution kernels 在不同 output channels 來看, weights 的分佈有些很大有些很小, 這使得用統一一個 quantization parameter set 會不好. 所以如果能事先讓 weights 在不同 channel 的數值分佈接近, 這樣就適合用 per tensor quantization 了. 為此作者提出 Cross-Layer Equalizaiton (CLE) 方法.<br><img src="/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled 1.png" width="100%" height="100%"> 圖來源為 <a href="https://quic.github.io/aimet-pages/releases/latest/user_guide/post_training_quant_techniques.html" target="_blank" rel="external">AIMET Post-Training Quantization Techniques</a></p>
+<h3 id="BA-動機"><a href="#BA-動機" class="headerlink" title="BA 動機"></a>BA 動機</h3><p>不過做了 CLE 有個 side-effect 就是讓 activations 有可能反而不同 channels 分佈變的更不同, 為此作者提出 Bias Absorption (BA) 方法使得 activations 同樣適合 per-tensor quant.</p>
+<h3 id="BC-動機"><a href="#BC-動機" class="headerlink" title="BC 動機"></a>BC 動機</h3><p>另一方面, 其實 weights or input activations 經過 quantization 後, output activations 理想上希望是 un-biased, 但實際上都會有 bias, 如下圖<br><img src="/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled 2.png" width="70%" height="70%"></p>
+<p><span>$$\begin{align}
+\mathbb{E}[\tilde{y}_j-y_j]\approx{1\over N}\sum_n\left(\tilde{W}x_n\right)_j - \left(Wx_n\right)_j
+\end{align}$$</span><!-- Has MathJax --> 其中 <span>$\tilde{W},\tilde{y}$</span><!-- Has MathJax --> 分別是 quantized weight and output activation. 所以作者提出使用 Bias Correction (BC) 技巧來彌補.</p>
+<h2 id="Data-Free-Quantization-DFQ-詳細解釋"><a href="#Data-Free-Quantization-DFQ-詳細解釋" class="headerlink" title="Data Free Quantization (DFQ) 詳細解釋"></a>Data Free Quantization (DFQ) 詳細解釋</h2><hr>
+<h3 id="Cross-Layer-Equalization-CLE-幫助-weights-per-tensor-量化"><a href="#Cross-Layer-Equalization-CLE-幫助-weights-per-tensor-量化" class="headerlink" title="Cross-Layer Equalization (CLE), 幫助 weights per-tensor 量化"></a>Cross-Layer Equalization (CLE), 幫助 weights per-tensor 量化</h3><p>對任何 $s&gt;0$, 且 $f(\cdot)$ 是 piece-wise linear activation function:<br><span>$$\begin{align}
+f(x)=\left\{
+\begin{array}{rl}
+a_1x+b_1 &amp; \text{if }x\leq c_1 \\
+a_2x+b_2 &amp; \text{if }c_1&lt;x\leq c_2 \\
+\vdots \\
+a_nx+b_n &amp; \text{if } c_{n-1}&lt;x \\
+\end{array}
+\right.
+\end{align}$$</span><!-- Has MathJax --> 則我們可以找出等價的 $\hat{f}(\cdot)$ 使得 $f(sx)=s\hat{f}(x)$: 設定 $\hat{a}_i=a_i$, $\hat{b}_i=b_i/s$ and $\hat{c}_i=c_i/s$.<br>這麼做有什麼好處呢? 考慮以下的情形<br>給定兩個相鄰的 layers: $h=f(W^{(1)}x+b^{(1)})$ 和 $y=f(W^{(2)}h+b^{(2)})$, 其中 $f$ 是 piece-wise linear activation function.<br>則我們有:</p>
+<p><span>$$\begin{align}
+y=f(W^{(2)}f(W^{(1)}x+b^{(1)})+b^{(2)}) \\
+=f(W^{(2)}S\hat{f}(S^{-1}W^{(1)}x+S^{-1}b^{(1)})+b^{(2)}) \\
+=f(\hat{W}^{(2)}f(\hat{W}^{(1)}x+\hat{b}^{(1)})+b^{(2)})
+\end{align}$$</span><!-- Has MathJax --> 其中 <span>$S=\text{diag}(s)$</span><!-- Has MathJax --> 表示對角矩陣, <span>$S_{ii}$</span><!-- Has MathJax --> 是 neuron $i$ 的 scaling factor $s_i$. 就是靠這 $s$ 來調節 weights 分布.<br>所以我們重新縮放了 weights: <span>$\hat{W}^{(2)}=W^{(2)}S$</span><!-- Has MathJax -->, <span>$\hat{W}^{(1)}=S^{-1}W^{(1)}$</span><!-- Has MathJax --> and <span>$\hat{b}^{(1)}=S^{-1}b^{(1)}$</span><!-- Has MathJax -->.<br>那麼怎麼設定最佳的 $S$ 呢? 理想上, 透過 $S$ 我們希望將 <span>$\hat{W}^{(1)}, \hat{W}^{(2)}$</span><!-- Has MathJax --> 變成適合 per tensor quantization.<br>&emsp;- 定義 <span>$r_i^{(1)}:=\max(W_{i,:}^{(1)})$</span><!-- Has MathJax -->, 即為 $W^{(1)}$ 的 $i^{th}$ row vector 取 max.<br>&emsp;- 同理 <span>$\hat{r}_i^{(1)}:=\max(\hat{W}_{i,:}^{(1)})=r_i^{(1)}/s_i$</span><!-- Has MathJax -->.<br>類似地我們定義<br>&emsp;- <span>$r_j^{(2)}:=\max(W_{:,j}^{(2)})$</span><!-- Has MathJax -->, 即為 $W^{(2)}$ 的 $j^{th}$ column vector 取 max.<br>&emsp;- <span>$\hat{r}_j^{(2)}:=\max(\hat{W}_{:,j}^{(2)})=s_j\cdot r_j^{(2)}$</span><!-- Has MathJax -->.<br>注意到一個是 row vector 另一個是 column vector 這是因為 $W^{(1)}$ 的 row vector 對應的是 $W^{(2)}$ 的 column vector. 即第一層 layer 的 output channel 對應的是第二層 layer 的 input channel 的概念<br>然後再令整個 weight matrix 的最大值為: $R^{(1)}:=\max_i(r_i^{(1)})$ 和 $R^{(2)}:=\max_j(r_j^{(2)})$<br>大概示意圖長這樣子<br><img src="/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled 3.png" width="100%" height="100%"> 最後就可以定義每一個 channel (1~m) 對於整個 weight matrix 的占比:<br>$p_i^{(1)}=r_i^{(1)}/R^{(1)}$; $\hat{p}_i^{(1)}=\hat{r}_i^{(1)}/\hat{R}^{(1)}$; 同理 $p_j^{(2)},\hat{p}_j^{(2)}$<br>到這裡不難理解, 只是很多 terms 要消化一下而已<br>$p_i^{(1)}$ 表示 $i^{th}$ row vector 對整個 matrix $W^{(1)}$ 的佔比, 想像上如果每個 rows 的佔比都很大, 那就整體適合 per-tensor quantization.<br>可以想像, 若 $\hat{p}_i^{(1)}$ 比 $p_i^{(1)}$ 大表示 $i^{th}$ row vector 的佔比經過 $s_i$ 的調整變大, 但由於 $s_i$ 在 $W^{(1)}$ 用除的但在 $W^{(2)}$ 用乘的, 導致 $\hat{p}_i^{(2)}$ 比 $p_i^{(2)}$ 小了, 意思是 $i^{th}$ column vector 的佔比反而變小. 所以一邊變大了但反而使另一邊變小了, 這一定是個 trade-off.<br>所以我們希望兩邊都顧到 ($\hat{p}_i^{(1)} \hat{p}_i^{(2)}$ 一起考慮)  , 作者就定義了這樣的目標函式:</p>
+<p><span>$$\begin{align}
+\max_S \sum_i \hat{p}_i^{(1)} \hat{p}_i^{(2)}
+\end{align}$$</span><!-- Has MathJax --> 調整 $S$ 使兩邊 matrix $W^{(1)},W^{(2)}$ 的占比都要顧到, 找出使得總佔比量最大的 $S$.<br>這個問題的最佳解在論文的 Appendix A 有證明, 我們先把解寫出來:</p>
+<p><span>$$\begin{align}
+s_i=\frac{1}{r_i^{(2)}}\sqrt{r_i^{(1)}r_i^{(2)}}
+\end{align}$$</span><!-- Has MathJax --> 這樣的 $s_i$ 會使得 <span>$\hat{r}_i^{(1)}=\hat{r}_i^{(2)}$</span><!-- Has MathJax -->, $\forall i$. 把 $s_i$ 代到 <span>$\hat{r}_i^{(1)}$</span><!-- Has MathJax --> and <span>$\hat{r}_i^{(2)}$</span><!-- Has MathJax --> 就知道了. (這裡原論文寫 <span>$r_i^{(1)}=r_i^{(2)}$</span><!-- Has MathJax --> 應該是 typo)<br>詳細證明記錄在最後的 Appendix (論文證明有些沒懂補充一下自己想法).</p>
+<h3 id="Bias-Absorption-BA-幫助-activation-per-tensor-量化"><a href="#Bias-Absorption-BA-幫助-activation-per-tensor-量化" class="headerlink" title="Bias Absorption (BA), 幫助 activation per-tensor 量化"></a>Bias Absorption (BA), 幫助 activation per-tensor 量化</h3><p>再說之前, 先了解以下範例.<br>首先對於 ReLU $r(\cdot)$ 來說一定存在一個 non-negative vector $c$ 使得 $\forall x$</p>
+<p><span>$$r(Wx+b-c)=r(Wx+b)-c; \quad \forall x \qquad\qquad (\star)$$</span><!-- Has MathJax --> $c=0$ 就是一個 trivial 解.<br>舉一個簡單範例, 考慮某一個 channel $i$, data $Wx_i$ 的機率分佈為直角三角形:<br><img src="/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled 4.png" width="50%" height="50%"> 當 $b=3$ 的情況時, 則選 $c=0.5$ 滿足 $(\star)$ 條件, 見下圖:<br><img src="/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/absorbing_bias-row.drawio.png" width="100%" height="100%"> 這個情況會<strong>滿足所有</strong> $x$, 但如果 $Wx$ 的分布不像範例一定大於某一個值 (想像上面的直角三角形分布變成高斯分佈) 則我們只能選擇<strong>滿足大部份的值</strong></p>
+<blockquote>
+<p>如果是高斯分佈的話 (則 Batch norm 的 mean, std 就可拿來用), 論文選擇 3 個標準差所以保證 99.865% 滿足. 高斯分佈在 $\mu\pm3\sigma$ 內的機率約為 $0.9973002$ [<a href="https://www.wikiwand.com/zh/68%E2%80%9395%E2%80%9399.7%E6%B3%95%E5%89%87" target="_blank" rel="external">ref</a>], 但由於我們要找的 $c$ 只會忽略 $&lt;\mu-3\sigma$ 的情況所以是 $1-(1-0.9973002)/2\approx99.865$, 之後會有圖示比較清楚</p>
+</blockquote>
+<p>有了以上概念後, 回頭過來看看經過 CLE 後還會發生什麼現象, 其中 <span>$r(\cdot)$</span><!-- Has MathJax --> 是 ReLU.<br>(突然渲染不出數學式子…煩阿)<br><img src="/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/eq8.png" width="30%" height="30%"> $\hat{W}^{(1)}$ and $\hat{W}^{(2)}$ 已經被 CLE 調整一波後數值分佈變得很接近 (適合 per-tensor quantization 👏🏻)<br>但 <span>$\hat{b}^{(1)}=S^{-1}b^{(1)}$</span><!-- Has MathJax -->, 當 <span>$s_i&lt;1$</span><!-- Has MathJax --> 的時候會讓 channel $i$ 的 activation 放大導致 activations, <span>$\hat{W}^{(1)}x+\hat{b}^{(1)}$</span><!-- Has MathJax -->, 的各 channel 之間分佈位置會不同, 因此也會讓 activations 不好做 quantization!<br>利用上面說的概念我們這樣推導:<br><img src="/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/eq_9_12.png" width="70%" height="70%"> 其中 $b^{\star(1)}=\hat{b}^{(1)}-c$ 和 $b^{\star(2)}=\hat{W}^{(2)}c+b^{(2)}$.<br>💡 <strong>目的是把</strong> $\color{orange}{\hat{W}^{(1)}x+\hat{b}^{(1)}}$ <strong>從不適合做 per-tensor quant 變成</strong> $\color{orange}{\hat{W}^{(1)}x+b^{\star(1)}}$ <strong>容易做 per-tensor quant.</strong><br>則 $c$ 可以選擇盡量滿足所有 $\hat{W}^{(1)}x+\hat{b}^{(1)}$ 的值, 要這麼做最暴力的方式是餵所有 training data 去看資料分布, 選擇滿足大部分的情況, 例如滿足 99.99% 的數值.<br>另外如果我們知道 $\hat{W}^{(1)}x+\hat{b}^{(1)}$ 會再經過 Batch normalization, i.e. $BN(\hat{W}^{(1)}x+\hat{b}^{(1)})$ 只是 BN 忽略不寫而已, 則令 $c=\max(0,\beta-3\gamma)$, 其中 $\beta,\gamma$ 分別是 Batch normalization 的 shift and scale parameters, 這樣直接就滿足大於-3標準差的 99.865% 機率了.</p>
+<blockquote>
+<p>開頭的 DFQ 流程圖有先做 BN folding, 所以此時的 $\tilde{W}^{(1)}$ 已經是 folding 後的, 因此要事先把 $\beta,\gamma$ 存起來才能在這步驟用</p>
+</blockquote>
+<p>我們來思考為啥 activations 從 $\hat{W}^{(1)}x+\hat{b}^{(1)}$ 變成 $\hat{W}^{(1)}x+b^{\star(1)}$ 後就會比較好做 per-tensor quantization, 這是因為我們選擇的這些 $c_i$ 會讓維度 $i$ 的 activation 對齊到剛好有 99.865% 大於 0, 而每個維度都依這樣的標準 align 自然就容易對整個 activations 做 quantization 了 (不需要 per-channel quant 了)!<br>圖示一下上面的意思, 為了方便令 $\hat{k}=\hat{W}^{(1)}x+\hat{b}^{(1)}$, 其中 $\hat{k}_i$ 表示第 $i$ 維, 同理 $k^{\star}=\hat{W}^{(1)}x+b^{\star(1)}$ 和 $k^\star_i$:<br><img src="/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled 5.png" width="70%" height="70%"> 注意到雖然 activations $k^\star$ 適合 per-tensor quant 了, 但我們只是把這困難 pass 到 $b^{\star(2)}$, 為啥這麼說呢? 因為 $b^{\star(2)}$ 需要多加一項 $\hat{W}^{(2)}c$, 但我們並不做任何保證 ,因此 activations $z$ (看式 (8))仍然有可能每個 channel 維度分佈位置也都不同, 所以實務上採取 layer 1 and 2 做完, 再做 layer 2 and 3, 依此列推下去.</p>
+<h3 id="Bias-Correction-BC"><a href="#Bias-Correction-BC" class="headerlink" title="Bias Correction (BC)"></a>Bias Correction (BC)</h3><p>如同在 motivation 稍微提到的, 令 $\epsilon=\tilde{W}-W$ 是 quantization error, $\tilde{W}$ 是 quant 後的參數. 且令 $y=Wx,\tilde{y}=\tilde{W}x$, 分別是 quant 前後的 output activations, 則我們有 $\tilde{y}=y+\epsilon x$.<br>由於 quantization 後可能 activations 的分布 mean 值不會跟原來一樣, i.e. 可能會 $\mathbb{E}[\epsilon x]\neq0$, 但可以透過下式被矯正回來: $\mathbb{E}[y]=\mathbb{E}[\tilde{y}]-\epsilon\mathbb{E}[x]$<br>所以只需要對 quant 完的 output 加上 $-\epsilon\mathbb{E}[x]$, 但實務上不會這麼做, 而是做在 bias parameter 裡 (bias 加上 $-\epsilon\mathbb{E}[x]$).<br>不過我們怎麼會知道 input activation 的期望值, $\mathbb{E}[x]$?<br>做完上述 CLE + bias absorption 並得到量化 model 後跟原本 float model 比較可以得到 $\epsilon$, 如果有 representative data (可以是 unlabeled) 情況下, 則丟 data  去計算 $\mathbb{E}[x]$ 就可以了. 注意要按照 layer 做, 也就是做 $l^{th}$ layer 的 BC 項時, 假設 $1, 2,..,l-1$ layer 的 BC 項都 apply 上去了. 這叫做 Empirical Bias Correction, 詳見論文 Appendix D.<br><img src="/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled 6.png" width="100%" height="100%"> (圖來源為 <a href="https://quic.github.io/aimet-pages/releases/latest/user_guide/post_training_quant_techniques.html" target="_blank" rel="external">AIMET Post-Training Quantization Techniques</a>)<br>但論文標題是 “Data-free”, 怎麼辦呢? 此時論文要求要有這樣的 blocks 關聯:<br><img src="/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled 7.png" width="100%" height="100%"> 已知目前要處理的 layer 是 $\tilde{y}=\tilde{W}x$. 論文假設此 layer 之前還有 BN and ReLU 兩個 blocks. 注意到需有這樣的關聯存在才可以.<br>而 $\mathbb{E}[x]$ 可以利用 BN 後 $x^{pre}$ 是 normal distribution 的特性來算. 注意到經過 ReLU 後的 $x$ 變成 clipped normal distribution, 而其 mean 可以利用 BN 的 shift and scale parameters 寫出 closed form 解.<br>詳細直接參考論文, Appendix C 有推導. 這樣的做法稱 Analytical Bias Correction.<br><img src="/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled 8.png" width="100%" height="100%"> (圖來源為 <a href="https://quic.github.io/aimet-pages/releases/latest/user_guide/post_training_quant_techniques.html" target="_blank" rel="external">AIMET Post-Training Quantization Techniques</a>)</p>
+<h2 id="Experiments"><a href="#Experiments" class="headerlink" title="Experiments"></a>Experiments</h2><hr>
+<p>由於 CLE and BA 目的是讓後面的 quantization 比較適合 per-tensor, 所以要觀察以下兩點:<br>&emsp;1. 用了 CLE and/or BA 後, 由於輸出還是 float model, 那跟用之前的 float model 有無 performance 影響?<br>&emsp;2. 用了 CLE and/or BA 後, 再用了 per-tensor 量化後, 能否逼近原本 float model (沒用 CLE/BA) 的 per-channel 量化?<br>結果 Table 1 顯示以上兩點都沒問題.<br><img src="/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled 9.png" width="60%" height="60%"> 再來如果加入 BC 則觀察能否補償因 quantization 造成的 mean 偏移損失? 其中可以看 quantization model 有無套用 CLE+BA.<br>結果如 Table 2:<br><img src="/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled 10.png" width="60%" height="60%"> Original model 直接硬做 PTQ to INT8 是慘不忍睹的 random 行為, 但直接加上 BC 補償後竟然就回到 52.02%!<br>如果先用 CLE+BA 在量化到 INT8, performance 為 Table 1 的最佳 70.92%. 這種情況再加上 BC 還能提升一點點 (多少表示可能還是存在一點點的 mean 偏移)<br>Clip@15 這個方法是直接對 weights 砍到 [-15, 15] 區間, 跟 CLE 目的一樣只是直接粗暴, 當然 BC 就能發揮更好的作用 (2.55% —&gt; 70.43%).<br>剩下的實驗就不細說.</p>
+<h2 id="AIMET-Quantization-Flow"><a href="#AIMET-Quantization-Flow" class="headerlink" title="AIMET Quantization Flow"></a>AIMET Quantization Flow</h2><hr>
+<p>以下為 <a href="https://quic.github.io/aimet-pages/releases/latest/user_guide/auto_quant.html#ug-auto-quant" target="_blank" rel="external">AIMET AutoQuant</a> 建議的量化流程, 總結得很不錯:<br><img src="/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled 11.png" width="100%" height="100%"></p>
+<blockquote>
+<p>圖中的 CLE 我猜已經包含 BA 了, 然後可以看到沒有 BC, 因為被 AdaRound 取代掉<br>也注意到在給 CLE 之前要先做 BatchNorm folding (如同我們在講 CLE 的限制 2)</p>
+</blockquote>
+<p>流程就是建議先對 floating model 插好 fake quant op 來模擬 target HW 的 operators 行為 (QuantScheme Selection 那步). 先看看效果如何, 如果 OK 那 PTQ/QAT 都不需要.<br>接著才確認 BN folding 是否能幫助提升效果? 不行的話套看看 PTQ 的 CLE (w/wo AdaRound). 再不行就要走 QAT 了.</p>
+<p>到這終於紀錄完, 這篇初看感覺應該可以很快看完, 一讀才發現細節真的有夠多, 頗不容易. 也因為很認真細讀才發現其實有不少限制. 不過還是很有收穫拉~<br>總之恭喜讀者(自己?)有耐心看完(寫完). ~~ 撒花收工 ~~</p>
+<h2 id="Appendix-證明-CLE-的最佳解"><a href="#Appendix-證明-CLE-的最佳解" class="headerlink" title="Appendix 證明 CLE 的最佳解"></a>Appendix 證明 CLE 的最佳解</h2><hr>
+<p>Render 爛掉了, 直接怒貼圖…<br><img src="/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/appendix1.png" width="80%" height="80%"><br><img src="/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/appendix2.png" width="80%" height="80%"></p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><hr>
+<ol>
+<li>Data-Free Quantization Through Weight Equalization and Bias Correction, [<a href="https://arxiv.org/abs/1906.04721" target="_blank" rel="external">arxiv</a>]</li>
+<li>Up or Down? Adaptive Rounding for Post-Training Quantization, [<a href="https://arxiv.org/abs/2004.10568" target="_blank" rel="external">arxiv</a>]</li>
+<li>AI Model Efficiency Toolkit (<a href="https://quic.github.io/aimet-pages/releases/latest/user_guide/index.html" target="_blank" rel="external">AIMET</a>)</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/" title="Qualcomm Data-Free Quantization 詳讀">https://bobondemon.github.io/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Quantization-Aware-Training-QAT/" rel="tag"># Quantization Aware Training (QAT)</a>
+          
+            <a href="/tags/Data-Free-Quantization-DFQ/" rel="tag"># Data Free Quantization (DFQ)</a>
+          
+            <a href="/tags/Post-Training-Quantization-PTQ/" rel="tag"># Post Training Quantization (PTQ)</a>
+          
+            <a href="/tags/AIMET/" rel="tag"># AIMET</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/11/04/Quantization-Error-Case-with-Clipping/" rel="next" title="Quantization Error (Case with Clipping)">
+                <i class="fa fa-chevron-left"></i> Quantization Error (Case with Clipping)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">85</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">181</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Motivation"><span class="nav-number">1.</span> <span class="nav-text">Motivation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CLE-動機"><span class="nav-number">1.1.</span> <span class="nav-text">CLE 動機</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BA-動機"><span class="nav-number">1.2.</span> <span class="nav-text">BA 動機</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BC-動機"><span class="nav-number">1.3.</span> <span class="nav-text">BC 動機</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Data-Free-Quantization-DFQ-詳細解釋"><span class="nav-number">2.</span> <span class="nav-text">Data Free Quantization (DFQ) 詳細解釋</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Cross-Layer-Equalization-CLE-幫助-weights-per-tensor-量化"><span class="nav-number">2.1.</span> <span class="nav-text">Cross-Layer Equalization (CLE), 幫助 weights per-tensor 量化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bias-Absorption-BA-幫助-activation-per-tensor-量化"><span class="nav-number">2.2.</span> <span class="nav-text">Bias Absorption (BA), 幫助 activation per-tensor 量化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bias-Correction-BC"><span class="nav-number">2.3.</span> <span class="nav-text">Bias Correction (BC)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Experiments"><span class="nav-number">3.</span> <span class="nav-text">Experiments</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AIMET-Quantization-Flow"><span class="nav-number">4.</span> <span class="nav-text">AIMET Quantization Flow</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Appendix-證明-CLE-的最佳解"><span class="nav-number">5.</span> <span class="nav-text">Appendix 證明 CLE 的最佳解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">6.</span> <span class="nav-text">References</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
