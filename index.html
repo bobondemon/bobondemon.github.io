@@ -767,7 +767,7 @@ J=s_{\text max}^2{4^{-B}\over 3}
               
                 
                 <a class="post-title-link" href="/2023/10/09/Pruning-Meets-Low-Rank-Parameter-Efficient-Fine-Tuning-筆記/" itemprop="url">
-                  Pruning Meets Low-Rank Parameter-Efficient Fine-Tuning 筆記
+                  LoRAPrune, Pruning Meets Low-Rank Parameter-Efficient Fine-Tuning 筆記
                 </a>
               
             
@@ -847,8 +847,8 @@ J=s_{\text max}^2{4^{-B}\over 3}
 
 <hr>
 <p>本文是這篇論文 “LoRAPrune: Pruning Meets Low-Rank Parameter-Efficient Fine-Tuning [<a href="https://arxiv.org/abs/2305.18403">arxiv</a>]” 的筆記.</p>
-<p>一般來說使用 first-order Taylor importance 的 pruning 方法 (需計算 gradients) 來對每個 weight 計算重要性, 然後根據重要性剪枝. 但是現在模型已經愈來愈大, 對所有 weights 都須計算 gradient 的負擔太大.</p>
-<p>另一方面, 在 LLM 中對於大模型的 fine tuning 使用 <a href="https://arxiv.org/abs/2106.09685">LoRA</a> (PEFT, Parameter Efficient Fine Tuning, 的一種) 來計算 gradients 非常有效率. 但是更新的不是原來 model 的參數, 而是 LoRA 外掛的參數. 因此無法對原來的參數 pruning.</p>
+<p>一般來說使用 first-order Taylor importance 的 pruning 方法 (下面會介紹此法) 需計算 gradients 來對每個 weight 計算重要性, 然後根據重要性剪枝. 但是現在模型已經愈來愈大, 對所有 weights 都須計算 gradient 的負擔太大.</p>
+<p>另一方面, 在 LLM 中對於大模型的 fine tuning 使用 <a href="https://arxiv.org/abs/2106.09685">LoRA</a> (PEFT, Parameter Efficient Fine Tuning, 的一種) 來計算 gradients 非常有效率, 原因是對原來的 weights 是 fixed 的, 只 train LoRA 外掛的”少量”參數, 因此只有少量的 gradients 需要計算. 不過我們思考一下, 如果要對已經 prune 的 weights 旁邊外掛 LoRA 的話, LoRA train 完後沒辦法 merge 回去原來的 weights, 因為有可能打亂原本要 prune 的位置. 但是反過來說, 如果先用 LoRA fine tune 完才進行剪枝, 又回到當模型太大而負擔太大沒效率的問題. 況且這樣分兩步驟可能不是很直接, 如果能在 LoRA fine tune 時就能一併考慮某些 weights 會被 prune 的情況下去 fine tune 可能會更好.</p>
 <p>如何 pruning 原來的參數又能利用上 LoRA 的效率就是此篇論文的工作.</p>
 <span>$$\begin{array}{|c |c |c |}
 \hline  &amp; 能否對原來的參數做剪枝? &amp; 是否很有效率? \\
