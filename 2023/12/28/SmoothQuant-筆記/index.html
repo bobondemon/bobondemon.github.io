@@ -1,0 +1,815 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Data Free Quantization (DFQ),Post Training Quantization (PTQ),SmoothQuant," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="這是 MIT SongHan 教授實驗室的論文, 使用 PTQ 對 LLM 做到 W8A8 的量化, 由於 activations 會有比較大的 outliers 導致 quantization 後損失較大, 而一般 weights 的 outliers 很少, 因此透過一些等價的轉換將 activations 的 scale 縮小並放大 weights 的 scale, 使得 activ">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SmoothQuant 筆記">
+<meta property="og:url" content="https://bobondemon.github.io/2023/12/28/SmoothQuant-筆記/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="這是 MIT SongHan 教授實驗室的論文, 使用 PTQ 對 LLM 做到 W8A8 的量化, 由於 activations 會有比較大的 outliers 導致 quantization 後損失較大, 而一般 weights 的 outliers 很少, 因此透過一些等價的轉換將 activations 的 scale 縮小並放大 weights 的 scale, 使得 activ">
+<meta property="og:image" content="https://bobondemon.github.io/2023/12/28/SmoothQuant-筆記/Untitled 1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/12/28/SmoothQuant-筆記/Untitled 2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/12/28/SmoothQuant-筆記/Untitled 3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/12/28/SmoothQuant-筆記/Untitled 4.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/12/28/SmoothQuant-筆記/Untitled 5.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/12/28/SmoothQuant-筆記/Untitled 6.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/12/28/SmoothQuant-筆記/Untitled 7.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/12/28/SmoothQuant-筆記/Untitled 8.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/12/28/SmoothQuant-筆記/Untitled 9.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/12/28/SmoothQuant-筆記/Untitled 10.png">
+<meta property="og:updated_time" content="2023-12-28T13:19:26.501Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SmoothQuant 筆記">
+<meta name="twitter:description" content="這是 MIT SongHan 教授實驗室的論文, 使用 PTQ 對 LLM 做到 W8A8 的量化, 由於 activations 會有比較大的 outliers 導致 quantization 後損失較大, 而一般 weights 的 outliers 很少, 因此透過一些等價的轉換將 activations 的 scale 縮小並放大 weights 的 scale, 使得 activ">
+<meta name="twitter:image" content="https://bobondemon.github.io/2023/12/28/SmoothQuant-筆記/Untitled 1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2023/12/28/SmoothQuant-筆記/"/>
+
+
+
+
+
+  <title> SmoothQuant 筆記 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2023/12/28/SmoothQuant-筆記/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                SmoothQuant 筆記
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2023-12-28T20:59:28+08:00">
+                2023-12-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>這是 <a href="https://hanlab.mit.edu/" target="_blank" rel="external">MIT SongHan</a> 教授實驗室的論文, 使用 PTQ 對 LLM 做到 W8A8 的量化, 由於 activations 會有比較大的 outliers 導致 quantization 後損失較大, 而一般 weights 的 outliers 很少, 因此透過一些等價的轉換將 activations 的 scale 縮小並放大 weights 的 scale, 使得 activations 變的較容易 quant 而 weights 仍然容易 quant. 如論文的圖顯示:</p>
+<p><img src="/2023/12/28/SmoothQuant-筆記/Untitled 1.png" width="60%" height="60%"></p>
+<a id="more"></a>
+<h2 id="Quantization-Granularity"><a href="#Quantization-Granularity" class="headerlink" title="Quantization Granularity"></a>Quantization Granularity</h2><hr>
+<p>先說明一下不同 quantization granularity, 其中<br>&emsp;- Activation $X$ 的 row 是 token 維度, col 是 input channel 維度.<br>&emsp;- Weight $W$ 的 row 是 input channel 維度, col 是 output channel 維度.<br>&emsp;- $\Delta_X$, $\Delta_W$ 分別指的是 activation $X$ 和 weight $W$ 的量化參數 (scales, zero points)</p>
+<p>可以看到 per-tensor 指的是整個 matrix 共享同一組量化參數<br>而 per-token (per-frame) 則表示 $X$ 同一個 row 共享同一組量化參數; 同理 per-channel 是對 $W$ 的 output channel 同一個 column 共享同一組量化參數</p>
+<p><img src="/2023/12/28/SmoothQuant-筆記/Untitled 2.png" width="60%" height="60%"><br>GEMM 在對 $XW$ 矩陣乘法並行加速的時候, 對 $X$ 採用 row-major, $W$ 採用 col-major 則 output 每個 element 都可以獨立運算, 所以可以並行.<br>這邊思考一個問題, 如果 $X$ 採用 per-channel (同一個 column 共享同一組量化參數), 在做 GEMM 時, $X$ 的一個 row 裡面每個元素都需要採用不同的量化參數, 這會破壞掉 GEMM 並行的好處.<br>因此一般來說 $X$ 採用 per-token, 而 $W$ 採用 per-channel (output channel) 對 GEMM 比較友善.</p>
+<h2 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h2><hr>
+<p>實際觀察 $X$ 的分佈, 發現數值分佈的特性是 <strong>channel 內差異不大, 但 channel 之間的差異很大</strong>. 因此對 $X$ 來說採用 per-channel quantization 才是比較合適的, 但是從上一段我們知道 $X$ 採用 per-token 對 GEMM 才會比較友善. 那該怎麼辦? 這就是 SmoothQuant 要做的事, 降低 $X$ 的 outliers 使得可以仍採用 per-token.</p>
+<p>如<a href="https://arxiv.org/abs/2211.10438v5" target="_blank" rel="external">論文 Figure 4</a>, 和<a href="https://www.dropbox.com/scl/fi/p1zqdbmgv1gkmjsbmd39v/lec13.pdf?rlkey=hrpmd9x9rj96dta1ws29vmb3i&amp;dl=0" target="_blank" rel="external">講義</a>說的</p>
+<p><img src="/2023/12/28/SmoothQuant-筆記/Untitled 3.png" width="100%" height="100%"><br><img src="/2023/12/28/SmoothQuant-筆記/Untitled 4.png" width="100%" height="100%"></p>
+<h2 id="SmoothQuant-方法"><a href="#SmoothQuant-方法" class="headerlink" title="SmoothQuant 方法"></a>SmoothQuant 方法</h2><hr>
+<p><img src="/2023/12/28/SmoothQuant-筆記/Untitled 5.png" width="100%" height="100%"><br><img src="/2023/12/28/SmoothQuant-筆記/Untitled 6.png" width="100%" height="100%"> 這些 activations $X$ 的 outliers 都存在於某幾個特定的 channels, 跟哪一個 tokens 維度無關. 所以我們如果使用 per-channel quant, 則可以對 channels 的 scales 對應做個分配.<br>其中 <span>$X diag(s)^{-1}$</span><!-- Has MathJax --> 可以把 <span>$diag(s)^{-1}$</span><!-- Has MathJax --> 融合進去前一層的 layer normalization 參數裡頭. 而 $diag(s)W$ 直接融進去 $W$ 的 scaling factor 裡.<br>選擇 channel 的 re-scaling factor 如下:</p>
+<p><span>$$s_j=\max(|X_j|)^\alpha/\max(|W_j|)^{1-\alpha}$$</span><!-- Has MathJax --> 通常 $\alpha=0.5$ 是個很好的選擇 (控制 activation 還是 weight 量化難度的 trade-off), 但如果遇到 activation 的 outlier 比重占比較多的話 ($\sim30\%$), 可以選 $\alpha=0.75$.<br><img src="/2023/12/28/SmoothQuant-筆記/Untitled 7.png" width="60%" height="60%"> 最後論文採用的 format 為:<br><img src="/2023/12/28/SmoothQuant-筆記/Untitled 8.png" width="100%" height="100%"> SmoothQuant 透過把 quantization 困難移轉到 weight 上, 所以 $X$ 仍可以使用 per-token(frame) 或甚至 per-tensor quant, 同時也不影響 GEMM 加速.</p>
+<h2 id="實驗結果"><a href="#實驗結果" class="headerlink" title="實驗結果"></a>實驗結果</h2><hr>
+<p><img src="/2023/12/28/SmoothQuant-筆記/Untitled 9.png" width="100%" height="100%"> 對 OPT-172B 能有效恢復 acc to FP16 水準, 同時需要的 GPU 減半, latency 也減少. 然後對更大的 model 也同樣有效, like MT-NLG 530B<br>對 Llmma 同樣也是, 主要想看一下 SwishGLU, RoPE 這種不一樣的 op 對於 SmoothQuant 的假設是否一樣成立<br><img src="/2023/12/28/SmoothQuant-筆記/Untitled 10.png" width="100%" height="100%"></p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><hr>
+<ol>
+<li>SmoothQuant: Accurate and Efficient Post-Training Quantization for Large Language Models, [<a href="https://arxiv.org/abs/2211.10438v5" target="_blank" rel="external">arxiv</a>]</li>
+<li><a href="https://hanlab.mit.edu/" target="_blank" rel="external">MIT HAN Lab</a>, Course: TinyML and Efficient Deep Learning Computing [<a href="https://www.dropbox.com/scl/fi/p1zqdbmgv1gkmjsbmd39v/lec13.pdf?rlkey=hrpmd9x9rj96dta1ws29vmb3i&amp;dl=0" target="_blank" rel="external">slides</a>], [<a href="https://youtu.be/7WeraZ0LLlg" target="_blank" rel="external">Video</a>]</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2023/12/28/SmoothQuant-筆記/" title="SmoothQuant 筆記">https://bobondemon.github.io/2023/12/28/SmoothQuant-筆記/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Data-Free-Quantization-DFQ/" rel="tag"># Data Free Quantization (DFQ)</a>
+          
+            <a href="/tags/Post-Training-Quantization-PTQ/" rel="tag"># Post Training Quantization (PTQ)</a>
+          
+            <a href="/tags/SmoothQuant/" rel="tag"># SmoothQuant</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/" rel="next" title="Qualcomm Data-Free Quantization 詳讀">
+                <i class="fa fa-chevron-left"></i> Qualcomm Data-Free Quantization 詳讀
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">86</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">182</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Quantization-Granularity"><span class="nav-number">1.</span> <span class="nav-text">Quantization Granularity</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Motivation"><span class="nav-number">2.</span> <span class="nav-text">Motivation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SmoothQuant-方法"><span class="nav-number">3.</span> <span class="nav-text">SmoothQuant 方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#實驗結果"><span class="nav-number">4.</span> <span class="nav-text">實驗結果</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">5.</span> <span class="nav-text">References</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
