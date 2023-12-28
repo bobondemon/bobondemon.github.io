@@ -267,6 +267,161 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/01/07/Score-Function-and-Fisher-Information-Matrix/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2022/01/07/Score-Function-and-Fisher-Information-Matrix/" itemprop="url">
+                  Score Function and Fisher Information Matrix
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2022-01-07T23:17:40+08:00">
+                2022-01-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>Bayesian statistics 視 dataset <span>$\mathcal{D}=\{x_1,...,x_n\}$</span><!-- Has MathJax --> 為固定, 而 model parameter $\theta$ 為 random variables, 透過假設 prior $p(\theta)$, 利用 Bayes rule 可得 posterior $p(\theta|\mathcal{D})$. 而估計的參數就是 posterior 的 mode, i.e. $\theta_{map}$ (Maximum A Posterior, MAP)</p>
+<p>關於 Fisher information matrix 在 Bayesian 觀點的用途, 其中一個為幫助定義一個特殊的 prior distribution (<a href="https://en.wikipedia.org/wiki/Jeffreys_prior">Jeffreys prior</a>), 使得如果 parameter $\theta$ 重新定義成 $\phi$, 例如 $\phi=f(\theta)$, 則 MAP 解不會改變. 關於這部分還請參考 <a href="https://probml.github.io/pml-book/book0.html">Machine Learning: a Probabilistic Perspective</a> by <a href="https://www.cs.ubc.ca/~murphyk/">Kevin Patrick Murphy</a>. Chapters 5 的 Figure 5.2 圖很清楚</p>
+<p>反之 Frequentist statistics 視 dataset <span>$\mathcal{D}=\{X_1,...,X_n\}$</span><!-- Has MathJax --> 為 random variables, 透過真實 <span>$\theta^*$</span><!-- Has MathJax --> 採樣出 $K$ 組 datasets, 每一組 dataset $\mathcal{D}^k$ 都可以求得一個 <span>$\theta_{mle}^k$</span><!-- Has MathJax --> (MLE 表示 Maximum Likelihood Estimator), 則 <span>$\theta_{mle}^k$</span><!-- Has MathJax --> 跟 <span>$\theta^*$</span><!-- Has MathJax --> 的關係可藉由 Fisher information matrix 看出來</p>
+<p>本文探討 score function 和 Fisher information matrix 的定義, 重點會放在怎麼直觀理解. 然後會說明 Fisher information matrix 在 Frequentist statistics 角度代表什麼意義.</p>
+<p>先定義一波</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2022/01/07/Score-Function-and-Fisher-Information-Matrix/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1724,167 +1879,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chih-Sheng Chen">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="棒棒生">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/" itemprop="url">
-                  MCMC by Gibbs and Metropolis-Hasting Sampling
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2021-10-27T21:53:41+08:00">
-                2021-10-27
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分類於</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ML/" itemprop="url" rel="index">
-                    <span itemprop="name">ML</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-<hr>
-<p>PRML book sampling (chapter 11) 開頭把動機描述得很好, 也引用來當這篇文章的前言.<br>在用 machine learning 很多時候會遇到需要計算某個 function $f(x)$ 的期望值, 當 $x$ follow 某個 distribution $p(x)$ 的情況, i.e. 需計算</p>
-<span>$$\begin{align}
-\mu:=\mathbb{E}_p[f]=\int f(x)p(x)dx
-\end{align}$$</span><!-- Has MathJax -->
-<blockquote>
-<p>例如 EM algorithm 會需要計算 $\mathbb{E}_{p(z|x)}[f(x,z)]$, 參考 <a href="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/">ref</a> 的式 (23), (28)<br>又或者我們要做 Bayesian 的 prediction 時, 參考 <a href="https://bobondemon.github.io/2018/12/20/Bayesian-Learning-Notes/">ref</a> 的式 (2)</p>
-</blockquote>
-<p>這些情況大部分都無法有 analytical form. 不過如果我們能從給定的 distribution $p(x)$ 取 $L$ 個 sample 的話, 式 (1) 就能如下逼近</p>
-<span>$$\begin{align}
-\mathbb{E}_p[f] \approx \hat f:= \frac{1}{L}\sum_{l=1}^L f(x_l)
-\end{align}$$</span><!-- Has MathJax -->
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/#more" rel="contents">
-              閱讀全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1934,7 +1928,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">86</span>
+                <span class="site-state-item-count">87</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -1956,7 +1950,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">182</span>
+                <span class="site-state-item-count">184</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>

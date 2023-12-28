@@ -1,0 +1,825 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Post Training Quantization (PTQ),Activation-aware Weight Quantization (AWQ),Weight Only Quantization (WOQ)," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="如同 SmoothQuant 論文裡的圖, 在 memory size 已經跟不上算力和模型大小情況下, memory bandwidth 已經變成 bottleneck. 如何降低 memory 使用量將變的很關鍵, 因此 Activation-aware Weight Quantization (AWQ) 這篇文章就專注在 Weight Only Quantization (WOQ),">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AWQ 筆記">
+<meta property="og:url" content="https://bobondemon.github.io/2023/12/28/AWQ-筆記/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="如同 SmoothQuant 論文裡的圖, 在 memory size 已經跟不上算力和模型大小情況下, memory bandwidth 已經變成 bottleneck. 如何降低 memory 使用量將變的很關鍵, 因此 Activation-aware Weight Quantization (AWQ) 這篇文章就專注在 Weight Only Quantization (WOQ),">
+<meta property="og:image" content="https://bobondemon.github.io/2023/12/28/AWQ-筆記/Untitled.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/12/28/AWQ-筆記/Untitled 1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/12/28/AWQ-筆記/Untitled 2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/12/28/AWQ-筆記/Untitled 3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/12/28/AWQ-筆記/Untitled 4.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/12/28/AWQ-筆記/Untitled 5.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/12/28/AWQ-筆記/Untitled 6.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/12/28/AWQ-筆記/Untitled 8.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/12/28/AWQ-筆記/Untitled 9.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/12/28/AWQ-筆記/Untitled 10.png">
+<meta property="og:updated_time" content="2023-12-28T15:21:03.650Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AWQ 筆記">
+<meta name="twitter:description" content="如同 SmoothQuant 論文裡的圖, 在 memory size 已經跟不上算力和模型大小情況下, memory bandwidth 已經變成 bottleneck. 如何降低 memory 使用量將變的很關鍵, 因此 Activation-aware Weight Quantization (AWQ) 這篇文章就專注在 Weight Only Quantization (WOQ),">
+<meta name="twitter:image" content="https://bobondemon.github.io/2023/12/28/AWQ-筆記/Untitled.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2023/12/28/AWQ-筆記/"/>
+
+
+
+
+
+  <title> AWQ 筆記 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2023/12/28/AWQ-筆記/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                AWQ 筆記
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2023-12-28T23:05:36+08:00">
+                2023-12-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>如同 SmoothQuant 論文裡的圖, 在 memory size 已經跟不上算力和模型大小情況下, memory bandwidth 已經變成 bottleneck.<br><img src="/2023/12/28/AWQ-筆記/Untitled.png" width="60%" height="60%"> 如何降低 memory 使用量將變的很關鍵, 因此 <strong>Activation-aware Weight Quantization (AWQ)</strong> 這篇文章就專注在 <strong>Weight Only Quantization (WOQ)</strong>, 顧名思義就是 <strong>weight 使用 integer 4/3 bits, activations 仍維持 FP16</strong>.<br>因為 computation is cheap, memory is expensive.</p>
+<blockquote>
+<p><strong><a href="https://github.com/intel/neural-compressor" target="_blank" rel="external">Intel® Neural Compressor</a></strong> 有實作 <a href="https://github.com/intel/neural-compressor/blob/master/docs/source/quantization_weight_only.md" target="_blank" rel="external">WOQ</a> 裡面有 AWQ</p>
+</blockquote>
+<p>以下內容直接筆記 <a href="https://hanlab.mit.edu/" target="_blank" rel="external">MIT SongHan</a> 教授的課程內容[<a href="https://www.dropbox.com/scl/fi/p1zqdbmgv1gkmjsbmd39v/lec13.pdf?rlkey=hrpmd9x9rj96dta1ws29vmb3i&amp;dl=0" target="_blank" rel="external">slides</a>], [<a href="https://youtu.be/7WeraZ0LLlg" target="_blank" rel="external">Video</a>]<br><a id="more"></a><br><img src="/2023/12/28/AWQ-筆記/Untitled 1.png" width="100%" height="100%"><br><img src="/2023/12/28/AWQ-筆記/Untitled 2.png" width="100%" height="100%"> 將 Weights quantize 到 4/3 bits 對 memory bandwidth 會有幫助, 但是直接使用 round-to-nearest (RTN) performance 會壞掉, 就算是使用 group-wise/block-wise 的方式也是沒用.<br>作者發現如果保留特定的 $1\%$ 的 weights 仍舊是 FP16 的話 (其餘都是 4/3 bits) 就可以保留住 performance. 如下圖顯示.</p>
+<p><img src="/2023/12/28/AWQ-筆記/Untitled 3.png" width="100%" height="100%"> 特定的 weights 是那些呢? 因為 output activations 是 input activations 乗上 weights, 所以應該要看 activations 不能只單獨考慮 weights 大小.<br>還記得在 <a href="https://www.notion.so/SmoothQuant-Accurate-and-Efficient-Post-Training-Quantization-for-Large-Language-Models-https-pap-900ce52da2d942cca7519e1cbc280ad3?pvs=21" target="_blank" rel="external">SmoothQuant</a> 觀察到的現象嗎? activations 的 outliers 是以 per-channels 方式存在的, 也就是說 channels 之間差異可能很大, 但同一個 channel 內的值分佈都比較接近</p>
+<blockquote>
+<p>圖中的 activation $X$ 的 row 表示 token (frame) 維度, column 表示 channel 維度. 所以對應到 weights 的話 input channel 就是 $W$ 的 row vectors.</p>
+</blockquote>
+<p>要保留的那 $1\%$ 的 row vectors 的 weights 就是找對應 $X$ 的 column vectors 總和 magnitude 比較大的那些來保留. 見下圖 (b)<br><img src="/2023/12/28/AWQ-筆記/Untitled 4.png" width="100%" height="100%"> 但能不能連 FP16 都不要, 最好全部都是 INT 因為這樣對 HW 比較友好.<br>作者發現透過一個簡單的 scaling 操作就有幫助 (其實概念一樣很像 <a href="https://www.notion.so/SmoothQuant-Accurate-and-Efficient-Post-Training-Quantization-for-Large-Language-Models-https-pap-900ce52da2d942cca7519e1cbc280ad3?pvs=21" target="_blank" rel="external">SmoothQuant</a>)<br>類似 SmoothQuant 的方式, 先對 quantization 之前的 Weights 乘上 scale $s$, 對應的在 input activations $X$ 除上 $s$, 如果沒有做 quantization 數學上就是等價.<br>下圖顯示對第 2 個 input channel 設定 $s=2$. 這麼做直接無損 performance.</p>
+<p><img src="/2023/12/28/AWQ-筆記/Untitled 5.png" width="100%" height="100%"> 但是為什麼呢?<br><img src="/2023/12/28/AWQ-筆記/Untitled 6.png" width="100%" height="100%"> 原來 output activation 為</p>
+<span>$$\hat{Y}=Q(\mathbf{w})\cdot \mathbf{x}=\Delta\cdot Round(\mathbf{w}/\Delta)\cdot \mathbf{x}$$</span><!-- Has MathJax --> 現在改成:<br><span>$$\tilde{Y}=Q(\mathbf{w}\cdot s)\cdot \mathbf{x}/s=\Delta\cdot Round(s\mathbf{w}/\Delta)\cdot \mathbf{x}/s$$</span><!-- Has MathJax --> 互相對比一下, 注意到由於 <span>$\mathbb{E}[Round(\mathbf{w}/\Delta)]=\mathbb{E}[Round(s\mathbf{w}/\Delta)]=0.25$</span><!-- Has MathJax -->, 當 $s&gt;1$ 的時候 <span>$\tilde{Y}&lt;\hat{Y}$</span><!-- Has MathJax -->, 使得 output activations 的 dynamic range 變小了, 等同於讓 outliers 變小更容易 quantization 了.<br><br>注意到這裡有個假設: $\Delta$ 不變的條件下. 這通常可以滿足, 因為實務上設定 $1<s\leq 2$="" 不會太大,="" 因此也不會改變="" $\delta$.="" <img="" src="Untitled 7.png" width="100%" height="100%"> 所以先對 salient weight channels 乘上 scale 後再 quantize, 然後再對 input activations 除 scale<br>下面這段 codes 是 SongHan 課程裡的 <a href="https://colab.research.google.com/drive/1zxkqlnaJ7y5P9PAhyr0504je3uJZVIaF?usp=share_link" target="_blank" rel="external">Lab4.ipynb</a><br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@torch.no_grad()</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">pseudo_quantize_model_salient_weight_fp16</span><span class="params">(</span></span></div><div class="line">    model, w_bit, q_group_size, input_feat</div><div class="line">):</div><div class="line">    <span class="keyword">for</span> n, m <span class="keyword">in</span> model.named_modules():</div><div class="line">        <span class="keyword">if</span> isinstance(m, nn.Linear):</div><div class="line">            importance = sum(input_feat[n]).float() <span class="comment"># importance is of shape [2048] or [8192] ...</span></div><div class="line">            <span class="comment"># Step 1: Find 1% of the salient weight channels according to importance (hint: use torch.topk())</span></div><div class="line">            outlier_indices = torch.topk(importance,k=int(len(importance)*<span class="number">0.01</span>))[<span class="number">1</span>]</div><div class="line">            <span class="keyword">assert</span> outlier_indices.dim() == <span class="number">1</span></div><div class="line">            <span class="comment"># Back up the values of the salient weight channels</span></div><div class="line">            outlier = m.weight.data[:, outlier_indices].clone()</div><div class="line">            m.weight.data = pseudo_quantize_tensor(m.weight.data, n_bit=w_bit, q_group_size=q_group_size)</div><div class="line">            <span class="comment"># Step 2: Restore the 1% salient weight channels to their original FP16 values</span></div><div class="line">            m.weight.data[:, outlier_indices] = outlier</div></pre></td></tr></table></figure>
+<p>注意到 <code>input_feat</code> 使用 hook 事先對 calibration data 蒐集好的, 用來找出 $1\%$ 的那些 salient weight channels.<br>另外, 實際上我們不會對 input activation 除 scale, 而是將這個 scale 融進去前一層的 layer normalization weight 裡</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@torch.no_grad()</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">scale_ln_fcs</span><span class="params">(ln, fcs, scales)</span>:</span></div><div class="line">    <span class="keyword">if</span> <span class="keyword">not</span> isinstance(fcs, list):</div><div class="line">        fcs = [fcs]</div><div class="line">    scales = scales.to(ln.weight.device)</div><div class="line">    ln.weight.div_(scales)</div><div class="line">    <span class="keyword">if</span> hasattr(ln, <span class="string">'bias'</span>) <span class="keyword">and</span> ln.bias <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</div><div class="line">        ln.bias.div_(scales)</div><div class="line">    <span class="keyword">for</span> fc <span class="keyword">in</span> fcs:</div><div class="line">        fc.weight.mul_(scales.view(<span class="number">1</span>, <span class="number">-1</span>))</div><div class="line">    <span class="keyword">for</span> p <span class="keyword">in</span> ln.parameters():</div><div class="line">        <span class="keyword">assert</span> torch.isnan(p).sum() == <span class="number">0</span></div><div class="line">    <span class="keyword">for</span> fc <span class="keyword">in</span> fcs:</div><div class="line">        <span class="keyword">for</span> p <span class="keyword">in</span> fc.parameters():</div><div class="line">            <span class="keyword">assert</span> torch.isnan(p).sum() == <span class="number">0</span></div></pre></td></tr></table></figure>
+<p>如果是 Transformer 的 FFN layer, 則融進去前一層的 fc layer</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@torch.no_grad()</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">scale_fc_fc</span><span class="params">(fc1, fc2, scales)</span>:</span></div><div class="line">    <span class="keyword">assert</span> isinstance(fc1, nn.Linear)</div><div class="line">    <span class="keyword">assert</span> isinstance(fc2, nn.Linear)</div><div class="line">    scales = scales.to(fc1.weight.device)</div><div class="line">    <span class="comment"># fc1.weight.div_(scales.view(-1, 1))</span></div><div class="line">    fc1.weight[-scales.size(<span class="number">0</span>):].div_(scales.view(<span class="number">-1</span>, <span class="number">1</span>))</div><div class="line">    <span class="keyword">if</span> fc1.bias <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</div><div class="line">        fc1.bias.div_(scales.view(<span class="number">-1</span>))</div><div class="line">    fc2.weight.mul_(scales.view(<span class="number">1</span>, <span class="number">-1</span>))</div><div class="line">    <span class="keyword">for</span> p <span class="keyword">in</span> fc1.parameters():</div><div class="line">        <span class="keyword">assert</span> torch.isnan(p).sum() == <span class="number">0</span></div><div class="line">    <span class="keyword">for</span> p <span class="keyword">in</span> fc2.parameters():</div><div class="line">        <span class="keyword">assert</span> torch.isnan(p).sum() == <span class="number">0</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p>我有點疑問, 做 AWQ 的 order 是不是有影響? 譬如後面的 layer 做 AWQ 的時候會讓前一個 layer 除上 scale, 但如果前一個 layer 已經先做過 AWQ 了, 那不就白做了? (教授課程的<a href="https://colab.research.google.com/drive/1zxkqlnaJ7y5P9PAhyr0504je3uJZVIaF?usp=share_link#scrollTo=ff_sv6k0R2Eb" target="_blank" rel="external">作業</a>裡面會讓我有這種疑問, 但課程作業就這樣設計了, 感覺是沒影響. 還是因為不會動到同一個 channel?) 這個疑問待後續解決.</p>
+</blockquote>
+<p>最後, 比較好的做法是用一個 calibration data 做 $s$ 的 grid search. 而 search 的目標函式為 output activation 的 quantization error:</p>
+<p><span>$$\begin{align}
+𝐋(\mathbf{s})=\lVert Q(\mathbf{W}\cdot \mathbf{s})  (\mathbf{s^{-1}} \cdot \mathbf{X}) - \mathbf{W}\mathbf{X}  \rVert,  \quad\mathbf{s}= \mathbf{s_X}^{\alpha}\\
+\mathbf{s}^* = \text{argmin}_{\mathbf{s}} 𝐋(\mathbf{s}),\quad \alpha^*=\text{argmin}_{\alpha} 𝐋(\mathbf{s_X}^{\alpha})
+\end{align}$$</span><!-- Has MathJax --> 其中 <span>$\mathbf{s_X}$</span><!-- Has MathJax --> 是 input activation 的 magnitude, <span>$\alpha\in[0,1]$</span><!-- Has MathJax -->, $0$ 表示沒有 scale; $1$ 表示最強的 scale. Grid search 是對 $\alpha$ 做.</p>
+<p>最後實驗結果顯示對 LLMs, OpenFlamingo 做到 4/3bits 的 weights quantization 很有效:<br><img src="/2023/12/28/AWQ-筆記/Untitled 8.png" width="100%" height="100%"><br><img src="/2023/12/28/AWQ-筆記/Untitled 9.png" width="100%" height="100%"><br><img src="/2023/12/28/AWQ-筆記/Untitled 10.png" width="60%" height="60%"> 這裡實驗如果是用 per-channel 會效果不好, 所以建議搭配 per-vector 或稱 per-group quantization.</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><hr>
+<ol>
+<li>AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration, [<a href="https://arxiv.org/abs/2306.00978" target="_blank" rel="external">arxiv</a>]</li>
+<li><a href="https://hanlab.mit.edu/" target="_blank" rel="external">MIT HAN Lab</a>, Course: TinyML and Efficient Deep Learning Computing [<a href="https://www.dropbox.com/scl/fi/p1zqdbmgv1gkmjsbmd39v/lec13.pdf?rlkey=hrpmd9x9rj96dta1ws29vmb3i&amp;dl=0" target="_blank" rel="external">slides</a>], [<a href="https://youtu.be/7WeraZ0LLlg" target="_blank" rel="external">Video</a>]</li>
+<li><a href="https://github.com/intel/neural-compressor" target="_blank" rel="external">Intel® Neural Compressor</a>‘s <a href="https://github.com/intel/neural-compressor/blob/master/docs/source/quantization_weight_only.md" target="_blank" rel="external">WOQ</a></li>
+</ol>
+</s\leq>
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2023/12/28/AWQ-筆記/" title="AWQ 筆記">https://bobondemon.github.io/2023/12/28/AWQ-筆記/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Post-Training-Quantization-PTQ/" rel="tag"># Post Training Quantization (PTQ)</a>
+          
+            <a href="/tags/Activation-aware-Weight-Quantization-AWQ/" rel="tag"># Activation-aware Weight Quantization (AWQ)</a>
+          
+            <a href="/tags/Weight-Only-Quantization-WOQ/" rel="tag"># Weight Only Quantization (WOQ)</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/12/28/SmoothQuant-筆記/" rel="next" title="SmoothQuant 筆記">
+                <i class="fa fa-chevron-left"></i> SmoothQuant 筆記
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">87</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">184</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">1.</span> <span class="nav-text">References</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
