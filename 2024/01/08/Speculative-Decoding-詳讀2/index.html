@@ -97,7 +97,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀2/Untitled 5.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀2/Untitled 6.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀2/Untitled 7.png">
-<meta property="og:updated_time" content="2024-01-08T14:50:29.692Z">
+<meta property="og:updated_time" content="2024-01-08T14:58:28.591Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Speculative Decoding 詳讀 (下)">
 <meta name="twitter:description" content="接續上一篇現在我們可以真正的來探討以下問題了:&amp;emsp;A. 速度的分析: 加速到什麼程度? 跟小模型的速度和準確度有關聯嗎? (想像如果 draft 一直被拒絕, 則小模型都是多跑的)&amp;emsp;B. 運算量的分析: Operation 數 (計算量) 也會減少嗎? 還是會增加?&amp;emsp;C. Memory bandwidth 的分析: 會減少還是增加?&amp;emsp;D. Perfor">
@@ -377,10 +377,10 @@
 </script>
 
 <hr>
-<p>接續<a href="">上一篇</a><br>現在我們可以真正的來探討以下問題了:<br>&emsp;<strong>A. 速度的分析:</strong> 加速到什麼程度? 跟小模型的速度和準確度有關聯嗎? (想像如果 draft 一直被拒絕, 則小模型都是多跑的)<br>&emsp;<strong>B. 運算量的分析:</strong> Operation 數 (計算量) 也會減少嗎? 還是會增加?<br>&emsp;<strong>C. Memory bandwidth 的分析:</strong> 會減少還是增加?<br>&emsp;<strong>D. Performance 能維持住嗎</strong> (PPL, WER, BLEU, … 端看 model task 是什麼): 還是會有 degrade?</p>
+<p>接續<a href="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-%E8%A9%B3%E8%AE%80/">上一篇</a><br>現在我們可以真正的來探討以下問題了:<br>&emsp;<strong>A. 速度的分析:</strong> 加速到什麼程度? 跟小模型的速度和準確度有關聯嗎? (想像如果 draft 一直被拒絕, 則小模型都是多跑的)<br>&emsp;<strong>B. 運算量的分析:</strong> Operation 數 (計算量) 也會減少嗎? 還是會增加?<br>&emsp;<strong>C. Memory bandwidth 的分析:</strong> 會減少還是增加?<br>&emsp;<strong>D. Performance 能維持住嗎</strong> (PPL, WER, BLEU, … 端看 model task 是什麼): 還是會有 degrade?</p>
 <a id="more"></a>
 <h2 id="A-速度的分析"><a href="#A-速度的分析" class="headerlink" title="A. 速度的分析"></a>A. 速度的分析</h2><hr>
-<p>將<a href="">上一篇</a>的公式 (10):<br><span>$$\mathbb{E}[\#\text{generated tokens}]=\frac{1-\alpha^{\gamma+1}}{1-\alpha}$$</span><!-- Has MathJax --> 代入<a href="">上一篇</a>的公式 (3)<br><span>$$\text{Walltime Improvement}=\frac{\mathbb{E}(\#\text{generated tokens})}{(c\gamma+1)}$$</span><!-- Has MathJax --> 我們得到<br><span>$$\begin{align}
+<p>將<a href="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-%E8%A9%B3%E8%AE%80/">上一篇</a>的公式 (10):<br><span>$$\mathbb{E}[\#\text{generated tokens}]=\frac{1-\alpha^{\gamma+1}}{1-\alpha}$$</span><!-- Has MathJax --> 代入<a href="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-%E8%A9%B3%E8%AE%80/">上一篇</a>的公式 (3)<br><span>$$\text{Walltime Improvement}=\frac{\mathbb{E}(\#\text{generated tokens})}{(c\gamma+1)}$$</span><!-- Has MathJax --> 我們得到<br><span>$$\begin{align}
 \text{Walltime Improvement}=\frac{1-\alpha^{\gamma+1}}{(c\gamma+1)(1-\alpha)}
 \end{align}$$</span><!-- Has MathJax --> 先分析一下 walltime, 我們設定 $c=[0.1,0.4,0.8]$, $\gamma=[3, 5, 7]$ 觀察 walltime V.S. $\alpha$ 的變化<br>回顧一下 $c$ 表示 approx. 跟 target model 之間的速度比, 愈小表示 approx. model 速度愈快. $\gamma$ 表示 proposal tokens 的數目. 而 $\alpha$ 可以代表 approx. and target models 之間的匹配程度 (愈高表示愈匹配, proposal token 被接受的機率愈高)<br><img src="/2024/01/08/Speculative-Decoding-詳讀2/Untitled 4.png" width="100%" height="100%"><br>觀察到幾點 (注意到比黑色實線小, walltime improvement $&lt;1$, 代表沒有加速到):<br>&emsp;1. 如果 $\alpha$ 愈大, 表示大小模型之間愈匹配可以加速愈多<br>&emsp;2. $c$ 愈小 (小模型速度愈快) 則加速愈多<br>&emsp;3. <strong>$\gamma$ 則不一定 (看$c=0.1$ 的 case), 所以可能要找出最佳值</strong></p>
 <p>那有沒有可能 $\gamma$ 不管怎麼找都找不出 walltime improvement 至少 $&gt;1$ 呢? 這種情況就不用花力去氣找了.<br>論文 Corollary 3.9. 說明 $\alpha&gt;c$ 的情況則存在 $\gamma$ 使得會有加速好處. 加速效果至少是 <span>$(1+\alpha)/(1+c)$</span><!-- Has MathJax --> 倍.<br>所以 approx. and target models 的選擇就先考慮 $\alpha&gt;c$ 的配對, 然後對 $\gamma$ 找出最佳值.</p>
@@ -389,14 +389,14 @@
 </blockquote>
 <p>給定 $\alpha,c$ 對式 (1) 做數值最佳化找出最佳 $\gamma$, 結果如下:<br><img src="/2024/01/08/Speculative-Decoding-詳讀2/Untitled 5.png" width="60%" height="60%"> 最後 walltime improvement 理論值式 (1) 和實際上量測出來的值有沒有差很多? 作者做了個比較<br><img src="/2024/01/08/Speculative-Decoding-詳讀2/Untitled 6.png" width="70%" height="70%"><br>EXP 是式(1) 計算的, EMP 是實際量測的, 雖然沒很準確, 但也算是正相關</p>
 <h2 id="B-運算量的分析"><a href="#B-運算量的分析" class="headerlink" title="B. 運算量的分析"></a>B. 運算量的分析</h2><hr>
-<p>將<a href="">上一篇</a>的公式 (10):<br><span>$$\mathbb{E}[\#\text{generated tokens}]=\frac{1-\alpha^{\gamma+1}}{1-\alpha}$$</span><!-- Has MathJax --> 代入<a href="">上一篇</a>的公式 (6)<br><span>$$\#\text{OPs Increasing Ratio}= \frac{\hat{c}\gamma+\gamma+1}{\mathbb{E}(\#\text{generated tokens})}$$</span><!-- Has MathJax --> 我們得到<br><span>$$\begin{align}
+<p>將<a href="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-%E8%A9%B3%E8%AE%80/">上一篇</a>的公式 (10):<br><span>$$\mathbb{E}[\#\text{generated tokens}]=\frac{1-\alpha^{\gamma+1}}{1-\alpha}$$</span><!-- Has MathJax --> 代入<a href="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-%E8%A9%B3%E8%AE%80/">上一篇</a>的公式 (6)<br><span>$$\#\text{OPs Increasing Ratio}= \frac{\hat{c}\gamma+\gamma+1}{\mathbb{E}(\#\text{generated tokens})}$$</span><!-- Has MathJax --> 我們得到<br><span>$$\begin{align}
 \#\text{OPs Increasing Ratio}=\frac{(\hat{c}\gamma+\gamma+1)(1-\alpha)}{1-\alpha^{\gamma+1}}
 \end{align}$$</span><!-- Has MathJax --> 我們一樣把圖畫出來<br><img src="/2024/01/08/Speculative-Decoding-詳讀2/Untitled 7.png" width="100%" height="100%"><br>觀察到幾點 (除了最後第4點的結論, 其他聽起來都像”每60秒就會有1分鐘過去”一樣地廢話):<br>&emsp;1. 如果 $\alpha$ 愈小 (大小模型愈不匹配), 則運算量增加愈多<br>&emsp;2. $c$ 愈小 (小模型速度愈快) 則運算量增加的 overhead 愈少<br>&emsp;3. $\gamma$ 愈大則花愈多運算量<br>&emsp;4. 比較需要注意的是, 不管怎樣都會花額外的計算量, 因為都比 baseline 高</p>
 <blockquote>
 <p>是不是有點反直覺, 上面說可以加速, 但又說運算量會比較多. 其實原因就是 target model 可以<strong>並行</strong>算</p>
 </blockquote>
 <h2 id="C-Memory-Bandwidth-的分析"><a href="#C-Memory-Bandwidth-的分析" class="headerlink" title="C. Memory Bandwidth 的分析"></a>C. Memory Bandwidth 的分析</h2><hr>
-<p>這個理論分析比較單純, 由於 speculative 一個 run 的時候 target model 只會呼叫一次, 對比原本每產生一個 token 都要呼叫一次 target model<br>Loading 參數和 kv cache 這些 memory bandwidth 的次數就少非常多, 少的比例次數基本上就是 <span>$\mathbb{E}(\# \text{generated tokens})$</span><!-- Has MathJax --> <a href="">上一篇</a>的公式 (10) 的比例:<br><span>$$\mathbb{E}[\#\text{generated tokens}]=\frac{1-\alpha^{\gamma+1}}{1-\alpha}$$</span><!-- Has MathJax --></p>
+<p>這個理論分析比較單純, 由於 speculative 一個 run 的時候 target model 只會呼叫一次, 對比原本每產生一個 token 都要呼叫一次 target model<br>Loading 參數和 kv cache 這些 memory bandwidth 的次數就少非常多, 少的比例次數基本上就是 <span>$\mathbb{E}(\# \text{generated tokens})$</span><!-- Has MathJax --> <a href="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-%E8%A9%B3%E8%AE%80/">上一篇</a>的公式 (10) 的比例:<br><span>$$\mathbb{E}[\#\text{generated tokens}]=\frac{1-\alpha^{\gamma+1}}{1-\alpha}$$</span><!-- Has MathJax --></p>
 <h2 id="D-Performance-能維持住嗎"><a href="#D-Performance-能維持住嗎" class="headerlink" title="D. Performance 能維持住嗎?"></a>D. Performance 能維持住嗎?</h2><hr>
 <p>回到一開始就破題說 performance 能維持住這件事. 如果不能維持, 上面所有分析都在做白工.<br>論文的 Appendix A.1. 證明寫的很明白, 基本重複一遍而已<br>回顧 $\beta$ 表示時間 $t$ 的 accept probability (忽略下標 $t$)<br><span>$$\beta = \sum_x\min(p(x),q(x))$$</span><!-- Has MathJax --> Modified distribution:<br><span>$$p&apos;(x)=norm(\max(0,p(x)-q(x))) \\
 =\frac{p(x)-\min(q(x),p(x))}{\sum_{x&apos;}(p(x&apos;)-\min(q(x&apos;),p(x&apos;)))} \\
@@ -406,7 +406,7 @@
 <ol>
 <li>Google: Fast Inference from Transformers via Speculative Decoding [<a href="https://arxiv.org/abs/2211.17192" target="_blank" rel="external">arvix</a>]</li>
 <li>DeepMind: Accelerating Large Language Model Decoding with Speculative Sampling [<a href="https://arxiv.org/abs/2302.01318" target="_blank" rel="external">arxiv</a>]</li>
-<li><a href="">Speculative Decoding 詳讀 (上)</a></li>
+<li><a href="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-%E8%A9%B3%E8%AE%80/">Speculative Decoding 詳讀 (上)</a></li>
 </ol>
 
       
