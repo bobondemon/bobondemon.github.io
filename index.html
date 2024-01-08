@@ -267,6 +267,310 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2024/01/08/Speculative-Decoding-詳讀2/" itemprop="url">
+                  Speculative Decoding 詳讀 (下)
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2024-01-08T22:21:17+08:00">
+                2024-01-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>接續<a href="">上一篇</a><br>現在我們可以真正的來探討以下問題了:<br>&emsp;<strong>A. 速度的分析:</strong> 加速到什麼程度? 跟小模型的速度和準確度有關聯嗎? (想像如果 draft 一直被拒絕, 則小模型都是多跑的)<br>&emsp;<strong>B. 運算量的分析:</strong> Operation 數 (計算量) 也會減少嗎? 還是會增加?<br>&emsp;<strong>C. Memory bandwidth 的分析:</strong> 會減少還是增加?<br>&emsp;<strong>D. Performance 能維持住嗎</strong> (PPL, WER, BLEU, … 端看 model task 是什麼): 還是會有 degrade?</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2024/01/08/Speculative-Decoding-詳讀2/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2024/01/08/Speculative-Decoding-詳讀/" itemprop="url">
+                  Speculative Decoding 詳讀 (上)
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2024-01-08T21:29:43+08:00">
+                2024-01-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>這是 Transformer inference 的加速, 有人猜測 GPT-4 也使用這個方法: <a href="https://archive.ph/2RQ8X">https://archive.ph/2RQ8X</a><br>Speculative decoding 做到了不影響準確率情況下直接加速 (不改 model 架構, 不 fine tune, 不做 PTQ 等)<br>這麼神奇的操作就是利用了一個小模型來先跑一些 tokens, 再由原來的大模型評估或修正.<br>論文顯示 LLM 效果無損直接可提速 2~3 倍, 讓我們看下去</p>
+<h2 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h2><hr>
+<p>使用 SongHan 教授的課程 <a href="https://www.dropbox.com/scl/fi/p1zqdbmgv1gkmjsbmd39v/lec13.pdf?rlkey=hrpmd9x9rj96dta1ws29vmb3i&amp;dl=0">slides</a>.<br><img src="/2024/01/08/Speculative-Decoding-詳讀/Untitled.png" width="100%" height="100%"> 利用 small model 先提出一些 draft tokens, 然後用 large model 來驗證. 如果大部分都接受, 直覺上可以省去很多 large model 的呼叫次數, 因此加速. 方法十分簡單, 不過其實魔鬼藏在細節裡, 跟原本只使用 large model 的方法比較有幾個問題要回答:<br>&emsp;<strong>A. 速度的分析:</strong> 加速到什麼程度? 跟小模型的速度和準確度有關聯嗎? (想像如果 draft 一直被拒絕, 則小模型都是多跑的)<br>&emsp;<strong>B. 運算量的分析:</strong> Operation 數 (計算量) 也會減少嗎? 還是會增加?<br>&emsp;<strong>C. Memory bandwidth 的分析:</strong> 會減少還是增加?<br>&emsp;<strong>D. Performance 能維持住嗎</strong> (PPL, WER, BLEU, … 端看 model task 是什麼): 還是會有 degrade?<br>Google 這篇<a href="https://arxiv.org/abs/2211.17192">論文</a>很精彩的理論分析了以上所有問題, 並有實務驗證<br>先破題, <strong>performance (PPL, WER, BLEU, …) 可以保證維持住!</strong> 我們等到本篇筆記最後在討論, 以下會先討論算法流程、加速和運算量的分析.</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2024/01/08/Speculative-Decoding-詳讀/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2023/12/28/AWQ-筆記/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1545,323 +1849,6 @@ J=s_{\text max}^2{4^{-B}\over 3}
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chih-Sheng Chen">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="棒棒生">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/" itemprop="url">
-                  Learning Zero Point and Scale in Quantization Parameters
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2022-12-04T21:14:45+08:00">
-                2022-12-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分類於</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ML/" itemprop="url" rel="index">
-                    <span itemprop="name">ML</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-<hr>
-<p>在上一篇 <a href="https://bobondemon.github.io/2022/11/19/%E6%90%9E%E6%87%82-Quantization-Aware-Training-%E4%B8%AD%E7%9A%84-Fake-Quantization/">搞懂 Quantization Aware Training 中的 Fake Quantization</a> 我們討論了 fake quantization 以及 QAT<br>提到了 <code>observer</code> 負責計算 zero point and scale $(z,s)$, 一般來說只需要透過統計觀測值的 min/max 範圍就能給定, 所以也不需要參與 backward 計算</p>
-<p>直觀上我們希望找到的 zero/scale 使得 quantization error 盡量小, 但其實如果能對任務的 loss 優化, 應該才是最佳的<br>這就必須讓 $(z,s)$ 參與到 backward 的計算, 這種可以計算 gradient 並更新的做法稱為 learnable quantization parameters</p>
-<p>本文主要參考這兩篇論文:<br>&emsp;1. LSQ: <a href="https://arxiv.org/abs/1902.08153">Learned Step Size Quantization</a><br>&emsp;2. LSQ+: <a href="https://arxiv.org/abs/2004.09576">Improving low-bit quantization through learnable offsets and better initialization</a></p>
-<blockquote>
-<p>LSQ 只討論 updating scale, 而 LSQ+ 擴展到 zero point 也能學習, 本文只推導關鍵的 gradients 不說明論文裡的實驗結果</p>
-</blockquote>
-<p>很快定義一下 notations:<br>&emsp;- $v$: full precision input value<br>&emsp;- $s$: quantizer step size (scale)<br>&emsp;- $z$: zero point (offset)<br>&emsp;- <span>$Q_P,Q_N$</span><!-- Has MathJax -->: the number of positive and negative quantization levels<br>&emsp;&emsp;e.g.: for $b$ bits, unsigned <span>$Q_N=0,Q_P=2^b-1$</span><!-- Has MathJax -->, for signed <span>$Q_N=2^{b-1},Q_P=2^{b-1}-1$</span><!-- Has MathJax --><br>&emsp;- <span>$\lfloor x \rceil$</span><!-- Has MathJax -->: round $x$ to nearest integer<br>將 $v$ quantize 到 $\bar{v}$ (1), 再將 $\bar{v}$ dequantize 回 $\hat{v}$ (2), 而 $v-\hat{v}$ 就是 precision loss<br><span>$$\begin{align}
-\bar{v}={clip(\lfloor v/s \rceil+z,-Q_N,Q_P)} \\
-\hat{v}=(\bar{v}-z)\times s\\
-\end{align}$$</span><!-- Has MathJax --></p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/#more" rel="contents">
-              閱讀全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chih-Sheng Chen">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="棒棒生">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/" itemprop="url">
-                  搞懂 Quantization Aware Training 中的 Fake Quantization
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2022-11-19T20:09:14+08:00">
-                2022-11-19
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分類於</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ML/" itemprop="url" rel="index">
-                    <span itemprop="name">ML</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-<hr>
-<p>看完本文會知道什麼是 fake quantization 以及跟 QAT (Quantization Aware Training) 的關聯<br>同時了解 pytorch 的 <a href="https://github.com/pytorch/pytorch/blob/master/torch/ao/quantization/fake_quantize.py#L114"><code>torch.ao.quantization.fake_quantize.FakeQuantize</code></a> 這個 class 做了什麼</p>
-<h2 id="Fake-quantization-是什麼"><a href="#Fake-quantization-是什麼" class="headerlink" title="Fake quantization 是什麼?"></a>Fake quantization 是什麼?</h2><hr>
-<p>我們知道給定 zero ($z$) and scale ($s$) 情況下, float 數值 $r$ 和 integer 數值 $q$ 的關係如下:</p>
-<span>$$\begin{align}
-r=s(q-z) \\
-q=\text{round_to_int}(r/s)+z
-\end{align}$$</span><!-- Has MathJax --> 其中 $s$ 為 scale value 也是 float, 而 $z$ 為 zero point 也是 integer, 例如 <code>int8</code><br>Fake quantization 主要概念就是用 256 個 float 點 (e.g. 用 <code>int8</code>) 來表示所有 float values, 因此一個 float value 就使用256點中最近的一點 float 來替換<br>則原來的 floating training 流程都不用變, 同時也能模擬因為 quantization 造成的精度損失, 這種訓練方式稱做 Quantization Aware Training (QAT) (See <a href="https://bobondemon.github.io/2020/10/03/Quantization-%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B/">Quantization 的那些事</a>)<br>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/#more" rel="contents">
-              閱讀全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1911,7 +1898,7 @@ q=\text{round_to_int}(r/s)+z
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">87</span>
+                <span class="site-state-item-count">89</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -1933,7 +1920,7 @@ q=\text{round_to_int}(r/s)+z
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">184</span>
+                <span class="site-state-item-count">187</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>
@@ -1975,7 +1962,7 @@ q=\text{round_to_int}(r/s)+z
         <div class="copyright" >
   
   &copy; 
-  <span itemprop="copyrightYear">2023</span>
+  <span itemprop="copyrightYear">2024</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

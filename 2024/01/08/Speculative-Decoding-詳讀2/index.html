@@ -1,0 +1,819 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Speculative Decoding,Speculative Sampling,Transformer," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="接續上一篇現在我們可以真正的來探討以下問題了:&amp;emsp;A. 速度的分析: 加速到什麼程度? 跟小模型的速度和準確度有關聯嗎? (想像如果 draft 一直被拒絕, 則小模型都是多跑的)&amp;emsp;B. 運算量的分析: Operation 數 (計算量) 也會減少嗎? 還是會增加?&amp;emsp;C. Memory bandwidth 的分析: 會減少還是增加?&amp;emsp;D. Perfor">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Speculative Decoding 詳讀 (下)">
+<meta property="og:url" content="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀2/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="接續上一篇現在我們可以真正的來探討以下問題了:&amp;emsp;A. 速度的分析: 加速到什麼程度? 跟小模型的速度和準確度有關聯嗎? (想像如果 draft 一直被拒絕, 則小模型都是多跑的)&amp;emsp;B. 運算量的分析: Operation 數 (計算量) 也會減少嗎? 還是會增加?&amp;emsp;C. Memory bandwidth 的分析: 會減少還是增加?&amp;emsp;D. Perfor">
+<meta property="og:image" content="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀2/Untitled 4.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀2/Untitled 5.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀2/Untitled 6.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀2/Untitled 7.png">
+<meta property="og:updated_time" content="2024-01-08T14:50:29.692Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Speculative Decoding 詳讀 (下)">
+<meta name="twitter:description" content="接續上一篇現在我們可以真正的來探討以下問題了:&amp;emsp;A. 速度的分析: 加速到什麼程度? 跟小模型的速度和準確度有關聯嗎? (想像如果 draft 一直被拒絕, 則小模型都是多跑的)&amp;emsp;B. 運算量的分析: Operation 數 (計算量) 也會減少嗎? 還是會增加?&amp;emsp;C. Memory bandwidth 的分析: 會減少還是增加?&amp;emsp;D. Perfor">
+<meta name="twitter:image" content="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀2/Untitled 4.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀2/"/>
+
+
+
+
+
+  <title> Speculative Decoding 詳讀 (下) | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Speculative Decoding 詳讀 (下)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2024-01-08T22:21:17+08:00">
+                2024-01-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>接續<a href="">上一篇</a><br>現在我們可以真正的來探討以下問題了:<br>&emsp;<strong>A. 速度的分析:</strong> 加速到什麼程度? 跟小模型的速度和準確度有關聯嗎? (想像如果 draft 一直被拒絕, 則小模型都是多跑的)<br>&emsp;<strong>B. 運算量的分析:</strong> Operation 數 (計算量) 也會減少嗎? 還是會增加?<br>&emsp;<strong>C. Memory bandwidth 的分析:</strong> 會減少還是增加?<br>&emsp;<strong>D. Performance 能維持住嗎</strong> (PPL, WER, BLEU, … 端看 model task 是什麼): 還是會有 degrade?</p>
+<a id="more"></a>
+<h2 id="A-速度的分析"><a href="#A-速度的分析" class="headerlink" title="A. 速度的分析"></a>A. 速度的分析</h2><hr>
+<p>將<a href="">上一篇</a>的公式 (10):<br><span>$$\mathbb{E}[\#\text{generated tokens}]=\frac{1-\alpha^{\gamma+1}}{1-\alpha}$$</span><!-- Has MathJax --> 代入<a href="">上一篇</a>的公式 (3)<br><span>$$\text{Walltime Improvement}=\frac{\mathbb{E}(\#\text{generated tokens})}{(c\gamma+1)}$$</span><!-- Has MathJax --> 我們得到<br><span>$$\begin{align}
+\text{Walltime Improvement}=\frac{1-\alpha^{\gamma+1}}{(c\gamma+1)(1-\alpha)}
+\end{align}$$</span><!-- Has MathJax --> 先分析一下 walltime, 我們設定 $c=[0.1,0.4,0.8]$, $\gamma=[3, 5, 7]$ 觀察 walltime V.S. $\alpha$ 的變化<br>回顧一下 $c$ 表示 approx. 跟 target model 之間的速度比, 愈小表示 approx. model 速度愈快. $\gamma$ 表示 proposal tokens 的數目. 而 $\alpha$ 可以代表 approx. and target models 之間的匹配程度 (愈高表示愈匹配, proposal token 被接受的機率愈高)<br><img src="/2024/01/08/Speculative-Decoding-詳讀2/Untitled 4.png" width="100%" height="100%"><br>觀察到幾點 (注意到比黑色實線小, walltime improvement $&lt;1$, 代表沒有加速到):<br>&emsp;1. 如果 $\alpha$ 愈大, 表示大小模型之間愈匹配可以加速愈多<br>&emsp;2. $c$ 愈小 (小模型速度愈快) 則加速愈多<br>&emsp;3. <strong>$\gamma$ 則不一定 (看$c=0.1$ 的 case), 所以可能要找出最佳值</strong></p>
+<p>那有沒有可能 $\gamma$ 不管怎麼找都找不出 walltime improvement 至少 $&gt;1$ 呢? 這種情況就不用花力去氣找了.<br>論文 Corollary 3.9. 說明 $\alpha&gt;c$ 的情況則存在 $\gamma$ 使得會有加速好處. 加速效果至少是 <span>$(1+\alpha)/(1+c)$</span><!-- Has MathJax --> 倍.<br>所以 approx. and target models 的選擇就先考慮 $\alpha&gt;c$ 的配對, 然後對 $\gamma$ 找出最佳值.</p>
+<blockquote>
+<p>實務上我們可以用一個 calibration set 用 <span>$\alpha := \mathbb{E}_t[\beta_t]=\sum_t\sum_x\min(p_t(x),q_t(x))$</span><!-- Has MathJax --> 估計出來<br>而 $c$ 則跑 $M_p,M_q$ 的 inference 測出來.<br>接著選擇 approx. and target models 有 $\alpha&gt;c$ 的配對, 最後 $\gamma$ 則求解本篇公式 (1) 找出最佳值來.</p>
+</blockquote>
+<p>給定 $\alpha,c$ 對式 (1) 做數值最佳化找出最佳 $\gamma$, 結果如下:<br><img src="/2024/01/08/Speculative-Decoding-詳讀2/Untitled 5.png" width="60%" height="60%"> 最後 walltime improvement 理論值式 (1) 和實際上量測出來的值有沒有差很多? 作者做了個比較<br><img src="/2024/01/08/Speculative-Decoding-詳讀2/Untitled 6.png" width="70%" height="70%"><br>EXP 是式(1) 計算的, EMP 是實際量測的, 雖然沒很準確, 但也算是正相關</p>
+<h2 id="B-運算量的分析"><a href="#B-運算量的分析" class="headerlink" title="B. 運算量的分析"></a>B. 運算量的分析</h2><hr>
+<p>將<a href="">上一篇</a>的公式 (10):<br><span>$$\mathbb{E}[\#\text{generated tokens}]=\frac{1-\alpha^{\gamma+1}}{1-\alpha}$$</span><!-- Has MathJax --> 代入<a href="">上一篇</a>的公式 (6)<br><span>$$\#\text{OPs Increasing Ratio}= \frac{\hat{c}\gamma+\gamma+1}{\mathbb{E}(\#\text{generated tokens})}$$</span><!-- Has MathJax --> 我們得到<br><span>$$\begin{align}
+\#\text{OPs Increasing Ratio}=\frac{(\hat{c}\gamma+\gamma+1)(1-\alpha)}{1-\alpha^{\gamma+1}}
+\end{align}$$</span><!-- Has MathJax --> 我們一樣把圖畫出來<br><img src="/2024/01/08/Speculative-Decoding-詳讀2/Untitled 7.png" width="100%" height="100%"><br>觀察到幾點 (除了最後第4點的結論, 其他聽起來都像”每60秒就會有1分鐘過去”一樣地廢話):<br>&emsp;1. 如果 $\alpha$ 愈小 (大小模型愈不匹配), 則運算量增加愈多<br>&emsp;2. $c$ 愈小 (小模型速度愈快) 則運算量增加的 overhead 愈少<br>&emsp;3. $\gamma$ 愈大則花愈多運算量<br>&emsp;4. 比較需要注意的是, 不管怎樣都會花額外的計算量, 因為都比 baseline 高</p>
+<blockquote>
+<p>是不是有點反直覺, 上面說可以加速, 但又說運算量會比較多. 其實原因就是 target model 可以<strong>並行</strong>算</p>
+</blockquote>
+<h2 id="C-Memory-Bandwidth-的分析"><a href="#C-Memory-Bandwidth-的分析" class="headerlink" title="C. Memory Bandwidth 的分析"></a>C. Memory Bandwidth 的分析</h2><hr>
+<p>這個理論分析比較單純, 由於 speculative 一個 run 的時候 target model 只會呼叫一次, 對比原本每產生一個 token 都要呼叫一次 target model<br>Loading 參數和 kv cache 這些 memory bandwidth 的次數就少非常多, 少的比例次數基本上就是 <span>$\mathbb{E}(\# \text{generated tokens})$</span><!-- Has MathJax --> <a href="">上一篇</a>的公式 (10) 的比例:<br><span>$$\mathbb{E}[\#\text{generated tokens}]=\frac{1-\alpha^{\gamma+1}}{1-\alpha}$$</span><!-- Has MathJax --></p>
+<h2 id="D-Performance-能維持住嗎"><a href="#D-Performance-能維持住嗎" class="headerlink" title="D. Performance 能維持住嗎?"></a>D. Performance 能維持住嗎?</h2><hr>
+<p>回到一開始就破題說 performance 能維持住這件事. 如果不能維持, 上面所有分析都在做白工.<br>論文的 Appendix A.1. 證明寫的很明白, 基本重複一遍而已<br>回顧 $\beta$ 表示時間 $t$ 的 accept probability (忽略下標 $t$)<br><span>$$\beta = \sum_x\min(p(x),q(x))$$</span><!-- Has MathJax --> Modified distribution:<br><span>$$p&apos;(x)=norm(\max(0,p(x)-q(x))) \\
+=\frac{p(x)-\min(q(x),p(x))}{\sum_{x&apos;}(p(x&apos;)-\min(q(x&apos;),p(x&apos;)))} \\
+= \frac{p(x)-\min(q(x),p(x))}{\sum_{x&apos;}p(x&apos;)-\sum_{x&apos;}\min(q(x&apos;),p(x&apos;))} \\
+= \frac{p(x)-\min(q(x),p(x))}{1-\beta}$$</span><!-- Has MathJax --> 考慮 speculative decoding 最終採樣出 token $x’$ 的機率為:<br><span>$$P(x=x&apos;)=P(\text{guess accept},x=x&apos;) + P(\text{guess reject},x=x&apos;)$$</span><!-- Has MathJax --> 其中<br><span>$$P(\text{guess accept},x=x&apos;)=q(x&apos;)\min\left(1, \frac{p(x&apos;)}{q(x&apos;)}\right)=\min(q(x&apos;),p(x&apos;))$$</span><!-- Has MathJax --> 注意到 speculative decoding 接受的情況是:<br>&emsp;1. 當 <span>$p(x&apos;) \geq q(x&apos;)$</span><!-- Has MathJax --> 時會 accept<br>&emsp;2. 否則有 <span>$p(x&apos;)/q(x&apos;)$</span><!-- Has MathJax --> 的機率 accept<br>這樣寫起來就是 <span>$\min(1, p(x&apos;)/q(x&apos;))$</span><!-- Has MathJax --> 的機率. 然後 accept 的話, token 是從 approx. model 採樣的, 因此是 $q(x’)$.<br>另外<br><span>$$P(\text{guess reject},x=x&apos;)=(1-\beta)p&apos;(x&apos;)=p(x&apos;)-\min(q(x&apos;),p(x&apos;))$$</span><!-- Has MathJax --> Reject 的話要從 modified distribution $p’(x)$ 去採樣.<br>所以合在一起我們得到 $P(x=x’)=p(x’)$</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><hr>
+<ol>
+<li>Google: Fast Inference from Transformers via Speculative Decoding [<a href="https://arxiv.org/abs/2211.17192" target="_blank" rel="external">arvix</a>]</li>
+<li>DeepMind: Accelerating Large Language Model Decoding with Speculative Sampling [<a href="https://arxiv.org/abs/2302.01318" target="_blank" rel="external">arxiv</a>]</li>
+<li><a href="">Speculative Decoding 詳讀 (上)</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀2/" title="Speculative Decoding 詳讀 (下)">https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀2/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Speculative-Decoding/" rel="tag"># Speculative Decoding</a>
+          
+            <a href="/tags/Speculative-Sampling/" rel="tag"># Speculative Sampling</a>
+          
+            <a href="/tags/Transformer/" rel="tag"># Transformer</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/01/08/Speculative-Decoding-詳讀/" rel="next" title="Speculative Decoding 詳讀 (上)">
+                <i class="fa fa-chevron-left"></i> Speculative Decoding 詳讀 (上)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">89</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">187</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#A-速度的分析"><span class="nav-number">1.</span> <span class="nav-text">A. 速度的分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#B-運算量的分析"><span class="nav-number">2.</span> <span class="nav-text">B. 運算量的分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#C-Memory-Bandwidth-的分析"><span class="nav-number">3.</span> <span class="nav-text">C. Memory Bandwidth 的分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#D-Performance-能維持住嗎"><span class="nav-number">4.</span> <span class="nav-text">D. Performance 能維持住嗎?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">5.</span> <span class="nav-text">References</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

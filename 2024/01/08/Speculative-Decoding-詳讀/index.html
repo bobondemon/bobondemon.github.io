@@ -1,0 +1,856 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Speculative Decoding,Speculative Sampling,Transformer," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="這是 Transformer inference 的加速, 有人猜測 GPT-4 也使用這個方法: https://archive.ph/2RQ8XSpeculative decoding 做到了不影響準確率情況下直接加速 (不改 model 架構, 不 fine tune, 不做 PTQ 等)這麼神奇的操作就是利用了一個小模型來先跑一些 tokens, 再由原來的大模型評估或修正.論文顯">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Speculative Decoding 詳讀 (上)">
+<meta property="og:url" content="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="這是 Transformer inference 的加速, 有人猜測 GPT-4 也使用這個方法: https://archive.ph/2RQ8XSpeculative decoding 做到了不影響準確率情況下直接加速 (不改 model 架構, 不 fine tune, 不做 PTQ 等)這麼神奇的操作就是利用了一個小模型來先跑一些 tokens, 再由原來的大模型評估或修正.論文顯">
+<meta property="og:image" content="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀/Untitled.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀/Untitled 1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀/Untitled 2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀/Untitled 3.png">
+<meta property="og:updated_time" content="2024-01-08T14:50:13.680Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Speculative Decoding 詳讀 (上)">
+<meta name="twitter:description" content="這是 Transformer inference 的加速, 有人猜測 GPT-4 也使用這個方法: https://archive.ph/2RQ8XSpeculative decoding 做到了不影響準確率情況下直接加速 (不改 model 架構, 不 fine tune, 不做 PTQ 等)這麼神奇的操作就是利用了一個小模型來先跑一些 tokens, 再由原來的大模型評估或修正.論文顯">
+<meta name="twitter:image" content="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀/Untitled.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀/"/>
+
+
+
+
+
+  <title> Speculative Decoding 詳讀 (上) | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Speculative Decoding 詳讀 (上)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2024-01-08T21:29:43+08:00">
+                2024-01-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>這是 Transformer inference 的加速, 有人猜測 GPT-4 也使用這個方法: <a href="https://archive.ph/2RQ8X" target="_blank" rel="external">https://archive.ph/2RQ8X</a><br>Speculative decoding 做到了不影響準確率情況下直接加速 (不改 model 架構, 不 fine tune, 不做 PTQ 等)<br>這麼神奇的操作就是利用了一個小模型來先跑一些 tokens, 再由原來的大模型評估或修正.<br>論文顯示 LLM 效果無損直接可提速 2~3 倍, 讓我們看下去</p>
+<h2 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h2><hr>
+<p>使用 SongHan 教授的課程 <a href="https://www.dropbox.com/scl/fi/p1zqdbmgv1gkmjsbmd39v/lec13.pdf?rlkey=hrpmd9x9rj96dta1ws29vmb3i&amp;dl=0" target="_blank" rel="external">slides</a>.<br><img src="/2024/01/08/Speculative-Decoding-詳讀/Untitled.png" width="100%" height="100%"> 利用 small model 先提出一些 draft tokens, 然後用 large model 來驗證. 如果大部分都接受, 直覺上可以省去很多 large model 的呼叫次數, 因此加速. 方法十分簡單, 不過其實魔鬼藏在細節裡, 跟原本只使用 large model 的方法比較有幾個問題要回答:<br>&emsp;<strong>A. 速度的分析:</strong> 加速到什麼程度? 跟小模型的速度和準確度有關聯嗎? (想像如果 draft 一直被拒絕, 則小模型都是多跑的)<br>&emsp;<strong>B. 運算量的分析:</strong> Operation 數 (計算量) 也會減少嗎? 還是會增加?<br>&emsp;<strong>C. Memory bandwidth 的分析:</strong> 會減少還是增加?<br>&emsp;<strong>D. Performance 能維持住嗎</strong> (PPL, WER, BLEU, … 端看 model task 是什麼): 還是會有 degrade?<br>Google 這篇<a href="https://arxiv.org/abs/2211.17192" target="_blank" rel="external">論文</a>很精彩的理論分析了以上所有問題, 並有實務驗證<br>先破題, <strong>performance (PPL, WER, BLEU, …) 可以保證維持住!</strong> 我們等到本篇筆記最後在討論, 以下會先討論算法流程、加速和運算量的分析.</p>
+<a id="more"></a>
+<h2 id="Speculative-Decoding-算法流程"><a href="#Speculative-Decoding-算法流程" class="headerlink" title="Speculative Decoding 算法流程"></a>Speculative Decoding 算法流程</h2><hr>
+<p>使用<a href="https://arxiv.org/abs/2211.17192" target="_blank" rel="external">論文</a>的術語, 例如上面說的 small model 改稱 approximation model, large model 改稱 target model, draft 用 proposal tokens.<br>Approx. model, $M_q$, 用 auto-regressive 方式產生 $\gamma$ 個 proposal tokens <span>$\{x_1,...,x_\gamma\}$</span><!-- Has MathJax --> 和機率分布 <span>$\{q_1(x),...,q_\gamma(x)\}$</span><!-- Has MathJax -->, 接著把 proposal token 結合上次一的 prefix tokens (但這裡我們為了簡化先忽略 prefix) 給 target model, $M_p$, 做一次 <strong>non-autoregressive</strong> forward (<strong>parallel</strong>) 跑出機率分布 <span>$\{p_1(x),...,p_\gamma(x),p_{\gamma+1}(x)\}$</span><!-- Has MathJax -->.<br>比較 $p(x),q(x)$ 來決定是否接受 proposal tokens, 如果 $p(x)\geq q(x)$ 則採用 $M_q$ 的 proposal token, 否則有 <span>$p(x)/q(x)$</span><!-- Has MathJax --> 機率仍會接受 proposal token, 有 <span>$1-p(x)/q(x)$</span><!-- Has MathJax --> 的機率要根據修改的機率分布 <span>$p&apos;(x)=norm(\max(0,p(x)-q(x)))$</span><!-- Has MathJax --> 重新採樣 token.<br>另外如果所有 $\gamma$  個 proposal tokens 都被接受了, 則直接從 target model 的 <span>$p_{\gamma+1}(x)$</span><!-- Has MathJax --> 採樣token.<br>以上為一個 step or run, 重複直到句子產生結束.<br>參考下圖:<br><img src="/2024/01/08/Speculative-Decoding-詳讀/Untitled 1.png" width="100%" height="100%"></p>
+<ol>
+<li>注意到 <span>$\{p_1(x),...,p_\gamma(x),p_{\gamma+1}(x)\}$</span><!-- Has MathJax --> 是一次 forward 就跑出來的, 相比 auto-regressive 的方式要跑 $\gamma$ 次 forward (load $\gamma$ 次 model 參數), 現在只需要 load 一次參數(and kv-cache)因此可以節省 memory bandwidth. 但注意到這兩種方式的總計算量是不變的.</li>
+<li>一般來說 $M_p$ 的輸入會結合上一次 decode 的 tokens (稱 prefix) 加上 $M_q$ 的 proposal tokens 當輸入, 但是這些 prefix 由於上一次 decode 時 forward 過, 在使用 kv-cache 的技巧下可以省略計算.</li>
+</ol>
+<h2 id="速度和運算量的初步分析"><a href="#速度和運算量的初步分析" class="headerlink" title="速度和運算量的初步分析"></a>速度和運算量的初步分析</h2><hr>
+<p>先定義 <span>$\mathbb{E}(\# \text{generated tokens})$</span><!-- Has MathJax --> 表示 speculative decoding 平均一個 run 可以產生多少”有效” tokens (因為不是所有 proposal tokens 都會被接受)</p>
+<h3 id="推論速度-Walltime-變化"><a href="#推論速度-Walltime-變化" class="headerlink" title="推論速度 (Walltime) 變化?"></a>推論速度 (Walltime) 變化?</h3><p>每一個 run 需要的時間為 $Tc\gamma + T$, 其中 $T$ 是跑一次 target model 所花的時間, $c$ (cost coefficient) 是 approx. model 跟 target model 的時間比 (愈小表示 approx. model 跑愈快). 所以:<br>&emsp;- speculative decoding 花了 $Tc\gamma + T$ 的時間產生 <span>$\mathbb{E}(\# \text{generated tokens})$</span><!-- Has MathJax --> 個 tokens<br>&emsp;- 只用 target model 花了 $T$ 的時間產生 $1$ 個 token<br>因此只要知道 <span>$\mathbb{E}(\# \text{generated tokens})$</span><!-- Has MathJax --> 我們可推得使用 speculative decoding 的速度提升 (walltime improvement):<br><span>$$\begin{align}
+\text{Walltime Improvement}=\frac{\text{Speculative decoding (tokens per time)}}
+{M_p\text{ decoding (tokens per time)}}\\
+=\frac{\mathbb{E}(\#\text{generated tokens})/(Tc\gamma+T)}
+{1/T}\\
+=\frac{\mathbb{E}(\#\text{generated tokens})}{(c\gamma+1)}
+\end{align}$$</span><!-- Has MathJax --> 數值愈高表示使用 speculative decoding 加速愈多</p>
+<h3 id="運算量的變化"><a href="#運算量的變化" class="headerlink" title="運算量的變化?"></a>運算量的變化?</h3><p>定義 $\hat{T}$ 是 target model ”per token” 的運算量, 而 $\hat{c}$ 是 approx. model 跟 target model 的運算量比. 每一次的 run, approx. model 會 auto-regressive $\gamma$ 次, 所以是 $\hat{T}\hat{c}\gamma$, 而 target model 會對 $\gamma$ 個 proposal tokens parallel 去跑 $1$ 次, 注意到雖然是 parallel, 但總運算次數是正比於 proposal token 數量的 (只是並行跑), 所以花的運算量為 $\hat{T}(\gamma+1)$. 所以:<br>&emsp;- speculative decoding 花了 $\hat{T}\hat{c}\gamma+\hat{T}(\gamma+1)$ 運算量產生 <span>$\mathbb{E}(\# \text{generated tokens})$</span><!-- Has MathJax --> 個 tokens<br>&emsp;- 只用 target model 花了 $\hat{T}$ 的運算量產生 $1$ 個 token<br>同樣只要知道 <span>$\mathbb{E}(\# \text{generated tokens})$</span><!-- Has MathJax --> 我們可推得運算量的變化.<br>PS: 注意到 prefix tokens 不會花到運算量因為 kv-cache 技巧, 所以考慮的時候可以忽略.<br><span>$$\begin{align}
+\#\text{OPs Increasing Ratio}=\frac{\text{Speculative decoding (\#OPs per token)}}{M_p\text{ decoding (\#OPs per token)}} \\
+=\frac{(\hat{T}\hat{c}\gamma+\hat{T}(\gamma+1))/\mathbb{E}(\#\text{generated tokens})}{\hat{T}/1} \\
+= \frac{\hat{c}\gamma+\gamma+1}{\mathbb{E}(\#\text{generated tokens})}
+\end{align}$$</span><!-- Has MathJax --> 數值愈高表示使用 speculative decoding 要花愈多 OPs 數 (運算量愈高)</p>
+<h2 id="平均生成的-Tokens-數"><a href="#平均生成的-Tokens-數" class="headerlink" title="平均生成的 Tokens 數"></a>平均生成的 Tokens 數</h2><hr>
+<h3 id="Proposal-Tokens-被接受的機率-beta-t-alpha"><a href="#Proposal-Tokens-被接受的機率-beta-t-alpha" class="headerlink" title="Proposal Tokens 被接受的機率 $\beta_t,\alpha$"></a>Proposal Tokens 被接受的機率 $\beta_t,\alpha$</h3><p>綜上所述, 需要先計算 <span>$\mathbb{E}(\# \text{generated tokens})$</span><!-- Has MathJax -->, 等同於要計算 token 的 accept 機率我們才能得知速度以及運算量的變化.<br>將 proposal token <span>$x_t\sim q(x|x_1,...,x_{t-1})=:q_t(x)$</span><!-- Has MathJax --> 被 speculative decoding 接受的機率定義為 $\beta_t$.<br>數學上可以麼表達 (為了清楚, 在沒有混淆情況下省略下標 $t$):<br><span>$$\begin{align}
+\beta = \mathbb{E}_{x\sim q(x)} \left\{
+\begin{array}{rl}
+1 &amp; q(x)\leq p(x) \\
+{p(x)\over q(x)} &amp; q(x)&gt;p(x)
+\end{array}
+\right.\\
+= \mathbb{E}_{x\sim q(x)} \min\left(1, {p(x)\over q(x)}\right)=\sum_x\min(p(x),q(x))
+\end{align}$$</span><!-- Has MathJax --> 注意到 $\beta_t$ 跟時間 $t$ 相關, 為了簡化, 論文假設 $\beta_t,\forall t$ 都是從一樣的 distribution sample 的 random variables.<br>所以可以簡化為定義<br><span>$$\begin{align}
+\alpha := \mathbb{E}_t[\beta_t]=\sum_t\sum_x\min(p_t(x),q_t(x))
+\end{align}$$</span><!-- Has MathJax --> 論文計算了不同 $M_q,M_p$ 之間的 $\alpha$. 可以看到 $M_q$ model size 愈大 $\alpha$ 愈高, 顯示愈匹配.<br><img src="/2024/01/08/Speculative-Decoding-詳讀/Untitled 2.png" width="60%" height="60%"> 有趣的是, 以T5系列的 models 來看, $M_q$ 選擇 bi-gram 這種非常簡單的 LM $\alpha$ 還有 $0.2$, 代表 bi-gram model 的 proposal tokens 平均5個有1個會被接受.</p>
+<blockquote>
+<p>如果 approx. model 跟 target model 愈匹配的話, accept rate ($\beta_t,\alpha$) 就會愈高<br>因此 $\beta_t$ 或 $\alpha$ 可以看成是小模型跟大模型的<strong>匹配程度</strong>.</p>
+</blockquote>
+<p>但是再繼續之前, 我們必須先回顧一下<a href="https://www.wikiwand.com/en/Geometric_distribution#Definitions" target="_blank" rel="external">幾何分佈</a></p>
+<h3 id="Geometric-distribution-with-capped-number-of-trails"><a href="#Geometric-distribution-with-capped-number-of-trails" class="headerlink" title="Geometric distribution with capped number of trails"></a>Geometric distribution with capped number of trails</h3><p>考慮一次測試 (trail) 的成功機率為 $\theta$, 最多測試 $n$ 次 trails, random variable $X$ 代表要花多少次的 trails 才會至少成功一次. 注意到如果前 $n-1$ 次都 fail, 則強制最後第 $n$ 次一定成功.<br>前 $n-1$ 次至少會 success 一次所需花的 trails 次數期望值為:<br>&emsp;<span>$1\times\text{第一次就成功的機率} + 2\times\text{第二次才就成功的機率} + ... + (n-1)\times\text{第}(n-1)\text{次才成功的機率}$</span><!-- Has MathJax --><br><span>$$\theta\sum_{x=1}^{n-1}x(1-\theta)^{x-1}=\theta
+\sum_{x=1}^{n-1}\left(
+-\frac{d}{d\theta}(1-\theta)^x
+\right) \\
+=-\theta\frac{d}{d\theta}\left(\sum_{x=1}^{n-1}(1-\theta)^x\right) 
+= -\theta\frac{d}{d\theta}\left(
+\frac{(1-\theta)(1-(1-\theta)^{n-1})}{1-(1-\theta)}\right) \\
+= -\theta\frac{d}{d\theta}\left(
+\frac{(1-\theta)-(1-\theta)^n}{\theta}
+\right) \\
+=-\theta\frac{\theta(-1+n(1-\theta)^{n-1})-(1-\theta)+(1-\theta)^n}{\theta^2}\\
+=\frac{\theta-n\theta(1-\theta)^{n-1}+(1-\theta)-(1-\theta)^n}{\theta}$$</span><!-- Has MathJax --> 加上 $n-1$ 次都 fail, 所以強制最後第 $n$ 次一定 success 的機率為 <span>$(1-\theta)^{n-1}$</span><!-- Has MathJax --> 並乘上次數 $n$, 因此總體期望值為:<br><span>$$\mathbb{E}\left[X\right]=
+\frac{\theta-n\theta(1-\theta)^{n-1}+(1-\theta)-(1-\theta)^n}{\theta} + n(1-\theta)^{n-1} \\
+=\frac{1-(1-\theta)^n}{\theta}$$</span><!-- Has MathJax --></p>
+<h3 id="計算平均生成的-tokens-數"><a href="#計算平均生成的-tokens-數" class="headerlink" title="計算平均生成的 tokens 數"></a>計算平均生成的 tokens 數</h3><p><span>$\mathbb{E}(\# \text{generated tokens})$</span><!-- Has MathJax --> 相當於要計算試驗次數有上限 (capped number of trails) 的 geometric distribution 的期望值.<br>對應到 speculative decoding 的問題裡 $\theta=1-\alpha$, 且試驗次數最多 $\gamma+1$ 次., 因此將 $\theta = 1-\alpha$, $n=\gamma+1$ 代入得到:<br><span>$$\begin{align}
+\mathbb{E}[\#\text{generated tokens}]=\frac{1-\alpha^{\gamma+1}}{1-\alpha}
+\end{align}$$</span><!-- Has MathJax --> 論文把小模型與大模型的匹配程度 $\alpha$ 跟 (10) 的關係畫出來:<br><img src="/2024/01/08/Speculative-Decoding-詳讀/Untitled 3.png" width="60%" height="60%"> 我們發現 $M_q$ 與 $M_p$ 愈匹配的話, speculative decoding 一次 run 產生的 tokens 愈多 (很合理, 因為被接受的機率愈高)<br>產生的 tokens 上限就是 $\gamma+1$ ($\gamma$ 個 proposal tokens 全被接受加上最後一個 $M_p$ 產生的 token)</p>
+<p>待續 …</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><hr>
+<ol>
+<li>Google: Fast Inference from Transformers via Speculative Decoding [<a href="https://arxiv.org/abs/2211.17192" target="_blank" rel="external">arvix</a>]</li>
+<li>DeepMind: Accelerating Large Language Model Decoding with Speculative Sampling [<a href="https://arxiv.org/abs/2302.01318" target="_blank" rel="external">arxiv</a>]</li>
+<li><a href="Speculative_sampling.drawio">Speculative_sampling.drawio</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀/" title="Speculative Decoding 詳讀 (上)">https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Speculative-Decoding/" rel="tag"># Speculative Decoding</a>
+          
+            <a href="/tags/Speculative-Sampling/" rel="tag"># Speculative Sampling</a>
+          
+            <a href="/tags/Transformer/" rel="tag"># Transformer</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/12/28/AWQ-筆記/" rel="next" title="AWQ 筆記">
+                <i class="fa fa-chevron-left"></i> AWQ 筆記
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2024/01/08/Speculative-Decoding-詳讀2/" rel="prev" title="Speculative Decoding 詳讀 (下)">
+                Speculative Decoding 詳讀 (下) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">89</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">187</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Motivation"><span class="nav-number">1.</span> <span class="nav-text">Motivation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Speculative-Decoding-算法流程"><span class="nav-number">2.</span> <span class="nav-text">Speculative Decoding 算法流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#速度和運算量的初步分析"><span class="nav-number">3.</span> <span class="nav-text">速度和運算量的初步分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#推論速度-Walltime-變化"><span class="nav-number">3.1.</span> <span class="nav-text">推論速度 (Walltime) 變化?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#運算量的變化"><span class="nav-number">3.2.</span> <span class="nav-text">運算量的變化?</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#平均生成的-Tokens-數"><span class="nav-number">4.</span> <span class="nav-text">平均生成的 Tokens 數</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Proposal-Tokens-被接受的機率-beta-t-alpha"><span class="nav-number">4.1.</span> <span class="nav-text">Proposal Tokens 被接受的機率 $\beta_t,\alpha$</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Geometric-distribution-with-capped-number-of-trails"><span class="nav-number">4.2.</span> <span class="nav-text">Geometric distribution with capped number of trails</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#計算平均生成的-tokens-數"><span class="nav-number">4.3.</span> <span class="nav-text">計算平均生成的 tokens 數</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">5.</span> <span class="nav-text">References</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
