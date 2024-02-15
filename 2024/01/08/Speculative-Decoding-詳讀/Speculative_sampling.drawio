@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" modified="2024-01-07T03:12:21.076Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" etag="IGkPO1JvpZ8tHODZ8-u1" version="22.1.17" type="device">
+<mxfile host="app.diagrams.net" modified="2024-02-15T13:31:11.480Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36" etag="1AuA5SJDn0bfqE5WM9z_" version="22.1.17" type="device">
   <diagram name="第 1 页" id="fOnnrjcTGDBnkUeyOYlG">
-    <mxGraphModel dx="957" dy="446" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="1200" math="1" shadow="0">
+    <mxGraphModel dx="957" dy="426" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="1200" math="1" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -220,7 +220,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="AxFweGhwPLzHDtxI3wwa-1" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="J8y7uaH8IraPNljRpGLL-91" source="J8y7uaH8IraPNljRpGLL-66" target="J8y7uaH8IraPNljRpGLL-75">
+        <mxCell id="AxFweGhwPLzHDtxI3wwa-1" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;" parent="J8y7uaH8IraPNljRpGLL-91" source="J8y7uaH8IraPNljRpGLL-66" target="J8y7uaH8IraPNljRpGLL-75" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="J8y7uaH8IraPNljRpGLL-66" value="`p_{\gamma+1}(x)`" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="J8y7uaH8IraPNljRpGLL-91" vertex="1">
@@ -273,7 +273,7 @@
         <mxCell id="J8y7uaH8IraPNljRpGLL-81" value="`{q_1(x), ...,q_\gamma(x)&lt;br&gt;}`" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="J8y7uaH8IraPNljRpGLL-91" vertex="1">
           <mxGeometry y="70" width="110" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="J8y7uaH8IraPNljRpGLL-83" value="For example, accept tokens `\{x_1, x_2, x_3\}`&lt;br&gt;then resample `x_4~p_4(x)`" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="J8y7uaH8IraPNljRpGLL-91" vertex="1">
+        <mxCell id="J8y7uaH8IraPNljRpGLL-83" value="For example, accept tokens `\{x_1, x_2, x_3\}`&lt;br&gt;then resample `x_4` from `p_4(x)` or `p&#39;_4(x)`" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="J8y7uaH8IraPNljRpGLL-91" vertex="1">
           <mxGeometry x="80" width="250" height="40" as="geometry" />
         </mxCell>
         <mxCell id="J8y7uaH8IraPNljRpGLL-89" value="&lt;font color=&quot;#0000ff&quot;&gt;&lt;b&gt;Run `M_p` in parallel&lt;/b&gt;&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="J8y7uaH8IraPNljRpGLL-91" vertex="1">
