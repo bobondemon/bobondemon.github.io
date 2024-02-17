@@ -267,6 +267,158 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/02/17/量化技術路線/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2024/02/17/量化技術路線/" itemprop="url">
+                  量化技術路線
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2024-02-17T20:41:45+08:00">
+                2024-02-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>總結一下 (up to 2024-02-17) 目前學習的量化技術和流程圖<br><img src="/2024/02/17/量化技術路線/quantization_flowchart.png" width="100%" height="100%"> Post Training Quantization (PTQ) 稱事後量化. Quantization Aware Training (QAT) 表示訓練時考慮量化造成的損失來做訓練<br>為了得到 fixed point model 可以對事先訓練好的 float model 做 PTQ 或 QAT, 或是直接從 QAT 流程開始<br>同時 QAT 也可以用 PTQ 來初始化訓練. 如果要從 float model 開始做量化的話, 可以考慮在訓練 float model 時就對之後量化能更加友善的技術 (如 R^2, KURE, PACT)</p>
+<p>接著對每個技術點盡量以最簡單的方式解說. 如果對量化還不是那麼熟悉, 建議參考一下文章後半段的”簡單回顧量化”</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2024/02/17/量化技術路線/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/02/07/高效率計算-Jacobian-Hessian-VJP-JVP-HVP/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1664,175 +1816,11 @@ J=s_{\text max}^2{4^{-B}\over 3}
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chih-Sheng Chen">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="棒棒生">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/" itemprop="url">
-                  Movement Pruning Adaptive Sparsity by Fine-Tuning 筆記
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2023-02-24T22:47:40+08:00">
-                2023-02-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分類於</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ML/" itemprop="url" rel="index">
-                    <span itemprop="name">ML</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-<hr>
-<p>先引用這篇論文的論點 Train Large, Then Compress: Rethinking Model Size for Efficient Training and Inference of Transformers [<a href="https://arxiv.org/abs/2002.11794">pdf</a>]</p>
-<p><img src="/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/train_large_then_compress.png" width="75%" height="75%"></p>
-<p>同樣的小 model size, 從頭訓練還不如先用大的 model size 做出好效果, 再壓縮到需要的大小<br>所以 pruning 不僅能壓小 model size, 同樣對 performance 可能也是個好策略</p>
-<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><hr>
-<p>使用單純的 absolutely magnitude pruning 對於在 SSL model 不好. 因為原來的 weight 是對 SSL 的 loss 計算的, 並不能保證後來的 fine tune (down stream task loss) 有一樣的重要性關聯.<br>例如傳統上的 magnitude pruning 作法, 如這一篇 2015 NIPS 文章 [<a href="https://arxiv.org/abs/1506.02626">Learning both Weights and Connections for Efficient Neural Networks</a>] (cited 5xxx) 作法很簡單:<br>&emsp;先對 model train 到收斂, 然後 prune, 接著繼續訓練 (prune 的 weight 就 fix 為 $0$), 然侯再多 prune … iterative 下去到需要的 prune 數量<br>但作者認為, 只靠 magnitude 大小判斷效果不好, 因為在 fine tune 過程中, <strong>如果某一個 weight 雖然 magnitude 很大, 但 gradient update 後傾向把 magnitude 變小, 就表示它重要性應該降低才對, 這是本篇的精華思想</strong></p>
-<blockquote>
-<p>因此我們先定義重要性就是代表 weight 的 magnitude 會變大還是變小, 變大就是重要性大, 反之</p>
-</blockquote>
-<p>因此作者對每一個參數都引入一個 score, 命為 $S$, 希望能代表 weight 的重要性. 而在 fine-tune 的過程, 除了對 weight $W$ update 之外, score $S$  也會 update<br>如果 score $S$ 正好能反映 weight 的 gradient 傾向, 即 $S$ 愈大剛好表示該對應的 weight 在 fine-tune 過程會傾向讓 magnitude 變大, 反之亦然, 那這樣的 $S$ 正好就是我們要找的.</p>
-<p>要這麼做的話, 我們還需要回答兩個問題:</p>
-<ol>
-<li>怎麼引入 score $S$?</li>
-<li>Score $S$ 正好能代表重要性? 換句話說能反映 weight 在 fine tune 過程的 magnitude 傾向嗎?</li>
-</ol>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/#more" rel="contents">
-              閱讀全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1877,7 +1865,7 @@ J=s_{\text max}^2{4^{-B}\over 3}
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">90</span>
+                <span class="site-state-item-count">91</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -1899,7 +1887,7 @@ J=s_{\text max}^2{4^{-B}\over 3}
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">192</span>
+                <span class="site-state-item-count">199</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>

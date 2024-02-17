@@ -1,0 +1,882 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Post Training Quantization (PTQ),Activation-aware Weight Quantization (AWQ),Weight Only Quantization (WOQ),Straight Through Estimator (STE),Quantization Aware Training (QAT),Fake Quantization,LSQ,LSQ+,Quantization Error,Linear Quantization,Nonlinear Quantization,Data Free Quantization (DFQ),OCTAV,Asymmetric Quantization,Symmetric Quantization,SmoothQuant,AdaRound,PACT,Optimal Brain Quantization (OBQ),GPTQ,EWGS,N2UQ,DKM," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="總結一下 (up to 2024-02-17) 目前學習的量化技術和流程圖 Post Training Quantization (PTQ) 稱事後量化. Quantization Aware Training (QAT) 表示訓練時考慮量化造成的損失來做訓練為了得到 fixed point model 可以對事先訓練好的 float model 做 PTQ 或 QAT, 或是直接從 QA">
+<meta property="og:type" content="article">
+<meta property="og:title" content="量化技術路線">
+<meta property="og:url" content="https://bobondemon.github.io/2024/02/17/量化技術路線/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="總結一下 (up to 2024-02-17) 目前學習的量化技術和流程圖 Post Training Quantization (PTQ) 稱事後量化. Quantization Aware Training (QAT) 表示訓練時考慮量化造成的損失來做訓練為了得到 fixed point model 可以對事先訓練好的 float model 做 PTQ 或 QAT, 或是直接從 QA">
+<meta property="og:image" content="https://bobondemon.github.io/2024/02/17/量化技術路線/quantization_flowchart.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/02/17/量化技術路線/most_general_quant.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/02/17/量化技術路線/quantization_granuity.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/02/17/量化技術路線/quantize_ops.png">
+<meta property="og:updated_time" content="2024-02-17T16:59:57.611Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="量化技術路線">
+<meta name="twitter:description" content="總結一下 (up to 2024-02-17) 目前學習的量化技術和流程圖 Post Training Quantization (PTQ) 稱事後量化. Quantization Aware Training (QAT) 表示訓練時考慮量化造成的損失來做訓練為了得到 fixed point model 可以對事先訓練好的 float model 做 PTQ 或 QAT, 或是直接從 QA">
+<meta name="twitter:image" content="https://bobondemon.github.io/2024/02/17/量化技術路線/quantization_flowchart.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2024/02/17/量化技術路線/"/>
+
+
+
+
+
+  <title> 量化技術路線 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/02/17/量化技術路線/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                量化技術路線
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2024-02-17T20:41:45+08:00">
+                2024-02-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>總結一下 (up to 2024-02-17) 目前學習的量化技術和流程圖<br><img src="/2024/02/17/量化技術路線/quantization_flowchart.png" width="100%" height="100%"> Post Training Quantization (PTQ) 稱事後量化. Quantization Aware Training (QAT) 表示訓練時考慮量化造成的損失來做訓練<br>為了得到 fixed point model 可以對事先訓練好的 float model 做 PTQ 或 QAT, 或是直接從 QAT 流程開始<br>同時 QAT 也可以用 PTQ 來初始化訓練. 如果要從 float model 開始做量化的話, 可以考慮在訓練 float model 時就對之後量化能更加友善的技術 (如 R^2, KURE, PACT)</p>
+<p>接著對每個技術點盡量以最簡單的方式解說. 如果對量化還不是那麼熟悉, 建議參考一下文章後半段的”簡單回顧量化”</p>
+<a id="more"></a>
+<h2 id="量化技術和流程"><a href="#量化技術和流程" class="headerlink" title="量化技術和流程"></a>量化技術和流程</h2><hr>
+<h3 id="Floating-Model-Training"><a href="#Floating-Model-Training" class="headerlink" title="Floating Model Training"></a>Floating Model Training</h3><p>這階段主要是讓訓練出來的 floating model 有利於之後量化的技術</p>
+<ul>
+<li><strong>R^2</strong> [<a href="https://arxiv.org/abs/2303.08253" target="_blank" rel="external">paper</a>]: 認為 outliers 愈少, 愈有利於後面的量化或壓縮. 提出了 3 種 regularization losses.</li>
+<li><strong>KURE</strong> [<a href="https://arxiv.org/abs/2002.07686" target="_blank" rel="external">paper</a>]: 使用 4th moments Kurtosis (KURE, KUrtosis REgularization) 來當 regularization 讓分佈接近 uniform, 同樣會有利於後面的量化.</li>
+<li><strong>PACT</strong> [<a href="https://arxiv.org/abs/1805.06085" target="_blank" rel="external">paper</a>]: 使得 $l,u$ 這兩個 clipping 上下界能被學習, 限制數值範圍</li>
+</ul>
+<h3 id="PTQ"><a href="#PTQ" class="headerlink" title="PTQ"></a>PTQ</h3><p>PTQ 是針對 float model 做量化的技術, 不需要 training data, 通常只需要些許的 calibration data 即可, 有些技術仍會需要算 gradients, 而有些不用, 甚至連 calibration data 都不用.<br>一般來說 PTQ 效果會比 QAT 差, 但速度比 QAT 快多了, 同時針對 LLM 這種大模型 QAT 成本太高都只能使用 PTQ.</p>
+<ul>
+<li><strong>CLE, Bias Absorption, Bias Correction</strong> [<a href="https://arxiv.org/abs/1906.04721" target="_blank" rel="external">paper</a>]: Qaulcomm DFQ (Data Free Quantization 技術), 詳見 [<a href="https://bobondemon.github.io/2023/11/24/Qualcomm-Data-Free-Quantization-%E8%A9%B3%E8%AE%80/">blog</a>]</li>
+<li><strong>AdaRound</strong> [<a href="https://arxiv.org/abs/2004.10568" target="_blank" rel="external">paper</a>]: weight 量化時 (式 (1)) 的 rounding (四捨五入) 不一定是最佳的, 找出使用 floor 或 ceil 的最佳組合來取代全部都用 rounding 的方式</li>
+<li><strong>OBQ</strong> (Optimal Brain Quantization) [<a href="https://arxiv.org/abs/2208.11580" target="_blank" rel="external">paper</a>]: 對於 weights 在 quantize 其中一個元素後還要調整其他元素, 使得 quantization 對 output activatyions 的 re-construction error 最小.</li>
+<li><strong>OCTAV</strong> (Optimally Clipped Tensors And Vectors)[<a href="https://arxiv.org/abs/2206.06501" target="_blank" rel="external">paper</a>]: 找出最佳的 scale $S$ 使得 quantization MSE 最小 (式 (4)), 詳見[<a href="https://bobondemon.github.io/2023/10/28/Quantization-Error-Case-without-Clipping/">blog1</a>, <a href="https://bobondemon.github.io/2023/11/04/Quantization-Error-Case-with-Clipping/">blog2</a>]</li>
+<li><strong>Transformer GPTQ</strong> (WOQ) [<a href="https://arxiv.org/abs/2210.17323" target="_blank" rel="external">paper</a>]: 基於 OBQ 的技術來針對 Transformer 做些改進和加速. Weight-Only-Quantization (WOQ)</li>
+<li><strong>Transformer AWQ</strong> (WOQ) [<a href="https://arxiv.org/abs/2306.00978" target="_blank" rel="external">paper</a>]: 對 input activations 值域特別大的那些 channels 做 scaling 處理, 這樣能維持 LLM 的效果, 詳見筆記 [<a href="https://bobondemon.github.io/2023/12/28/AWQ-%E7%AD%86%E8%A8%98/">blog</a>]. Weight-Only-Quantization (WOQ)</li>
+<li><strong>Transformer SmoothQuant</strong> [<a href="https://arxiv.org/abs/2211.10438v5" target="_blank" rel="external">paper</a>]: 透過一些等價的轉換將 activations 的 scale 縮小並放大 weights 的 scale, 使得 activations 變的較容易 quant 而 weights 仍然容易 quant. 詳見筆記 [<a href="https://bobondemon.github.io/2023/12/28/SmoothQuant-%E7%AD%86%E8%A8%98/">blog</a>]</li>
+</ul>
+<h3 id="QAT"><a href="#QAT" class="headerlink" title="QAT"></a>QAT</h3><p>一般來說透過插入 fake-quant op (不清楚的話參見 “簡單回顧量化” 裡的說明) 使得在訓練時能感知到量化的誤差</p>
+<ul>
+<li><strong>STE</strong> (Straight Through Estimator): 在做量化時 clip and round 這兩個運算不可微分, 為了能 back propagation 假裝沒有這兩個不可微分的 ops. 這是最常見和標準的 QAT 技巧.</li>
+<li><strong>EWGS</strong> [<a href="https://arxiv.org/abs/2104.00903" target="_blank" rel="external">paper</a>]: 由於多個 floating 值會對應到同一個 quantized 值, 使得這些不同的 floating 值因為 STE 的原因都使用相同的 gradients, EWGS 改善了這點. 論文的 figure 1 圖示很清楚.</li>
+<li><strong>MAD</strong> [<a href="https://arxiv.org/abs/2206.06501" target="_blank" rel="external">in OCTAV paper</a>]: 改善了 STE 對於 clipping op 的 under estimate 問題, 詳見論文裡的 figure 3 and appendix C.</li>
+<li><strong>PACT</strong> [<a href="https://arxiv.org/abs/1805.06085" target="_blank" rel="external">paper</a>]: 使得 $l,u$ 這兩個 clipping 上下界能被學習, 限制數值範圍. 可以放在 QAT 過程中使用.</li>
+<li><strong>LSQ+</strong> [<a href="https://arxiv.org/abs/2004.09576" target="_blank" rel="external">paper</a>]: 使得 $S,Z$ 這兩個 qparam 能被學習, 詳見筆記 [<a href="https://bobondemon.github.io/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/">blog</a>]</li>
+<li><strong>OCTAV</strong> (Optimally Clipped Tensors And Vectors)[<a href="https://arxiv.org/abs/2206.06501" target="_blank" rel="external">paper</a>]: 找出最佳的 scale $S$ 使得 quantization MSE 最小 (式 (4)), 詳見[<a href="https://bobondemon.github.io/2023/10/28/Quantization-Error-Case-without-Clipping/">blog1</a>, <a href="https://bobondemon.github.io/2023/11/04/Quantization-Error-Case-with-Clipping/">blog2</a>]. 除了上面 PTQ 做之外, 也可放在 QAT 過程中.</li>
+<li><strong>K-means</strong> [<a href="https://arxiv.org/abs/1510.00149" target="_blank" rel="external">paper</a>], <strong>DKM</strong> [<a href="https://arxiv.org/abs/2108.12659" target="_blank" rel="external">paper</a>]: 屬於 nonlinear 量化, 利用 Kmeans 求出代表性的 codebook. DKM 為進一步改進的方法.</li>
+<li><strong>N2UQ</strong> [<a href="https://arxiv.org/abs/2111.14826" target="_blank" rel="external">paper</a>]: 屬於 nonlinear 量化, 讓量化區間變成可學的 (固定的量化區間就是線性量化).</li>
+</ul>
+<h2 id="簡單回顧量化"><a href="#簡單回顧量化" class="headerlink" title="簡單回顧量化"></a>簡單回顧量化</h2><hr>
+<p>量化就是將 float $X$ 用有限個點來表示, 如下圖<br><img src="/2024/02/17/量化技術路線/most_general_quant.png" width="80%" height="80%"> $\tilde{X}$ 的 4 個點對應到原來的 $X$ 可以看到是很不規則的, 或是說非線性<br>如果說這有限個點採用”線性”的對應方式, 則我們可以寫成下面式子對應關係:</p>
+<span>$$\begin{align}
+\hat{X}=\text{clip}\left(\text{round}\left(X\over S\right)+Z,l,u\right) \\
+\tilde{X}=S(\hat{X}-Z)
+\end{align}$$</span><!-- Has MathJax -->
+<p>$Z,S$ 分別稱為 zero point 和 scale, 而 $l,u$ 是 clipping 的 lower and upper bound.<br>所以量化參數 quantization parameters (用 qparam 簡稱) 就是<br><span>$$\begin{align}
+\text{qparam}=\{Z,S,l,u\}
+\end{align}$$</span><!-- Has MathJax --></p>
+<ul>
+<li>Quantization Meam Square Error (MSE): <span>$$\begin{align}\mathbb{E}_X[(X-\tilde{X})^2]
+\end{align}$$</span><!-- Has MathJax --></li>
+<li>Symmetric: $Z=0$ 時為對稱量化</li>
+<li>Dynamic: qparam 在 inference 時才去統計出</li>
+<li>Static: qparam 在 inference 之前就事先統計好</li>
+<li>Quantization Granuity [<a href="https://hanlab.mit.edu/courses/2023-fall-65940" target="_blank" rel="external">SongHan slide</a>]:<br><img src="/2024/02/17/量化技術路線/quantization_granuity.png" width="40%" height="40%"><ul>
+<li>per-tensor: 整個 weight or activation tensor 共用同一組 qparam</li>
+<li>per-channel: 同一個 channel 共用同一組 qparam, 例如以 convolution kernel 來說, 同一個 output channel 的 weights 共用同一組 qparam</li>
+<li>per-group: 常用在 LLM 的 Transformer, 通常以 64, 128 為一組共用 qparam</li>
+</ul>
+</li>
+</ul>
+<p>另外, 我們常說的 quant, de-quant, re-quant, fake-quant 可以用下圖來表示:<br><img src="/2024/02/17/量化技術路線/quantize_ops.png" width="100%" height="100%"> </p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2024/02/17/量化技術路線/" title="量化技術路線">https://bobondemon.github.io/2024/02/17/量化技術路線/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Post-Training-Quantization-PTQ/" rel="tag"># Post Training Quantization (PTQ)</a>
+          
+            <a href="/tags/Activation-aware-Weight-Quantization-AWQ/" rel="tag"># Activation-aware Weight Quantization (AWQ)</a>
+          
+            <a href="/tags/Weight-Only-Quantization-WOQ/" rel="tag"># Weight Only Quantization (WOQ)</a>
+          
+            <a href="/tags/Straight-Through-Estimator-STE/" rel="tag"># Straight Through Estimator (STE)</a>
+          
+            <a href="/tags/Quantization-Aware-Training-QAT/" rel="tag"># Quantization Aware Training (QAT)</a>
+          
+            <a href="/tags/Fake-Quantization/" rel="tag"># Fake Quantization</a>
+          
+            <a href="/tags/LSQ/" rel="tag"># LSQ</a>
+          
+            <a href="/tags/LSQ/" rel="tag"># LSQ+</a>
+          
+            <a href="/tags/Quantization-Error/" rel="tag"># Quantization Error</a>
+          
+            <a href="/tags/Linear-Quantization/" rel="tag"># Linear Quantization</a>
+          
+            <a href="/tags/Nonlinear-Quantization/" rel="tag"># Nonlinear Quantization</a>
+          
+            <a href="/tags/Data-Free-Quantization-DFQ/" rel="tag"># Data Free Quantization (DFQ)</a>
+          
+            <a href="/tags/OCTAV/" rel="tag"># OCTAV</a>
+          
+            <a href="/tags/Asymmetric-Quantization/" rel="tag"># Asymmetric Quantization</a>
+          
+            <a href="/tags/Symmetric-Quantization/" rel="tag"># Symmetric Quantization</a>
+          
+            <a href="/tags/SmoothQuant/" rel="tag"># SmoothQuant</a>
+          
+            <a href="/tags/AdaRound/" rel="tag"># AdaRound</a>
+          
+            <a href="/tags/PACT/" rel="tag"># PACT</a>
+          
+            <a href="/tags/Optimal-Brain-Quantization-OBQ/" rel="tag"># Optimal Brain Quantization (OBQ)</a>
+          
+            <a href="/tags/GPTQ/" rel="tag"># GPTQ</a>
+          
+            <a href="/tags/EWGS/" rel="tag"># EWGS</a>
+          
+            <a href="/tags/N2UQ/" rel="tag"># N2UQ</a>
+          
+            <a href="/tags/DKM/" rel="tag"># DKM</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/02/07/高效率計算-Jacobian-Hessian-VJP-JVP-HVP/" rel="next" title="高效率計算 Jacobian, Hessian, VJP, JVP, HVP">
+                <i class="fa fa-chevron-left"></i> 高效率計算 Jacobian, Hessian, VJP, JVP, HVP
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">91</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">199</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#量化技術和流程"><span class="nav-number">1.</span> <span class="nav-text">量化技術和流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Floating-Model-Training"><span class="nav-number">1.1.</span> <span class="nav-text">Floating Model Training</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PTQ"><span class="nav-number">1.2.</span> <span class="nav-text">PTQ</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#QAT"><span class="nav-number">1.3.</span> <span class="nav-text">QAT</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#簡單回顧量化"><span class="nav-number">2.</span> <span class="nav-text">簡單回顧量化</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
