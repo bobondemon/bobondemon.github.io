@@ -369,7 +369,7 @@
 </script>
 
 <hr>
-<p>總結一下 (up to 2024-02-17) 目前學習的量化技術和流程圖<br><img src="/2024/02/17/量化技術路線/quantization_flowchart.png" width="100%" height="100%"> Post Training Quantization (PTQ) 稱事後量化. Quantization Aware Training (QAT) 表示訓練時考慮量化造成的損失來做訓練<br>為了得到 fixed point model 可以對事先訓練好的 float model 做 PTQ 或 QAT, 或是直接從 QAT 流程開始<br>同時 QAT 也可以用 PTQ 來初始化訓練. 如果要從 float model 開始做量化的話, 可以考慮在訓練 float model 時就對之後量化能更加友善的技術 (如 R^2, KURE, PACT)</p>
+<p>總結一下 (up to 2024-02-17) 目前學習的量化技術和流程圖, 同時也記錄在 <a href="https://github.com/bobondemon/quantization_study">github</a> 裡.<br><img src="/2024/02/17/量化技術路線/quantization_flowchart.png" width="100%" height="100%"> Post Training Quantization (PTQ) 稱事後量化. Quantization Aware Training (QAT) 表示訓練時考慮量化造成的損失來做訓練<br>為了得到 fixed point model 可以對事先訓練好的 float model 做 PTQ 或 QAT, 或是直接從 QAT 流程開始<br>同時 QAT 也可以用 PTQ 來初始化訓練. 如果要從 float model 開始做量化的話, 可以考慮在訓練 float model 時就對之後量化能更加友善的技術 (如 R^2, KURE, PACT)</p>
 <p>接著對每個技術點盡量以最簡單的方式解說. 如果對量化還不是那麼熟悉, 建議參考一下文章後半段的”簡單回顧量化”</p>
           <!--noindex-->
           <div class="post-button text-center">

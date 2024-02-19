@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Post Training Quantization (PTQ),Activation-aware Weight Quantization (AWQ),Weight Only Quantization (WOQ),Quantization Aware Training (QAT),Fake Quantization,LSQ,LSQ+,Straight Through Estimator (STE),Data Free Quantization (DFQ),Asymmetric Quantization,Symmetric Quantization,Quantization Error,Linear Quantization,Nonlinear Quantization,OCTAV,SmoothQuant,AdaRound,PACT,Optimal Brain Quantization (OBQ),GPTQ,EWGS,N2UQ,DKM," />
+  <meta name="keywords" content="Post Training Quantization (PTQ),Activation-aware Weight Quantization (AWQ),Weight Only Quantization (WOQ),Straight Through Estimator (STE),Quantization Aware Training (QAT),Fake Quantization,LSQ,LSQ+,Quantization Error,Linear Quantization,Nonlinear Quantization,OCTAV,Data Free Quantization (DFQ),Asymmetric Quantization,Symmetric Quantization,SmoothQuant,AdaRound,PACT,Optimal Brain Quantization (OBQ),GPTQ,EWGS,N2UQ,DKM," />
 
 
 
@@ -87,20 +87,20 @@
 
 
 
-<meta name="description" content="總結一下 (up to 2024-02-17) 目前學習的量化技術和流程圖 Post Training Quantization (PTQ) 稱事後量化. Quantization Aware Training (QAT) 表示訓練時考慮量化造成的損失來做訓練為了得到 fixed point model 可以對事先訓練好的 float model 做 PTQ 或 QAT, 或是直接從 QA">
+<meta name="description" content="總結一下 (up to 2024-02-17) 目前學習的量化技術和流程圖, 同時也記錄在 github 裡. Post Training Quantization (PTQ) 稱事後量化. Quantization Aware Training (QAT) 表示訓練時考慮量化造成的損失來做訓練為了得到 fixed point model 可以對事先訓練好的 float model 做 P">
 <meta property="og:type" content="article">
 <meta property="og:title" content="量化技術路線">
 <meta property="og:url" content="https://bobondemon.github.io/2024/02/17/量化技術路線/index.html">
 <meta property="og:site_name" content="棒棒生">
-<meta property="og:description" content="總結一下 (up to 2024-02-17) 目前學習的量化技術和流程圖 Post Training Quantization (PTQ) 稱事後量化. Quantization Aware Training (QAT) 表示訓練時考慮量化造成的損失來做訓練為了得到 fixed point model 可以對事先訓練好的 float model 做 PTQ 或 QAT, 或是直接從 QA">
+<meta property="og:description" content="總結一下 (up to 2024-02-17) 目前學習的量化技術和流程圖, 同時也記錄在 github 裡. Post Training Quantization (PTQ) 稱事後量化. Quantization Aware Training (QAT) 表示訓練時考慮量化造成的損失來做訓練為了得到 fixed point model 可以對事先訓練好的 float model 做 P">
 <meta property="og:image" content="https://bobondemon.github.io/2024/02/17/量化技術路線/quantization_flowchart.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/02/17/量化技術路線/most_general_quant.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/02/17/量化技術路線/quantization_granuity.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/02/17/量化技術路線/quantize_ops.png">
-<meta property="og:updated_time" content="2024-02-19T12:14:25.664Z">
+<meta property="og:updated_time" content="2024-02-19T12:15:54.381Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="量化技術路線">
-<meta name="twitter:description" content="總結一下 (up to 2024-02-17) 目前學習的量化技術和流程圖 Post Training Quantization (PTQ) 稱事後量化. Quantization Aware Training (QAT) 表示訓練時考慮量化造成的損失來做訓練為了得到 fixed point model 可以對事先訓練好的 float model 做 PTQ 或 QAT, 或是直接從 QA">
+<meta name="twitter:description" content="總結一下 (up to 2024-02-17) 目前學習的量化技術和流程圖, 同時也記錄在 github 裡. Post Training Quantization (PTQ) 稱事後量化. Quantization Aware Training (QAT) 表示訓練時考慮量化造成的損失來做訓練為了得到 fixed point model 可以對事先訓練好的 float model 做 P">
 <meta name="twitter:image" content="https://bobondemon.github.io/2024/02/17/量化技術路線/quantization_flowchart.png">
 
 
@@ -377,7 +377,7 @@
 </script>
 
 <hr>
-<p>總結一下 (up to 2024-02-17) 目前學習的量化技術和流程圖<br><img src="/2024/02/17/量化技術路線/quantization_flowchart.png" width="100%" height="100%"> Post Training Quantization (PTQ) 稱事後量化. Quantization Aware Training (QAT) 表示訓練時考慮量化造成的損失來做訓練<br>為了得到 fixed point model 可以對事先訓練好的 float model 做 PTQ 或 QAT, 或是直接從 QAT 流程開始<br>同時 QAT 也可以用 PTQ 來初始化訓練. 如果要從 float model 開始做量化的話, 可以考慮在訓練 float model 時就對之後量化能更加友善的技術 (如 R^2, KURE, PACT)</p>
+<p>總結一下 (up to 2024-02-17) 目前學習的量化技術和流程圖, 同時也記錄在 <a href="https://github.com/bobondemon/quantization_study" target="_blank" rel="external">github</a> 裡.<br><img src="/2024/02/17/量化技術路線/quantization_flowchart.png" width="100%" height="100%"> Post Training Quantization (PTQ) 稱事後量化. Quantization Aware Training (QAT) 表示訓練時考慮量化造成的損失來做訓練<br>為了得到 fixed point model 可以對事先訓練好的 float model 做 PTQ 或 QAT, 或是直接從 QAT 流程開始<br>同時 QAT 也可以用 PTQ 來初始化訓練. 如果要從 float model 開始做量化的話, 可以考慮在訓練 float model 時就對之後量化能更加友善的技術 (如 R^2, KURE, PACT)</p>
 <p>接著對每個技術點盡量以最簡單的方式解說. 如果對量化還不是那麼熟悉, 建議參考一下文章後半段的”簡單回顧量化”</p>
 <a id="more"></a>
 <h2 id="量化技術和流程"><a href="#量化技術和流程" class="headerlink" title="量化技術和流程"></a>量化技術和流程</h2><hr>
@@ -492,6 +492,8 @@
           
             <a href="/tags/Weight-Only-Quantization-WOQ/" rel="tag"># Weight Only Quantization (WOQ)</a>
           
+            <a href="/tags/Straight-Through-Estimator-STE/" rel="tag"># Straight Through Estimator (STE)</a>
+          
             <a href="/tags/Quantization-Aware-Training-QAT/" rel="tag"># Quantization Aware Training (QAT)</a>
           
             <a href="/tags/Fake-Quantization/" rel="tag"># Fake Quantization</a>
@@ -500,14 +502,6 @@
           
             <a href="/tags/LSQ/" rel="tag"># LSQ+</a>
           
-            <a href="/tags/Straight-Through-Estimator-STE/" rel="tag"># Straight Through Estimator (STE)</a>
-          
-            <a href="/tags/Data-Free-Quantization-DFQ/" rel="tag"># Data Free Quantization (DFQ)</a>
-          
-            <a href="/tags/Asymmetric-Quantization/" rel="tag"># Asymmetric Quantization</a>
-          
-            <a href="/tags/Symmetric-Quantization/" rel="tag"># Symmetric Quantization</a>
-          
             <a href="/tags/Quantization-Error/" rel="tag"># Quantization Error</a>
           
             <a href="/tags/Linear-Quantization/" rel="tag"># Linear Quantization</a>
@@ -515,6 +509,12 @@
             <a href="/tags/Nonlinear-Quantization/" rel="tag"># Nonlinear Quantization</a>
           
             <a href="/tags/OCTAV/" rel="tag"># OCTAV</a>
+          
+            <a href="/tags/Data-Free-Quantization-DFQ/" rel="tag"># Data Free Quantization (DFQ)</a>
+          
+            <a href="/tags/Asymmetric-Quantization/" rel="tag"># Asymmetric Quantization</a>
+          
+            <a href="/tags/Symmetric-Quantization/" rel="tag"># Symmetric Quantization</a>
           
             <a href="/tags/SmoothQuant/" rel="tag"># SmoothQuant</a>
           
