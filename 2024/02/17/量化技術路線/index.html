@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Post Training Quantization (PTQ),Activation-aware Weight Quantization (AWQ),Weight Only Quantization (WOQ),Straight Through Estimator (STE),Quantization Aware Training (QAT),Fake Quantization,LSQ,LSQ+,Quantization Error,Linear Quantization,Nonlinear Quantization,Data Free Quantization (DFQ),OCTAV,Asymmetric Quantization,Symmetric Quantization,SmoothQuant,AdaRound,PACT,Optimal Brain Quantization (OBQ),GPTQ,EWGS,N2UQ,DKM," />
+  <meta name="keywords" content="Post Training Quantization (PTQ),Activation-aware Weight Quantization (AWQ),Weight Only Quantization (WOQ),Quantization Aware Training (QAT),Fake Quantization,LSQ,LSQ+,Straight Through Estimator (STE),Data Free Quantization (DFQ),Asymmetric Quantization,Symmetric Quantization,Quantization Error,Linear Quantization,Nonlinear Quantization,OCTAV,SmoothQuant,AdaRound,PACT,Optimal Brain Quantization (OBQ),GPTQ,EWGS,N2UQ,DKM," />
 
 
 
@@ -97,7 +97,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2024/02/17/量化技術路線/most_general_quant.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/02/17/量化技術路線/quantization_granuity.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/02/17/量化技術路線/quantize_ops.png">
-<meta property="og:updated_time" content="2024-02-17T16:59:57.611Z">
+<meta property="og:updated_time" content="2024-02-19T12:14:25.664Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="量化技術路線">
 <meta name="twitter:description" content="總結一下 (up to 2024-02-17) 目前學習的量化技術和流程圖 Post Training Quantization (PTQ) 稱事後量化. Quantization Aware Training (QAT) 表示訓練時考慮量化造成的損失來做訓練為了得到 fixed point model 可以對事先訓練好的 float model 做 PTQ 或 QAT, 或是直接從 QA">
@@ -431,6 +431,17 @@
 </li>
 </ul>
 <p>另外, 我們常說的 quant, de-quant, re-quant, fake-quant 可以用下圖來表示:<br><img src="/2024/02/17/量化技術路線/quantize_ops.png" width="100%" height="100%"> </p>
+<h2 id="Model-Compression-Toolkits"><a href="#Model-Compression-Toolkits" class="headerlink" title="Model Compression Toolkits"></a>Model Compression Toolkits</h2><hr>
+<p>以下蒐集一些重要的模型壓縮 repositories, 因此不限於量化, 有些還包含 pruning, NAS, distillation, 或圖優化等</p>
+<ul>
+<li>Microsoft <a href="https://github.com/microsoft/Olive?tab=readme-ov-file" target="_blank" rel="external">Olive</a></li>
+<li>Microsoft <a href="https://github.com/microsoft/nni" target="_blank" rel="external">NNI</a> (Neural Network Intelligence): with NAS, <a href="https://nni.readthedocs.io/en/v2.10/compression/pruner.html" target="_blank" rel="external">Pruning</a>, <a href="https://nni.readthedocs.io/en/v2.10/compression/quantizer.html" target="_blank" rel="external">Quantization</a>, Distilling</li>
+<li>OpenVino <a href="https://github.com/openvinotoolkit/nncf" target="_blank" rel="external">Neural Network Compression Framework (NNCF)</a></li>
+<li>Intel <a href="https://github.com/intel/neural-compressor" target="_blank" rel="external">Neural Compressor</a>: with NAS, <a href="https://intel.github.io/neural-compressor/latest/docs/source/pruning.html" target="_blank" rel="external">Pruning</a>, <a href="https://intel.github.io/neural-compressor/latest/docs/source/quantization.html" target="_blank" rel="external">Quantization</a>, <a href="https://intel.github.io/neural-compressor/latest/docs/source/distillation.html" target="_blank" rel="external">Distillation</a></li>
+<li>Qualcomm <a href="https://github.com/quic/aimet" target="_blank" rel="external">AIMET</a>: Quantization (DFQ and AdaRound, QAT), Model Compression (Spatial SVD, Channel pruning)</li>
+<li>NVidia <a href="https://github.com/NVIDIA/TensorRT-LLM" target="_blank" rel="external">TensorRT-LLM</a>: optimize LLM (Transformer-based) models on NVidia GPU, using techniques such as Multi-query Attention (<a href="https://arxiv.org/abs/1911.02150" target="_blank" rel="external">MQA</a>), Group-query Attention(<a href="https://arxiv.org/abs/2307.09288" target="_blank" rel="external">GQA</a>), Paged KV Cache, <a href="https://arxiv.org/abs/2211.10438" target="_blank" rel="external">SmoothQuant</a>, <a href="https://arxiv.org/abs/2210.17323" target="_blank" rel="external">GPTQ</a>, <a href="https://arxiv.org/abs/2306.00978" target="_blank" rel="external">AWQ</a>, <a href="https://arxiv.org/abs/2211.17192" target="_blank" rel="external">Speculative decoding</a>, …</li>
+<li>Sony <a href="https://github.com/sony/model_optimization" target="_blank" rel="external">Model Compression Toolkit (MCT)</a>: Quantization with PTQ, GPTQ, QAT, Enhanced Post-Training Quantization (<a href="https://github.com/sony/model_optimization?tab=readme-ov-file#enhanced-post-training-quantization-eptq" target="_blank" rel="external">EPTQ</a>). <a href="https://github.com/sony/model_optimization?tab=readme-ov-file#structured-pruning" target="_blank" rel="external">Structured Pruning</a></li>
+</ul>
 
       
     </div>
@@ -481,8 +492,6 @@
           
             <a href="/tags/Weight-Only-Quantization-WOQ/" rel="tag"># Weight Only Quantization (WOQ)</a>
           
-            <a href="/tags/Straight-Through-Estimator-STE/" rel="tag"># Straight Through Estimator (STE)</a>
-          
             <a href="/tags/Quantization-Aware-Training-QAT/" rel="tag"># Quantization Aware Training (QAT)</a>
           
             <a href="/tags/Fake-Quantization/" rel="tag"># Fake Quantization</a>
@@ -491,19 +500,21 @@
           
             <a href="/tags/LSQ/" rel="tag"># LSQ+</a>
           
+            <a href="/tags/Straight-Through-Estimator-STE/" rel="tag"># Straight Through Estimator (STE)</a>
+          
+            <a href="/tags/Data-Free-Quantization-DFQ/" rel="tag"># Data Free Quantization (DFQ)</a>
+          
+            <a href="/tags/Asymmetric-Quantization/" rel="tag"># Asymmetric Quantization</a>
+          
+            <a href="/tags/Symmetric-Quantization/" rel="tag"># Symmetric Quantization</a>
+          
             <a href="/tags/Quantization-Error/" rel="tag"># Quantization Error</a>
           
             <a href="/tags/Linear-Quantization/" rel="tag"># Linear Quantization</a>
           
             <a href="/tags/Nonlinear-Quantization/" rel="tag"># Nonlinear Quantization</a>
           
-            <a href="/tags/Data-Free-Quantization-DFQ/" rel="tag"># Data Free Quantization (DFQ)</a>
-          
             <a href="/tags/OCTAV/" rel="tag"># OCTAV</a>
-          
-            <a href="/tags/Asymmetric-Quantization/" rel="tag"># Asymmetric Quantization</a>
-          
-            <a href="/tags/Symmetric-Quantization/" rel="tag"># Symmetric Quantization</a>
           
             <a href="/tags/SmoothQuant/" rel="tag"># SmoothQuant</a>
           
@@ -669,7 +680,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#量化技術和流程"><span class="nav-number">1.</span> <span class="nav-text">量化技術和流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Floating-Model-Training"><span class="nav-number">1.1.</span> <span class="nav-text">Floating Model Training</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PTQ"><span class="nav-number">1.2.</span> <span class="nav-text">PTQ</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#QAT"><span class="nav-number">1.3.</span> <span class="nav-text">QAT</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#簡單回顧量化"><span class="nav-number">2.</span> <span class="nav-text">簡單回顧量化</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#量化技術和流程"><span class="nav-number">1.</span> <span class="nav-text">量化技術和流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Floating-Model-Training"><span class="nav-number">1.1.</span> <span class="nav-text">Floating Model Training</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PTQ"><span class="nav-number">1.2.</span> <span class="nav-text">PTQ</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#QAT"><span class="nav-number">1.3.</span> <span class="nav-text">QAT</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#簡單回顧量化"><span class="nav-number">2.</span> <span class="nav-text">簡單回顧量化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Model-Compression-Toolkits"><span class="nav-number">3.</span> <span class="nav-text">Model Compression Toolkits</span></a></li></ol></div>
             
 
           </div>
