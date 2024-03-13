@@ -101,7 +101,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2022/05/28/SGD-Ggeneralization-Notes/Untitled 5.png">
 <meta property="og:image" content="https://bobondemon.github.io/2022/05/28/SGD-Ggeneralization-Notes/Untitled 6.png">
 <meta property="og:image" content="https://bobondemon.github.io/2022/05/28/SGD-Ggeneralization-Notes/Untitled 7.png">
-<meta property="og:updated_time" content="2022-07-20T14:06:40.963Z">
+<meta property="og:updated_time" content="2024-03-13T11:58:22.571Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SGD 泛化能力的筆記">
 <meta name="twitter:description" content="Sharp V.S. Flat Local Minimum 的泛化能力先簡單介紹這篇文章:On large-batch training for deep learning: Generalization gap and sharp minima考慮下圖兩個 minimum, 對於 training loss 來說其 losses 一樣. 從圖可以容易理解到, 如果找到太 sharp 的點">
@@ -386,7 +386,7 @@
 <h2 id="Full-Batch-Gradient-Steepest-Descent"><a href="#Full-Batch-Gradient-Steepest-Descent" class="headerlink" title="Full-Batch Gradient (Steepest) Descent"></a>Full-Batch Gradient (Steepest) Descent</h2><hr>
 <p>再來介紹這篇: <strong><a href="https://arxiv.org/abs/2009.11162" target="_blank" rel="external">Implicit Gradient Regularization</a></strong>, DeepMind 出品.<br>想探討為什麼 NN 的泛化能力這麼好? 結論就是跟 Gradient Descent 本身算法特性有關.<br>一般我們對 cost (loss) function 做 gradient (steepest) descent 公式如下:</p>
 <span>$$\begin{align}
-\omega_{n+1}=\omega_n-h\nabla C(\omega)
+\omega_{n+1}=\omega_n-h\nabla C(\omega_n)
 \end{align}$$</span><!-- Has MathJax -->
 <p>其中 $h$ 為 step size (learning rate), <span>$\omega\in\mathbb{R}^d$</span><!-- Has MathJax --> 表示 parameters.<br>當 $h\rightarrow 0$, $n$ 變成連續的時間 $t$, 則可視為一個 Ordinary Differential Equation (ODE) system, 整理如下:<br><span>$$\begin{align}
 \text{Cost Function}: C(\omega) \\
