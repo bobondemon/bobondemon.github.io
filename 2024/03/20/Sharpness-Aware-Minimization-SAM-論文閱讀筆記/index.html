@@ -94,7 +94,7 @@
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="直接看 SAM 怎麼 update parameters, 論文的 figure 2: 目前的 weight $w_t$ 的 gradient step 為 $-\eta\nabla L(w_t)$, update 後會跑到 $w_{t+1}$.SAM 會考慮 $w_t$ locally loss 最大的那個位置 ($w_{adv}$), 用該位置的 gradient descent ve">
 <meta property="og:image" content="https://bobondemon.github.io/2024/03/20/Sharpness-Aware-Minimization-SAM-論文閱讀筆記/Untitled.png">
-<meta property="og:updated_time" content="2024-03-20T12:00:00.865Z">
+<meta property="og:updated_time" content="2024-05-04T01:51:43.411Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Sharpness-Aware Minimization (SAM) 論文閱讀筆記">
 <meta name="twitter:description" content="直接看 SAM 怎麼 update parameters, 論文的 figure 2: 目前的 weight $w_t$ 的 gradient step 為 $-\eta\nabla L(w_t)$, update 後會跑到 $w_{t+1}$.SAM 會考慮 $w_t$ locally loss 最大的那個位置 ($w_{adv}$), 用該位置的 gradient descent ve">
@@ -380,12 +380,12 @@
 <p>數學描述為:<br><span>$$\begin{align}
 \min_w L_S^{SAM}(w)+\lambda\|w\|_2^2 \\
 \text{where}\qquad L_S^{SAM}(w)\triangleq \max_{\|\varepsilon\|_p\leq\rho}L_S(w+\varepsilon)
-\end{align}$$</span><!-- Has MathJax --> 其中 $S$ 表示 training dataset, $L_S^{SAM}(w)$ 定義成 locally loss 最大的值, 其中 locally 定義為小於 $\rho$ ($p$-norm) 的球內.<br>多加 $\lambda||w||_2^2$ 正則項則是由 PAC (Probably Approximately Correct) Bayesian Generalization Bound (論文的 Appendix A.1) 理論推導過來的.<br>式 (2) 的 $L_S^{SAM}(w)$ 其近似的最佳解 $\hat\varepsilon$, 有一個有效率的 closed form 解. 利用 first-order Taylor expansion + <a href="https://bobondemon.notion.site/Minkowski-Inequality-c4d28fd21e1e48648acfa6e7a6b65320" target="_blank" rel="external">[Lemma]: for proving Minkowski inequality</a> 推導.</p>
+\end{align}$$</span><!-- Has MathJax --> 其中 $S$ 表示 training dataset, $L_S^{SAM}(w)$ 定義成 locally loss 最大的值, 其中 locally 定義為小於 $\rho$ ($p$-norm) 的球內.<br>多加 $\lambda||w||_2^2$ 正則項則是由 PAC (Probably Approximately Correct) Bayesian Generalization Bound (論文的 Appendix A.1) 理論推導過來的.<br>式 (2) 的 $L_S^{SAM}(w)$ 其近似的最佳解 $\hat\varepsilon$, 有一個有效率的 closed form 解. 利用 first-order Taylor expansion + <a href="https://bobondemon.notion.site/Minkowski-Inequality-c4d28fd21e1e48648acfa6e7a6b65320" target="_blank" rel="external">dual norm property</a> 推導.</p>
 <p><span>$$\begin{align}
 \varepsilon^\ast(w)\triangleq \arg\max_{\|\varepsilon\|_p\leq\rho}L_S(w+\varepsilon) \\
 \approx \arg\max_{\|\varepsilon\|_p\leq\rho} L_S(w) + \varepsilon^T\nabla_w L_S(w) \\
 = \arg\max_{\|\varepsilon\|_p\leq\rho}\varepsilon^T\nabla_w L_S(w) \triangleq \hat\varepsilon(w)
-\end{align}$$</span><!-- Has MathJax --> 式 (5) 有 closed form solution (<a href="https://bobondemon.notion.site/Minkowski-Inequality-c4d28fd21e1e48648acfa6e7a6b65320" target="_blank" rel="external">[Lemma]: for proving Minkowski inequality</a>):</p>
+\end{align}$$</span><!-- Has MathJax --> 式 (5) 有 closed form solution (<a href="https://bobondemon.notion.site/Minkowski-Inequality-c4d28fd21e1e48648acfa6e7a6b65320" target="_blank" rel="external">dual norm property</a>):</p>
 <p><span>$$\begin{align}
 \hat{\varepsilon}(w)=\frac{\rho\cdot\text{sign}(\nabla_w L_S(w))}{\left(\|\nabla_w L_S(w)\|_q^q\right)^{1/p}}|\nabla_w L_S(w)|^{q-1}
 \end{align}$$</span><!-- Has MathJax --> 其中 $1/q+1/p=1$, $|\cdot|^{q-1}$ 表示 element-wise 的絕對值和 power.</p>
