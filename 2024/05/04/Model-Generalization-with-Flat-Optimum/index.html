@@ -1,0 +1,852 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Sharpness-Aware Minimization,SAM,Gradient Norm Penalty," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="訓練模型時我們盯著 tensorboard 看著 training loss 一直降低直到收斂, 收斂後每個 checkpoint 的 training loss 都差不多, 那該挑哪一個 checkpoint 呢?就選 validation loss 最低的那些吧, 由 PAC 我們知道 validation error 約等於 test error (validation set 愈大">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Model Generalization with Flat Optimum">
+<meta property="og:url" content="https://bobondemon.github.io/2024/05/04/Model-Generalization-with-Flat-Optimum/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="訓練模型時我們盯著 tensorboard 看著 training loss 一直降低直到收斂, 收斂後每個 checkpoint 的 training loss 都差不多, 那該挑哪一個 checkpoint 呢?就選 validation loss 最低的那些吧, 由 PAC 我們知道 validation error 約等於 test error (validation set 愈大">
+<meta property="og:image" content="https://bobondemon.github.io/2024/05/04/Model-Generalization-with-Flat-Optimum/sharp_and_flat_opt.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/05/04/Model-Generalization-with-Flat-Optimum/experiments.png">
+<meta property="og:updated_time" content="2024-05-04T06:02:34.041Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Model Generalization with Flat Optimum">
+<meta name="twitter:description" content="訓練模型時我們盯著 tensorboard 看著 training loss 一直降低直到收斂, 收斂後每個 checkpoint 的 training loss 都差不多, 那該挑哪一個 checkpoint 呢?就選 validation loss 最低的那些吧, 由 PAC 我們知道 validation error 約等於 test error (validation set 愈大">
+<meta name="twitter:image" content="https://bobondemon.github.io/2024/05/04/Model-Generalization-with-Flat-Optimum/sharp_and_flat_opt.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2024/05/04/Model-Generalization-with-Flat-Optimum/"/>
+
+
+
+
+
+  <title> Model Generalization with Flat Optimum | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/05/04/Model-Generalization-with-Flat-Optimum/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Model Generalization with Flat Optimum
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2024-05-04T11:45:43+08:00">
+                2024-05-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>訓練模型時我們盯著 tensorboard 看著 training loss 一直降低直到收斂, 收斂後每個 checkpoint 的 training loss 都差不多, 那該挑哪一個 checkpoint 呢?<br>就選 validation loss 最低的那些吧, 由 <a href="https://bobondemon.github.io/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-%E6%9E%97%E8%BB%92%E7%94%B0%E8%AA%B2%E7%A8%8B%E7%AD%86%E8%A8%98/">PAC</a> 我們知道 validation error 約等於 test error (validation set 愈大愈好), 但我們能不能對泛化能力做得更好? 如果 training 時就能讓泛化能力提升, 是否更有效率?</p>
+<h2 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h2><p>很多提升泛化能力的論文和觀點都從 “<strong>flat</strong>“ optimum 出發. 下圖清楚說明這個想法 ([<a href="https://research.samsung.com/blog/ASAM-Adaptive-Sharpness-Aware-Minimization-for-Scale-Invariant-Learning-of-Deep-Neural-Networks" target="_blank" rel="external">圖來源</a>]):</p>
+<a id="more"></a>
+<p><img src="/2024/05/04/Model-Generalization-with-Flat-Optimum/sharp_and_flat_opt.png" width="65%" height="65%"> Flat 比起 sharp optimum 更 robust 我想就不多描述.<br>上篇提到的 <a href="https://bobondemon.github.io/2024/03/20/Sharpness-Aware-Minimization-SAM-%E8%AB%96%E6%96%87%E9%96%B1%E8%AE%80%E7%AD%86%E8%A8%98/">SAM</a> 藉由定義什麼是 sharpness loss:<br><span>$$\begin{align}
+L_\text{sharpness}(\theta)\triangleq\left[
+\max_{\|\varepsilon\|_p\leq\rho} L(\theta+\varepsilon)
+\right] - L(\theta)
+\end{align}$$</span><!-- Has MathJax --> 來幫助找到的 optimum 是夠 flat 的. Sharpness loss 定義了 “附近” ($\rho$ 距離內) Loss 的最大變化量. 直覺上 loss 變化愈大則愈 sharp.<br>因此 SAM loss 就是 sharpness loss 加上原來的 training loss 加上 regularization term (原始論文從 PAC 推導而得):<br><span>$$\begin{align}
+L_\text{SAM}(\theta) \triangleq L_\text{sharpness}(\theta) + L(\theta) + \lambda\|\theta\|_2^2 \\
+= \max_{\|\varepsilon\|_p\leq\rho} L(\theta+\varepsilon) + \lambda\|\theta\|_2^2
+\end{align}$$</span><!-- Has MathJax --> 得到第 t 次 iteration 的 gradient 有如下的高效近似解:<br><span>$$\begin{align}
+\nabla L_\text{SAM}(\theta_t) \approx \nabla L(\theta&apos;_t) \\
+\text{where}\quad \theta&apos;_t=\theta_t+\rho\cdot\frac{\nabla L(\theta_t)}{\|\nabla L(\theta_t)\|_2}
+\end{align}$$</span><!-- Has MathJax --> 意思是做 SGD 時原來的 gradient ($\nabla L(\theta_t)$) 用在 <strong>$\theta’_t$ 這個位置</strong>計算的 gradient 取代</p>
+<p>這篇<a href="https://arxiv.org/abs/2202.03599" target="_blank" rel="external">論文</a>把 <strong>gradient norm 當作 penalty</strong> 加到 training loss 後:<br><span>$$\begin{align}
+L&apos;(\theta) = L(\theta) + \lambda\cdot\|\nabla L(\theta)\|_2
+\end{align}$$</span><!-- Has MathJax --> 推導出來其實 SAM 的做法是個特例 ($\alpha=1$), gradient update 應為:<br><span>$$\begin{align}
+\nabla L&apos;(\theta_t) \approx (1-\alpha)\nabla L(\theta_t) + \alpha\nabla L(\theta&apos;_t) \\
+\text{where}\quad \theta&apos;_t=\theta_t+\rho\cdot\frac{\nabla L(\theta_t)}{\|\nabla L(\theta_t)\|_2},\quad\alpha=\lambda/\rho
+\end{align}$$</span><!-- Has MathJax --> 所以或許要與原來位置的 gradient ($\nabla L(\theta_t)$) 做 linear combination 會比較好.<br>所以我們的問題變成, gradient norm 怎麼跟 flatness optimum 關聯起來? (透過 Lipschitz Continuous) 以下筆記下該論文: [<a href="https://arxiv.org/abs/2202.03599" target="_blank" rel="external">Penalizing Gradient Norm for Efficiently Improving Generalization in Deep Learning</a>], 並順便討論下之前讀的有關 flat optimum 的其他論文關聯.</p>
+<h2 id="Lipschitz-Continuous-與-Flatness-和-Gradient-Norm-的關聯"><a href="#Lipschitz-Continuous-與-Flatness-和-Gradient-Norm-的關聯" class="headerlink" title="Lipschitz Continuous 與 Flatness 和 Gradient Norm 的關聯"></a>Lipschitz Continuous 與 Flatness 和 Gradient Norm 的關聯</h2><p>予 <span>$\Omega\subset\mathbb{R}^n$</span><!-- Has MathJax -->, function <span>$h:\Omega\rightarrow\mathbb{R}^m$</span><!-- Has MathJax --> 稱 Lipschitz continuous 如果存在 $K&gt;0$ s.t. $\forall\theta_1,\theta_2\in\Omega$ 滿足</p>
+<p><span>$$\begin{align}
+\|h(\theta_1)-h(\theta_2)\|_2 \leq K\cdot\|\theta_1-\theta_2\|_2
+\end{align}$$</span><!-- Has MathJax --> Lipschitz constant 指的是那個最小的 $K$.<br>直覺上 Lipschitz continuous 限制了 output change. 所以如果在一個 neighborhood $A$ 中, <span>$h|_A$</span><!-- Has MathJax --> 是 Lipschitz continuous, 我們可以想成在 $A$ 這個範圍中 $h$ 看起來都很 smooth ($K$ 愈小愈 smooth)<br>因此我們把 Lipschitz continuous 跟 flatness 可以聯繫起來, 那跟 gradient norm 呢?<br>給一個 local minimum <span>$\theta_\ast\in A$</span><!-- Has MathJax -->, 根據 mean value theorem 得 <span>$\forall \theta&apos;\in A$</span><!-- Has MathJax -->, <span>$\exists 0\leq t\leq1,\zeta:=t\theta&apos;+(1-t)\theta_\ast\in A$</span><!-- Has MathJax -->, 我們有<br><span>$$\begin{align}
+\|h(\theta&apos;)-h(\theta_\ast)\|_2 = \|\nabla h(\zeta)\cdot(\theta&apos;-\theta_\ast)\|_2 \\
+\leq \|\nabla h(\zeta)\|_2\cdot\|\theta&apos;-\theta_\ast\|_2
+\end{align}$$</span><!-- Has MathJax --> 想像一下如果 $\theta’$ 愈接近 $\theta_\ast$, 則 <span>$\|\nabla h(\zeta)\|_2$</span><!-- Has MathJax --> 會愈接近 locally 的 Lipschitz constant.<br>因此 gradient norm 也跟 flatness 聯繫起來了.<br>“Locally” 來看, gradient norm 跟 Lipschitz constant 很接近. 而愈小的 Lipschitz constant 表示愈 flat. 因此愈小的 gradient norm 相當於愈 flat.</p>
+<h2 id="使用-Gradient-Norm-當-Penalty"><a href="#使用-Gradient-Norm-當-Penalty" class="headerlink" title="使用 Gradient Norm 當 Penalty"></a>使用 Gradient Norm 當 Penalty</h2><p>最直覺的就是加到原來的 training loss 裡面 (式 (6)) 然後一起訓練. 要把 gradient 也當 loss 的一部分需要用到 <code>torch.autograd.grad</code> 並把參數 <code>retain_graph</code> 和 <code>create_graph</code> 設定成 <code>True</code>, 這相當於把計算 gradient 也加入到 forward graph 中, 因此就能計算二次微分. 這麼做其實很沒有效率也很吃 memory. 因此論文做了一些推導求高效的近似解.<br>對式 (6) 計算 gradient:</p>
+<p><span>$$\begin{align}
+\nabla L&apos;(\theta)=\nabla L(\theta) + \nabla(\lambda\cdot\|\nabla L(\theta)\|_2)
+\end{align}$$</span><!-- Has MathJax --> 根據 chain rule (參見文末的 Aappendix)</p>
+<p><span>$$\begin{align}
+\nabla L&apos;(\theta)=\nabla L(\theta) + \lambda\cdot\nabla^2 L(\theta)\frac{\nabla L(\theta)}{\|\nabla L(\theta)\|}
+\end{align}$$</span><!-- Has MathJax --> 令 <span>$H:=\nabla^2 L(\theta)$</span><!-- Has MathJax --> and <span>$v:={\nabla L(\theta)}/{\|\nabla L(\theta\|}$</span><!-- Has MathJax -->, 替換一下變數變成</p>
+<p><span>$$\begin{align}
+\nabla L&apos;(\theta)=\nabla L(\theta) + \lambda\cdot Hv
+\end{align}$$</span><!-- Has MathJax --> 由於算 Hessian matrix $H$ 代價很大, 要繼續簡化, 使用泰勒展開式先觀察:</p>
+<p><span>$\nabla L(\theta+\Delta\theta)=\nabla L(\theta) + H\Delta\theta + O(\|\Delta\theta\|^2)$</span><!-- Has MathJax --> 令 <span>$\Delta\theta:=r\cdot v$</span><!-- Has MathJax --> 代入得到</p>
+<p><span>$$\nabla L(\theta+r\cdot v)=\nabla L(\theta) + r\cdot Hv + O(r^2) \\
+\Longrightarrow Hv\approx \left[{\nabla L\left(\theta+r\cdot\frac{\nabla L(\theta)}{\|\nabla L(\theta)\|}\right) - \nabla L(\theta)} \right]/ {r}$$</span><!-- Has MathJax --> 所以代入到 (14) 得到</p>
+<p><span>$$\begin{align}
+\nabla L&apos;(\theta) \approx \nabla L(\theta) + \frac{\lambda}{r}\cdot \left[{\nabla L\left(\theta+r\cdot\frac{\nabla L(\theta)}{\|\nabla L(\theta)\|}\right) - \nabla L(\theta)} \right] \\
+=(1-\alpha)\nabla L(\theta) + \alpha\nabla L\left(\theta+r\cdot\frac{\nabla L(\theta)}{\|\nabla L(\theta)\|}\right) \\
+=(1-\alpha)\nabla L(\theta) + \alpha \nabla L(\theta&apos;)
+\end{align}$$</span><!-- Has MathJax --> 令 <span>$\theta&apos;:=\theta+r\cdot {\nabla L(\theta)}/{\|\nabla L(\theta)\|}$</span><!-- Has MathJax -->, where $\alpha=\lambda/r$ 稱 balance coefficient. 即推導出式 (7) and (8) 的 gradient update.</p>
+<p>論文實驗如下圖, 顯示 $\alpha$ 約在 0.6~0.8 是最佳的, 比 $\alpha=1$ 的 SAM case 更好<br><img src="/2024/05/04/Model-Generalization-with-Flat-Optimum/experiments.png" width="100%" height="100%"> 圖中的 r 是 $\rho$ 定義了所謂的 “附近”, 愈小理論上上面推導的近似會愈精確 (因為 Talyor expansion 愈精確) 但比較會有數值問題.</p>
+<h2 id="其他討論"><a href="#其他討論" class="headerlink" title="其他討論"></a>其他討論</h2><p>其實我們在用的 SGD 已經多少隱含了加入 gradient norm 當 penalty term 了, 所以隱含了找 flat optimum. 參見之前的筆記 [<a href="https://bobondemon.github.io/2022/05/28/SGD-Ggeneralization-Notes/">SGD 泛化能力的筆記</a>], 只是 SAM 和 Gradient norm penalty 顯示地找 flat optimum 而已. 但要注意的是 SAM or Gradient norm penalty 的做法每一次的 iteration 會多一次的 forward-backward 計算, 因此訓練時間可能會更久.<br>另外還有一些變形, 例如 <a href="https://arxiv.org/abs/2102.11600" target="_blank" rel="external">Adaptive SAM (ASAM)</a>, <a href="https://arxiv.org/abs/2203.08065" target="_blank" rel="external">Gap Guided Sharpness-Aware Minimization (GSAM)</a>, <a href="https://arxiv.org/abs/2210.05177" target="_blank" rel="external">Sparse SAM (SSAM)</a> 等. 有興趣可以繼續往這 topic 研究下去.<br>另外 Stochastic Weight Averaging (SWA) [<a href="https://bobondemon.github.io/2022/07/20/Why-Stochastic-Weight-Averaging-averaging-results-V-S-averaging-weights/">之前的筆記</a>] 這樣簡單的做法也宣稱找到的 optimum 比較 flat.<br>Anyway, flat optimum 比較 robust, 而加入 gradient norm 有助於我們找 flat optimum, 且有一個高效的近似作法 (7) and (8)</p>
+<h2 id="Appendix"><a href="#Appendix" class="headerlink" title="Appendix"></a>Appendix</h2><p>(12) to (13) 的推導只要把握 norm 的微分和 chain rule 即可 (論文 Appendix 照抄而已):</p>
+<p><span>$\theta=[\theta_1, \theta_2, ..., \theta_n]^T$</span><!-- Has MathJax -->, 2-norm 命為 $g$</p>
+<p><span>$$g(\theta):=\|\theta\|_2=\sqrt{\theta_1^2+\theta_2^2+...+\theta_n^2}$$</span><!-- Has MathJax --> 則微分為</p>
+<p><span>$$\frac{\partial g(\theta)}{\partial \theta_i}=\frac{\theta_i}{\sqrt{\theta_1^2+\theta_2^2+...+\theta_n^2}}=\frac{\theta_i}{\|\theta\|_2}=\frac{\theta_i}{g(\theta)}$$</span><!-- Has MathJax --> 所以</p>
+<p><span>$$\nabla g(\theta)=\left[\frac{\theta_1}{g(\theta)}, \frac{\theta_2}{g(\theta)}, ..., \frac{\theta_n}{g(\theta)}\right]^T$$</span><!-- Has MathJax --> 讓 <span>$h(\theta):=\nabla L(\theta)$</span><!-- Has MathJax -->, 則 <span>$\nabla(\|\nabla L(\theta)\|_2)$</span><!-- Has MathJax --> 可寫成 <span>$\nabla( g\circ h) (\theta)$</span><!-- Has MathJax --> 所以</p>
+<p><span>$$\nabla (\|\nabla L(\theta)\|_2)=\nabla( g\circ h) (\theta) \\
+=\nabla g(\zeta)|_{\zeta=h(\theta)}\cdot \nabla h(\theta) \\
+=\left(\left.\frac{\zeta}{g(\zeta)}\right|_{\zeta=h(\theta)}\right)\cdot \nabla^2 L(\theta) \\
+= \frac{\nabla L(\theta)}{\|\nabla L(\theta)\|_2} \cdot \nabla^2 L(\theta)$$</span><!-- Has MathJax --> 代回去 (12) 即可得到 (13)</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><hr>
+<ol>
+<li>Sharpness-Aware Minimization for Efficiently Improving Generalization [<a href="https://arxiv.org/abs/2010.01412" target="_blank" rel="external">arxiv</a>]</li>
+<li>Penalizing Gradient Norm for Efficiently Improving Generalization in Deep Learning [<a href="https://arxiv.org/abs/2202.03599" target="_blank" rel="external">arxiv</a>]</li>
+<li>ASAM: Adaptive Sharpness-Aware Minimization for Scale-Invariant Learning of Deep Neural Networks [<a href="https://arxiv.org/abs/2102.11600" target="_blank" rel="external">arxiv</a>], [<a href="https://research.samsung.com/blog/ASAM-Adaptive-Sharpness-Aware-Minimization-for-Scale-Invariant-Learning-of-Deep-Neural-Networks" target="_blank" rel="external">SAMSUNG Research blog</a>]</li>
+<li>Surrogate Gap Minimization Improves Sharpness-Aware Training (GSAM) [<a href="https://arxiv.org/abs/2203.08065" target="_blank" rel="external">arxiv</a>]</li>
+<li>Make Sharpness-Aware Minimization Stronger: A Sparsified Perturbation Approach (SSAM) [<a href="https://arxiv.org/abs/2210.05177" target="_blank" rel="external">arxiv</a>]</li>
+<li>Why Stochastic Weight Averaging? averaging results V.S. averaging weights [<a href="https://bobondemon.github.io/2022/07/20/Why-Stochastic-Weight-Averaging-averaging-results-V-S-averaging-weights/">blog</a>]</li>
+<li>SGD 泛化能力的筆記 [<a href="https://bobondemon.github.io/2022/05/28/SGD-Ggeneralization-Notes/">blog</a>]</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2024/05/04/Model-Generalization-with-Flat-Optimum/" title="Model Generalization with Flat Optimum">https://bobondemon.github.io/2024/05/04/Model-Generalization-with-Flat-Optimum/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Sharpness-Aware-Minimization/" rel="tag"># Sharpness-Aware Minimization</a>
+          
+            <a href="/tags/SAM/" rel="tag"># SAM</a>
+          
+            <a href="/tags/Gradient-Norm-Penalty/" rel="tag"># Gradient Norm Penalty</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/03/20/Sharpness-Aware-Minimization-SAM-論文閱讀筆記/" rel="next" title="Sharpness-Aware Minimization (SAM) 論文閱讀筆記">
+                <i class="fa fa-chevron-left"></i> Sharpness-Aware Minimization (SAM) 論文閱讀筆記
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">94</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">203</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Motivation"><span class="nav-number">1.</span> <span class="nav-text">Motivation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Lipschitz-Continuous-與-Flatness-和-Gradient-Norm-的關聯"><span class="nav-number">2.</span> <span class="nav-text">Lipschitz Continuous 與 Flatness 和 Gradient Norm 的關聯</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用-Gradient-Norm-當-Penalty"><span class="nav-number">3.</span> <span class="nav-text">使用 Gradient Norm 當 Penalty</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他討論"><span class="nav-number">4.</span> <span class="nav-text">其他討論</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Appendix"><span class="nav-number">5.</span> <span class="nav-text">Appendix</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">6.</span> <span class="nav-text">References</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

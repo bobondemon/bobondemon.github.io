@@ -267,6 +267,164 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2023/11/04/Quantization-Error-Case-with-Clipping/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2023/11/04/Quantization-Error-Case-with-Clipping/" itemprop="url">
+                  Quantization Error (Case with Clipping)
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2023-11-04T10:57:38+08:00">
+                2023-11-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SP/" itemprop="url" rel="index">
+                    <span itemprop="name">SP</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p><a href="https://bobondemon.github.io/2023/10/28/Quantization-Error-Case-without-Clipping/">上一篇文章</a>我們提到, uniformly constrained quantizer 有這樣的 quantization error:<br><span>$$\begin{align}
+J=s_{\text max}^2{4^{-B}\over 3}
+\end{align}$$</span><!-- Has MathJax --> 其中 <span>$s_{\text {max}}$</span><!-- Has MathJax --> 表示 input $x$ 在 <span>$[-s_{\text {max}}, s_{\text {max}}]$</span><!-- Has MathJax -->之間.<br>這麼做雖然能確保所有 $x$ 都不會發生 clipping error, 但如果有一些 outlier 則會使得 quantization step 變很大 (quantization resolution 變低), 因此 quantization 的離散化誤差 (discretization error) 變大.</p>
+<blockquote>
+<p>Quantization error = (<strong>Discretization</strong> error) + (<strong>Clipping</strong> error)</p>
+</blockquote>
+<p>舉例來說, 考慮下圖 (ref. from SongHan course <a href="https://youtu.be/n72ndSimkB8?si=HQORMN5Ve9ny7h3P&amp;t=1959">EfficientML.ai Lecture 6</a>):<br><img src="/2023/11/04/Quantization-Error-Case-with-Clipping/qerror_example.png" width="100%" height="100%"><br>上圖左是 clipping scalar 設定很大, 上圖右則是設定很小. 可以看見 discretization error 跟 clipping error 互為 trade-off.</p>
+<p>那麼問題來了, 怎麼設定 clipping scalar, 才會使得整體的 quantization error 最小?<br>這篇文章 “Optimal Clipping and Magnitude-aware Differentiation for Improved Quantization-aware Training” [<a href="https://arxiv.org/abs/2206.06501">arxiv</a>] 給出了理論值, 並使用 Newton’s method 幫助我們很快找到最佳解.</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/11/04/Quantization-Error-Case-with-Clipping/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2023/10/28/Quantization-Error-Case-without-Clipping/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1696,160 +1854,6 @@ q=\text{round_to_int}(r/s)+z
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chih-Sheng Chen">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="棒棒生">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/" itemprop="url">
-                  Numerical Methods for Ordinary Differential Equations
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2022-05-15T23:26:51+08:00">
-                2022-05-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分類於</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ML/" itemprop="url" rel="index">
-                    <span itemprop="name">ML</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-<hr>
-<p>如果對於 Differential Equation 完全沒概念, 建議先看以下兩分鐘的影片<br>&emsp;- <a href="https://www.youtube.com/watch?v=6cBBBMJZCv4">Solving Differential Equations vs. Solving Algebraic Equations</a><br>主要筆記了 Prof. Jeffrey Chasnov 在 Coursera 的兩門課 <strong>針對 numerical solution 解 ODE 的內容</strong>:<br>&emsp;1. <a href="https://www.coursera.org/learn/differential-equations-engineers#syllabus">Differential Equations for Engineers</a><br>&emsp;2. <a href="https://www.coursera.org/learn/numerical-methods-engineers?specialization=mathematics-engineers">Numerical Methods for Engineers</a><br>本文介紹:<br>&emsp;1️⃣  <strong>Introduction to ODE</strong>: linear? ordinary? n-th order?<br>&emsp;2️⃣  <strong>Euler Method</strong>: 雖然簡單, 但 error 很大<br>&emsp;3️⃣  <strong>Modified Euler Method</strong>: error <span>$O(\Delta t^3)$</span><!-- Has MathJax -->, 比 Euler method 小了一個 order<br>&emsp;4️⃣  <strong>Runge Kutta Methods</strong>: Modified Euler 方法是 Second-order RK 的一個特例<br>&emsp;5️⃣  <strong>Higher-order Runge-Kutta Methods</strong>: $n$-th order RK 的 error 為 <span>$O(\Delta t^{n+1})$</span><!-- Has MathJax --><br>&emsp;6️⃣  <strong>Higher-order ODEs and Systems</strong>: 以上都只介紹 first-order ODE 逼近法, 那 higher-order ODE 怎解?</p>
-<blockquote>
-<p>👏 那兩門課的講義教授很佛心得都有附上:<br>Lecture notes: <a href="https://www.math.hkust.edu.hk/~machas/differential-equations-for-engineers.pdf">Differential Equations for Engineers</a><br>Lecture notes: <a href="https://www.math.hkust.edu.hk/~machas/numerical-methods-for-engineers.pdf">Numerical Methods for Engineers</a></p>
-</blockquote>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/#more" rel="contents">
-              閱讀全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1899,7 +1903,7 @@ q=\text{round_to_int}(r/s)+z
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">93</span>
+                <span class="site-state-item-count">94</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -1921,7 +1925,7 @@ q=\text{round_to_int}(r/s)+z
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">202</span>
+                <span class="site-state-item-count">203</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>
