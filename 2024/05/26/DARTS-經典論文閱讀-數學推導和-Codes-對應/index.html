@@ -97,7 +97,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2024/05/26/DARTS-經典論文閱讀-數學推導和-Codes-對應/Untitled 1.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/05/26/DARTS-經典論文閱讀-數學推導和-Codes-對應/codes.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/05/26/DARTS-經典論文閱讀-數學推導和-Codes-對應/Untitled 2.png">
-<meta property="og:updated_time" content="2024-05-26T12:35:10.018Z">
+<meta property="og:updated_time" content="2024-05-26T13:06:12.472Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="DARTS 經典論文閱讀 (數學推導和 Codes 對應)">
 <meta name="twitter:description" content="在這篇之前的 NAS (Neural Architecture Search) 主流方法為 evolution or RL 在 discrete space 上搜尋, 雖然可以得到當時最佳的結果, 但搜索的 cost 很高.這篇提出 DARTS (Differentiable ARchiTecture Search) 將 NAS 變成 continuous relaxation 的問題後,">
@@ -382,6 +382,7 @@
 <blockquote>
 <p>或這麼類比: 直接訓練一個很大的 super network, 根據 OP 對應的架構權重來選擇哪些 OPs 要留下來, 大概類似 model pruning 的想法</p>
 </blockquote>
+<a id="more"></a>
 <h2 id="怎麼結合多個-OP-每個-OP-都訓練個權重-以及怎麼選擇哪個-OP"><a href="#怎麼結合多個-OP-每個-OP-都訓練個權重-以及怎麼選擇哪個-OP" class="headerlink" title="怎麼結合多個 OP? 每個 OP 都訓練個權重? 以及怎麼選擇哪個 OP?"></a>怎麼結合多個 OP? 每個 OP 都訓練個權重? 以及怎麼選擇哪個 OP?</h2><hr>
 <p>NN 的 forward inference (<a href="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/">computational graph</a>) 是個 DAG (Directional Acyclic Graph), 我們假設依循這個 DAG 可得到 inference 的 tensor sequences <span>$\{x^{(1)}, x^{(2)}, ..., x^{(n)}\}$</span><!-- Has MathJax --> 其中 $x^{(1)}$ 是 NN 的 input tensor, $x^{(n)}$ 是 output tensor</p>
 <p>因此要得到 tensor <span>$x^{(j)}$</span><!-- Has MathJax --> 可以這麼做:</p>
