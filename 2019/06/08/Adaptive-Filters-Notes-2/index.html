@@ -94,8 +94,11 @@
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="上一篇說明了 time domain 的 adaptive filters, 由於是 sample-by-sample 處理, 因此太慢了不可用, 真正可用的都是基於 frequency domain. 不過在深入之前, 一定要先了解 convolution 在 input 為 block-by-block 的情況下如何加速. 本文內容主要參考 Partitioned convolutio">
 <meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/classes_of_convolution_algo.png">
-<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/ola1.png">
-<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/ols1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/Untitled.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/Untitled 1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/Untitled 2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/Untitled 3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/Untitled 4.png">
 <meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/def_circular_conv.png">
 <meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/linear_conv_with_circular_conv.png">
 <meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/fast_conv.png">
@@ -103,7 +106,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/fast_conv_ols.png">
 <meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/FDAF.png">
 <meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/upols.png">
-<meta property="og:updated_time" content="2021-07-06T01:43:36.931Z">
+<meta property="og:updated_time" content="2024-06-17T13:00:41.799Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Adaptive Filters 簡介 (2) Fast Convolution and Frequency Domain">
 <meta name="twitter:description" content="上一篇說明了 time domain 的 adaptive filters, 由於是 sample-by-sample 處理, 因此太慢了不可用, 真正可用的都是基於 frequency domain. 不過在深入之前, 一定要先了解 convolution 在 input 為 block-by-block 的情況下如何加速. 本文內容主要參考 Partitioned convolutio">
@@ -385,7 +388,7 @@
 <hr>
 <p>上一篇說明了 time domain 的 adaptive filters, 由於是 sample-by-sample 處理, 因此太慢了不可用, 真正可用的都是基於 frequency domain. 不過在深入之前, 一定要先了解 convolution 在 input 為 block-by-block 的情況下如何加速. 本文內容主要參考 <a href="https://dl.acm.org/citation.cfm?id=2834400" target="_blank" rel="external">Partitioned convolution algorithms for real-time auralization</a> by Frank Wefers (書的介紹十分詳盡).</p>
 <p>Convolution 分類如下:<br><img src="/2019/06/08/Adaptive-Filters-Notes-2/classes_of_convolution_algo.png" width="40%" height="40%"></p>
-<p>我們就針對最常使用的情形介紹: Input (UP) and Filter (0).<br><a id="more"></a></p>
+<p>我們就針對最常使用的情形介紹: Input (UP) and Filter (0).</p>
 <blockquote>
 <p>這是因為實際應用 input 是 infinite length, 所以需要 block-by-block 給定, 而 filter 通常都是 finite length, 可以選擇不 partition, 或 uniformly partitioned 以便得到更低的延遲效果.</p>
 </blockquote>
@@ -394,12 +397,18 @@
 <li>OverLap-and-Add (OLA)</li>
 <li>OverLap-and-Save (OLS)</li>
 </ol>
+<a id="more"></a>
 <hr>
-<h3 id="OLA"><a href="#OLA" class="headerlink" title="OLA"></a>OLA</h3><p>OLA 相對來說很好理解的. 每一個新來的 data block $x_i$ (長度為 $M$), 都與 filter $h$ (長度為 $N$) 做 linear convolution, 產生的 output $y_i$ (長度為 $M+N-1$) 開頭的 $N-1$ 個結果與前一個output block 重疊的部分疊加 (“add”), 所以稱 overlap-and-ADD. 示意圖如下:<br><img src="/2019/06/08/Adaptive-Filters-Notes-2/ola1.png" width="50%" height="50%"></p>
+<h3 id="Linear-Convolution"><a href="#Linear-Convolution" class="headerlink" title="Linear Convolution"></a>Linear Convolution</h3><p>Filter $h$ 長度為 $N$ 個, 對 input $x$ 做 convolution 為:</p>
+<p>$$<br>\begin{align}<br>y[i]=\sum_{n=0}^{N-1} h[n] \cdot x[i-n]<br>\end{align}<br>$$</p>
+<p>考慮 $h={h[0],h[1],h[2]}$, $x={x[0], x[1], x[2], x[3]}$ 的 case<br>根據 (1), 得知 $y[2]=h[0]x[2]+h[1]x[1]+h[2]x[0]$. 如下圖:<br><img src="/2019/06/08/Adaptive-Filters-Notes-2/Untitled.png" width="50%" height="50%"> 在舉個例子, $y[3]=h[0]x[3]+h[1]x[2]+h[2]x[1]$. 如下圖:<br><img src="/2019/06/08/Adaptive-Filters-Notes-2/Untitled 1.png" width="50%" height="50%"> 所以整個 linear convolution $y=x\star h$ 為:<br><img src="/2019/06/08/Adaptive-Filters-Notes-2/Untitled 2.png" width="100%" height="100%"> 因此當 $|h|=N$, $|x|=M$, 則 output $|y|=M+N-1$</p>
 <hr>
-<h3 id="OLS"><a href="#OLS" class="headerlink" title="OLS"></a>OLS</h3><p>OLS 則從 output 角度來看. 根據現在的 output 來決定需要用到那些 input 做 linear convolution. 舉例 input block $x_i$ 長度為 $B=3$, filter $h$ 長度為 $N=4$, 則 output block $y_i$ 的結果可以從下圖來看出來:</p>
-<p><img src="/2019/06/08/Adaptive-Filters-Notes-2/ols1.png" width="60%" height="60%"></p>
-<p>注意到, 我們一開始先將 $h$ 右邊補上 $B-1=2$ 個 $0$, 而 input block $x_i$ 左邊補上 $N-1=3$ 個舊的 input data. 目的是把 $x_i$ 和 $h$ 都湊成 $B+N-1$ 這麼長.<br>則我們可以發現, 針對增長後的 input and filter 做 lineaer convolution, 雖然會得到長度為 $2*(B+N-1)-1$ 的 output, 但這其中有 $B$ 個結果是我們要的! 因此我們只需要 “save” 需要的這 $B$ 個 output, 其他都丟較即可. 所以稱 overlap-and-SAVE.</p>
+<h3 id="OLA"><a href="#OLA" class="headerlink" title="OLA"></a>OLA</h3><p>OLA 相對來說很好理解的. 每一個新來的 data block $x_i$ (長度為 $B$), 都與 filter $h$ (長度為 $N$) 做 linear convolution, 產生的 output $y_i$ (長度為 $B+N−1$) 開頭的 $N−1$ 個結果與前一個output block 重疊的部分疊加 (“add”), 所以稱 overlap-and-ADD. 示意圖如下:<br>當 input 是一個 block 一個 block 近來的時候, (每個 block 長度為 $4$), ola 圖示為:<br><img src="/2019/06/08/Adaptive-Filters-Notes-2/Untitled 3.png" width="70%" height="70%"></p>
+<hr>
+<h3 id="OLS"><a href="#OLS" class="headerlink" title="OLS"></a>OLS</h3><p>OLS 則從 output 角度來看. 根據現在的 output 來決定需要用到那些 inputs 做 linear convolution.<br>舉例來說根據 convolution 定義, 式 (1), 如果我們需要計算 $y[6]$ 則我們需要用到 ${x[6], x[5], x[4]}$, i.e. $y[6]=h[0]x[6]+h[1]x[5]+h[2]x[4]$<br>因此根據此筆新 data ${x[4], x[5], x[6], x[7]}$, 我們可以得到相對應的 outputs ${y[4], y[5], y[6], y[7]}$. 如下圖所示:</p>
+<p><img src="/2019/06/08/Adaptive-Filters-Notes-2/Untitled 4.png" width="50%" height="50%"></p>
+<p>data block 長度為 $B$, filter $h$ 長度為 $N$</p>
+<p>如果我們把新的 block data ${x[4], x[5], x[6], x[7]}$ 結合 $N-1$ 個過去 data 使得 data $x={x[2], x[3], x[4], x[5], x[6], x[7]}$ 整體長度為 $B+N-1$. 根據上圖與 $h$ 做 linear convolution, 則有效 output 點如上圖所示只會有 $B(=4)$ 個是我們要的! 因此我們只需要 “save” 需要的這 $B$ 個 output, 其他都丟較即可. 所以稱 overlap-and-SAVE.</p>
 <hr>
 <h3 id="如何有效率的做-linear-convolution"><a href="#如何有效率的做-linear-convolution" class="headerlink" title="如何有效率的做 linear convolution?"></a>如何有效率的做 linear convolution?</h3><p>不管是 OLA 或 OLS 都需要對兩個固定長度 (通常使用 padding $0$ 成等長) 的 signal 做 linear convolution. 怎麼有效率的做 linear convolution 就變得十分重要.<br>我們都知道頻域的相乘相當於時域的 <strong>circular</strong> convolution. 因此如果能用 ciruclar convolution 來做出 linear convolution 的話, 我們就能轉到頻域上再相乘就可以了.<br>Circular convolution 的定義如下<a href="https://dl.acm.org/citation.cfm?id=2834400" target="_blank" rel="external">[1]</a>, 其實概念也很容易:</p>
 <p><img src="/2019/06/08/Adaptive-Filters-Notes-2/def_circular_conv.png" width="70%" height="70%"></p>
@@ -431,6 +440,7 @@
 <li><a href="https://dl.acm.org/citation.cfm?id=2834400" target="_blank" rel="external">Partitioned convolution algorithms for real-time auralization</a> by Frank Wefers</li>
 <li><a href="Block Adaptive Filters and Frequency Domain Adaptive Filters.pdf">Block Adaptive Filters and Frequency Domain Adaptive Filters</a> by Prof. <a href="https://homepages.tuni.fi/ioan.tabus/" target="_blank" rel="external">Ioan Tabus</a></li>
 <li><a href="https://www.sciencedirect.com/science/article/pii/016516849290077A" target="_blank" rel="external">On the implementation of a partitioned block frequency domain adaptive filter (PBFDAF) for long acoustic echo cancellation</a></li>
+<li><a href="https://dsp.stackexchange.com/questions/22877/intuitive-explanation-of-cross-correlation-in-frequency-domain" target="_blank" rel="external">Intuitive explanation of cross-correlation in frequency domain</a></li>
 </ol>
 
       
@@ -638,7 +648,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#OLA"><span class="nav-number">1.</span> <span class="nav-text">OLA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#OLS"><span class="nav-number">2.</span> <span class="nav-text">OLS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何有效率的做-linear-convolution"><span class="nav-number">3.</span> <span class="nav-text">如何有效率的做 linear convolution?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fast-Conv-with-OLA"><span class="nav-number">4.</span> <span class="nav-text">Fast Conv with OLA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fast-Conv-with-OLS"><span class="nav-number">5.</span> <span class="nav-text">Fast Conv with OLS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Frequncy-Domain-Adaptive-Filter"><span class="nav-number">6.</span> <span class="nav-text">Frequncy Domain Adaptive Filter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Summary"><span class="nav-number">7.</span> <span class="nav-text">Summary</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">8.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Linear-Convolution"><span class="nav-number">1.</span> <span class="nav-text">Linear Convolution</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#OLA"><span class="nav-number">2.</span> <span class="nav-text">OLA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#OLS"><span class="nav-number">3.</span> <span class="nav-text">OLS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何有效率的做-linear-convolution"><span class="nav-number">4.</span> <span class="nav-text">如何有效率的做 linear convolution?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fast-Conv-with-OLA"><span class="nav-number">5.</span> <span class="nav-text">Fast Conv with OLA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fast-Conv-with-OLS"><span class="nav-number">6.</span> <span class="nav-text">Fast Conv with OLS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Frequncy-Domain-Adaptive-Filter"><span class="nav-number">7.</span> <span class="nav-text">Frequncy Domain Adaptive Filter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Summary"><span class="nav-number">8.</span> <span class="nav-text">Summary</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">9.</span> <span class="nav-text">Reference</span></a></li></ol></div>
             
 
           </div>

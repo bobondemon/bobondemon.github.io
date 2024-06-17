@@ -523,7 +523,15 @@
 <hr>
 <p>上一篇說明了 time domain 的 adaptive filters, 由於是 sample-by-sample 處理, 因此太慢了不可用, 真正可用的都是基於 frequency domain. 不過在深入之前, 一定要先了解 convolution 在 input 為 block-by-block 的情況下如何加速. 本文內容主要參考 <a href="https://dl.acm.org/citation.cfm?id=2834400">Partitioned convolution algorithms for real-time auralization</a> by Frank Wefers (書的介紹十分詳盡).</p>
 <p>Convolution 分類如下:<br><img src="/2019/06/08/Adaptive-Filters-Notes-2/classes_of_convolution_algo.png" width="40%" height="40%"></p>
-<p>我們就針對最常使用的情形介紹: Input (UP) and Filter (0).<br></p>
+<p>我們就針對最常使用的情形介紹: Input (UP) and Filter (0).</p>
+<blockquote>
+<p>這是因為實際應用 input 是 infinite length, 所以需要 block-by-block 給定, 而 filter 通常都是 finite length, 可以選擇不 partition, 或 uniformly partitioned 以便得到更低的延遲效果.</p>
+</blockquote>
+<p>針對 block-based input 的 convolution, 我們有兩種架構:</p>
+<ol>
+<li>OverLap-and-Add (OLA)</li>
+<li>OverLap-and-Save (OLS)</li>
+</ol>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2019/06/08/Adaptive-Filters-Notes-2/#more" rel="contents">
