@@ -1,0 +1,858 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Neural Architecture Search (NAS),DARTS,Multi-trail NAS,One-shot NAS," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="借用 MicroSoft NNI [1] 的分類, NAS 分成:&amp;emsp;$\circ$ Multi-trail NAS&amp;emsp;$\circ$ One-shot NAS (著重點)我們著重在每個方法的介紹, 要解決什麼問題, 而實驗結果就不記錄註: NAS 一直是很活躍的領域, 個人能力有限只能記錄自己的 study 現況">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Neural Architecture Search (NAS) 筆記">
+<meta property="og:url" content="https://bobondemon.github.io/2024/06/28/Neural-Architecture-Search-NAS-筆記/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="借用 MicroSoft NNI [1] 的分類, NAS 分成:&amp;emsp;$\circ$ Multi-trail NAS&amp;emsp;$\circ$ One-shot NAS (著重點)我們著重在每個方法的介紹, 要解決什麼問題, 而實驗結果就不記錄註: NAS 一直是很活躍的領域, 個人能力有限只能記錄自己的 study 現況">
+<meta property="og:image" content="https://bobondemon.github.io/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled 1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled 2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled 3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled 4.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled 5.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled 6.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled 7.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled 8.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled 9.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled 10.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled 6.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled 11.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled 12.png">
+<meta property="og:updated_time" content="2024-06-28T11:56:00.187Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Neural Architecture Search (NAS) 筆記">
+<meta name="twitter:description" content="借用 MicroSoft NNI [1] 的分類, NAS 分成:&amp;emsp;$\circ$ Multi-trail NAS&amp;emsp;$\circ$ One-shot NAS (著重點)我們著重在每個方法的介紹, 要解決什麼問題, 而實驗結果就不記錄註: NAS 一直是很活躍的領域, 個人能力有限只能記錄自己的 study 現況">
+<meta name="twitter:image" content="https://bobondemon.github.io/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2024/06/28/Neural-Architecture-Search-NAS-筆記/"/>
+
+
+
+
+
+  <title> Neural Architecture Search (NAS) 筆記 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/06/28/Neural-Architecture-Search-NAS-筆記/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Neural Architecture Search (NAS) 筆記
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2024-06-28T19:16:54+08:00">
+                2024-06-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>借用 MicroSoft <a href="https://nni.readthedocs.io/en/v2.4/index.html" target="_blank" rel="external">NNI</a> [1] 的分類, NAS 分成:<br>&emsp;$\circ$ <a href="https://nni.readthedocs.io/en/v2.4/NAS/Overview.html#multi-trial-nas" target="_blank" rel="external">Multi-trail NAS</a><br>&emsp;$\circ$ <a href="https://nni.readthedocs.io/en/v2.4/NAS/Overview.html#one-shot-nas" target="_blank" rel="external">One-shot NAS</a> (著重點)<br>我們著重在每個方法的介紹, 要解決什麼問題, 而實驗結果就不記錄<br>註: NAS 一直是很活躍的領域, 個人能力有限只能記錄自己的 study 現況</p>
+<a id="more"></a>
+<h2 id="NAS-Roadmap-介紹"><a href="#NAS-Roadmap-介紹" class="headerlink" title="NAS Roadmap 介紹"></a>NAS Roadmap 介紹</h2><p>早期的 NAS 必須先定義 model search space, 然後有個 architecture sampling 方法, 每次 sample 出一個架構<em>從頭開始訓練起</em>, 訓練完才能 evaluate 這個架構的表現. 重複此步驟直到找到最佳表現的架構為止.<br>這方法光想就知道很花時間, 所以怎麼讓 sample 出的架構高機率是好架構就會是效率的主因之一.<br>這種方法稱 <a href="https://nni.readthedocs.io/en/v2.4/NAS/Overview.html#multi-trial-nas" target="_blank" rel="external"><strong><em>Multi-trail NAS</em></strong></a> [1] (借用 <a href="https://nni.readthedocs.io/en/v2.4/index.html" target="_blank" rel="external">NNI</a> 的分類名稱), 如下圖 (<a href="https://nni.readthedocs.io/en/stable/nas/overview.html" target="_blank" rel="external">圖來源</a>):<br><img src="/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled.png" width="80%" height="80%"></p>
+<h3 id="One-shot-NAS"><a href="#One-shot-NAS" class="headerlink" title="One-shot NAS"></a>One-shot NAS</h3><p>而 <a href="https://arxiv.org/abs/1806.09055" target="_blank" rel="external">DARTS</a> [2, <a href="https://bobondemon.github.io/2024/05/26/DARTS-%E7%B6%93%E5%85%B8%E8%AB%96%E6%96%87%E9%96%B1%E8%AE%80-%E6%95%B8%E5%AD%B8%E6%8E%A8%E5%B0%8E%E5%92%8C-Codes-%E5%B0%8D%E6%87%89/">筆記</a>] 這種 gradient-based 方法的出現使得 NAS 的整個速度變得快非常多 (不用每 sample 一個架構都要從頭訓練起), 最核心的想法就是訓練一個 <strong><em>supernet</em></strong>, 這個 supernet 包含所有想要搜尋的 NN subnet. 然後再賦予每條 path 都有一個 learnable 的參數表示選擇這條 path 的機率.<br>只要對 supernet 的 NN weights 和架構參數 (本文用 $\alpha$ 表示) 一起 jointly 訓練下去. 一次 (one-shot) 就搞定最佳的架構選擇和 NN 的 weights. 所以這方法稱為 <a href="https://nni.readthedocs.io/en/v2.4/NAS/Overview.html#one-shot-nas" target="_blank" rel="external"><strong><em>One-shot NAS</em></strong></a> [1].</p>
+<blockquote>
+<p>這個”一起訓練下去”細部講的話並不容易, 主要是因為 weights 訓練時使用 training set, 而架構參數的訓練使用(一部分) validation set, 變成一個 bi-level optimization 問題, 詳見 <a href="https://bobondemon.github.io/2024/05/26/DARTS-%E7%B6%93%E5%85%B8%E8%AB%96%E6%96%87%E9%96%B1%E8%AE%80-%E6%95%B8%E5%AD%B8%E6%8E%A8%E5%B0%8E%E5%92%8C-Codes-%E5%B0%8D%E6%87%89/">筆記</a></p>
+</blockquote>
+<p>下圖中間子圖 (<a href="https://medium.com/ai-academy-taiwan/%E6%8F%90%E7%85%89%E5%86%8D%E6%8F%90%E7%85%89%E6%BF%83%E7%B8%AE%E5%86%8D%E6%BF%83%E7%B8%AE-neural-architecture-search-%E4%BB%8B%E7%B4%B9-ef366ffdc818" target="_blank" rel="external">來源</a> [3]) 可以看到 one-shot NAS 訓練後, 選擇 B1 的架構參數有最高的機率, 因此在採樣要當作佈署的模型時, 高機率採樣出 B1 的架構 (下圖右).<br><img src="/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled 1.png" width="100%" height="100%"></p>
+<blockquote>
+<p>另外一種做法是 Stochastic approach, 也就是訓練過程中會真的根據目前 $\alpha$ 機率採樣出架構來做訓練, 但是”採樣”這個 op 是不可微, 因此必須使用 <a href="https://bobondemon.github.io/2021/08/07/Gumbel-Max-Trick/">Gumbel softmax trick</a> [4] 來讓模型可以做 back propagation. 典型的方法為: <a href="https://arxiv.org/abs/1812.03443" target="_blank" rel="external">FBNet</a>(<a href="https://arxiv.org/abs/2004.05565" target="_blank" rel="external">V2</a>) [5] [6], <a href="https://arxiv.org/abs/1812.09926" target="_blank" rel="external">SNAS</a> [7]</p>
+</blockquote>
+<p>但是 DARTS 也不是毫無缺點, 至少有以下三點問題:</p>
+<ol>
+<li><strong>降低 Supernet Memory 需求</strong>:<br>Supernet 太大, 導致訓練的 memory 變成 bottleneck: <a href="https://www.notion.so/ProxylessNAS-Direct-Neural-Architecture-Search-on-Target-Task-and-Hardware-https-arxiv-org-abs-18-cf0d053be5c64a1291ad082d6c8a5933?pvs=21" target="_blank" rel="external">Proxyless NAS</a> [8], <a href="https://www.notion.so/Single-Path-NAS-Designing-Hardware-Efficient-ConvNets-in-less-than-4-Hours-https-arxiv-org-abs-19-77e4784dcc5e4ca7b7ac81a5ec24dc30?pvs=21" target="_blank" rel="external">Single-path NAS</a> [9], 嘗試解決此問題</li>
+<li><strong>Skip Connection 過多導致效果變差</strong>:<br>這會導致架構變得很 shallow, <a href="https://arxiv.org/abs/1909.09656" target="_blank" rel="external">RobustDARTS</a> [10], <a href="https://arxiv.org/abs/1911.12126" target="_blank" rel="external">Fair DARTS</a> [11], <a href="https://arxiv.org/abs/2009.01027" target="_blank" rel="external">DARTS-</a> [12], <a href="https://arxiv.org/abs/1909.06035" target="_blank" rel="external">DARTS+</a> [13] 嘗試解決此問題</li>
+<li><strong>拆開 Weight 訓練和架構搜索</strong>:<br>由於 one-shot NAS 讓 weights 和架構參數一起訓練出來, 如果要佈署在不同 devices 上 (有不同 HW constraints), 都要重新訓練 supernet, <a href="https://arxiv.org/abs/1908.09791" target="_blank" rel="external">Once-for-All</a> [14] 和 <a href="https://arxiv.org/abs/1904.00420" target="_blank" rel="external">Single Path One-Shot (SPOS)</a> [15] 嘗試解決此問題</li>
+</ol>
+<p>本文接下來的部分主要探討以上這 3 點 DARTS 的改進<br>另外內文也會提到以下兩點:<br>&emsp;- 由於所有的 subnet 的 weights 都是共享的, 但不同架構的 subnet 有可能需要不同的值才能有好效果, Once-for-All 裡面有對 sharing weight 在多做一個 transformation 來增加彈性.<br>&emsp;- 訓練和佈署時存在 mismatch, 譬如訓練後每條 path 機率都差不多, 但佈署時硬要選一個就可能會有落差. DARTS 論文的 future work 提到 softmax 可以使用 annealing 控制 temperature 使得愈來愈像 argmax. 另外若使用 Stochastic approach 的話可以考慮用 <a href="https://bobondemon.github.io/2023/01/15/L0-Regularization-%E8%A9%B3%E7%B4%B0%E6%94%BB%E7%95%A5/">Hard (Binary) Concrete Distribution</a> [16] 來讓 distribution 純 0 或 1 的值機率變大.</p>
+<h2 id="降低-Supernet-Memory-需求"><a href="#降低-Supernet-Memory-需求" class="headerlink" title="降低 Supernet Memory 需求"></a>降低 Supernet Memory 需求</h2><p>Supernet 相當於 search space 中所有 subnet 的聯集, 通常也不會太小, 太小的 supernet search space 就不夠大可能影響 NAS 的效果. 我們知道 NN 需要的 memory 不是只有 weights 而已, 還有 gradients 和 optimizer 的 states 要存. 如下圖 microsoft/<a href="https://github.com/microsoft/DeepSpeed" target="_blank" rel="external">DeepSpeed</a> [17] 的<a href="https://arxiv.org/abs/1910.02054" target="_blank" rel="external">論文</a>圖顯示:<br><img src="/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled 2.png" width="80%" height="80%"> 其中 optimizer states 以 Adam 為例, 需要存 fp32 copy of the parameters, momentum and variance, 所以比 fp16 的 parameters 大 6 倍.<br>以下介紹兩篇做法來降低 supernet 訓練的計算量<br>&emsp;- ProxylessNAS [8]<br>&emsp;- Single-path NAS [9]</p>
+<h3 id="ProxylessNAS"><a href="#ProxylessNAS" class="headerlink" title="ProxylessNAS"></a>ProxylessNAS</h3><p>如果說我們一個 cell 有 $N$ 個 candidate ops (見下圖), 那都要為這所有 ops 保留 parameters, gradients, optimizer states 的空間. ProxylessNAS 主要想法就是, 每次只 active 一條 path, 因此只有一條 path 會需要 memory 這樣就很省了<br>架構參數 $\alpha$ 和 weights 則交錯 update, 每次要 update 時都要重新採樣 active path<br><img src="/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled 3.png" width="100%" height="100%"> 但其實在 update 架構參數 $\alpha$ 的時候 (上圖右子圖), 也還是需要 non-activate 的那些 output tensors, 這樣記憶體需求還是沒省到.<br>論文的做法就是乾脆先假裝只有 2 條 candidate ops (從 $N$ 先隨機採樣出 2 條), 更新這 2 條 ops 的 $\alpha$(所以一條是 active 另一條是 non-active path), 其他非這 2 條 op 的 $\alpha$ 不動.<br>舉個例子, 假設 $(\alpha_1,\alpha_2,\alpha_3,\alpha_4)=(0.3, 0.1, 0.4, 0.2)$, 我們採樣到 $\alpha_2=0.1$ 和 $\alpha_4=0.2$ 這兩條 paths, 所以不管 $\alpha_2$ 和 $\alpha_4$ 在這次 iteration 怎麼更新, 例如變成 $\alpha_2=0.05,\alpha_4=0.25$, 兩個加起來的機率仍要維持不變 $=0.3$, 至於其他架構參數則不動, e.g. $\alpha_1$ 和 $\alpha_3$ 不動.</p>
+<h3 id="Single-path-NAS"><a href="#Single-path-NAS" class="headerlink" title="Single-path NAS"></a>Single-path NAS</h3><p>另一個做法是針對 convolution kernel 優化降低 memory 需求, 如 Single-path NAS, 核心思想見論文的圖:<br><img src="/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled 4.png" width="90%" height="90%"> 可以看到直接訓練一個最大 size 的 kernel 就可以, 小的 kernel 就 share 大 kernel 中間的 weights 即可. 這樣 memory 需求只需要一個大個 kernel size 就好<br>同樣的 output channel 也可以這麼做<br><img src="/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled 5.png" width="90%" height="90%"> 那麼就要有方式來決定各自的 layer 要用哪種 size 的 kernel weights, 以下式來說就是要有方法決定要不要留 <span>$\mathbf{w}_{5\times5\backslash3\times3}$</span><!-- Has MathJax -->:<br><span>$$\begin{align}
+\mathbf{w}_k=\mathbf{w}_{3\times3}+\mathbb{I}(\text{use }5\times5)\cdot\mathbf{w}_{5\times5\backslash3\times3}
+\end{align}$$</span><!-- Has MathJax --> 其中 $\mathbb{I}(\cdot)$ 是 indicator function 決定了要不要用更大 shape 的 kernel, 如果成立 $k=5$ 否則 $k=3$, 作者直接使用 L2-norm 的 weights 來當條件:<br><span>$$\begin{align}
+\mathbf{w}_k=\mathbf{w}_{3\times3}+\mathbb{I}(\|\mathbf{w}_{5\times5\backslash3\times3}\|^2&gt;{\color{orange}{t_{k=5}}})\cdot\mathbf{w}_{5\times5\backslash3\times3}
+\end{align}$$</span><!-- Has MathJax --> 當 L2-norm 大於某個 <em>trainable</em> threshold <span>$t_{k=5}$</span><!-- Has MathJax --> 就表示用大 kernel. 但作者希望 <span>$t_{k=5}$</span><!-- Has MathJax --> 能跟著 supernet 自己訓練起來, 也就是說自己決定 kernel size, 問題是 <span>$\mathbb{I}(\cdot)$</span><!-- Has MathJax --> 不可微, 所以在計算 gradient 時, 作者就用 sigmoid function <span>$\sigma(\cdot)$</span><!-- Has MathJax --> 替代: <span>$\mathbb{I}(x&gt;t)\approx\sigma(x-t)$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>forward 仍使用 $\mathbb{I}(\cdot)$, 但 backward 用 $\sigma(\cdot)$ 替代, 相當於 STE 作法<br>另外, 感覺可以在訓練後半段把 sigmoid function 變得更 sharp (接近 indicator function)</p>
+</blockquote>
+<p>其實我讀到這有個疑問, 如果某個小 kernel size 是最佳解 (loss 最低), 由於小 kernel size 只是大 kernel 的 subset, 直接對大 kernel 優化, 最理想狀態就是得到小 kernel 的結果 (外層 weights 優化完得到 0)<br>所以理想上直接訓練大 kernel 會得到更低的 loss, 架構選擇上一定會傾向選大 kernel 了, 這樣還需要上面 learnable 的 threshold 嗎?<br>我自問自答, 作者有加入 HW constraints, 由於小 kernel 的 latency 較小, 對 HW 的 loss 來說比較傾向小 kernel, 所以才能取得平衡.<br>另外, 由於所有的 subnet 的 weights 都是共享的, 但不同的 subnet 可能需要不同的參數值, 大小 kernel 共 share 參數值可能 performance 會被限制住. Once-for-All [14] 論文裡有對 sharing weight 在多做一個 transformation 來增加彈性. 例如下圖左子圖:<br><img src="/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled 6.png" width="100%" height="100%"> kernel $5\times5$ 的 weights 是 kernel $7\times7$ 中間 $5\times5$ 的 weights 在經過一個 transformation 得到. 因此大 kernel 中間的 weights 可以跟小 kernel 的 weights 數值不一樣.<br>然後這個 transformation matrix 對所有 layers 都共用一個, 所以也沒有增加額外很多參數量.</p>
+<h2 id="Skip-Connection-過多導致效果變差"><a href="#Skip-Connection-過多導致效果變差" class="headerlink" title="Skip Connection 過多導致效果變差"></a>Skip Connection 過多導致效果變差</h2><p>如果某條 path 什麼事都不做, i.e. identity op, 就相當於跳過這層 layer, 也就是 skip connection. DARTS 訓練到後期會容易發現 skip connection 過多導致架構很淺而影響 performance.<br>Fair DARTS [11] 這篇論文分析了造成這個現象的底層原因: 架構參數 $\alpha$ 比起 weights 參數更新得更快<br>為什麼呢? 這不難想像, 以 convolution 的 kernel 假設 $7\times7$ 舉例, weights 就有 $49$ 個要調整好才能有作用, 在調整好之前, 對應的架構參數很容易就覺得這個 convolution OP 不好所以重要性要下降, 而 skip connection 沒啥 weights 參數要訓練, 所以相較之下容易做得好 (skip connection 具有 unfair advantage), 因此 skip connection 對應的架構參數就會上升.<br>加上最後在 softmax 只能 $N$ 選 $1$ 的條件影響下 (exclusive competition), 自然而然 skip connection 的架構參數很容易就愈來愈大<br>論文的解決方法</p>
+<ul>
+<li>解決 exclusive competition: 從 one-hot 變成 multi-hot, i.e. softmax 變成 $N$ 個 sigmoid $\sigma(\cdot)$<br>(但這樣就沒辦法 ProxylessNAS or Single-path 來降低 memory 了?)<br><span>$$\bar{o}_{i,j}(x)=\sum_{o\in\mathcal{O}}\sigma(\alpha_{o_{i,j}})o(x)$$</span><!-- Has MathJax --> 每個 OP 都各自決定要不要留, 因此論文用一個 threshold $\sigma_{threshold}$ 來決定</li>
+<li>解決 unfair advantage of skip connection: Architecture loss 多加一個 0-1 loss <span>$\mathcal{L}_{0-1}$</span><!-- Has MathJax --> ($\lambda$ 是常數)<br><span>$$\min_\alpha\mathcal{L}_{val}(w^\ast(\alpha),\alpha)+\lambda\mathcal{L}_{0-1} \\
+\text{, where}\quad \mathcal{L}_{0-1}=-\frac{1}{N}\sum_{i=1}^N(\sigma(\alpha_i)-0.5)^2$$</span><!-- Has MathJax --> <span>$\mathcal{L}_{0-1}$</span><!-- Has MathJax --> 在一開始機率是 0.5 的時候 gradient 很小, 目的是希望 architecture 參數不要更動太快, 先讓 weights 參數比較容易 update, 然後當架構參數跑到 0 or 1 的方向變得 gradient 比較大, 這目的是希望架構參數要不就是 0 要不就是 1, 這樣在最後用 argmax 選 subnet 的時候讓 training 與 inference 比較一致<br>見下圖綠色的 curve<br><img src="/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled 7.png" width="60%" height="60%"></li>
+</ul>
+<p>另外 RobustDARTS [10], DARTS- [12], DARTS+ [13] 也是嘗試解決這個問題, 透過一些 early stop 方法</p>
+<h2 id="拆開-Weight-訓練和架構搜索"><a href="#拆開-Weight-訓練和架構搜索" class="headerlink" title="拆開 Weight 訓練和架構搜索"></a>拆開 Weight 訓練和架構搜索</h2><p>One-shot NAS, 使用 supernet 將 weights 和架構參數一起訓練出來 (jointly train)<br>但如果要佈署的 devices 非常多, 且各自有不同的 HW constraints, 變成都要重新訓練 supernet<br>如果我們能將 supernet 的 weights 訓練和後續佈署的架構搜索拆開成獨立兩步驟, 那麼 supernet 只要訓練一次就好, 後續各種不同 device 的架構搜索都基於不動 weights 情況下找出好的 subnet<br>參考下圖 (<a href="https://hanlab.mit.edu/courses/2023-fall-65940" target="_blank" rel="external">SongHan</a> <a href="https://colab.research.google.com/drive/1n1_T-icO-LZsZpcti-pRZcX_VvumbDWM#scrollTo=W42o2zoEKV5Q" target="_blank" rel="external">Lab3</a>)<br><img src="/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled 8.png" width="100%" height="100%"> Once-for-All [14] 和 Single Path One-Shot (SPOS) [15] 是兩篇嘗試解決這個問題的做法</p>
+<h3 id="Single-path-One-shot-SPOS"><a href="#Single-path-One-shot-SPOS" class="headerlink" title="Single-path One-shot (SPOS)"></a>Single-path One-shot (SPOS)</h3><p>One-shot NAS 的缺點是 architecture 跟 weight 的參數訓練耦合很強, 造成不同 architectures (subnet) 訓練時充分度各不相同, 而 gradient 又使用 loss 來引導, 可能導致問題愈來愈嚴重.<br>如果要拆開 weight 訓練和架構搜索的話, supernet 訓練就要想辦法緩解上述問題: 如果 supernet 訓練完後, subnets 之間訓練充分度不同, 這樣在後續架構搜索出來的 subnet 可能效果會不一, 有些好有些差.<br>SPOS 作法就相當直接了當, 取消掉架構參數 $\alpha$ 了 (沒有架構參數要學, 也就可以拆開 weight 訓練和架構搜索), 同時訓練 supernet 的時候不同 subnet 的採樣固定要 uniform distribution (or a fixed prior), 希望保證不同 subnet 的訓練都一樣充分<br>沒了, 方法就這樣<br>再多說一點的話, 反正都沒有 architecture 參數要訓練了 (全部都 uniform 採樣), 乾脆連 kernel 的 channel size, quantization bits 都直接採樣下去<br><img src="/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled 9.png" width="100%" height="100%"> MicroSoft <a href="https://nni.readthedocs.io/en/v2.4/index.html" target="_blank" rel="external">NNI</a> 的 <a href="https://nni.readthedocs.io/en/v2.4/NAS/SPOS.html" target="_blank" rel="external">SPOS</a> 也說明的滿清楚的, 可以參考一下</p>
+<h3 id="Once-for-All-OFA"><a href="#Once-for-All-OFA" class="headerlink" title="Once-for-All (OFA)"></a>Once-for-All (OFA)</h3><p>與 SPOS 主要差異在 OFA 的 supernet training 使用 Progressive Shrinking (PS) 作法, 描述如下:<br>Supernet 採樣 subnet 訓練時, 全部都先 train 最大的設定 (subnet 只採樣到最大的設定), e.g. kernel size, depth, width 都選最大, 然後接著開放可以選小一點的 kernel size (大的一樣有機會 sample 到), 再來依序開放 depth and width. 其中 resolution 從頭到尾都開放從小到大的採樣.<br><img src="/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled 10.png" width="100%" height="100%"> 好處是, 大的 subnet 如果是 well-trained 的話, 小的 subnet 就會從一個比較好的 initial 開始 (因為 share weights)<br>另外同時大小 subnet 一起 train 表示共同 share 的小 size weights 那部分會愈重要<br>PS 方法在 kernel size, depth 和 width 有一些 trick 如下<br><img src="/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled 6.png" width="100%" height="100%"> kernel 有個 transform matrix (不同層之間 shared) 的好處是, 由於小 kernel 只是大 kernel 的一部分 weights. 造成大 kernel 的 subnet 在優化的時候要遷就小 kernel size 的 subnet, 因此多一個 transform matrix 可以有一些彈性, 讓中間小 kernel 用到的 weights 可以做些變化.<br>Depth 的做法看上圖應該很清楚了<br>再來 width 對應到 output channels, 因此每次 fine tune 後會根據重要性做個排序 (見下圖), 這樣選 sub-channels 比較方便. 重要性就用 L1 norm of a channel’s weight<br><img src="/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled 11.png" width="100%" height="100%"> Supernet 訓練完後, 架構搜尋可以用 Evolution Method, 如下圖就不多說, 想法就適者生存找出好架構而以<br><img src="/2024/06/28/Neural-Architecture-Search-NAS-筆記/Untitled 12.png" width="100%" height="100%"> 註: MIT SongHan Lab 的課程作業 <a href="https://colab.research.google.com/drive/1n1_T-icO-LZsZpcti-pRZcX_VvumbDWM#scrollTo=W42o2zoEKV5Q" target="_blank" rel="external">Lab3</a> (<a href="https://hanlab.mit.edu/courses/2023-fall-65940" target="_blank" rel="external">Course</a>, Lecture 7 and 8) [14] 有讓我們練習 OFA 的 evolution method (但沒有 progressive shrinking training)</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li>MicroSoft <a href="https://nni.readthedocs.io/en/v2.4/index.html" target="_blank" rel="external">NNI</a>: <a href="https://nni.readthedocs.io/en/v2.4/NAS/Overview.html#multi-trial-nas" target="_blank" rel="external">Multi-trail NAS</a>, <a href="https://nni.readthedocs.io/en/v2.4/NAS/Overview.html#one-shot-nas" target="_blank" rel="external">One-shot NAS</a></li>
+<li>DARTS: Differentiable Architecture Search [<a href="https://arxiv.org/abs/1806.09055" target="_blank" rel="external">arxiv</a>] [<a href="https://bobondemon.github.io/2024/05/26/DARTS-%E7%B6%93%E5%85%B8%E8%AB%96%E6%96%87%E9%96%B1%E8%AE%80-%E6%95%B8%E5%AD%B8%E6%8E%A8%E5%B0%8E%E5%92%8C-Codes-%E5%B0%8D%E6%87%89/">筆記</a>]</li>
+<li><a href="https://medium.com/ai-academy-taiwan/%E6%8F%90%E7%85%89%E5%86%8D%E6%8F%90%E7%85%89%E6%BF%83%E7%B8%AE%E5%86%8D%E6%BF%83%E7%B8%AE-neural-architecture-search-%E4%BB%8B%E7%B4%B9-ef366ffdc818" target="_blank" rel="external">提煉再提煉濃縮再濃縮：Neural Architecture Search 介紹</a></li>
+<li>Gumbel-Max Trick [<a href="https://bobondemon.github.io/2021/08/07/Gumbel-Max-Trick/">筆記</a>]</li>
+<li>FBNet: Hardware-Aware Efficient ConvNet Design via Differentiable Neural Architecture Search [<a href="https://arxiv.org/abs/1812.03443" target="_blank" rel="external">arxiv</a>]</li>
+<li>FBNetV2: Differentiable Neural Architecture Search for Spatial and Channel Dimensions [<a href="https://arxiv.org/abs/2004.05565" target="_blank" rel="external">arxiv</a>]</li>
+<li>SNAS: Stochastic Neural Architecture Search [<a href="https://arxiv.org/abs/1812.09926" target="_blank" rel="external">arxiv</a>]</li>
+<li>ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware [<a href="https://arxiv.org/abs/1812.00332" target="_blank" rel="external">arxiv</a>]</li>
+<li>Single-Path NAS: Designing Hardware-Efficient ConvNets in less than 4 Hours [<a href="https://arxiv.org/abs/1904.02877" target="_blank" rel="external">arxiv</a>]</li>
+<li>Understanding and Robustifying Differentiable Architecture Search [<a href="https://arxiv.org/abs/1909.09656" target="_blank" rel="external">arxiv</a>]</li>
+<li>Fair DARTS: Eliminating Unfair Advantages in Differentiable Architecture Search [<a href="https://arxiv.org/abs/1911.12126" target="_blank" rel="external">arxiv</a>]</li>
+<li>DARTS-: Robustly Stepping out of Performance Collapse Without Indicators [<a href="https://arxiv.org/abs/2009.01027" target="_blank" rel="external">arxiv</a>]</li>
+<li>DARTS+: Improved Differentiable Architecture Search with Early Stopping [<a href="https://arxiv.org/abs/1909.06035" target="_blank" rel="external">arxiv</a>]</li>
+<li>Once-for-All: Train One Network and Specialize it for Efficient Deployment [<a href="https://arxiv.org/abs/1908.09791" target="_blank" rel="external">arxiv</a>] [<a href="https://hanlab.mit.edu/courses/2023-fall-65940" target="_blank" rel="external">SongHan</a> <a href="https://colab.research.google.com/drive/1n1_T-icO-LZsZpcti-pRZcX_VvumbDWM#scrollTo=W42o2zoEKV5Q" target="_blank" rel="external">Lab3</a>]</li>
+<li>Single Path One-Shot Neural Architecture Search with Uniform Sampling [<a href="https://arxiv.org/abs/1904.00420" target="_blank" rel="external">arxiv</a>] <a href="https://www.notion.so/Single-Path-One-Shot-Neural-Architecture-Search-with-Uniform-Sampling-https-arxiv-org-abs-1904-004-3f1b37319aae478c8472d994ae8d5fe0?pvs=21" target="_blank" rel="external">(</a>NNI 的 <a href="https://nni.readthedocs.io/en/v2.4/NAS/SPOS.html" target="_blank" rel="external">Single Path One-Shot (SPOS)</a><a href="https://www.notion.so/Single-Path-One-Shot-Neural-Architecture-Search-with-Uniform-Sampling-https-arxiv-org-abs-1904-004-3f1b37319aae478c8472d994ae8d5fe0?pvs=21" target="_blank" rel="external">)</a></li>
+<li>L0 Regularization 詳細攻略 [<a href="https://bobondemon.github.io/2023/01/15/L0-Regularization-%E8%A9%B3%E7%B4%B0%E6%94%BB%E7%95%A5/">筆記</a>]</li>
+<li><a href="https://github.com/microsoft" target="_blank" rel="external">microsoft</a>/<a href="https://github.com/microsoft/DeepSpeed" target="_blank" rel="external">DeepSpeed</a> 的<a href="https://arxiv.org/abs/1910.02054" target="_blank" rel="external">論文</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2024/06/28/Neural-Architecture-Search-NAS-筆記/" title="Neural Architecture Search (NAS) 筆記">https://bobondemon.github.io/2024/06/28/Neural-Architecture-Search-NAS-筆記/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Neural-Architecture-Search-NAS/" rel="tag"># Neural Architecture Search (NAS)</a>
+          
+            <a href="/tags/DARTS/" rel="tag"># DARTS</a>
+          
+            <a href="/tags/Multi-trail-NAS/" rel="tag"># Multi-trail NAS</a>
+          
+            <a href="/tags/One-shot-NAS/" rel="tag"># One-shot NAS</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/05/26/DARTS-經典論文閱讀-數學推導和-Codes-對應/" rel="next" title="DARTS 經典論文閱讀 (數學推導和 Codes 對應)">
+                <i class="fa fa-chevron-left"></i> DARTS 經典論文閱讀 (數學推導和 Codes 對應)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">96</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">207</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#NAS-Roadmap-介紹"><span class="nav-number">1.</span> <span class="nav-text">NAS Roadmap 介紹</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#One-shot-NAS"><span class="nav-number">1.1.</span> <span class="nav-text">One-shot NAS</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#降低-Supernet-Memory-需求"><span class="nav-number">2.</span> <span class="nav-text">降低 Supernet Memory 需求</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ProxylessNAS"><span class="nav-number">2.1.</span> <span class="nav-text">ProxylessNAS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Single-path-NAS"><span class="nav-number">2.2.</span> <span class="nav-text">Single-path NAS</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Skip-Connection-過多導致效果變差"><span class="nav-number">3.</span> <span class="nav-text">Skip Connection 過多導致效果變差</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#拆開-Weight-訓練和架構搜索"><span class="nav-number">4.</span> <span class="nav-text">拆開 Weight 訓練和架構搜索</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Single-path-One-shot-SPOS"><span class="nav-number">4.1.</span> <span class="nav-text">Single-path One-shot (SPOS)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Once-for-All-OFA"><span class="nav-number">4.2.</span> <span class="nav-text">Once-for-All (OFA)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">5.</span> <span class="nav-text">References</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
