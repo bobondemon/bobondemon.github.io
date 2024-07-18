@@ -267,6 +267,161 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2023/12/28/AWQ-筆記/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2023/12/28/AWQ-筆記/" itemprop="url">
+                  AWQ 筆記
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2023-12-28T23:05:36+08:00">
+                2023-12-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>如同 SmoothQuant 論文裡的圖, 在 memory size 已經跟不上算力和模型大小情況下, memory bandwidth 已經變成 bottleneck.<br><img src="/2023/12/28/AWQ-筆記/Untitled.png" width="60%" height="60%"> 如何降低 memory 使用量將變的很關鍵, 因此 <strong>Activation-aware Weight Quantization (AWQ)</strong> 這篇文章就專注在 <strong>Weight Only Quantization (WOQ)</strong>, 顧名思義就是 <strong>weight 使用 integer 4/3 bits, activations 仍維持 FP16</strong>.<br>因為 computation is cheap, memory is expensive.</p>
+<blockquote>
+<p><strong><a href="https://github.com/intel/neural-compressor">Intel® Neural Compressor</a></strong> 有實作 <a href="https://github.com/intel/neural-compressor/blob/master/docs/source/quantization_weight_only.md">WOQ</a> 裡面有 AWQ</p>
+</blockquote>
+<p>以下內容直接筆記 <a href="https://hanlab.mit.edu/">MIT SongHan</a> 教授的課程內容[<a href="https://www.dropbox.com/scl/fi/p1zqdbmgv1gkmjsbmd39v/lec13.pdf?rlkey=hrpmd9x9rj96dta1ws29vmb3i&amp;dl=0">slides</a>], [<a href="https://youtu.be/7WeraZ0LLlg">Video</a>]<br></p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/12/28/AWQ-筆記/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2023/12/28/SmoothQuant-筆記/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1707,162 +1862,6 @@ q=\text{round_to_int}(r/s)+z
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/09/26/Weight-Normalization-的筆記/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chih-Sheng Chen">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="棒棒生">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2022/09/26/Weight-Normalization-的筆記/" itemprop="url">
-                  Weight Normalization 的筆記
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2022-09-26T21:37:42+08:00">
-                2022-09-26
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分類於</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ML/" itemprop="url" rel="index">
-                    <span itemprop="name">ML</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-<hr>
-<p>使用 SGD 做優化時, 如果 ill-conditioned of Hessian matrix, i.e. $\sigma_1/\sigma_n$ 最大最小的 eigenvalues 之比值, 會使得收斂效率不彰<br>(ref <a href="https://trond.hjorteland.com/thesis/node26.html">zig-zag</a>).</p>
-<blockquote>
-<p>可以想成 loss function 的曲面愈不像正圓則愈 ill-conditioned (愈扁平).</p>
-</blockquote>
-<p>希望藉由 re-parameterization 來將 ill-conditioned 狀況降低.<br>一般來說 NN 的 layer 可以這麼寫:<br><span>$$y=\phi(w^Tx+b)$$</span><!-- Has MathJax --> 把 weight vector $w$ 重新改寫如下:</p>
-<span>$$w={g\over\|v\|}v\quad\quad(\star)$$</span><!-- Has MathJax --> WN 就是將 $w$ 拆成用 unit vector $v/||v||$ 和 magnitude $g$ 兩個 variables 來表示<br><br>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2022/09/26/Weight-Normalization-的筆記/#more" rel="contents">
-              閱讀全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1912,7 +1911,7 @@ q=\text{round_to_int}(r/s)+z
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">96</span>
+                <span class="site-state-item-count">97</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -1934,7 +1933,7 @@ q=\text{round_to_int}(r/s)+z
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">207</span>
+                <span class="site-state-item-count">208</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>
