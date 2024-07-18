@@ -100,7 +100,7 @@ $$KL(q(z)\|p(z|x))=-\sum_z q(z)\log\frac{p(x|z)}{q(z)} \\
 =-\sum_z q(z)\left[\log\frac{p(x,z)}{q(z)}-\log p(x)\right] \\
 =-\sum_z q(z)\log\frac">
 <meta property="og:image" content="https://bobondemon.github.io/2024/07/18/紀錄-Evidence-Lower-BOund-ELBO-的三種用法/Untitled.png">
-<meta property="og:updated_time" content="2024-07-18T13:42:51.822Z">
+<meta property="og:updated_time" content="2024-07-18T13:56:18.751Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="紀錄 Evidence Lower BOund (ELBO) 的三種用法">
 <meta name="twitter:description" content="開頭先賞一頓數學操作吃粗飽一下Let $p,q$ 都是 distributions, 則下面數學式子成立
@@ -408,7 +408,7 @@ $$KL(q(z)\|p(z|x))=-\sum_z q(z)\log\frac{p(x|z)}{q(z)} \\
 <p><span>$$q^\ast,\theta^\ast=\arg\max_{q,\theta}\mathcal{L}(q,\theta) \\
 \mathcal{L}(q,\theta):=\mathbb{E}_{z\sim q}\left[\log p(x,z|\theta) - \log q(z)\right]$$</span><!-- Has MathJax --> 所以 EM algorithm 的用法只是比 VI 的用法多優化了 $\theta$ 來做 MLE (maximal likelihood estimation), i.e. 最大化 log likelihood $\log p(x|\theta)$. 相當於有 hidden variable $z$ 情況下的 MLE</p>
 <blockquote>
-<p>這個也是 VAE 的用法<br>更多請參考以前的筆記 [<a href="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/#Appendix-EM-%E8%B7%9F-VI-%E5%BE%88%E5%83%8F%E9%98%BF">Appendix: EM 跟 VI 很像阿</a>]</p>
+<p>這個也是 VAE (Variational Auto-Encoder) 的用法<br>更多請參考以前的筆記 [<a href="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/#Appendix-EM-%E8%B7%9F-VI-%E5%BE%88%E5%83%8F%E9%98%BF">Appendix: EM 跟 VI 很像阿</a>]</p>
 </blockquote>
 <h2 id="Diffusion-Model-用法"><a href="#Diffusion-Model-用法" class="headerlink" title="Diffusion Model 用法"></a>Diffusion Model 用法</h2><p>Diffusion model 一樣做 MLE (maximal likelihood estimation), 要找出最佳的 $\theta^\ast$ 使得 $\log p(x|\theta^\ast)$ 最大. 一樣觀察下式</p>
 <p><span>$$\log p(x|{\color{red}\theta})=KL(q(z)\|p(z|x,{\color{red}\theta}))+
