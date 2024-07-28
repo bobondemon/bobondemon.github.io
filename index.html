@@ -372,7 +372,8 @@
 <p>開頭先賞一頓數學操作吃粗飽一下<br>Let $p,q$ 都是 distributions, 則下面數學式子成立</p>
 <span>$$KL(q(z)\|p(z|x))=-\sum_z q(z)\log\frac{p(x|z)}{q(z)} \\
 =-\sum_z q(z)\left[\log\frac{p(x,z)}{q(z)}-\log p(x)\right] \\
-=-\sum_z q(z)\log\frac{p(x,z)}{q(z)}+\log p(x)$$</span><!-- Has MathJax --> $x$ 是代表什麼意思? $z$ 又代表什麼? 什麼都不管繼續整理:<br><span>$$\log p(x)= KL(q(z)\|p(z|x))+
+=-\sum_z q(z)\log\frac{p(x,z)}{q(z)}+\log p(x)$$</span><!-- Has MathJax --> $x$ 是代表什麼意思? $z$ 又代表什麼? 什麼都不管繼續整理:<br><span>$$\begin{align}
+\log p(x)= KL(q(z)\|p(z|x))+
 {\color{orange}{
 \mathbb{E}_{z\sim q}\left[\log \frac{p(x,z)}{q(z)}\right]}
 }\\
@@ -380,8 +381,9 @@
 \mathbb{E}_{z\sim q}\left[\log p(x,z) - \log q(z)\right]}
 }
  \\
-=KL(q(z)\|p(z|x))+\color{orange}{\mathcal{L}(q)}$$</span><!-- Has MathJax --> 因為 <span>$KL(\cdot)\geq0$</span><!-- Has MathJax --> 所以 <span>$\mathcal{L(q)}\leq\log p(x)$</span><!-- Has MathJax -->
-<p>基本上 $p,q$ 只要是 distribution 上面式子就成立<br></p>
+=KL(q(z)\|p(z|x))+\color{orange}{\mathcal{L}(q)}
+\end{align}$$</span><!-- Has MathJax --> 因為 <span>$KL(\cdot)\geq0$</span><!-- Has MathJax --> 所以 <span>$\mathcal{L(q)}\leq\log p(x)$</span><!-- Has MathJax -->
+<p>基本上 $p,q$ 只要是 distribution 上面式子就成立</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2024/07/18/紀錄-Evidence-Lower-BOund-ELBO-的三種用法/#more" rel="contents">
