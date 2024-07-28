@@ -984,6 +984,9 @@
 </script>
 
 <hr>
+<ul>
+<li>2024/07/28 更新 (見本文最後一段): 補充與 Langevin Dynamics 的關係, 這是我們在 [<a href="https://bobondemon.github.io/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/">Score Matching 系列 (五) SM 加上 Langevin Dynamics 變成生成模型</a>] 裡提到一旦訓練出 score function 後, 模型使用的採樣技術. 另外 Score Match + Langevin Dynamics (SMLD) 這種生成模型事實上跟 <a href="https://arxiv.org/abs/2006.11239">DDPM (Denoising Diffusion Probabilistic Models)</a> 是一樣的! Yang Song 這篇 2021 ICLR best paper award (<a href="https://arxiv.org/abs/2011.13456">Score-Based Generative Modeling through Stochastic Differential Equations</a>) 闡明了 SMLD 跟 DDPM 其實是兩種不同的觀點, 都可以用相同的 SDE (Stochastic Differential Equation) 來表達.</li>
+</ul>
 <p>先說我物理什麼的都還給老師了, 只能用自己理解的方式, 筆記下 <strong>Hamiltonian dynamic.</strong></p>
 <blockquote>
 <p>　💡 如果連我都能懂, 相信大家都能理解 HMC 了</p>
@@ -1152,9 +1155,8 @@
 </ul>
 </li>
 <li><p>Langevin dynamics:<br> Langevin dynamics 可以使用 score function, i.e. <span>$\nabla_x\log p_{data}(x)$</span><!-- Has MathJax -->, 來取 sample, 取出來的 sample 具有 <span>$p_{data}(x)$</span><!-- Has MathJax --> 的分佈<br> 而我們已經用一個 NN <span>$s_\theta(x)$</span><!-- Has MathJax --> 來逼近 score function 了, 因此可以用 <span>$s_\theta(x)$</span><!-- Has MathJax --> 來取 sample, 步驟如下:<br> 給定一個固定的 step size <span>$\epsilon&gt;0$</span><!-- Has MathJax -->, initial value <span>$z=\tilde{x}_0\sim\pi(x)$</span><!-- Has MathJax -->, 其中 <span>$\pi(x)$</span><!-- Has MathJax --> 是固定的 prior distribution, and <span>$z_t\sim\mathcal{N}(0,I)$</span><!-- Has MathJax --></p>
- <span>$$\tilde{x}_t = \tilde{x}_{t-1}+\frac{\epsilon}{2}\nabla_x\log p_{data}(\tilde{x}_{t-1})+\sqrt{\epsilon}z_t \\
-\approx \tilde{x}_{t-1}+\frac{\epsilon}{2}s_\theta(\tilde{x}_{t-1})+\sqrt{\epsilon}z_t$$</span><!-- Has MathJax -->
-<p> 當 <span>$\epsilon\rightarrow 0$</span><!-- Has MathJax -->, <span>$T\rightarrow\infty$</span><!-- Has MathJax --> 則 <span>$\tilde{x}_T$</span><!-- Has MathJax --> 等同於從 <span>$p_{data}(x)$</span><!-- Has MathJax --> 取樣!</p>
+<p> <span>$$\tilde{x}_t = \tilde{x}_{t-1}+\frac{\epsilon}{2}\nabla_x\log p_{data}(\tilde{x}_{t-1})+\sqrt{\epsilon}z_t \\
+\approx \tilde{x}_{t-1}+\frac{\epsilon}{2}s_\theta(\tilde{x}_{t-1})+\sqrt{\epsilon}z_t$$</span><!-- Has MathJax --> 當 <span>$\epsilon\rightarrow 0$</span><!-- Has MathJax -->, <span>$T\rightarrow\infty$</span><!-- Has MathJax --> 則 <span>$\tilde{x}_T$</span><!-- Has MathJax --> 等同於從 <span>$p_{data}(x)$</span><!-- Has MathJax --> 取樣!<br> 我們在這篇文章 <strong><a href="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/">忘記物理也要搞懂的 Hamiltonian Monte Carlo (HMC) 筆記</a></strong><br> 非常仔細得解釋了為什麼可以這麼做, 注意到其實這裡涉及了很多知識, 依序包含 MCMC, Metropolis Hastings, Hamiltonian Dynamic, 最後才關聯到 Langevin Dynamics. 不過只想單純使用的話, 上面的描述就足夠.</p>
 </li>
 </ol>
 <p>藉由 Score Matching + Langevin Dynamics (SMLD), 我們發現如果成功學到 score function, 則可以從 random noise $z$ 產生符合 data distribution 的 sample.<br>而這正是 generative model 在做的事情, 此種方法論文稱為 SMLD<br>但是直接訓練出來的 SMLD 在真實資料上會有兩個問題導致做不好, 接著<a href="https://arxiv.org/abs/1907.05600">論文</a>裡說明是什麼原因以及解決方法</p>
@@ -1903,7 +1905,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">208</span>
+                <span class="site-state-item-count">210</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>

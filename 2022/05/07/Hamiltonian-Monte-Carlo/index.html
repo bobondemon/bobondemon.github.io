@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="MCMC,HMC,Metropolis Hastings,Hamiltonian Dynamic,Hamiltonian Monte Carlo," />
+  <meta name="keywords" content="Langevin Dynamics,MCMC,HMC,Metropolis Hastings,Hamiltonian Dynamic,Hamiltonian Monte Carlo,Langevin Monte Carlo,Denoising Diffusion Probabilistic Models," />
 
 
 
@@ -87,33 +87,22 @@
 
 
 
-<meta name="description" content="先說我物理什麼的都還給老師了, 只能用自己理解的方式, 筆記下 Hamiltonian dynamic.
-
-　💡 如果連我都能懂, 相信大家都能理解 HMC 了
-
-但還是建議先看 MCMC by Gibbs and Metropolis-Hasting Sampling, 因為這篇要說的 Hamiltonian Monte Carlo (HMC) 是 Metropolis-Hasting">
+<meta name="description" content="2024/07/28 更新 (見本文最後一段): 補充與 Langevin Dynamics 的關係, 這是我們在 [Score Matching 系列 (五) SM 加上 Langevin Dynamics 變成生成模型] 裡提到一旦訓練出 score function 後, 模型使用的採樣技術. 另外 Score Match + Langevin Dynamics (SMLD) 這種">
 <meta property="og:type" content="article">
 <meta property="og:title" content="忘記物理也要搞懂的 Hamiltonian Monte Carlo (HMC) 筆記">
 <meta property="og:url" content="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/index.html">
 <meta property="og:site_name" content="棒棒生">
-<meta property="og:description" content="先說我物理什麼的都還給老師了, 只能用自己理解的方式, 筆記下 Hamiltonian dynamic.
-
-　💡 如果連我都能懂, 相信大家都能理解 HMC 了
-
-但還是建議先看 MCMC by Gibbs and Metropolis-Hasting Sampling, 因為這篇要說的 Hamiltonian Monte Carlo (HMC) 是 Metropolis-Hasting">
+<meta property="og:description" content="2024/07/28 更新 (見本文最後一段): 補充與 Langevin Dynamics 的關係, 這是我們在 [Score Matching 系列 (五) SM 加上 Langevin Dynamics 變成生成模型] 裡提到一旦訓練出 score function 後, 模型使用的採樣技術. 另外 Score Match + Langevin Dynamics (SMLD) 這種">
 <meta property="og:image" content="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/Untitled.png">
 <meta property="og:image" content="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/hamiltoniandynamics.gif">
 <meta property="og:image" content="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 1.png">
 <meta property="og:image" content="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 2.png">
 <meta property="og:image" content="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 3.png">
-<meta property="og:updated_time" content="2022-09-28T14:22:40.355Z">
+<meta property="og:image" content="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/Langevin_Monte_Carlo.png">
+<meta property="og:updated_time" content="2024-07-28T03:23:56.294Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="忘記物理也要搞懂的 Hamiltonian Monte Carlo (HMC) 筆記">
-<meta name="twitter:description" content="先說我物理什麼的都還給老師了, 只能用自己理解的方式, 筆記下 Hamiltonian dynamic.
-
-　💡 如果連我都能懂, 相信大家都能理解 HMC 了
-
-但還是建議先看 MCMC by Gibbs and Metropolis-Hasting Sampling, 因為這篇要說的 Hamiltonian Monte Carlo (HMC) 是 Metropolis-Hasting">
+<meta name="twitter:description" content="2024/07/28 更新 (見本文最後一段): 補充與 Langevin Dynamics 的關係, 這是我們在 [Score Matching 系列 (五) SM 加上 Langevin Dynamics 變成生成模型] 裡提到一旦訓練出 score function 後, 模型使用的採樣技術. 另外 Score Match + Langevin Dynamics (SMLD) 這種">
 <meta name="twitter:image" content="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/Untitled.png">
 
 
@@ -390,6 +379,9 @@
 </script>
 
 <hr>
+<ul>
+<li>2024/07/28 更新 (見本文最後一段): 補充與 Langevin Dynamics 的關係, 這是我們在 [<a href="https://bobondemon.github.io/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/">Score Matching 系列 (五) SM 加上 Langevin Dynamics 變成生成模型</a>] 裡提到一旦訓練出 score function 後, 模型使用的採樣技術. 另外 Score Match + Langevin Dynamics (SMLD) 這種生成模型事實上跟 <a href="https://arxiv.org/abs/2006.11239" target="_blank" rel="external">DDPM (Denoising Diffusion Probabilistic Models)</a> 是一樣的! Yang Song 這篇 2021 ICLR best paper award (<a href="https://arxiv.org/abs/2011.13456" target="_blank" rel="external">Score-Based Generative Modeling through Stochastic Differential Equations</a>) 闡明了 SMLD 跟 DDPM 其實是兩種不同的觀點, 都可以用相同的 SDE (Stochastic Differential Equation) 來表達.</li>
+</ul>
 <p>先說我物理什麼的都還給老師了, 只能用自己理解的方式, 筆記下 <strong>Hamiltonian dynamic.</strong></p>
 <blockquote>
 <p>　💡 如果連我都能懂, 相信大家都能理解 HMC 了</p>
@@ -494,6 +486,13 @@ U(\mathbf{x})=-\log p^*(\mathbf{x})
 <p>而 Tuning HMC 有幾個要點 [<a href="https://github.com/bayesgroup/deepbayes-2019/blob/master/lectures/day5/1.%20Dmitry%20Kropotov%20-%20MCMC.pdf" target="_blank" rel="external">ref 3</a>]:</p>
 <p><img src="/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 3.png" width="80%" height="80%"></p>
 <p>一般來說要控制 rejection rate 在 $[1/4,3/4]$ 之間會比較好. 還有多跑幾個 threads 來確認收斂狀況.</p>
+<h2 id="與-Langevin-Dynamics-的關係"><a href="#與-Langevin-Dynamics-的關係" class="headerlink" title="與 Langevin Dynamics 的關係"></a>與 Langevin Dynamics 的關係</h2><hr>
+<p>先總結一下 Hamiltonian Monte Carlo (HMC) 是 <a href="https://bobondemon.github.io/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/">Metropolis-Hastings (MH)</a> 方法的一種, 只是 proposal distribution 從 random walk 改成使用 Hamiltonian dynamics 來做 (式 (6)(7) 的更新)<br>HMC 有一個特點是, 可以只用 <span>$\nabla_\mathbf{x}U(\mathbf{x})$</span><!-- Has MathJax --> 就能對目標分佈 <span>$p(\mathbf{x})$</span><!-- Has MathJax --> 取樣, 說精確一點是對 joint pdf <span>$p(\mathbf{x}, \mathbf{p})$</span><!-- Has MathJax --> 採樣, 我們透過 MH 的 accept/rejection 機制變成對 <span>$p(\mathbf{x})$</span><!-- Has MathJax --> 取樣<br>實務上 Hamiltonian dynamics 的更新步驟使用 leapfrog method (式 (10)-(12)), 如果只用 single leapfrog step 其實就 reduce 成 Langevin Monte Carlo (LMC) [<a href="https://idea-stat.snu.ac.kr/seminar/20180705/HMC.pdf" target="_blank" rel="external">6</a>], 而其更新步驟就稱為 Langevin Dynamics<br>擷取參考資料[<a href="https://idea-stat.snu.ac.kr/seminar/20180705/HMC.pdf" target="_blank" rel="external">6</a>]最後一頁:</p>
+<p><img src="/2022/05/07/Hamiltonian-Monte-Carlo/Langevin_Monte_Carlo.png" width="80%" height="80%"></p>
+<p>通常在 <a href="https://arxiv.org/abs/2006.11239" target="_blank" rel="external">DDPM (Denoising Diffusion Probabilistic Models)</a> or <a href="https://bobondemon.github.io/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/">SMLD</a> (如同本文開頭說的這兩個只是不同角度下看相同的問題) 裡面用 Langevin Dynamics 更新後, 直接省略 MH 的 accept/reject 機制.<br>重複一下上面投影片寫的 Langevin Dynamics:<br><span>$$\begin{align}
+\Delta\mathbf{x}=\frac{\delta^2}{2}\nabla_\mathbf{x}\log p(\mathbf{x}) + \delta\mathbf{p}
+\end{align}$$</span><!-- Has MathJax --> 其中 $\mathbf{p}$ 一樣從 $\mathcal{N}(\mathbf{p}|0,I)$ 採樣<br>所以在 SMLD 中, 目標就是訓練出 score function NN <span>$s_\theta(\mathbf{x})$</span><!-- Has MathJax --> 來取代 <span>$\nabla_\mathbf{x}\log p(\mathbf{x})$</span><!-- Has MathJax --> 就可以用 score function 採樣了<br>最後 Langevin Dynamics 採樣還可以從另一種方式推導: 先假設粒子運動遵從 Langevin Dynamics 可以發現每個時間點粒子的機率分佈遵從 Fokker-Planck equation, 而當時間點無窮大時, Fokker-Planck equation 可以發現會有穩態分佈, 所以反向來說如果穩態分佈能設定成我們要採樣的目標分佈, 那一切就大功告成! (許久之前閱讀的, 如有錯誤歡迎包含並指證)<br>[DeepBayes2019] Day 5, Lecture 3. Langevin dynamics for sampling and global optimization [<a href="https://www.youtube.com/watch?v=3-KzIjoFJy4" target="_blank" rel="external">YouTube</a>], 影片的解說真的非常棒, 可以一步一步跟著推導理解! 或直接參考 <a href="https://odie2630463.github.io/2020/09/28/langevin/" target="_blank" rel="external">odie’s Whisper 的筆記</a>.<br>MCMC, Metropolis Hastings, Hamiltonian Dynamic, Langevin Dynamics, Fokker-Planck equation, Score Maching and DDPM 這一系列龐大且精美的數學串連起來現在除了 LLM 之外, 另一種強大的 GenAI (e.g. <a href="https://imagen.research.google/" target="_blank" rel="external">Imagen</a>, <a href="https://www.midjourney.com/home" target="_blank" rel="external">Midjourney</a>, <a href="https://stability.ai/" target="_blank" rel="external">Stability AI</a>, …). 讓我們一起念咒語: Diffusion model 萬歲, 萬萬歲</p>
+<p>但老實說我快要被淹沒了… 救命啊… 咕嚕咕嚕</p>
 <hr>
 <h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
 <li><a href="https://zhuanlan.zhihu.com/p/67691581" target="_blank" rel="external">马尔可夫链蒙特卡洛算法 (二) HMC</a></li>
@@ -501,6 +500,11 @@ U(\mathbf{x})=-\log p^*(\mathbf{x})
 <li>DeepBayes 2019 Summer School Day 5, <a href="https://github.com/bayesgroup/deepbayes-2019/blob/master/lectures/day5/1.%20Dmitry%20Kropotov%20-%20MCMC.pdf" target="_blank" rel="external">MCMC slides</a></li>
 <li>MHC sample codes from (<a href="https://github.com/bayesgroup/deepbayes-2019/blob/master/seminars/day5/Markov%20Chain%20Monte-Carlo%20Solution.ipynb" target="_blank" rel="external">https://github.com/bayesgroup/deepbayes-2019/blob/master/seminars/day5/Markov Chain Monte-Carlo Solution.ipynb</a>)</li>
 <li>Leapfrog method: <a href="https://www2.atmos.umd.edu/~ekalnay/syllabi/AOSC614/NWP-CH03-2-2.pdf" target="_blank" rel="external">https://www2.atmos.umd.edu/~ekalnay/syllabi/AOSC614/NWP-CH03-2-2.pdf</a></li>
+<li><a href="https://idea-stat.snu.ac.kr/seminar/20180705/HMC.pdf" target="_blank" rel="external">Hamiltonian Monte Carlo and Langevin Monte Carlo</a></li>
+<li><a href="https://arxiv.org/abs/2006.11239" target="_blank" rel="external">Denoising Diffusion Probabilistic Models</a></li>
+<li><a href="https://arxiv.org/abs/2011.13456" target="_blank" rel="external">Score-Based Generative Modeling through Stochastic Differential Equations</a></li>
+<li>[DeepBayes2019] Day 5, Lecture 3. Langevin dynamics for sampling and global optimization [<a href="https://www.youtube.com/watch?v=3-KzIjoFJy4" target="_blank" rel="external">YouTube</a>]</li>
+<li>odie’s Whisper, <a href="https://odie2630463.github.io/2020/09/28/langevin/" target="_blank" rel="external">Langevin Dynamics 抽樣方法</a></li>
 </ol>
 
       
@@ -546,6 +550,8 @@ U(\mathbf{x})=-\log p^*(\mathbf{x})
       
         <div class="post-tags">
           
+            <a href="/tags/Langevin-Dynamics/" rel="tag"># Langevin Dynamics</a>
+          
             <a href="/tags/MCMC/" rel="tag"># MCMC</a>
           
             <a href="/tags/HMC/" rel="tag"># HMC</a>
@@ -555,6 +561,10 @@ U(\mathbf{x})=-\log p^*(\mathbf{x})
             <a href="/tags/Hamiltonian-Dynamic/" rel="tag"># Hamiltonian Dynamic</a>
           
             <a href="/tags/Hamiltonian-Monte-Carlo/" rel="tag"># Hamiltonian Monte Carlo</a>
+          
+            <a href="/tags/Langevin-Monte-Carlo/" rel="tag"># Langevin Monte Carlo</a>
+          
+            <a href="/tags/Denoising-Diffusion-Probabilistic-Models/" rel="tag"># Denoising Diffusion Probabilistic Models</a>
           
         </div>
       
@@ -673,7 +683,7 @@ U(\mathbf{x})=-\log p^*(\mathbf{x})
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">208</span>
+                <span class="site-state-item-count">210</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>
@@ -708,7 +718,7 @@ U(\mathbf{x})=-\log p^*(\mathbf{x})
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Hamiltonian-dynamic"><span class="nav-number">1.</span> <span class="nav-text">Hamiltonian dynamic</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#彈簧例子"><span class="nav-number">2.</span> <span class="nav-text">彈簧例子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#能量怎麼看成機率分佈-或反過來"><span class="nav-number">3.</span> <span class="nav-text">能量怎麼看成機率分佈? 或反過來?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MHC-採樣過程"><span class="nav-number">4.</span> <span class="nav-text">MHC 採樣過程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">5.</span> <span class="nav-text">References</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Hamiltonian-dynamic"><span class="nav-number">1.</span> <span class="nav-text">Hamiltonian dynamic</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#彈簧例子"><span class="nav-number">2.</span> <span class="nav-text">彈簧例子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#能量怎麼看成機率分佈-或反過來"><span class="nav-number">3.</span> <span class="nav-text">能量怎麼看成機率分佈? 或反過來?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MHC-採樣過程"><span class="nav-number">4.</span> <span class="nav-text">MHC 採樣過程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#與-Langevin-Dynamics-的關係"><span class="nav-number">5.</span> <span class="nav-text">與 Langevin Dynamics 的關係</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">6.</span> <span class="nav-text">References</span></a></li></ol></div>
             
 
           </div>
