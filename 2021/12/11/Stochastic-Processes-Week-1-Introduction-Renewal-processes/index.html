@@ -131,7 +131,7 @@ Week 5: Station">
 <meta property="og:image" content="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 21.png">
 <meta property="og:image" content="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 22.png">
 <meta property="og:image" content="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 23.png">
-<meta property="og:updated_time" content="2022-06-06T12:06:28.937Z">
+<meta property="og:updated_time" content="2024-09-12T13:03:56.730Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Stochastic Processes Week 1 Introduction & Renewal processes">
 <meta name="twitter:description" content="Coursera Stochastic Processes 課程筆記, 共九篇:
@@ -473,6 +473,9 @@ Week 5: Station">
 <hr>
 <h2 id="Week-1-5-Trajectories-and-finite-dimensional-distributions"><a href="#Week-1-5-Trajectories-and-finite-dimensional-distributions" class="headerlink" title="Week 1.5: Trajectories and finite-dimensional distributions"></a>Week 1.5: Trajectories and finite-dimensional distributions</h2><p><strong>[Def]: Stochastic process</strong><br>  &emsp;Stochastic process 是一個 mapping $X:T\times\Omega\rightarrow\mathbb{R}$, 而通常 $T=\mathbb{R}^+$, 且滿足:<br>  &emsp;$\forall t \in T$, we have $X_t=X(t,\cdot)$ is a random variable on probability space $(\Omega,\mathcal{F},\mathcal{P})$</p>
 <p><strong>[Def]: Trajectory (sample path, or path) of a stochastic process</strong><br>  &emsp;對一個 stochastic process $X$ 來說, fixed $\omega\in\Omega$, 我們得到 $X(\cdot,\omega)$ 為 $T$ 的函數, 這就是 trajectory</p>
+<blockquote>
+<p><strong>所以 trajectory 就是對某一個 outcome $\omega$ 經過 random variable $X_t$ mapping 後的那個數值隨著時間的變化.</strong></p>
+</blockquote>
 <p><strong>[Def]: Finite dimensional distributions</strong><br>   &emsp;對一個 stochastic process $X$ 來說, 我們根據時間可以拿到 $n$ 個 random variables:<br>   &emsp;<span>$(X_{t_1}, X_{t_2}, ..., X_{t_n})$, where $t_1, t_2,...,t_n \in \mathbb{R}$</span><!-- Has MathJax --></p>
 <p>在 probability theory 裡面都是將這 $n$ 個 r.v.s 視為獨立, 但在 stochastic processes 裡面不能. 這是很大的不同. 所以就算是 finite dimensional distribution, 在 stochastic processes 也是很挑戰的.</p>
 <p>video 的試題:<br><img src="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 11.png" width="100%" height="100%"><br><img src="/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 12.png" width="100%" height="100%"></p>
