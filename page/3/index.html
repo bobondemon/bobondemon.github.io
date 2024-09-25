@@ -267,6 +267,163 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/" itemprop="url">
+                  搞懂 Quantization Aware Training 中的 Fake Quantization
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2022-11-19T20:09:14+08:00">
+                2022-11-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>看完本文會知道什麼是 fake quantization 以及跟 QAT (Quantization Aware Training) 的關聯<br>同時了解 pytorch 的 <a href="https://github.com/pytorch/pytorch/blob/master/torch/ao/quantization/fake_quantize.py#L114"><code>torch.ao.quantization.fake_quantize.FakeQuantize</code></a> 這個 class 做了什麼</p>
+<h2 id="Fake-quantization-是什麼"><a href="#Fake-quantization-是什麼" class="headerlink" title="Fake quantization 是什麼?"></a>Fake quantization 是什麼?</h2><hr>
+<p>我們知道給定 zero ($z$) and scale ($s$) 情況下, float 數值 $r$ 和 integer 數值 $q$ 的關係如下:</p>
+<span>$$\begin{align}
+r=s(q-z) \\
+q=\text{round_to_int}(r/s)+z
+\end{align}$$</span><!-- Has MathJax --> 其中 $s$ 為 scale value 也是 float, 而 $z$ 為 zero point 也是 integer, 例如 <code>int8</code><br>Fake quantization 主要概念就是用 256 個 float 點 (e.g. 用 <code>int8</code>) 來表示所有 float values, 因此一個 float value 就使用256點中最近的一點 float 來替換<br>則原來的 floating training 流程都不用變, 同時也能模擬因為 quantization 造成的精度損失, 這種訓練方式稱做 Quantization Aware Training (QAT) (See <a href="https://bobondemon.github.io/2020/10/03/Quantization-%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B/">Quantization 的那些事</a>)<br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/09/26/Weight-Normalization-的筆記/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1681,159 +1838,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chih-Sheng Chen">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="棒棒生">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/" itemprop="url">
-                  Score Matching 系列 (一) Non-normalized 模型估計
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2022-01-08T00:01:27+08:00">
-                2022-01-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分類於</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ML/" itemprop="url" rel="index">
-                    <span itemprop="name">ML</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-<hr>
-<p>這是一篇論文筆記: “Estimation of Non-Normalized Statistical Models by Score Matching”, 其實推薦直接讀論文, 數學式很清楚, 表達也明確, 只是想順著自己的說法做一下筆記</p>
-<h2 id="動機介紹"><a href="#動機介紹" class="headerlink" title="動機介紹"></a>動機介紹</h2><p>在 Machine Learning 中, 我們常常希望用參數 $\theta$ 估出來的 pdf <span>$p(.;\theta)$</span><!-- Has MathJax --> 能跟真實 data (training data) 的 pdf <span>$p_x(.)$</span><!-- Has MathJax --> 愈像愈好.<br>由於是 pdf <span>$p(.;\theta)$</span><!-- Has MathJax -->, 必須滿足機率形式, i.e. 積分所有 outcomes 等於 1, 因此引入一個 normalization term $Z(\theta)$<br><span>$$p(\xi;\theta)=\frac{1}{Z(\theta)}q(\xi;\theta)$$</span><!-- Has MathJax --><br>其中 <span>$\xi\in\mathbb{R}^n$</span><!-- Has MathJax --> 為一個 data point<br>假設我們有 $T$ 個 observations <span>$\{x_1,...,x_T\}$</span><!-- Has MathJax -->, 套用 empirical expecation 並對 likelihood estimation 找出最佳 $\theta$ (MLE):<br><span>$$\theta_{mle}=\arg\max_\theta \sum_{t=1}^T \log p(x_t;\theta)$$</span><!-- Has MathJax --><br>計算 gradient, 會發現由於存在 $Z(\theta)$ 變得很難計算, 導致 gradient-based optimization 也很困難.</p>
-<p>山不轉路轉, 如果我們能換個想法:<br></p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/#more" rel="contents">
-              閱讀全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1883,7 +1887,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">97</span>
+                <span class="site-state-item-count">98</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
