@@ -101,7 +101,7 @@ $$KL(q(z)\|p(z|x))=-\sum_z q(z)\log\frac{p(x|z)}{q(z)} \\
 =-\sum_z q(z)\log\frac">
 <meta property="og:image" content="https://bobondemon.github.io/2024/07/18/紀錄-Evidence-Lower-BOund-ELBO-的三種用法/Untitled.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/07/18/紀錄-Evidence-Lower-BOund-ELBO-的三種用法/sampling.png">
-<meta property="og:updated_time" content="2024-10-03T12:31:02.324Z">
+<meta property="og:updated_time" content="2024-10-03T13:02:25.073Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="紀錄 Evidence Lower BOund (ELBO) 的三種用法">
 <meta name="twitter:description" content="開頭先賞一頓數學操作吃粗飽一下Let $p,q$ 都是 distributions, 則下面數學式子成立
@@ -426,7 +426,7 @@ $$KL(q(z)\|p(z|x))=-\sum_z q(z)\log\frac{p(x|z)}{q(z)} \\
 <blockquote>
 <p>注意到 $p(z|x,\theta)$ 是我們參數化後的後驗概率分布, 通常是個 NN model 所以跟真實的 posterior $p(z|x)$ 是不一樣的喔</p>
 </blockquote>
-<p>因為我們的問題不是要找 $q$, 直接把 $q$ 設定成已知的 $p(z|x)$ 即可<br>然後一樣最大化 ELBO $\mathcal{L}(\theta,$ ~q~ $)$ (由於 $q$ 是已知固定數學式子不是要找的參數, 所以去掉) 來找出最佳的 $\theta^*$ 使得 marginal log likelihood $\log p(x|\theta)$ 也變大</p>
+<p>因為我們的問題不是要找 $q$, 直接把 $q$ 設定成已知的 $p(z|x)$ 即可<br>然後一樣最大化 ELBO $\mathcal{L}(\theta,$ <del>q</del> $)$ (由於 $q$ 是已知固定數學式子不是要找的參數, 所以去掉) 來找出最佳的 $\theta^*$ 使得 marginal log likelihood $\log p(x|\theta)$ 也變大</p>
 <p><span>$$\theta^\ast=\arg\max_\theta\mathcal{L}(\theta)$$</span><!-- Has MathJax --> 我們來對應一下 Diffusion model 的 loss (參考自 [<a href="https://lilianweng.github.io/posts/2021-07-11-diffusion-models/#classifier-guided-diffusion" target="_blank" rel="external">What are Diffusion Models?</a>]) VLB (Variational Lower Bound):<br><span>$$\begin{align}
 L_{VLB}=\mathbb{E}_{q(x_{0:T})}\left[
 \log\frac{q(x_{1:T}|x_0)}{p_\theta(x_{0:T})}
