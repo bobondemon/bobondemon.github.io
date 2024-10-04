@@ -101,7 +101,7 @@ $$KL(q(z)\|p(z|x))=-\sum_z q(z)\log\frac{p(x|z)}{q(z)} \\
 =-\sum_z q(z)\log\frac">
 <meta property="og:image" content="https://bobondemon.github.io/2024/07/18/紀錄-Evidence-Lower-BOund-ELBO-的三種用法/Untitled.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/07/18/紀錄-Evidence-Lower-BOund-ELBO-的三種用法/sampling.png">
-<meta property="og:updated_time" content="2024-10-04T13:08:24.730Z">
+<meta property="og:updated_time" content="2024-10-04T13:39:34.748Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="紀錄 Evidence Lower BOund (ELBO) 的三種用法">
 <meta name="twitter:description" content="開頭先賞一頓數學操作吃粗飽一下Let $p,q$ 都是 distributions, 則下面數學式子成立
@@ -424,9 +424,9 @@ $$KL(q(z)\|p(z|x))=-\sum_z q(z)\log\frac{p(x|z)}{q(z)} \\
 <blockquote>
 <p>這個也是 VAE (Variational Auto-Encoder) 的用法<br>更多請參考以前的筆記 [<a href="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/#Appendix-EM-%E8%B7%9F-VI-%E5%BE%88%E5%83%8F%E9%98%BF">Appendix: EM 跟 VI 很像阿</a>]</p>
 </blockquote>
-<h2 id="Diffusion-Model-用法"><a href="#Diffusion-Model-用法" class="headerlink" title="Diffusion Model 用法"></a>Diffusion Model 用法</h2><p><img src="/2024/07/18/紀錄-Evidence-Lower-BOund-ELBO-的三種用法/Untitled.png" width="80%" height="80%"><br>先說一下 diffusion model 的設定 (from <a href="https://lilianweng.github.io/posts/2021-07-11-diffusion-models/#classifier-guided-diffusion" target="_blank" rel="external">Lil’Log</a>, 但把原圖的 $q(\cdot)$ 變成 $p(\cdot)$ 為了符合本文的符號定義)<br>&emsp;- $x_0$ 表示 observation data (e.g. 乾淨影像)<br>&emsp;- $x<em>T$ 表示加噪到最後的 Gaussian noise 影像 (分佈直接就是 standard Gaussian 與 data 分佈無關)<br>透過 diffusion model 定義的 forward process 來加噪:<br><span>$$\begin{align}
+<h2 id="Diffusion-Model-用法"><a href="#Diffusion-Model-用法" class="headerlink" title="Diffusion Model 用法"></a>Diffusion Model 用法</h2><p><img src="/2024/07/18/紀錄-Evidence-Lower-BOund-ELBO-的三種用法/Untitled.png" width="80%" height="80%"><br>先說一下 diffusion model 的設定 (from <a href="https://lilianweng.github.io/posts/2021-07-11-diffusion-models/#classifier-guided-diffusion" target="_blank" rel="external">Lil’Log</a>, 但把原圖的 $q(\cdot)$ 變成 $p(\cdot)$ 為了符合本文的符號定義)<br>&emsp;- $x_0$ 表示 observation data (e.g. 乾淨影像)<br>&emsp;- <span>$x_T$</span><!-- Has MathJax --> 表示加噪到最後的 Gaussian noise 影像 (分佈直接就是 standard Gaussian 與 data 分佈無關)<br>透過 diffusion model 定義的 forward process 來加噪:<br><span>$$\begin{align}
 p(\mathbf{x}_t \vert \mathbf{x}_{t-1}) = \mathcal{N}(\mathbf{x}_t; \sqrt{1 - \beta_t} \mathbf{x}_{t-1}, \beta_t\mathbf{I})
-\end{align}$$</span><!-- Has MathJax --> 和使用 Markov chain 的設定, $p(x</em>{1:T}|x_0)$ 是可以直接寫出來的:<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 和使用 Markov chain 的設定, <span>$p(x_{1:T}|x_0)$</span><!-- Has MathJax --> 是可以直接寫出來的:<br><span>$$\begin{align}
 p(\mathbf{x}_{1:T} \vert \mathbf{x}_0) = \prod^T_{t=1} p(\mathbf{x}_t \vert \mathbf{x}_{t-1})
 \end{align}$$</span><!-- Has MathJax --></p>
 <blockquote>
