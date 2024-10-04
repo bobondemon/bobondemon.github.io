@@ -101,7 +101,7 @@ $$KL(q(z)\|p(z|x))=-\sum_z q(z)\log\frac{p(x|z)}{q(z)} \\
 =-\sum_z q(z)\log\frac">
 <meta property="og:image" content="https://bobondemon.github.io/2024/07/18/紀錄-Evidence-Lower-BOund-ELBO-的三種用法/Untitled.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/07/18/紀錄-Evidence-Lower-BOund-ELBO-的三種用法/sampling.png">
-<meta property="og:updated_time" content="2024-10-04T12:58:36.202Z">
+<meta property="og:updated_time" content="2024-10-04T13:08:24.730Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="紀錄 Evidence Lower BOund (ELBO) 的三種用法">
 <meta name="twitter:description" content="開頭先賞一頓數學操作吃粗飽一下Let $p,q$ 都是 distributions, 則下面數學式子成立
@@ -387,8 +387,7 @@ $$KL(q(z)\|p(z|x))=-\sum_z q(z)\log\frac{p(x|z)}{q(z)} \\
 <p>開頭先賞一頓數學操作吃粗飽一下<br>Let $p,q$ 都是 distributions, 則下面數學式子成立</p>
 <span>$$KL(q(z)\|p(z|x))=-\sum_z q(z)\log\frac{p(x|z)}{q(z)} \\
 =-\sum_z q(z)\left[\log\frac{p(x,z)}{q(z)}-\log p(x)\right] \\
-=-\sum_z q(z)\log\frac{p(x,z)}{q(z)}+\log p(x)$$</span><!-- Has MathJax --> $x$ 是代表什麼意思? $z$ 又代表什麼? 什麼都不管繼續整理:<br><span>$$\begin{align}
-\log p(x)= KL(q(z)\|p(z|x))+
+=-\sum_z q(z)\log\frac{p(x,z)}{q(z)}+\log p(x)$$</span><!-- Has MathJax --> $x$ 是代表什麼意思? $z$ 又代表什麼? 什麼都不管繼續整理:<br><span>$$\log p(x)= KL(q(z)\|p(z|x))+
 {\color{orange}{
 \mathbb{E}_{z\sim q}\left[\log \frac{p(x,z)}{q(z)}\right]}
 }\\
@@ -396,15 +395,12 @@ $$KL(q(z)\|p(z|x))=-\sum_z q(z)\log\frac{p(x|z)}{q(z)} \\
 \mathbb{E}_{z\sim q}\left[\log p(x,z) - \log q(z)\right]}
 }
  \\
-=KL(q(z)\|p(z|x))+\color{orange}{\mathcal{L}(q)}
-\end{align}$$</span><!-- Has MathJax --> 因為 <span>$KL(\cdot)\geq0$</span><!-- Has MathJax --> 所以 <span>$\mathcal{L(q)}\leq\log p(x)$</span><!-- Has MathJax -->
+=KL(q(z)\|p(z|x))+\color{orange}{\mathcal{L}(q)}$$</span><!-- Has MathJax --> 因為 <span>$KL(\cdot)\geq0$</span><!-- Has MathJax --> 所以 <span>$\mathcal{L(q)}\leq\log p(x)$</span><!-- Has MathJax -->
 <p>基本上 $p,q$ 只要是 distribution 上面式子就成立</p>
 <a id="more"></a>
-<p>如果把 $p(x)$ 用 $\theta$ 參數化 (例如用 NN 來 modeling 則 $\theta$ 為 NN 的參數), 則<br><span>$$\begin{align}
-\log p(x|{\color{red}\theta})=KL(q(z)\|p(z|x,{\color{red}\theta}))+
+<p>如果把 $p(x)$ 用 $\theta$ 參數化 (例如用 NN 來 modeling 則 $\theta$ 為 NN 的參數), 則<br><span>$$\log p(x|{\color{red}\theta})=KL(q(z)\|p(z|x,{\color{red}\theta}))+
 \mathbb{E}_{z\sim q}\left[\log p(x,z|{\color{red}\theta}) - \log q(z)\right] \\
-=KL(q(z)\|p(z|x,{\color{red}\theta}))+\mathcal{L}(q,{\color{red}\theta})
-\end{align}$$</span><!-- Has MathJax --> 上面這一頓數學操作下來, 正常人應該也看不懂<strong>要怎麼用</strong>…</p>
+=KL(q(z)\|p(z|x,{\color{red}\theta}))+\mathcal{L}(q,{\color{red}\theta})$$</span><!-- Has MathJax --> 上面這一頓數學操作下來, 正常人應該也看不懂<strong>要怎麼用</strong>…</p>
 <blockquote>
 <p>上面突然冒出來的 <strong>$q(z)$ 分佈我們稱為 auxiliary function</strong>, 沒有特別指明是什麼樣的分佈, 就因為多出來的這個彈性, 神奇的用法就出來了</p>
 </blockquote>
@@ -413,8 +409,8 @@ $$KL(q(z)\|p(z|x))=-\sum_z q(z)\log\frac{p(x|z)}{q(z)} \\
 <p>補充一下設定好了. $x$ 通常是我們觀測到的資料, $p(x)$ 就是觀測資料的分佈, 寫 $p(x|\theta)$ 就是我們用模型參數 $\theta$ 找的資料分佈, 通常藉由 maximal likelihood estimation (MLE) 最大化 $p(x|\theta)$ 的方法找到 $\theta$. $z$ 通常表示 latent (hidden) variable. 而後驗概率 posterior probability $p(z|x)$ 可以這麼簡單理解一下, 假設 latent variable <span>$z=\{\text{cat},\text{dog}\}$</span><!-- Has MathJax --> 只有兩個值, 則 <span>$p(z=\text{cat}|x)$</span><!-- Has MathJax --> 表示觀測到某張影像 $x$ 是貓的機率.</p>
 </blockquote>
 <p>我知道還是看不懂, 反正就記住這個 <strong>ELBO (Evidence Lower BOund) 不等式</strong>:<br><span>$$\begin{align}
-{\color{orange}\log p(x)} = KL(q(z)\|p(z|x))+
-\mathcal{L}(q){\color{orange}\geq\mathcal{L}(q)} \\
+{\color{orange}{\log p(x)}} = KL(q(z)\|p(z|x))+
+\mathcal{L}(q){\color{orange}{\geq\mathcal{L}(q)}} \\
 \mathcal{L(q)}:=\mathbb{E}_{z\sim q}\left[\log p(x,z) - \log q(z)\right]
 \end{align}$$</span><!-- Has MathJax --> 下面比較詳細一些來紀錄上面三種用法, 也恭喜有耐心看到這的讀者.</p>
 <h2 id="Variational-Inference-VI-用法"><a href="#Variational-Inference-VI-用法" class="headerlink" title="Variational Inference (VI) 用法"></a>Variational Inference (VI) 用法</h2><p>在 Variational Inference (VI) 設定中 $p$ 是真實的 distribution, 我們希望找出真實的後驗概率分布 $p(z|x)$, 因此定義一個 distribution space $\mathcal{Q}$, where $q\in\mathcal{Q}$, 使得 <span>$KL(q(z)\|p(z|x))$</span><!-- Has MathJax --> 愈小愈好, i.e.<br><span>$$q^\ast=\arg\min_{q\in\mathcal{Q}} KL(q(z)\|p(z|x))$$</span><!-- Has MathJax --> 當 $KL=0$ 的時候 <span>$q(z)^\ast=p(z|x)$</span><!-- Has MathJax -->, 我們就歡天喜地的找到解了, $q^\ast$.<br>但就是因為我們不知道真實的後驗概率分布 $p(z|x)$, 上式的 $KL$ loss function 也根本無法計算, 怎麼辦呢?<br>觀察式 (1) 注意到 $\log p(x)$ 跟我們要找的 $q(z)$ 無關, 也就造成了 $\log p(x)$ 是固定的. 由於 $KL\geq0$, 讓 $KL$ 愈小愈好等同於讓 $\mathcal{L}(q)$ 愈大愈好. 因此藉由最大化 $\mathcal{L}(q)$ 來迫使 $q(z)$ 接近 $p(z|x)$.<br><span>$$q^\ast=\arg\max_{q\in\mathcal{Q}}\mathcal{L}(q)$$</span><!-- Has MathJax --> 這樣我們就找到一個後驗概率 $p(z|x)$ 的近似替代解了, i.e. $q(z)$</p>
@@ -432,14 +428,14 @@ $$KL(q(z)\|p(z|x))=-\sum_z q(z)\log\frac{p(x|z)}{q(z)} \\
 p(\mathbf{x}_t \vert \mathbf{x}_{t-1}) = \mathcal{N}(\mathbf{x}_t; \sqrt{1 - \beta_t} \mathbf{x}_{t-1}, \beta_t\mathbf{I})
 \end{align}$$</span><!-- Has MathJax --> 和使用 Markov chain 的設定, $p(x</em>{1:T}|x_0)$ 是可以直接寫出來的:<br><span>$$\begin{align}
 p(\mathbf{x}_{1:T} \vert \mathbf{x}_0) = \prod^T_{t=1} p(\mathbf{x}_t \vert \mathbf{x}_{t-1})
-\end{align}$$</span><!-- Has MathJax -->.</p>
+\end{align}$$</span><!-- Has MathJax --></p>
 <blockquote>
 <p><a href="https://lilianweng.github.io/posts/2021-07-11-diffusion-models/#classifier-guided-diffusion" target="_blank" rel="external">Lil’Log</a> 裡式 (4) 的機率分佈 $p$ 是用 $q$ 來寫, i.e. <span>$q(x_t|x_{t-1})$</span><!-- Has MathJax --> 或 <span>$q(x_{1:T}|x_0)$</span><!-- Has MathJax -->, 為了跟本文 notion 對應, 仍使用 $p$ 表示</p>
 </blockquote>
 <p>Diffusion model 一樣做 MLE (maximal likelihood estimation), 要找出最佳的 $\theta^\ast$ 使得 $\log p(x|\theta^\ast)$ 最大. 一樣觀察下式</p>
-<p><span>$$\log p(x|{\color{red}\theta})=KL(q(z)\|p(z|x,{\color{red}\theta}))+
+<span>$$\log p(x|{\color{red}\theta})=KL(q(z)\|p(z|x,{\color{red}\theta}))+
 \mathbb{E}_{z\sim q}\left[\log p(x,z|{\color{red}\theta}) - \log q(z)\right] \\
-=KL(q(z)\|p(z|x,{\color{red}\theta}))+\mathcal{L}(q,{\color{red}\theta})$$</span><!-- Has MathJax -->.</p>
+=KL(q(z)\|p(z|x,{\color{red}\theta}))+\mathcal{L}(q,{\color{red}\theta})$$</span><!-- Has MathJax -->
 <blockquote>
 <p>注意到 $p(z|x,\theta)$ 是我們參數化後的後驗概率分布, 通常是個 NN model 所以跟真實的 posterior $p(z|x)$ 是不一樣的喔</p>
 </blockquote>
