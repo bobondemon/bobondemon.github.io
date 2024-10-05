@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Expectation Maximization,Diffusion Model,Variational Inference,ELBO,Variational Auto Encoder (VAE)," />
+  <meta name="keywords" content="Diffusion Model,Expectation Maximization,Variational Inference,ELBO,Variational Auto Encoder (VAE)," />
 
 
 
@@ -101,7 +101,7 @@ $$KL(q(z)\|p(z|x))=-\sum_z q(z)\log\frac{p(x|z)}{q(z)} \\
 =-\sum_z q(z)\log\frac">
 <meta property="og:image" content="https://bobondemon.github.io/2024/07/18/紀錄-Evidence-Lower-BOund-ELBO-的三種用法/Untitled.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/07/18/紀錄-Evidence-Lower-BOund-ELBO-的三種用法/sampling.png">
-<meta property="og:updated_time" content="2024-10-05T01:18:53.405Z">
+<meta property="og:updated_time" content="2024-10-05T14:00:49.694Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="紀錄 Evidence Lower BOund (ELBO) 的三種用法">
 <meta name="twitter:description" content="開頭先賞一頓數學操作吃粗飽一下Let $p,q$ 都是 distributions, 則下面數學式子成立
@@ -446,7 +446,10 @@ L_{VLB}=\mathbb{E}_{p(x_{0:T})}\left[
 \mathbb{E}_{p(x_0)}\log p(x_0|\theta) \geq  \mathbb{E}_{p(x_{0:T})}\left[
 \log{p(x_{0:T}|\theta)-\log{p(x_{1:T}|x_0)}}
 \right] \\
-\end{align}$$</span><!-- Has MathJax --> 對照一下 (8) 和 (10) 可以知道:<br>&emsp;- observation variable 為 $x_0$ (原始乾淨影像, 我們原本用 $x$ 表示)<br>&emsp;- hidden variable 為 <span>$x_{1:T}=\{x_1,x_2,...,x_T\}$</span><!-- Has MathJax --> (中間加噪的過程影像, 我們原本用 $z$ 表示)<br>然後回頭看 (4) 和 (5) 也能對的上<br>把握這個概念再去看 Diffusion model 的 loss 推導或許會更清楚 loss 在優化什麼</p>
+\end{align}$$</span><!-- Has MathJax --> 對照一下 (8) 和 (10) 可以知道:<br>&emsp;- observation variable 為 $x_0$ (原始乾淨影像, 我們原本用 $x$ 表示)<br>&emsp;- hidden variable 為 <span>$x_{1:T}=\{x_1,x_2,...,x_T\}$</span><!-- Has MathJax --> (中間加噪的過程影像, 我們原本用 $z$ 表示)<br>然後回頭看 (4) 和 (5) 也能對的上<br>把握這個概念再去看 Diffusion model 的 loss 推導或許會更清楚 loss 在優化什麼:</p>
+<blockquote>
+<p>仍然是在做有 hidden variable $z$ 情況下的 MLE (Maximal Likelihood Estimation), 目前描述跟 EM algorithm 用法一樣.<br>與 EM 不同的是, 後驗概率 $p(z|x)$ 在 Markov chain 架構下是可得到公式解, 因此直接設定 auxiliary function $q(z)=p(z|x)$ 即可. 基於此, 可以進一步推導簡化, 見下段描述.</p>
+</blockquote>
 <h2 id="Optional-摘要一下-Diffusion-Model-的-ELBO-Loss-繼續簡化推導"><a href="#Optional-摘要一下-Diffusion-Model-的-ELBO-Loss-繼續簡化推導" class="headerlink" title="(Optional) 摘要一下 Diffusion Model 的 ELBO Loss 繼續簡化推導"></a>(Optional) 摘要一下 Diffusion Model 的 ELBO Loss 繼續簡化推導</h2><p>最終 ELBO 目標函式為: 參考自 [<a href="https://lilianweng.github.io/posts/2021-07-11-diffusion-models/#classifier-guided-diffusion" target="_blank" rel="external">What are Diffusion Models?</a>]. 符號仍回到 Lil’Log, 最大的兩個差異是 Lil’Log 的 $p_\theta(\cdot)$ 在本文上面是寫成 $p(\cdot|\theta)$, 然後機率分佈 $q$ 在本文是用 $p$ 來表示 (本文的 $q$ 是用來指 auxiliary function 喔… 不一樣), 抱歉我知道很亂</p>
 <p><span>$$\begin{align}
 L_\text{VLB} &amp;= \mathbb{E}_{q(\mathbf{x}_{0:T})} \Big[ \log\frac{q(\mathbf{x}_{1:T}\vert\mathbf{x}_0)}{p_\theta(\mathbf{x}_{0:T})} \Big] \\
@@ -509,9 +512,9 @@ L_t^\text{simple}&amp;= \mathbb{E}_{t \sim [1, T], \mathbf{x}_0, \boldsymbol{\ep
       
         <div class="post-tags">
           
-            <a href="/tags/Expectation-Maximization/" rel="tag"># Expectation Maximization</a>
-          
             <a href="/tags/Diffusion-Model/" rel="tag"># Diffusion Model</a>
+          
+            <a href="/tags/Expectation-Maximization/" rel="tag"># Expectation Maximization</a>
           
             <a href="/tags/Variational-Inference/" rel="tag"># Variational Inference</a>
           
