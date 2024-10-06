@@ -105,7 +105,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2024/02/07/高效率計算-Jacobian-Hessian-VJP-JVP-HVP/pic7.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/02/07/高效率計算-Jacobian-Hessian-VJP-JVP-HVP/pic8.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/02/07/高效率計算-Jacobian-Hessian-VJP-JVP-HVP/pic9.png">
-<meta property="og:updated_time" content="2024-10-06T03:14:32.971Z">
+<meta property="og:updated_time" content="2024-10-06T03:25:33.323Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="高效率計算 Jacobian, Hessian, VJP, JVP, HVP">
 <meta name="twitter:description" content="⚠️ 可能寫的比較瑣碎和雜亂, 主要給自己筆記用
@@ -401,10 +401,9 @@
 \left[ \begin{array}{c}
 \partial y_1/\partial x \\ \partial y_2/\partial x \\ \vdots \\ \partial y_m/\partial x \end{array} \right] = v_1\frac{\partial f_1(x)}{\partial x}+\dots+v_m\frac{\partial f_m(x)}{\partial x}$$</span><!-- Has MathJax -->
 <blockquote>
-<p><a href="https://pytorch.org/docs/stable/generated/torch.func.vjp.html#torch.func.vjp" target="_blank" rel="external">PyTorch function</a> <code>torch.func.vjp(*func*, **primals*, ...)</code> 的 <code>primals</code> 指的是 $x$, 會 return 一個 function 例如稱 $g$, 則 $g(v)=vJ_f(x)$.</p>
+<p><a href="https://pytorch.org/docs/stable/generated/torch.func.vjp.html#torch.func.vjp" target="_blank" rel="external">PyTorch function</a> <code>torch.func.vjp(func,*primals,...)</code> 的 <code>primals</code> 指的是 $x$, 會 return 一個 function 例如稱 $g$, 則 $g(v)=vJ_f(x)$.</p>
 </blockquote>
-<p>這樣看起來要計算 $vJ_f(x)$ 還是要先把 $J_f(x)$ 這個 $m\times n$ 矩陣先算出來再跟 $v$ 相乘. 但其實不用, 我們可以直接算結果, i.e. 省去顯式地先算 $J_f(x)$, 而這樣做會更有效率!<br>怎麼做到呢? 我們可以這麼改寫:</p>
-<span>$$vJ_f(x)=v\frac{\partial f(x)}{\partial x}=\frac{\partial (vf(x))}{\partial x}$$</span><!-- Has MathJax --> $v$ 是一個 ($1\times m$) 的 row vector, $f(x)$ 是一個 ($m\times 1$) column vector. $J_f(x)=\partial f(x)/\partial x:m\times n$ 矩陣.<br>這樣改寫的好處是 $vf(x)$ 已經是一個 scalar 了, 現在改成對 scalar 做 gradient 就可以得到答案, 並且是很有效率的, 所以不用先算出 $J_f(x)$ 這個 $m\times n$ Jacobian 矩陣.<br>對照一下 PyTorch 的 <a href="https://pytorch.org/docs/stable/generated/torch.autograd.grad.html" target="_blank" rel="external"><code>torch.autograd.grad</code></a><br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">torch.autograd.grad(outputs, inputs, grad_outputs=<span class="keyword">None</span>, ...)</div></pre></td></tr></table></figure>
+<p>這樣看起來要計算 $vJ_f(x)$ 還是要先把 $J_f(x)$ 這個 $m\times n$ 矩陣先算出來再跟 $v$ 相乘. 但其實不用, 我們可以直接算結果, i.e. 省去顯式地先算 $J_f(x)$, 而這樣做會更有效率!<br>怎麼做到呢? 我們可以這麼改寫:<br><span>$$vJ_f(x)=v\frac{\partial f(x)}{\partial x}=\frac{\partial (vf(x))}{\partial x}$$</span><!-- Has MathJax --> $v$ 是一個 ($1\times m$) 的 row vector, $f(x)$ 是一個 ($m\times 1$) column vector. $J_f(x)=\partial f(x)/\partial x:m\times n$ 矩陣.<br>這樣改寫的好處是 $vf(x)$ 已經是一個 scalar 了, 現在改成對 scalar 做 gradient 就可以得到答案, 並且是很有效率的, 所以不用先算出 $J_f(x)$ 這個 $m\times n$ Jacobian 矩陣.<br>對照一下 PyTorch 的 <a href="https://pytorch.org/docs/stable/generated/torch.autograd.grad.html" target="_blank" rel="external"><code>torch.autograd.grad</code></a><br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">torch.autograd.grad(outputs, inputs, grad_outputs=<span class="keyword">None</span>, ...)</div></pre></td></tr></table></figure></p>
 <p><code>grad_outputs</code> 其實就是上面的 $v$. 以 chainrule 來看,</p>
 <p><span>$${\partial L \over \partial x} = {\partial L \over \partial y} \cdot {\partial y \over \partial x}=v\cdot J_f(x)$$</span><!-- Has MathJax --> 因為 PyTorch 的 loss 一定是 $L:\mathbb{R}^m\rightarrow\mathbb{R}$, 所以 $\partial L / \partial y: (1\times m)$ 的 row vector, 以 VJP 的型式來看就是是指 $v$.<br>或說利用 <code>grad</code> 計算 $\partial L/\partial x$ 的時候 <code>grad_outputs</code> 給的就是 $\partial L / \partial y: (1\times m)$.</p>
 <h2 id="求-Jacobian-Matrix"><a href="#求-Jacobian-Matrix" class="headerlink" title="求 Jacobian Matrix"></a>求 Jacobian Matrix</h2><hr>
@@ -417,13 +416,13 @@
 <p><img src="/2024/02/07/高效率計算-Jacobian-Hessian-VJP-JVP-HVP/pic2.png" width="100%" height="100%"> 解說一下 <code>vmap</code>, 以這個範例來說會回傳 <code>vmap_vjp_fn</code> 這個 function, 其 input argument 會跟 <code>vjp_fn</code> 一樣.<br>差別是 <code>vmap_vjp_fn</code> 的 input argument <code>unit_vectors</code> 會比 <code>vjp_fn</code> 的 input argument <code>x</code> 多了一個 batch 的維度 (預設在維度0)<br>即 <code>x</code> 是維度 (n, ), <code>unit_vectors</code> 是維度 (m, n) 這裡的 m 是 batch 維度.</p>
 <h3 id="3-用-jacrev-求-Jacobian"><a href="#3-用-jacrev-求-Jacobian" class="headerlink" title="3. 用 jacrev 求 Jacobian"></a>3. 用 <code>jacrev</code> 求 Jacobian</h3><p>或直接使用 <code>jacrev</code> 直接幫忙做好 <code>vmap-vjp</code> 兩步驟<br><img src="/2024/02/07/高效率計算-Jacobian-Hessian-VJP-JVP-HVP/pic3.png" width="100%" height="100%"></p>
 <blockquote>
-<p><code>torch.func.jacrev(*func*, *argnums=0*, ...)</code> 的<a href="https://pytorch.org/docs/master/generated/torch.func.jacrev.html#torch.func.jacrev" target="_blank" rel="external">說明</a>:<br>Returns a function that takes in the same inputs as <code>func</code> and returns the Jacobian of <code>func</code> with respect to the arg(s) at <code>argnums</code></p>
+<p><code>torch.func.jacrev(func,argnums=0,...)</code> 的<a href="https://pytorch.org/docs/master/generated/torch.func.jacrev.html#torch.func.jacrev" target="_blank" rel="external">說明</a>:<br>Returns a function that takes in the same inputs as <code>func</code> and returns the Jacobian of <code>func</code> with respect to the arg(s) at <code>argnums</code></p>
 </blockquote>
 <p>當然我們也可以針對 <code>weight</code> or <code>bias</code> 計算 Jacobian, 只需要對 <code>argnums</code> 改成 0 or 1 即可<br><img src="/2024/02/07/高效率計算-Jacobian-Hessian-VJP-JVP-HVP/pic4.png" width="100%" height="100%"></p>
 <h2 id="Jacobian-Vector-Products-JVPs"><a href="#Jacobian-Vector-Products-JVPs" class="headerlink" title="Jacobian-Vector Products (JVPs)"></a>Jacobian-Vector Products (JVPs)</h2><hr>
 <p>$f:\mathbb{R}^{n}\rightarrow\mathbb{R}^{m}$, $y=f(x)$, JVP 基本就是 $J_f(x)v$, 計算上就是 Jacobian matrix, $J_f(x)=\partial y/\partial x:m\times n$, 乘上一個 column vector ($n\times 1$) 我們這麼寫:<br><img src="/2024/02/07/高效率計算-Jacobian-Hessian-VJP-JVP-HVP/pic5.png" width="70%" height="70%"></p>
 <blockquote>
-<p><a href="https://pytorch.org/docs/stable/generated/torch.func.jvp.html#torch.func.jvp" target="_blank" rel="external">PyTorch function</a> <code>torch.func.jvp(*func*, *primals*, *tangents,* ...)</code> 的 <code>primals</code> 指的是 $x$, <code>tangents</code> 指的是 $v$.</p>
+<p><a href="https://pytorch.org/docs/stable/generated/torch.func.jvp.html#torch.func.jvp" target="_blank" rel="external">PyTorch function</a> <code>torch.func.jvp(func, primals, tangents, ...)</code> 的 <code>primals</code> 指的是 $x$, <code>tangents</code> 指的是 $v$.</p>
 </blockquote>
 <p>同樣的如果 $v=e_i$, 則 $J_f(x)v$ 為 i-th column of $J_f(x)$. 所以對於計算 Jacobian matrix:<br>&emsp;$\circ$ VJP 有 <code>jacrev</code> (稱 reverse-mode Jacobian)<br>&emsp;$\circ$ JVP 有 <code>jacfwd</code> (稱 forward-mode Jacobian)</p>
 <h2 id="VJP-and-JVP-速度上的考量"><a href="#VJP-and-JVP-速度上的考量" class="headerlink" title="VJP and JVP 速度上的考量"></a>VJP and JVP 速度上的考量</h2><hr>
