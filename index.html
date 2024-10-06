@@ -1612,7 +1612,7 @@
 
 <hr>
 <p>⚠️ 可能寫的比較瑣碎和雜亂, 主要給自己筆記用</p>
-<p>令 <span>$f:\mathbb{R}^{n}\rightarrow\mathbb{R}^{m}$</span><!-- Has MathJax --> 的 Jacobian matrix 為 $J_f(x)$ 是 $(m\times n)$ 矩陣, 而 Hessian 為 $H_f(x)$ 是 $(m\times n \times n)$ 高維 tensor<br>&emsp;$\circ$ VJP 稱為 Vector-Jacobian Product, $vJ_f(x)$, 其中 $v$ 是 ($1\times m$) 的 row vector<br>&emsp;$\circ$ JVP 稱為 Jacobian-Vector Product, $J_f(x)v$, 其中 $v$ 是 ($m\times 1$) 的 column vector<br>&emsp;$\circ$ HVP 稱為 Hessian-Vector Product, $H_f(x)v$, 其中 $v$ 是 ($n\times 1$) 的 column vector<br>計算 $vJ_f(x)$ 不用先把矩陣 $J_f(x)$ 求出來再跟 $v$ 相乘, 而是可以直接得到相乘的結果(這樣做還更快), 聽起來有點矛盾對吧~同樣的 JVP 和 HVP 也是如此<br>本文會說明怎麼高效率計算 VJP, JVP, Jacobian, Hessian, 以及 HVP</p>
+<p>令 <span>$f:\mathbb{R}^{n}\rightarrow\mathbb{R}^{m}$</span><!-- Has MathJax --> 的 Jacobian matrix 為 $J_f(x)$ 是 $(m\times n)$ 矩陣, 而 Hessian 為 $H_f(x)$ 是 $(m\times n \times n)$ 高維 tensor<br>&emsp;$\circ$ VJP 稱為 Vector-Jacobian Product, $vJ_f(x)$, 其中 $v$ 是 ($1\times m$) 的 row vector<br>&emsp;$\circ$ JVP 稱為 Jacobian-Vector Product, $J_f(x)v$, 其中 $v$ 是 ($n\times 1$) 的 column vector<br>&emsp;$\circ$ HVP 稱為 Hessian-Vector Product, $H_f(x)v$, 其中 $v$ 是 ($n\times 1$) 的 column vector<br>計算 $vJ_f(x)$ 不用先把矩陣 $J_f(x)$ 求出來再跟 $v$ 相乘, 而是可以直接得到相乘的結果(這樣做還更快), 聽起來有點矛盾對吧~同樣的 JVP 和 HVP 也是如此<br>本文會說明怎麼高效率計算 VJP, JVP, Jacobian, Hessian, 以及 HVP</p>
 <blockquote>
 <p>主要參考 PyTorch 文章: <a href="https://pytorch.org/tutorials/intermediate/jacobians_hessians.html#">JACOBIANS, HESSIANS, HVP, VHP, AND MORE: COMPOSING FUNCTION TRANSFORMS</a></p>
 </blockquote>
