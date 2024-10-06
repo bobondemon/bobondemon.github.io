@@ -534,6 +534,7 @@
 </script>
 
 <hr>
+<p>Maximal Log-likelihood 是很多模型訓練時目標函式. 在訓練時除了 observed data $x$ (蒐集到的 training data) 還會有無法觀測的 hidden variable $z$ (例如 VAE 中 encoder 的結果).<br>如何在有隱變量情況下做 MLE, Evidence Lower BOund (ELBO) 就是關鍵. 一般來說, 因為 ELBO 是 MLE 目標函式的 lower bound, 所以藉由最大化 ELBO 來盡可能最大化 likelihood. 另外這個過程也可以用來找出逼近後驗概率 $p(z|x)$ 的函式. 本文記錄了 ELBO 在 Variational Inference (VI), Expectation Maximization (EM) algorithm, 以及 Diffusion Model 三種設定下的不同用法.<br>數學比較多, 開始吧!</p>
 <p>開頭先賞一頓數學操作吃粗飽一下<br>Let $p,q$ 都是 distributions, 則下面數學式子成立</p>
 <span>$$KL(q(z)\|p(z|x))=-\sum_z q(z)\log\frac{p(x|z)}{q(z)} \\
 =-\sum_z q(z)\left[\log\frac{p(x,z)}{q(z)}-\log p(x)\right] \\
