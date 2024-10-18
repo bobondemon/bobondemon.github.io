@@ -267,6 +267,166 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/" itemprop="url">
+                  Learning Zero Point and Scale in Quantization Parameters
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2022-12-04T21:14:45+08:00">
+                2022-12-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>在上一篇 <a href="https://bobondemon.github.io/2022/11/19/%E6%90%9E%E6%87%82-Quantization-Aware-Training-%E4%B8%AD%E7%9A%84-Fake-Quantization/">搞懂 Quantization Aware Training 中的 Fake Quantization</a> 我們討論了 fake quantization 以及 QAT<br>提到了 <code>observer</code> 負責計算 zero point and scale $(z,s)$, 一般來說只需要透過統計觀測值的 min/max 範圍就能給定, 所以也不需要參與 backward 計算</p>
+<p>直觀上我們希望找到的 zero/scale 使得 quantization error 盡量小, 但其實如果能對任務的 loss 優化, 應該才是最佳的<br>這就必須讓 $(z,s)$ 參與到 backward 的計算, 這種可以計算 gradient 並更新的做法稱為 learnable quantization parameters</p>
+<p>本文主要參考這兩篇論文:<br>&emsp;1. LSQ: <a href="https://arxiv.org/abs/1902.08153">Learned Step Size Quantization</a><br>&emsp;2. LSQ+: <a href="https://arxiv.org/abs/2004.09576">Improving low-bit quantization through learnable offsets and better initialization</a></p>
+<blockquote>
+<p>LSQ 只討論 updating scale, 而 LSQ+ 擴展到 zero point 也能學習, 本文只推導關鍵的 gradients 不說明論文裡的實驗結果</p>
+</blockquote>
+<p>很快定義一下 notations:<br>&emsp;- $v$: full precision input value<br>&emsp;- $s$: quantizer step size (scale)<br>&emsp;- $z$: zero point (offset)<br>&emsp;- <span>$Q_P,Q_N$</span><!-- Has MathJax -->: the number of positive and negative quantization levels<br>&emsp;&emsp;e.g.: for $b$ bits, unsigned <span>$Q_N=0,Q_P=2^b-1$</span><!-- Has MathJax -->, for signed <span>$Q_N=2^{b-1},Q_P=2^{b-1}-1$</span><!-- Has MathJax --><br>&emsp;- <span>$\lfloor x \rceil$</span><!-- Has MathJax -->: round $x$ to nearest integer<br>將 $v$ quantize 到 $\bar{v}$ (1), 再將 $\bar{v}$ dequantize 回 $\hat{v}$ (2), 而 $v-\hat{v}$ 就是 precision loss<br><span>$$\begin{align}
+\bar{v}={clip(\lfloor v/s \rceil+z,-Q_N,Q_P)} \\
+\hat{v}=(\bar{v}-z)\times s\\
+\end{align}$$</span><!-- Has MathJax --></p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1675,169 +1835,6 @@ q=\text{round_to_int}(r/s)+z
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chih-Sheng Chen">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="棒棒生">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/" itemprop="url">
-                  Score Matching 系列 (二) Denoising Score Matching (DSM) 改善效率並可 Scalable
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2022-03-06T09:30:22+08:00">
-                2022-03-06
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分類於</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ML/" itemprop="url" rel="index">
-                    <span itemprop="name">ML</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-<hr>
-<p>這是一篇論文筆記: “A Connection Between Score Matching and Denoising Autoencoders”<br>建議看本文前請先參前一篇: <a href="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/">Score Matching 系列 (一) Non-normalized 模型估計</a></p>
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>基於 Score Matching, 提出 Denoising Score Matching (DSM) 的目標函式, 好處是在 energy-based model 下:</p>
-<ol>
-<li>不用將 score function 的 gradients 也納入 loss 去計算 (避免二次微分做 backprop 提高效率)</li>
-<li>當 input $x$ 的維度很大也沒問題 (可以 scalable)</li>
-</ol>
-<p>但缺點是:</p>
-<ol>
-<li>最多只能學到加 noise 後的分布</li>
-<li>加 noise 的 level 不好調整</li>
-</ol>
-<p>這兩個缺點在下一篇 <a href="https://bobondemon.github.io/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/">Sliced Score Matching (SSM)</a> 可以得到改善<br>這篇論文最後也點出了 denoising autoencoder 跟 score matching 的關係 (實際上就是 DSM loss)</p>
-<p>以下正文開始<br></p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/#more" rel="contents">
-              閱讀全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1887,7 +1884,7 @@ q=\text{round_to_int}(r/s)+z
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">98</span>
+                <span class="site-state-item-count">99</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -1909,7 +1906,7 @@ q=\text{round_to_int}(r/s)+z
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">210</span>
+                <span class="site-state-item-count">211</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>
