@@ -103,7 +103,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2024/10/29/讀-Flow-Matching-前要先理解的東西/image 8.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/10/29/讀-Flow-Matching-前要先理解的東西/image 9.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/10/29/讀-Flow-Matching-前要先理解的東西/image 10.png">
-<meta property="og:updated_time" content="2024-10-29T14:36:43.107Z">
+<meta property="og:updated_time" content="2024-10-29T15:05:16.194Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="讀 Flow Matching 前要先理解的東西">
 <meta name="twitter:description" content="如果你跟我一樣看 flow matching 論文時, 在還在說明預備知識的地方就陣亡了, 別擔心你不孤單! 我也死在那裡.論文裡很多地方用到了 Continuity Equation 來推導. 這個定理也相當於是一個核心概念.抱持一定要了解清楚的想法, 結果是學習到了美妙的 Gauss’s Divergence Theorem 和 Continuity Equation!通了! 通暢了!">
@@ -451,10 +451,10 @@ F_1 \\ F_2
 </blockquote>
 <p>然後對表面的每個點上述分量都加起來 (表面積分), 我們不就也同樣得到了 “向量場 $\vec{F}$ 作用於 $V$ 產生的總淨流出量” 了嗎?<br>寫成數學式子為:<br><span>$$\begin{align}
 \iint_S \vec{F}\cdot\vec{n}dS
-\end{align}$$</span><!-- Has MathJax --> 有時候會看到 $\oiint_S$ 的表示方法, 其實中間那個圈只是用來表明 $S$ 是封閉的 surface 而已.</p>
-<h3 id="散度體積分等於表面積分"><a href="#散度體積分等於表面積分" class="headerlink" title="散度體積分等於表面積分"></a>散度體積分等於表面積分</h3><p>物理意義上 (9) 等於 (10)! 而這就是大名鼎鼎的<strong>高斯散度定理 Gauss’s Divergence Theorem</strong>:<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 有時候會看到 <span>$\oiint_S$</span><!-- Has MathJax --> 的寫法, 其實中間那個圈只是用來表明 $S$ 是封閉的 surface 而已.</p>
+<h3 id="散度的體積分等於表面積分"><a href="#散度的體積分等於表面積分" class="headerlink" title="散度的體積分等於表面積分"></a>散度的體積分等於表面積分</h3><p>物理意義上 (9) 等於 (10)! 而這就是大名鼎鼎的<strong>高斯散度定理 Gauss’s Divergence Theorem</strong>:<br><span>$$\begin{align}
 {\color{red}{\iiint_V\nabla\cdot\vec{F}dV = \iint_S \vec{F}\cdot\vec{n}dS}}
-\end{align}$$</span><!-- Has MathJax --> 表面積分通常不好算, 有時候可藉由散度定理轉換成體積分會變得好算很多.</p>
+\end{align}$$</span><!-- Has MathJax --> 有時候表面積分不好算, 可藉由散度定理轉換成體積分會變得好算很多.</p>
 <hr>
 <h2 id="D-Mass-Conservation-or-Continuity-Equation"><a href="#D-Mass-Conservation-or-Continuity-Equation" class="headerlink" title="D. Mass Conservation or Continuity Equation"></a>D. Mass Conservation or Continuity Equation</h2><p>Gauss’s Divergence Theorem 的一個重要應用是可以推導出 Mass conservation!</p>
 <blockquote>
@@ -486,6 +486,9 @@ F_1 \\ F_2
 <p>整個過程 Continuity Equation, 或說 Mass Convervation (17) 都是一直要滿足的!</p>
 <p>因為不管怎麼變都還是機率分佈, 總質量都維持不變 $1$.<br>這個核心觀念會貫穿整個 Flow matching 論文裡. 至此終於可以開始啃 flow matching 了!</p>
 <p>下回真正開始講解 flow matching 論文</p>
+<blockquote>
+<p>🎂 祝 Oswin 大寶貝生日快樂~ 雖然對你嚴格, 但我也會努力幫你達到你的目標. 快樂長大! (這訊息埋這麼深, 你以後長大會看到嗎 ^^)</p>
+</blockquote>
 
       
     </div>
@@ -686,7 +689,7 @@ F_1 \\ F_2
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#A-Vector-Field"><span class="nav-number">1.</span> <span class="nav-text">A. Vector Field</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#B-Divergence-散度"><span class="nav-number">2.</span> <span class="nav-text">B. Divergence (散度)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#左邊界淨流出量"><span class="nav-number">2.1.</span> <span class="nav-text">左邊界淨流出量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#右邊界淨流出量"><span class="nav-number">2.2.</span> <span class="nav-text">右邊界淨流出量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#X-軸方向淨流出量"><span class="nav-number">2.3.</span> <span class="nav-text">X 軸方向淨流出量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Y-軸方向淨流出量"><span class="nav-number">2.4.</span> <span class="nav-text">Y 軸方向淨流出量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#單位面積淨流出量"><span class="nav-number">2.5.</span> <span class="nav-text">單位面積淨流出量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Divergence-散度物理意義"><span class="nav-number">2.6.</span> <span class="nav-text">Divergence 散度物理意義</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#C-Gauss’s-Divergence-Theorem"><span class="nav-number">3.</span> <span class="nav-text">C. Gauss’s Divergence Theorem</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#用體積分"><span class="nav-number">3.1.</span> <span class="nav-text">用體積分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#看山不是山"><span class="nav-number">3.2.</span> <span class="nav-text">看山不是山</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#看山還是山"><span class="nav-number">3.3.</span> <span class="nav-text">看山還是山</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#用表面積分"><span class="nav-number">3.4.</span> <span class="nav-text">用表面積分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#散度體積分等於表面積分"><span class="nav-number">3.5.</span> <span class="nav-text">散度體積分等於表面積分</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#D-Mass-Conservation-or-Continuity-Equation"><span class="nav-number">4.</span> <span class="nav-text">D. Mass Conservation or Continuity Equation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#E-跟-Flow-Matching-有啥關聯"><span class="nav-number">5.</span> <span class="nav-text">E. 跟 Flow Matching 有啥關聯?</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#A-Vector-Field"><span class="nav-number">1.</span> <span class="nav-text">A. Vector Field</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#B-Divergence-散度"><span class="nav-number">2.</span> <span class="nav-text">B. Divergence (散度)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#左邊界淨流出量"><span class="nav-number">2.1.</span> <span class="nav-text">左邊界淨流出量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#右邊界淨流出量"><span class="nav-number">2.2.</span> <span class="nav-text">右邊界淨流出量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#X-軸方向淨流出量"><span class="nav-number">2.3.</span> <span class="nav-text">X 軸方向淨流出量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Y-軸方向淨流出量"><span class="nav-number">2.4.</span> <span class="nav-text">Y 軸方向淨流出量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#單位面積淨流出量"><span class="nav-number">2.5.</span> <span class="nav-text">單位面積淨流出量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Divergence-散度物理意義"><span class="nav-number">2.6.</span> <span class="nav-text">Divergence 散度物理意義</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#C-Gauss’s-Divergence-Theorem"><span class="nav-number">3.</span> <span class="nav-text">C. Gauss’s Divergence Theorem</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#用體積分"><span class="nav-number">3.1.</span> <span class="nav-text">用體積分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#看山不是山"><span class="nav-number">3.2.</span> <span class="nav-text">看山不是山</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#看山還是山"><span class="nav-number">3.3.</span> <span class="nav-text">看山還是山</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#用表面積分"><span class="nav-number">3.4.</span> <span class="nav-text">用表面積分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#散度的體積分等於表面積分"><span class="nav-number">3.5.</span> <span class="nav-text">散度的體積分等於表面積分</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#D-Mass-Conservation-or-Continuity-Equation"><span class="nav-number">4.</span> <span class="nav-text">D. Mass Conservation or Continuity Equation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#E-跟-Flow-Matching-有啥關聯"><span class="nav-number">5.</span> <span class="nav-text">E. 跟 Flow Matching 有啥關聯?</span></a></li></ol></div>
             
 
           </div>
