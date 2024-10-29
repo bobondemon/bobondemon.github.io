@@ -267,6 +267,162 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/02/07/高效率計算-Jacobian-Hessian-VJP-JVP-HVP/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2024/02/07/高效率計算-Jacobian-Hessian-VJP-JVP-HVP/" itemprop="url">
+                  高效率計算 Jacobian, Hessian, VJP, JVP, HVP
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2024-02-07T21:56:22+08:00">
+                2024-02-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>⚠️ 可能寫的比較瑣碎和雜亂, 主要給自己筆記用</p>
+<p>令 <span>$f:\mathbb{R}^{n}\rightarrow\mathbb{R}^{m}$</span><!-- Has MathJax --> 的 Jacobian matrix 為 $J_f(x)$ 是 $(m\times n)$ 矩陣, 而 Hessian 為 $H_f(x)$ 是 $(m\times n \times n)$ 高維 tensor<br>&emsp;$\circ$ VJP 稱為 Vector-Jacobian Product, $vJ_f(x)$, 其中 $v$ 是 ($1\times m$) 的 row vector<br>&emsp;$\circ$ JVP 稱為 Jacobian-Vector Product, $J_f(x)v$, 其中 $v$ 是 ($n\times 1$) 的 column vector<br>&emsp;$\circ$ HVP 稱為 Hessian-Vector Product, $H_f(x)v$, 其中 $v$ 是 ($n\times 1$) 的 column vector<br>計算 $vJ_f(x)$ 不用先把矩陣 $J_f(x)$ 求出來再跟 $v$ 相乘, 而是可以直接得到相乘的結果(這樣做還更快), 聽起來有點矛盾對吧~同樣的 JVP 和 HVP 也是如此<br>本文會說明怎麼高效率計算 VJP, JVP, Jacobian, Hessian, 以及 HVP</p>
+<blockquote>
+<p>主要參考 PyTorch 文章: <a href="https://pytorch.org/tutorials/intermediate/jacobians_hessians.html#">JACOBIANS, HESSIANS, HVP, VHP, AND MORE: COMPOSING FUNCTION TRANSFORMS</a></p>
+</blockquote>
+<p>HVP 可以用來有效率地計算 $tr(H_f(x))$, 而這個 term 有時候會被當作 loss 來用, 舉例來說:<br>&emsp;$\circ$ <a href="https://bobondemon.github.io/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/">Sliced Score Matching (SSM)</a> 會用到<br>&emsp;$\circ$ EWGS quantization (Network Quantization with Element-wise Gradient Scaling, <a href="https://arxiv.org/abs/2104.00903">arxiv</a>) 會用到<br>&emsp;$\circ$ More and details see: <a href="https://www.nowozin.net/sebastian/blog/thoughts-on-trace-estimation-in-deep-learning.html">Thoughts on Trace Estimation in Deep Learning</a>, 更多例子且有非常深入的討論<br>總結可以參考文末 Summary<br>先把 function $f$ 定義好: (名字為<code>predict</code>)<br><img src="/2024/02/07/高效率計算-Jacobian-Hessian-VJP-JVP-HVP/pic0.png" width="100%" height="100%"></p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2024/02/07/高效率計算-Jacobian-Hessian-VJP-JVP-HVP/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1672,183 +1828,6 @@ J=s_{\text max}^2{4^{-B}\over 3}
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2023/01/15/L0-Regularization-詳細攻略/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chih-Sheng Chen">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="棒棒生">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2023/01/15/L0-Regularization-詳細攻略/" itemprop="url">
-                  L0 Regularization 詳細攻略
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2023-01-15T10:50:25+08:00">
-                2023-01-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分類於</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ML/" itemprop="url" rel="index">
-                    <span itemprop="name">ML</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-<hr>
-<p>這是一篇論文<strong><em><a href="https://arxiv.org/abs/1712.01312">Learning Sparse Neural Networks through L0 Regularization</a></em></strong> 的詳細筆記<strong><em>,</em></strong> 同時自己實作做實驗 [<a href="https://github.com/bobondemon/l0_regularization_practice">My Github</a>]<br>主要以詳解每個部分並自己能回憶起為目的, 所以或許不是很好閱讀</p>
-<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><hr>
-<p>NN model 參數 $\theta$, 我們希望<strong>非$0$的個數</strong>愈少愈好, i.e. $|\theta|_0$ 愈小愈好, 所以會加如下的 regularization term:<br><span>$$\mathcal{L}_C^0(\theta)=\|\theta\|_0=\sum_{j=1}^{|\theta|}\mathbb{I}[\theta_j\neq0]$$</span><!-- Has MathJax --> 所以 Loss 為:</p>
-<span>$$\mathcal{L}_E(\theta)=\frac{1}{N}\left(
-\sum_{i=1}^N\mathcal{L}(NN(x_i;\theta),y_i)
-\right) \\
-\mathcal{L}(\theta)=\mathcal{L}_E(\theta)+\mathcal{L}_C^0(\theta)$$</span><!-- Has MathJax -->
-<p>但實務上我們怎麼實現 $\theta$ 非 $0$ 呢?<br>一種方式為使用一個 mask random variable <span>$Z=\{Z_1,...,Z_{|\theta|}\}$</span><!-- Has MathJax --> (~Bernoulli distribution, 參數 <span>$q=\{q_1,...,q_{|\theta|}\}$</span><!-- Has MathJax -->), 因此 Loss 改寫如下: (注意到 $\mathcal{L}_C^0$ 可以有 closed form 並且與 $\theta$ 無關了)</p>
-<span>$$\begin{align}
-\mathcal{L}_C^0(\theta, q)=\mathbb{E}_{Z\sim\text{Bernoulli}(q)}\left[
-\sum_{j=1}^{|\theta|}\mathbb{I}[\theta_j\odot Z_j\neq0]
-\right] = \mathbb{E}_{Z\sim\text{Bernoulli}(q)}\left[
-\sum_{j=1}^{|\theta|} Z_j
-\right] = \sum_j^{|\theta|} q_j\\
-\mathcal{L}_E(\theta,q)=\mathbb{E}_{Z\sim\text{Bernoulli}(q)}\left[
-\frac{1}{N}\left(
-\sum_{i=1}^N\mathcal{L}(NN(x_i;\theta\odot Z_i),y_i)
-\right)
-\right] \\
-\mathcal{L}(\theta,q)=\mathcal{L}_E(\theta,q)+\lambda\mathcal{L}_C^0(q)
-\end{align}$$</span><!-- Has MathJax -->
-<p>現在最大的麻煩是 entropy loss $\mathcal{L}_E$, 原因是 Bernoulli 採樣沒辦法對 $q$ 微分, 因為 <span>$\nabla_q\mathcal{L}_E(\theta,q)$</span><!-- Has MathJax --> 在計算期望值時, 採樣的機率分佈也跟 $q$ 有關</p>
-<blockquote>
-<p>參考 <strong><a href="https://bobondemon.github.io/2021/08/07/Gumbel-Max-Trick/">Gumbel-Max Trick</a></strong> 開頭的介紹說明</p>
-</blockquote>
-<p>好消息是, 可以藉由 reparameterization (Gumbel Softmax) 方法使得採樣從一個與 $q$ 無關的 r.v. 採樣 (所以可以微分了), 因此也就能在 NN 訓練使用 backpropagation.<br>以下依序說明: (參考這篇 <strong>[<a href="https://www.zybuluo.com/pearl3344/note/1221157">L0 norm稀疏性: hard concrete门变量</a></strong>] 整理的順序, 但補足一些內容以及參考論文的東西)<br>Gumbel max trick $\Rightarrow$ Gumbel softmax trick (so called concrete distribution)<br>$\Rightarrow$ Binary Concrete distribution $\Rightarrow$ Hard (Binary) Concrete distribution $\Rightarrow$ L0 regularization<br>最後補上對 GoogleNet 架構加上 $L0$ regularization 在 CIFAR10 上的模型壓縮實驗</p>
-<p>文長…</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2023/01/15/L0-Regularization-詳細攻略/#more" rel="contents">
-              閱讀全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1898,7 +1877,7 @@ J=s_{\text max}^2{4^{-B}\over 3}
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-count">100</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -1920,7 +1899,7 @@ J=s_{\text max}^2{4^{-B}\over 3}
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">211</span>
+                <span class="site-state-item-count">215</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>
