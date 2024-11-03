@@ -1,0 +1,856 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="MLE,Generative Model,ELBO,Continuity Equation," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Maximum likelihood estimation (MLE) 是機器學習 (ML) 中許多模型優化的目標函式應該是大家學習 ML 一開始就接觸的內容, 但其實它可能比你想的還複雜本文分兩大段落:&amp;emsp;A. Maximum Likelihood Estimation (MLE):&amp;emsp;&amp;emsp;簡單說明 MLE 後, 點出實務上會遇到的問題, 然後與 mean squ">
+<meta property="og:type" content="article">
+<meta property="og:title" content="剖析生成模型的 Maximum Likelihood Estimation (MLE)">
+<meta property="og:url" content="https://bobondemon.github.io/2024/11/03/剖析生成模型的-Maximum-Likelihood-Estimation-MLE/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="Maximum likelihood estimation (MLE) 是機器學習 (ML) 中許多模型優化的目標函式應該是大家學習 ML 一開始就接觸的內容, 但其實它可能比你想的還複雜本文分兩大段落:&amp;emsp;A. Maximum Likelihood Estimation (MLE):&amp;emsp;&amp;emsp;簡單說明 MLE 後, 點出實務上會遇到的問題, 然後與 mean squ">
+<meta property="og:updated_time" content="2024-11-03T04:31:39.834Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="剖析生成模型的 Maximum Likelihood Estimation (MLE)">
+<meta name="twitter:description" content="Maximum likelihood estimation (MLE) 是機器學習 (ML) 中許多模型優化的目標函式應該是大家學習 ML 一開始就接觸的內容, 但其實它可能比你想的還複雜本文分兩大段落:&amp;emsp;A. Maximum Likelihood Estimation (MLE):&amp;emsp;&amp;emsp;簡單說明 MLE 後, 點出實務上會遇到的問題, 然後與 mean squ">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2024/11/03/剖析生成模型的-Maximum-Likelihood-Estimation-MLE/"/>
+
+
+
+
+
+  <title> 剖析生成模型的 Maximum Likelihood Estimation (MLE) | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/11/03/剖析生成模型的-Maximum-Likelihood-Estimation-MLE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                剖析生成模型的 Maximum Likelihood Estimation (MLE)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2024-11-03T11:59:47+08:00">
+                2024-11-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>Maximum likelihood estimation (MLE) 是機器學習 (ML) 中許多模型優化的目標函式<br>應該是大家學習 ML 一開始就接觸的內容, 但其實它可能比你想的還複雜<br>本文分兩大段落:<br>&emsp;A. Maximum Likelihood Estimation (MLE):<br>&emsp;&emsp;簡單說明 MLE 後, 點出實務上會遇到的問題, 然後與 mean square error (MSE) 和 KL divergence 的關聯<br>&emsp;B. 生成模型想學什麼:<br>&emsp;&emsp;先說明生成模型的設定, 然後帶到有隱變量的 MLE<br>最後點出 VAE, Diffusion (DDPM), GAN, Flow-based 和 Continuous Normalizing Flow (CNF) 這些生成模型與 MLE 的關聯</p>
+<a id="more"></a>
+<hr>
+<h2 id="A-Maximum-Likelihood-Estimation-MLE"><a href="#A-Maximum-Likelihood-Estimation-MLE" class="headerlink" title="A. Maximum Likelihood Estimation (MLE)"></a>A. Maximum Likelihood Estimation (MLE)</h2><p>$N$ 筆 training data <span>$(x_i)_{i=1}^N$</span><!-- Has MathJax -->, MLE 要找的最佳參數 $\theta^\ast$ 為:<br><span>$$\theta^\ast=\arg\max_\theta\sum_{i=1}^N\log p_\theta(x_i)$$</span><!-- Has MathJax --> 或說 MLE 在做 log-likelihood $\log p_\theta(x)$ 的最大化.</p>
+<h3 id="Normalization-Term-計算"><a href="#Normalization-Term-計算" class="headerlink" title="Normalization Term 計算"></a>Normalization Term 計算</h3><p>實務上一般寫不出公式讓我們直接計算 pdf 值 (除非用簡單的機率分佈寫得出公式的那種, 例如就高斯分佈, 這種太弱了不提)<br>既然如此, 那我們讓模型的輸出直接就是估計的 pdf 值不就好了?<br>例如有個 NN 模型 $f<em>\theta(\cdot)$, 輸入 $x’$  希望輸出 $f</em>\theta(x’)$ 直接就是 density 值 $f<em>\theta(x’)=p</em>\theta(x’)$?</p>
+<p>很難, 別忘了要成為 pdf 還要除以分母這項:<br><span>$$p_\theta(x&apos;)=\frac{f_\theta(x&apos;)}{\int_{x}f_\theta(x)dx}$$</span><!-- Has MathJax --> $\int<em>{x}f</em>\theta(x)dx$ 現實上根本很難算 (把所有 $x$ 都算過? $\theta$ 更新的話又得重算?)</p>
+<blockquote>
+<p>也可參考 “<a href="https://bobondemon.github.io/2021/06/05/Noise-Contrastive-Estimation-NCE-%E7%AD%86%E8%A8%98/">Noise Contrastive Estimation (NCE) 筆記</a>” [1] 開頭的說明</p>
+</blockquote>
+<p>那計算不出 $p_\theta(x’)$ 該怎麼用 MLE? 滿街模型都說用 MLE 當目標函數又怎麼做到的?<br>最常見的一種方法是當成 regression 問題並套用 Mean Square Error (MSE)</p>
+<h3 id="MLE-與-Mean-Square-Error-MSE"><a href="#MLE-與-Mean-Square-Error-MSE" class="headerlink" title="MLE 與 Mean Square Error (MSE)"></a>MLE 與 Mean Square Error (MSE)</h3><p>令模型的輸出為 $\hat{x}$, 而正確答案用 $x$ 表示.</p>
+<blockquote>
+<p><span>$\hat{x}=f_\theta(z)$</span><!-- Has MathJax -->, 其中 $\theta$ 為參數.</p>
+</blockquote>
+<p>現在有 $N$ 筆結果 <span>$(\hat{x}_i,x_i)_{i=1}^N$</span><!-- Has MathJax -->. 由於模型的預測 ($\hat{x}$) 不一定準, 我們在什麼都不知道的情況下只能<strong>猜正確答案 $x$ 落在 $\hat{x}$ 附近 (用簡單的高斯分佈)</strong></p>
+<p><span>$$\begin{align}
+p(x|\hat{x})=\mathcal{N}(x|\hat{x},I)
+\end{align}$$</span><!-- Has MathJax --> 所以 likelihood 為:<br><span>$$\begin{align}
+\text{Likelihood}=\prod_{i=1}^N p(x_i|\hat{x_i})=\prod_{i=1}^N \mathcal{N}(x_i|\hat{x_i},I)
+\end{align}$$</span><!-- Has MathJax --> 最大化 log-likelihood 找最佳參數 $\theta$, 注意到只有 $\hat{x}$ 與 $\theta$ 有關:<br><span>$$\begin{align}
+\text{MLE}:=\arg\max_\theta\log\left(\prod_{i=1}^N \mathcal{N}(x_i|\hat{x_i},I)\right)
+\\ =\arg\max_\theta\sum_{i=1}^N \log\left(e^{-\frac{1}{2}(x_i-\hat{x}_i)^2}+\text{const.}\right)  =\arg\max_\theta\left(-\frac{1}{2}\sum_{i=1}^N (x_i-\hat{x}_i)^2\right) \\
+=\arg\min_\theta\sum_{i=1}^N(x_i-\hat{x}_i)^2=:\text{MSE}
+\end{align}$$</span><!-- Has MathJax --> 得到最大化 log-likelihood (3) 等價於最小化 MSE loss (5),<br>因此用 MSE 可以避開不知道怎麼計算 pdf 值的問題!</p>
+<h3 id="MLE-與最小化-KL-Divergence-等價"><a href="#MLE-與最小化-KL-Divergence-等價" class="headerlink" title="MLE 與最小化 KL Divergence 等價"></a>MLE 與最小化 KL Divergence 等價</h3><p>我們知道 KL divergence 可以量測兩個 pdf 之間的 “距離” (非數學定義的 norm)</p>
+<p>而 MLE 學到的 $p<em>\theta$ 其實在做找出 $p</em>\theta\approx p_{data}$, 換句話說就是最小化 <span>$KL(p_{data}\|p_\theta)$</span><!-- Has MathJax --> [2]<br><span>$$\text{MLE}:=\arg\max_\theta\log\left(\prod_{i=1}^N p_\theta(x_i)\right) \\
+=\arg\max_\theta\sum_{i=1}^N\log p_\theta(x_i) \approx \arg\max_\theta\mathbb{E}_{x\sim p_{data}}[\log p_\theta(x)]\\
+=\arg\max_\theta \int_x p_{data}(x)\log p_\theta(x)dx -\int_x p_{data}(x)\log p_{data}(x)dx \\
+= \arg\max_\theta \int_x p_{data}(x)\log\frac{p_\theta(x)}{p_{data}(x)}dx = \arg\min_\theta KL(p_{data}\|p_\theta)$$</span><!-- Has MathJax --> 做 MLE 相當於在想辦法擬合資料分布</p>
+<hr>
+<h2 id="B-生成模型想學什麼"><a href="#B-生成模型想學什麼" class="headerlink" title="B. 生成模型想學什麼"></a>B. 生成模型想學什麼</h2><p>接下來談談 VAE, Diffusion (DDPM), GAN, Flow-based 和 Continuous Normalizing Flow (CNF) 這些生成模型跟 MLE 的關聯<br>在開始之前還是先說清楚生成模型的設定<br>因為”<strong>生成</strong>”兩個字, 代表就算我們學到了模型分佈 $p<em>\theta$ 接近真實分佈 $p</em>{data}$ 的話, i.e. <span>$p_\theta(x)\approx p_{data}(x)$</span><!-- Has MathJax -->, 我們還是必須想辦法從 $p<em>\theta$ 中採樣<br>即要能 sample 出 $x$ 並 follow $p</em>\theta$ 的分佈, 這句話數學這麼寫: $x\sim p<em>\theta(x)$<br>$p</em>\theta(x)$ 實際上非常複雜, 我們根本無法採樣起, 那怎麼辦呢?<br>生成模型的做法很聰明, 從一個我們會採樣的<strong>簡單分佈出發, 例如 <span>$z\sim\mathcal{N}(0,I)$</span><!-- Has MathJax --></strong>.</p>
+<p><strong>如果模型能學到如何把 $\mathcal{N}(0,I)$ 變化到目標分佈 $p_{data}(x)$, 那麼我們只需要採樣 $z$ 就可以透過模型對應到目標分佈的 $x$ 了.</strong></p>
+<p>對應的關係是 $x=f_\theta(z)$, 並且希望模型參數 $\theta$ 能滿足 <span>$p_\theta(x)\approx p_{data}(x)$</span><!-- Has MathJax -->, 而這件事可以透過最小化 <span>$KL(p_{data}\|p_\theta)$</span><!-- Has MathJax -->$ 來達成. (等價 MLE)<br>所以因此很多生成模型目標函數都是 MLE.</p>
+<h3 id="有隱變量的-MLE-VAE-DDPM"><a href="#有隱變量的-MLE-VAE-DDPM" class="headerlink" title="有隱變量的 MLE (VAE, DDPM)"></a>有隱變量的 MLE (VAE, DDPM)</h3><p>透過上面的說明我們知道生成模型引入了一個隱變量 $z\sim\mathcal{N}(0,I)$.<br>引入 $z$ 通常會有個特性: marginal likelihood $p<em>\theta(x)$ 不好算, 而 joint probability <span>$p_\theta(x,z)=p_\theta(x|z)p(z)$</span><!-- Has MathJax --> 則一般會設計得容易算.<br>我們用 VAE 舉例, $p(z)$ 為 Gaussian distribution 容易算, 且 $p</em>\theta(x|z)$ 則為 decoder 的結果. 所以 $p<em>\theta(x,z)$ 容易算.<br>或是 DDPM 中 $p</em>\theta(x,z)$ 為 <span>$p(\mathbf{x}_{0:T})$</span><!-- Has MathJax --> 可以直接計算 (ref [3]): <span>$$p_\theta(\mathbf{x}_{0:T}) = p(\mathbf{x}_T) \prod^T_{t=1} p_\theta(\mathbf{x}_{t-1} \vert \mathbf{x}_t) \quad
+p_\theta(\mathbf{x}_{t-1} \vert \mathbf{x}_t) = \mathcal{N}(\mathbf{x}_{t-1}; \boldsymbol{\mu}_\theta(\mathbf{x}_t, t), \boldsymbol{\Sigma}_\theta(\mathbf{x}_t, t))$$</span><!-- Has MathJax --> 但要算 marginal likelihood $p<em>\theta(x)$ 必須積分: <span>$$p_\theta(x)=\int_zp_\theta(x,z)dz$$</span><!-- Has MathJax --> 因此直接計算 $\log p</em>\theta(x)$ 做 MLE 變得很困難<br>怎麼辦呢? 我們先對 log-likelihood 改寫一下 (ref [4]): <span>$$\log p_\theta(x)=KL(q(z)\|p_\theta(z|x))+\mathbb{E}_{z\sim q}[\log p_\theta(x,z)&minus;\log q(z)]\\
+=KL(q(z)\|p_\theta(z|x))+\mathcal{L}(q,&theta;)$$</span><!-- Has MathJax --> 由於 $KL\geq0$, 所以 $\mathcal{L}(q,\theta)$ 這項就變成 log-likelihood 的 lower bound 了 (稱 ELBO)<br>透過最大化 $\mathcal{L}(q,\theta)$ 來讓我們也把 likelihood 最大化, 這也相當於達到 MLE 的目的了</p>
+<blockquote>
+<p>不要忘記了, $\log p_\theta(x,z)$ 一般會設計得容易算, 所以 $\mathcal{L}(q,\theta)$ 也是容易計算的.</p>
+</blockquote>
+<p>而這樣的技巧就是 VAE 和 DDPM 的做法.</p>
+<h3 id="GAN-的-MLE"><a href="#GAN-的-MLE" class="headerlink" title="GAN 的 MLE"></a>GAN 的 MLE</h3><p>GAN 其實非常奇耙, 不走傳統路線, 想做 MLE 但透過最小化 <span>$KL(p_{data}\|p_\theta)$</span><!-- Has MathJax -->, 而想最小化 KL divergence 又透過另一個 discriminator $D$, 使得當達到 $D$ 分不出真偽時, <span>$KL(p_{data}\|p_\theta)$</span><!-- Has MathJax --> 會最小.</p>
+<p>隔著幾層布巧妙的搔癢</p>
+<h3 id="Flow-based-Model-的-MLE"><a href="#Flow-based-Model-的-MLE" class="headerlink" title="Flow-based Model 的 MLE"></a>Flow-based Model 的 MLE</h3><p>之前提到做 MLE 因為無法直接在複雜的 $p<em>\theta$ 上算 pdf 值, 從而沒辦法算 likelihood.<br>Flow-based model 的精隨是: 如果我們的 model 能 inverse 的話, 就不用在 $p</em>\theta$ 上算 pdf 值, 只需要在 $\mathcal{N}(0,I)$ 上計算 pdf 值就好了!</p>
+<blockquote>
+<p>當然還要算 determinant of Jacobian matrix, 還有因為要求 inverse 帶來的模型能力限制</p>
+</blockquote>
+<p>不得不說這想法也很精彩<br>詳細 log-likelihood 推導請自行搜尋參考資料即可.</p>
+<h3 id="Continuous-Normalizing-Flow-CNF-的-MLE"><a href="#Continuous-Normalizing-Flow-CNF-的-MLE" class="headerlink" title="Continuous Normalizing Flow (CNF) 的 MLE"></a>Continuous Normalizing Flow (CNF) 的 MLE</h3><p>CNF 為 flow-based model 的連續性變化擴展. 變成使用 NN 學習 vector field $u_t(x_t,\theta)$, 而不是像 DDPM 使用 NN 學 score function [9].</p>
+<blockquote>
+<p>用 NN 學 vector field 的方法稱為 Neural ODE [5].</p>
+</blockquote>
+<p>從 Continuity equation (or mass conservation) (ref [6]) 出發 <span>$$\frac{\partial p_\theta(x_t)}{\partial t}+\text{div}(p_\theta(x_t)u_t(x_t,\theta))=0$$</span><!-- Has MathJax --> 可以推導出 log-likelihood, see [5] <strong>裡的</strong> Appendix A: Proof of the Instantaneous Change of Variables Theorem <span>$$\frac{d\log p_\theta(x_t)}{dt}=-\text{div}(u_t(x_t,\theta))$$</span><!-- Has MathJax --> 因此 log-likelihood 就是積分起來的結果: <span>$$\log p_\theta(x)=\log p_{\text{base}}(z)+\int_{t=0}^1-\text{div}(u_t(x_t,\theta))dt$$</span><!-- Has MathJax --> 所以要算 MLE 必須算上述積分項. 通常使用 numerical 積分方法 [7], e.g. Euler, Runge Kutta methods 等來積, 且因為要做 backpropagation, 這個積分的過程要能支援計算 gradient, 可想而知會非常慢! (個人很粗略地看, 有錯歡迎指正)</p>
+<p>這也是 CNF 面臨的困難.</p>
+<p>2023 年 Meta 一篇論文 “Flow Matching for Generative Modeling [8]” 提出了學習這個 vector field $u_t(x_t,\theta)$ 不用透過 MLE 來學, 避掉上述困難! 詳細解說看之後的 flow matching 筆記<br>Flow matching 是近期一項重要的生成模型技術, 比 DDPM 更 general, 訓練更快更穩定, inference 速度也更快. 許多近一兩年的模型採用此做法.如 <a href="https://stability.ai/news/stable-diffusion-3" target="_blank" rel="external">Stable Diffusion 3</a>, Meta 的 <a href="https://arxiv.org/abs/2306.15687" target="_blank" rel="external">Voicebox</a>, <a href="https://github.com/SWivid/F5-TTS" target="_blank" rel="external">F5-TTS</a>, <a href="https://github.com/FunAudioLLM/CosyVoice" target="_blank" rel="external">CosyVoice</a>, …</p>
+<hr>
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><p>MLE 等價於 KL divergence, 而實務上可以套用使用 Gaussian noise regression 的設定變成使用 MSE 來做.<br>生成模型通常引入一個容易採樣的簡單分布的隱變量 $z$, 由於這個隱變量, MLE 可以藉由最大化 ELBO (likelihood 的 lower bound) 來間接最大化 likelihood.</p>
+<p>這些生成模型 VAE, Diffusion (DDPM), GAN, Flow-based 和 Continuous Normalizing Flow (CNF) 目標雖然都是做 MLE, 但有的使用技巧卻十分隱誨且巧妙, 例如 GAN.<br>詳細請看內文對各個生成模型的 MLE 關聯.</p>
+<p>而在 Bayesian learning 流派中, 如果引入參數 $\theta$ 的 prior $p(\theta)$ 分佈, 則可以更進一步探討 Maximum a posterior (MAP) 或是 Bayesian inference 等等內容. (ref [10])</p>
+<hr>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ol>
+<li><a href="https://bobondemon.github.io/2021/06/05/Noise-Contrastive-Estimation-NCE-%E7%AD%86%E8%A8%98/">Noise Contrastive Estimation (NCE) 筆記</a></li>
+<li><a href="https://jaketae.github.io/study/kl-mle/" target="_blank" rel="external">MLE and KL Divergence</a>, or <a href="https://youtu.be/73qwu77ZsTM?si=xjIJuAsvaR1q2UDQ&amp;t=686" target="_blank" rel="external">生成式AI】Diffusion Model 原理剖析 (2/4) (optional)</a></li>
+<li><a href="https://lilianweng.github.io/posts/2021-07-11-diffusion-models/#reverse-diffusion-process" target="_blank" rel="external">What are Diffusion Models?</a></li>
+<li><a href="https://bobondemon.github.io/2024/07/18/%E7%B4%80%E9%8C%84-Evidence-Lower-BOund-ELBO-%E7%9A%84%E4%B8%89%E7%A8%AE%E7%94%A8%E6%B3%95/">紀錄 Evidence Lower BOund (ELBO) 的三種用法</a></li>
+<li><a href="https://arxiv.org/abs/1806.07366" target="_blank" rel="external">Neural Ordinary Differential Equations</a></li>
+<li><a href="https://bobondemon.github.io/2024/10/29/%E8%AE%80-Flow-Matching-%E5%89%8D%E8%A6%81%E5%85%88%E7%90%86%E8%A7%A3%E7%9A%84%E6%9D%B1%E8%A5%BF/#D-Mass-Conservation-or-Continuity-Equation">讀 Flow Matching 前要先理解的東西</a></li>
+<li><a href="https://bobondemon.github.io/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/">Numerical Methods for Ordinary Differential Equations</a></li>
+<li><a href="https://arxiv.org/abs/2210.02747" target="_blank" rel="external">Flow Matching for Generative Modeling</a></li>
+<li><a href="https://bobondemon.github.io/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/">Score Matching 系列 (五) SM 加上 Langevin Dynamics 變成生成模型</a></li>
+<li><a href="https://bobondemon.github.io/2018/12/20/Bayesian-Learning-Notes/">Bayesian Learning Notes</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2024/11/03/剖析生成模型的-Maximum-Likelihood-Estimation-MLE/" title="剖析生成模型的 Maximum Likelihood Estimation (MLE)">https://bobondemon.github.io/2024/11/03/剖析生成模型的-Maximum-Likelihood-Estimation-MLE/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MLE/" rel="tag"># MLE</a>
+          
+            <a href="/tags/Generative-Model/" rel="tag"># Generative Model</a>
+          
+            <a href="/tags/ELBO/" rel="tag"># ELBO</a>
+          
+            <a href="/tags/Continuity-Equation/" rel="tag"># Continuity Equation</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/10/29/讀-Flow-Matching-前要先理解的東西/" rel="next" title="讀 Flow Matching 前要先理解的東西">
+                <i class="fa fa-chevron-left"></i> 讀 Flow Matching 前要先理解的東西
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">101</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">215</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#A-Maximum-Likelihood-Estimation-MLE"><span class="nav-number">1.</span> <span class="nav-text">A. Maximum Likelihood Estimation (MLE)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Normalization-Term-計算"><span class="nav-number">1.1.</span> <span class="nav-text">Normalization Term 計算</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MLE-與-Mean-Square-Error-MSE"><span class="nav-number">1.2.</span> <span class="nav-text">MLE 與 Mean Square Error (MSE)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MLE-與最小化-KL-Divergence-等價"><span class="nav-number">1.3.</span> <span class="nav-text">MLE 與最小化 KL Divergence 等價</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#B-生成模型想學什麼"><span class="nav-number">2.</span> <span class="nav-text">B. 生成模型想學什麼</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#有隱變量的-MLE-VAE-DDPM"><span class="nav-number">2.1.</span> <span class="nav-text">有隱變量的 MLE (VAE, DDPM)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GAN-的-MLE"><span class="nav-number">2.2.</span> <span class="nav-text">GAN 的 MLE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Flow-based-Model-的-MLE"><span class="nav-number">2.3.</span> <span class="nav-text">Flow-based Model 的 MLE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Continuous-Normalizing-Flow-CNF-的-MLE"><span class="nav-number">2.4.</span> <span class="nav-text">Continuous Normalizing Flow (CNF) 的 MLE</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Summary"><span class="nav-number">3.</span> <span class="nav-text">Summary</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">4.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
