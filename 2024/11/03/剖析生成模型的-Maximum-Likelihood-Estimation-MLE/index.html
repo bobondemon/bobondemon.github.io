@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="MLE,GAN,Generative Model,Diffusion Model,ELBO,Variational Auto Encoder (VAE),Continuity Equation,Continuous Normalizing Flow (CNF),Flow Matching," />
+  <meta name="keywords" content="MLE,GAN,Generative Model,ELBO,Variational Auto Encoder (VAE),Continuity Equation,Diffusion Model,Continuous Normalizing Flow (CNF),Flow Matching," />
 
 
 
@@ -94,7 +94,7 @@
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="Maximum likelihood estimation (MLE) 是機器學習 (ML) 中許多模型優化的目標函式應該是大家學習 ML 一開始就接觸的內容, 但其實它可能比你想的還複雜本文分兩大段落:&amp;emsp;A. Maximum Likelihood Estimation (MLE):&amp;emsp;&amp;emsp;簡單說明 MLE 後, 點出實務上會遇到的問題, 然後與 mean squ">
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/03/剖析生成模型的-Maximum-Likelihood-Estimation-MLE/image.png">
-<meta property="og:updated_time" content="2024-11-03T06:15:19.591Z">
+<meta property="og:updated_time" content="2024-11-04T12:27:26.779Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="剖析生成模型的 Maximum Likelihood Estimation (MLE)">
 <meta name="twitter:description" content="Maximum likelihood estimation (MLE) 是機器學習 (ML) 中許多模型優化的目標函式應該是大家學習 ML 一開始就接觸的內容, 但其實它可能比你想的還複雜本文分兩大段落:&amp;emsp;A. Maximum Likelihood Estimation (MLE):&amp;emsp;&amp;emsp;簡單說明 MLE 後, 點出實務上會遇到的問題, 然後與 mean squ">
@@ -418,7 +418,7 @@ p_\theta(\mathbf{x}_{t-1} \vert \mathbf{x}_t) = \mathcal{N}(\mathbf{x}_{t-1}; \b
 <blockquote>
 <p>用 NN 學 vector field 的方法稱為 Neural ODE [5].</p>
 </blockquote>
-<p>從 Continuity equation (or mass conservation) (ref [6]) 出發 <span>$$\frac{\partial p_\theta(x_t)}{\partial t}+\text{div}(p_\theta(x_t)u_t(x_t,\theta))=0$$</span><!-- Has MathJax --> 可以推導出 log-likelihood, see [5] <strong>裡的</strong> Appendix A: Proof of the Instantaneous Change of Variables Theorem <span>$$\frac{d\log p_\theta(x_t)}{dt}=-\text{div}(u_t(x_t,\theta))$$</span><!-- Has MathJax --> 因此 log-likelihood 就是積分起來的結果: <span>$$\log p_\theta(x)=\log p_{\text{base}}(z)+\int_{t=0}^1-\text{div}(u_t(x_t,\theta))dt$$</span><!-- Has MathJax --> 所以要算 MLE 必須算上述積分項. 通常使用 numerical 積分方法 [7], e.g. Euler, Runge Kutta methods 等來積, 且因為要做 backpropagation, 這個積分的過程要能支援計算 gradient, 可想而知會非常慢! (個人很粗略地看, 有錯歡迎指正)</p>
+<p>從 Continuity equation (or mass conservation) (ref [6]) 出發 <span>$$\frac{\partial p_\theta(x_t)}{\partial t}+\text{div}(p_\theta(x_t)u_t(x_t,\theta))=0$$</span><!-- Has MathJax --> 可以推導出 log-likelihood, see [5] 裡的 Appendix A: Proof of the <strong>Instantaneous Change of Variables Theorem</strong> <span>$$\frac{d\log p_\theta(x_t)}{dt}=-\text{div}(u_t(x_t,\theta))$$</span><!-- Has MathJax --> 因此 log-likelihood 就是積分起來的結果: <span>$$\log p_\theta(x)=\log p_{\text{base}}(z)+\int_{t=0}^1-\text{div}(u_t(x_t,\theta))dt$$</span><!-- Has MathJax --> 所以要算 MLE 必須算上述積分項. 通常使用 numerical 積分方法 [7], e.g. Euler, Runge Kutta methods 等來積, 且因為要做 backpropagation, 這個積分的過程要能支援計算 gradient, 可想而知會非常慢! (個人很粗略地看, 有錯歡迎指正)</p>
 <p>這也是 CNF 面臨的困難.</p>
 <p>2023 年 Meta 一篇論文 “Flow Matching for Generative Modeling [8]” 提出了學習這個 vector field $u_t(x_t,\theta)$ 不用透過 MLE 來學, 避掉上述困難! 詳細解說看之後的 flow matching 筆記<br>Flow matching 是近期一項重要的生成模型技術, 比 DDPM 更 general, 訓練更快更穩定, inference 速度也更快. 許多近一兩年的模型採用此做法.如 <a href="https://stability.ai/news/stable-diffusion-3" target="_blank" rel="external">Stable Diffusion 3</a>, Meta 的 <a href="https://arxiv.org/abs/2306.15687" target="_blank" rel="external">Voicebox</a>, <a href="https://github.com/SWivid/F5-TTS" target="_blank" rel="external">F5-TTS</a>, <a href="https://github.com/FunAudioLLM/CosyVoice" target="_blank" rel="external">CosyVoice</a>, …</p>
 <hr>
@@ -488,13 +488,13 @@ p_\theta(\mathbf{x}_{t-1} \vert \mathbf{x}_t) = \mathcal{N}(\mathbf{x}_{t-1}; \b
           
             <a href="/tags/Generative-Model/" rel="tag"># Generative Model</a>
           
-            <a href="/tags/Diffusion-Model/" rel="tag"># Diffusion Model</a>
-          
             <a href="/tags/ELBO/" rel="tag"># ELBO</a>
           
             <a href="/tags/Variational-Auto-Encoder-VAE/" rel="tag"># Variational Auto Encoder (VAE)</a>
           
             <a href="/tags/Continuity-Equation/" rel="tag"># Continuity Equation</a>
+          
+            <a href="/tags/Diffusion-Model/" rel="tag"># Diffusion Model</a>
           
             <a href="/tags/Continuous-Normalizing-Flow-CNF/" rel="tag"># Continuous Normalizing Flow (CNF)</a>
           
