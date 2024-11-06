@@ -267,6 +267,160 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2024/11/06/嘗試理解-Flow-Matching/" itemprop="url">
+                  嘗試理解 Flow Matching
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2024-11-06T19:33:29+08:00">
+                2024-11-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>接續上一篇: <a href="https://bobondemon.github.io/2024/10/29/%E8%AE%80-Flow-Matching-%E5%89%8D%E8%A6%81%E5%85%88%E7%90%86%E8%A7%A3%E7%9A%84%E6%9D%B1%E8%A5%BF/">讀 Flow Matching 前要先理解的東西</a> (建議先閱讀)</p>
+<p>Flow matching 模型在時間 $t=0$ 的時候從常態分佈出發 $p_0(x)=\mathcal{N}(0,I)$, 隨著時間變化其 pdf, 例如時間 $t$ 時的 pdf 變化成為 $p_t(x)$, 直到時間 $t=1$ 時希望變成接近目標分佈 $q(x)$, 即希望 $p_1(x)\approx q(x)$.<br>概念是頭尾 pdf 確定後, 中間這無限多種可能的 $p_t(x)$ 變化經過作者的巧妙設定, 讓學 vector field $u_t(x)$ 變的可能! (不學 pdf 而是學 vector field)<br>結果就是用 NN 學到的 $u_t(x)$ 可以讓 pdf 從開頭的常態分佈一路變化到最後的資料目標分佈 $q(x)$.</p>
+<hr>
+<h2 id="Vector-Field-決定了-Probability-Path"><a href="#Vector-Field-決定了-Probability-Path" class="headerlink" title="Vector Field 決定了 Probability Path"></a>Vector Field 決定了 Probability Path</h2><p>注意到這一路變化的過程要滿足 <a href="https://bobondemon.github.io/2024/10/29/%E8%AE%80-Flow-Matching-%E5%89%8D%E8%A6%81%E5%85%88%E7%90%86%E8%A7%A3%E7%9A%84%E6%9D%B1%E8%A5%BF/#D-Mass-Conservation-or-Continuity-Equation">continuity equation</a> (質量守恆)</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2024/11/06/嘗試理解-Flow-Matching/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/11/03/剖析生成模型的-Maximum-Likelihood-Estimation-MLE/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1655,157 +1809,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chih-Sheng Chen">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="棒棒生">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/" itemprop="url">
-                  Introduction of Probably Approximately Correct (PAC) 林軒田課程筆記
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2024-03-19T19:55:05+08:00">
-                2024-03-19
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分類於</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ML/" itemprop="url" rel="index">
-                    <span itemprop="name">ML</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-<hr>
-<p>這是林軒田教授在 Coursera <a href="https://www.coursera.org/learn/ntumlone-mathematicalfoundations">機器學習基石上 (Machine Learning Foundations)—Mathematical Foundations</a> Week4 的課程筆記.<br>說明了為什麼我們用 training data 學出來的 model 可以對沒看過的 data 有泛化能力, 因此機器學習才有可能真正應用上.<br>課程單元的這句話總結得很好 “learning can be <strong>probably approximately correct</strong> when given enough statistical data and finite number of hypotheses”<br>以下為筆記內容</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/#more" rel="contents">
-              閱讀全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1855,7 +1858,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">101</span>
+                <span class="site-state-item-count">102</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>

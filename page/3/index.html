@@ -267,6 +267,168 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2023/10/09/Pruning-Meets-Low-Rank-Parameter-Efficient-Fine-Tuning-筆記/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2023/10/09/Pruning-Meets-Low-Rank-Parameter-Efficient-Fine-Tuning-筆記/" itemprop="url">
+                  LoRAPrune, Pruning Meets Low-Rank Parameter-Efficient Fine-Tuning 筆記
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2023-10-09T17:29:38+08:00">
+                2023-10-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>本文是這篇論文 “LoRAPrune: Pruning Meets Low-Rank Parameter-Efficient Fine-Tuning [<a href="https://arxiv.org/abs/2305.18403">arxiv</a>]” 的筆記.</p>
+<p>一般來說使用 first-order Taylor importance 的 pruning 方法 (下面會介紹此法) 需計算 gradients 來對每個 weight 計算重要性, 然後根據重要性剪枝. 但是現在模型已經愈來愈大, 對所有 weights 都須計算 gradient 的負擔太大.</p>
+<p>另一方面, 在 LLM 中對於大模型的 fine tuning 使用 <a href="https://arxiv.org/abs/2106.09685">LoRA</a> (PEFT, Parameter Efficient Fine Tuning, 的一種) 來計算 gradients 非常有效率, 原因是對原來的 weights 是 fixed 的, 只 train LoRA 外掛的”少量”參數, 因此只有少量的 gradients 需要計算. 不過我們思考一下, 如果要對已經 prune 的 weights 旁邊外掛 LoRA 的話, LoRA train 完後沒辦法 merge 回去原來的 weights, 因為有可能打亂原本要 prune 的位置. 但是反過來說, 如果先用 LoRA fine tune 完才進行剪枝, 又回到當模型太大而負擔太大沒效率的問題. 況且這樣分兩步驟可能不是很直接, 如果能在 LoRA fine tune 時就能一併考慮某些 weights 會被 prune 的情況下去 fine tune 可能會更好.</p>
+<p>如何 pruning 原來的參數又能利用上 LoRA 的效率就是此篇論文的工作.</p>
+<span>$$\begin{array}{|c |c |c |}
+\hline  &amp; 能否對原來的參數做剪枝? &amp; 是否很有效率? \\
+\hline \text{1st order pruning} &amp; \text{Yes} &amp; \text{No} \\
+\hline \text{LoRA} &amp; \text{No} &amp; \text{Yes} \\
+\hline \text{LoRAPrune} &amp; \text{Yes} &amp; \text{Yes} \\
+\hline
+\end{array}$$</span><!-- Has MathJax -->
+<p>以下會先介紹 first-order Taylor importance 的 pruning 方法, 再來介紹 LoRA, 最後說明如何取兩者之優點得出此篇的方法: LoRAPrune</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/10/09/Pruning-Meets-Low-Rank-Parameter-Efficient-Fine-Tuning-筆記/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1690,173 +1852,6 @@ q=\text{round_to_int}(r/s)+z
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chih-Sheng Chen">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="棒棒生">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/" itemprop="url">
-                  Score Matching 系列 (五) SM 加上 Langevin Dynamics 變成生成模型
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2022-03-26T17:31:38+08:00">
-                2022-03-26
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分類於</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ML/" itemprop="url" rel="index">
-                    <span itemprop="name">ML</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-<hr>
-<p>主要內容為這篇文章 “<a href="https://arxiv.org/abs/1907.05600">Generative Modeling by Estimating Gradients of the Data Distribution</a>“</p>
-<h2 id="背景知識"><a href="#背景知識" class="headerlink" title="背景知識"></a>背景知識</h2><hr>
-<p>Score-based generative modeling 的兩個核心概念:</p>
-<ol>
-<li>Score matching (SM):<br> 使用 score matching loss 讓 NN 直接學 score function: <span>$\nabla_x\log p_{data}(x)$</span><!-- Has MathJax -->, 其中 <span>$p_{data}(x)$</span><!-- Has MathJax --> 為 data p.d.f.<br> 因此我們有一個 NN: <span>$s_\theta(x)\approx \nabla_x\log p_{data}(x)$</span><!-- Has MathJax --><br> Score matching 在做什麼, 請參考系列文章:<ul>
-<li><strong><a href="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/">Score Matching 系列 (一) Non-normalized 模型估計</a></strong></li>
-<li><strong><a href="https://bobondemon.github.io/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/">Score Matching 系列 (二) Denoising Score Matching (DSM) 改善效率並可 Scalable</a></strong></li>
-<li><strong><a href="https://bobondemon.github.io/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/">Score Matching 系列 (三) Sliced Score Matching (SSM) 同時保持效率和效果</a></strong></li>
-<li><strong><a href="https://bobondemon.github.io/2022/03/26/score-matching-toy-example-in-pytorch/">Score Matching 系列 (四) SM 的 Toy Example in PyTorch</a></strong></li>
-</ul>
-</li>
-<li><p>Langevin dynamics:<br> Langevin dynamics 可以使用 score function, i.e. <span>$\nabla_x\log p_{data}(x)$</span><!-- Has MathJax -->, 來取 sample, 取出來的 sample 具有 <span>$p_{data}(x)$</span><!-- Has MathJax --> 的分佈<br> 而我們已經用一個 NN <span>$s_\theta(x)$</span><!-- Has MathJax --> 來逼近 score function 了, 因此可以用 <span>$s_\theta(x)$</span><!-- Has MathJax --> 來取 sample, 步驟如下:<br> 給定一個固定的 step size <span>$\epsilon&gt;0$</span><!-- Has MathJax -->, initial value <span>$z=\tilde{x}_0\sim\pi(x)$</span><!-- Has MathJax -->, 其中 <span>$\pi(x)$</span><!-- Has MathJax --> 是固定的 prior distribution, and <span>$z_t\sim\mathcal{N}(0,I)$</span><!-- Has MathJax --></p>
-<p> <span>$$\tilde{x}_t = \tilde{x}_{t-1}+\frac{\epsilon}{2}\nabla_x\log p_{data}(\tilde{x}_{t-1})+\sqrt{\epsilon}z_t \\
-\approx \tilde{x}_{t-1}+\frac{\epsilon}{2}s_\theta(\tilde{x}_{t-1})+\sqrt{\epsilon}z_t$$</span><!-- Has MathJax --> 當 <span>$\epsilon\rightarrow 0$</span><!-- Has MathJax -->, <span>$T\rightarrow\infty$</span><!-- Has MathJax --> 則 <span>$\tilde{x}_T$</span><!-- Has MathJax --> 等同於從 <span>$p_{data}(x)$</span><!-- Has MathJax --> 取樣!<br> 我們在這篇文章 <strong><a href="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/">忘記物理也要搞懂的 Hamiltonian Monte Carlo (HMC) 筆記</a></strong><br> 非常仔細得解釋了為什麼可以這麼做, 注意到其實這裡涉及了很多知識, 依序包含 MCMC, Metropolis Hastings, Hamiltonian Dynamic, 最後才關聯到 Langevin Dynamics. 不過只想單純使用的話, 上面的描述就足夠.</p>
-</li>
-</ol>
-<p>藉由 Score Matching + Langevin Dynamics (SMLD), 我們發現如果成功學到 score function, 則可以從 random noise $z$ 產生符合 data distribution 的 sample.<br>而這正是 generative model 在做的事情, 此種方法論文稱為 SMLD<br>但是直接訓練出來的 SMLD 在真實資料上會有兩個問題導致做不好, 接著<a href="https://arxiv.org/abs/1907.05600">論文</a>裡說明是什麼原因以及解決方法</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/#more" rel="contents">
-              閱讀全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1906,7 +1901,7 @@ q=\text{round_to_int}(r/s)+z
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">101</span>
+                <span class="site-state-item-count">102</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
