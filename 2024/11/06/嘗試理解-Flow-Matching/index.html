@@ -99,7 +99,7 @@ Flow matching 模型在時間 $t=0$ 的時候從常態分佈出發 $p_0(x)=\math
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/image 1.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/image 2.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/image 3.png">
-<meta property="og:updated_time" content="2024-11-06T12:08:27.887Z">
+<meta property="og:updated_time" content="2024-11-06T12:17:05.386Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="嘗試理解 Flow Matching">
 <meta name="twitter:description" content="接續上一篇: 讀 Flow Matching 前要先理解的東西 (建議先閱讀)
@@ -443,7 +443,7 @@ u_t(x|x_1)=\frac{\sigma_t&apos;(x_1)}{\sigma_t(x_1)}(x-\mu_t(x_1))+\mu_t&apos;(x
 <hr>
 <h2 id="Inference-and-Sampling"><a href="#Inference-and-Sampling" class="headerlink" title="Inference and Sampling"></a>Inference and Sampling</h2><p>我們花了大把的篇幅來說明怎麼學 vector field $u_t(x)$.<br>如同 “<a href="https://bobondemon.github.io/2024/10/29/%E8%AE%80-Flow-Matching-%E5%89%8D%E8%A6%81%E5%85%88%E7%90%86%E8%A7%A3%E7%9A%84%E6%9D%B1%E8%A5%BF/">讀 Flow Matching 前要先理解的東西</a>” 說的 vector field 我們想成是速度的話, 理論上時間 $t$ 時 $p_t(x)$ 的任一點 $x_t$ 都能夠得出演變的路徑.<br><span>$$\frac{d}{dt}x_t=u_t(x_t)$$</span><!-- Has MathJax --> 這個路徑我們叫 flow.<br>因此採樣就是從 <span>$p_0(x)=\mathcal{N}(0,I)$</span><!-- Has MathJax --> 出發得到一個點 $x_0$, 離散的估計 $\Delta t$ 時間後的位置為:<br><span>$$x_{\Delta t}=x_0+\frac{d}{dt}x_0\cdot \Delta t \\
 =x_0+u_0(x_0)\cdot \Delta t$$</span><!-- Has MathJax --> 所以時間 $t$ 時, $t+\Delta t$ 的位置為:<br><span>$$x_{t+\Delta t}=x_t+\frac{d}{dt}x_t\cdot \Delta t \\
-=x_t+u_t(x_t)\cdot \Delta t$$</span><!-- Has MathJax --> 當 $\Delta t$ 每次都走很小步的時候就會比較準, 但要花很多次 iteration.<br>這種 Naive 的方法為 Euler method.<br>實際上有更多好的選擇, 請參考 [4]</p>
+=x_t+u_t(x_t)\cdot \Delta t$$</span><!-- Has MathJax --> 當 $\Delta t$ 每次都走很小步的時候就會比較準, 但要花很多次 iteration.<br>這種 Naive 的方法為 Euler method.<br>實際上有更多好的選擇, 請參考 [4] <a href="https://bobondemon.github.io/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/">Numerical Methods for Ordinary Differential Equations</a></p>
 <hr>
 <h2 id="Toy-Example-Codes"><a href="#Toy-Example-Codes" class="headerlink" title="Toy Example Codes"></a>Toy Example Codes</h2><p>這篇文章 “Flow Matching: Matching flows instead of scores” [3] 有給出 Conditional flows from FM (Lipman) 和 I-CFM 的 sample codes. 完整 source code 在 [<a href="https://github.com/jmtomczak/intro_dgm/blob/main/sbgms/fm_example.ipynb" target="_blank" rel="external">6</a>].<br>算是一個很清楚的展示, 容易擴展.</p>
 <p>Flow matching 理論雖然複雜精美, 實作上卻十分簡潔! 精彩!</p>
