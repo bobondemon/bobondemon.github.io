@@ -527,8 +527,6 @@
 <hr>
 <p>接續上一篇: <a href="https://bobondemon.github.io/2024/10/29/%E8%AE%80-Flow-Matching-%E5%89%8D%E8%A6%81%E5%85%88%E7%90%86%E8%A7%A3%E7%9A%84%E6%9D%B1%E8%A5%BF/">讀 Flow Matching 前要先理解的東西</a> (建議先閱讀)</p>
 <p>Flow matching 模型在時間 $t=0$ 的時候從常態分佈出發 $p_0(x)=\mathcal{N}(0,I)$, 隨著時間變化其 pdf, 例如時間 $t$ 時的 pdf 變化成為 $p_t(x)$, 直到時間 $t=1$ 時希望變成接近目標分佈 $q(x)$, 即希望 $p_1(x)\approx q(x)$.<br>概念是頭尾 pdf 確定後, 中間這無限多種可能的 $p_t(x)$ 變化經過作者的巧妙設定, 讓學 vector field $u_t(x)$ 變的可能! (不學 pdf 而是學 vector field)<br>結果就是用 NN 學到的 $u_t(x)$ 可以讓 pdf 從開頭的常態分佈一路變化到最後的資料目標分佈 $q(x)$.</p>
-<hr>
-<h2 id="Vector-Field-決定了-Probability-Path"><a href="#Vector-Field-決定了-Probability-Path" class="headerlink" title="Vector Field 決定了 Probability Path"></a>Vector Field 決定了 Probability Path</h2><p>注意到這一路變化的過程要滿足 <a href="https://bobondemon.github.io/2024/10/29/%E8%AE%80-Flow-Matching-%E5%89%8D%E8%A6%81%E5%85%88%E7%90%86%E8%A7%A3%E7%9A%84%E6%9D%B1%E8%A5%BF/#D-Mass-Conservation-or-Continuity-Equation">continuity equation</a> (質量守恆)</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2024/11/06/嘗試理解-Flow-Matching/#more" rel="contents">

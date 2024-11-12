@@ -99,7 +99,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/12/筆記-Langevin-Dynamics-和-Fokker-Planck-Equation-推導/FP_simulation_stat.gif">
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/12/筆記-Langevin-Dynamics-和-Fokker-Planck-Equation-推導/Untitled.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/12/筆記-Langevin-Dynamics-和-Fokker-Planck-Equation-推導/image.png">
-<meta property="og:updated_time" content="2024-11-12T11:56:36.785Z">
+<meta property="og:updated_time" content="2024-11-12T12:05:57.229Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="筆記 Langevin Dynamics 和 Fokker-Planck Equation 推導">
 <meta name="twitter:description" content="筆記來源 **[DeepBayes2019]: Day 5, Lecture 3. Langevin dynamics for sampling and global optimization 前半小時. 非常精彩!**
@@ -428,7 +428,7 @@ dy
 \end{align}$$</span><!-- Has MathJax --> 再想辦法把 <span>${\color{blue}{x&apos;(y)}}$</span><!-- Has MathJax --> 寫出來, 比較複雜, 把 $\nabla U(x’)$ 在 $x$ 這點做 Taylor expansion:<br><span>$$y\triangleq x&apos;-x-\nabla U(x&apos;)dt \\
 = x&apos;-x-\left(
 \nabla U(x)+(x&apos;-x)\frac{\partial \nabla U(x)}{\partial x}+o(x&apos;-x)
-\right)dt \\$$</span><!-- Has MathJax --> 把 $x’$ 合併展開並整理, 並注意到 $o(x’-x)dt$ 這項為 $o(dt)$, 因為根據 (4):<br><span>$$=\left(I-\frac{\partial \nabla U(x)}{\partial x}dt\right)x&apos;-x -\nabla U(x)dt +x\frac{\partial \nabla U(x)}{\partial x}dt + o(dt) \\
+\right)dt \\$$</span><!-- Has MathJax --> 把 $x’$ 合併展開並整理, 並注意到因為根據 (4), $o(x’-x)dt$ 這項為 $o(dt)$, 繼續推導:<br><span>$$=\left(I-\frac{\partial \nabla U(x)}{\partial x}dt\right)x&apos;-x -\nabla U(x)dt +x\frac{\partial \nabla U(x)}{\partial x}dt + o(dt) \\
 \Longrightarrow x&apos;=\left(I-\frac{\partial \nabla U(x)}{\partial x}dt\right)^{-1}
 \left(y+x+\nabla U(x)dt-x\frac{\partial \nabla U(x)}{\partial x}dt+o(dt)
 \right)$$</span><!-- Has MathJax --> 利用 <span>$(I-A)^{-1}=I+A+A^2+A^3+...$</span><!-- Has MathJax --> 的公式 [<a href="https://youtu.be/3-KzIjoFJy4?si=EGAy-7G63n0_rug6&amp;t=846" target="_blank" rel="external">YouTube with time</a>] [<a href="https://math.stackexchange.com/questions/298616/what-is-inverse-of-ia" target="_blank" rel="external">ref</a>]:<br><span>$$\left(I-\frac{\partial \nabla U(x)}{\partial x}dt\right)^{-1}=I+\frac{\partial \nabla U(x)}{\partial x}dt+o(dt)$$</span><!-- Has MathJax --> 代回去得到<br><span>$$x&apos;=\left(I+\frac{\partial \nabla U(x)}{\partial x}dt+o(dt)\right)

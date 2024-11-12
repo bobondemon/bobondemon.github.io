@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Continuity Equation,Flow Matching," />
+  <meta name="keywords" content="Flow Matching,Continuity Equation," />
 
 
 
@@ -99,7 +99,7 @@ Flow matching 模型在時間 $t=0$ 的時候從常態分佈出發 $p_0(x)=\math
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/image 1.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/image 2.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/image 3.png">
-<meta property="og:updated_time" content="2024-11-06T12:30:32.680Z">
+<meta property="og:updated_time" content="2024-11-12T12:08:29.695Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="嘗試理解 Flow Matching">
 <meta name="twitter:description" content="接續上一篇: 讀 Flow Matching 前要先理解的東西 (建議先閱讀)
@@ -382,9 +382,9 @@ Flow matching 模型在時間 $t=0$ 的時候從常態分佈出發 $p_0(x)=\math
 <hr>
 <p>接續上一篇: <a href="https://bobondemon.github.io/2024/10/29/%E8%AE%80-Flow-Matching-%E5%89%8D%E8%A6%81%E5%85%88%E7%90%86%E8%A7%A3%E7%9A%84%E6%9D%B1%E8%A5%BF/">讀 Flow Matching 前要先理解的東西</a> (建議先閱讀)</p>
 <p>Flow matching 模型在時間 $t=0$ 的時候從常態分佈出發 $p_0(x)=\mathcal{N}(0,I)$, 隨著時間變化其 pdf, 例如時間 $t$ 時的 pdf 變化成為 $p_t(x)$, 直到時間 $t=1$ 時希望變成接近目標分佈 $q(x)$, 即希望 $p_1(x)\approx q(x)$.<br>概念是頭尾 pdf 確定後, 中間這無限多種可能的 $p_t(x)$ 變化經過作者的巧妙設定, 讓學 vector field $u_t(x)$ 變的可能! (不學 pdf 而是學 vector field)<br>結果就是用 NN 學到的 $u_t(x)$ 可以讓 pdf 從開頭的常態分佈一路變化到最後的資料目標分佈 $q(x)$.</p>
+<a id="more"></a>
 <hr>
 <h2 id="Vector-Field-決定了-Probability-Path"><a href="#Vector-Field-決定了-Probability-Path" class="headerlink" title="Vector Field 決定了 Probability Path"></a>Vector Field 決定了 Probability Path</h2><p>注意到這一路變化的過程要滿足 <a href="https://bobondemon.github.io/2024/10/29/%E8%AE%80-Flow-Matching-%E5%89%8D%E8%A6%81%E5%85%88%E7%90%86%E8%A7%A3%E7%9A%84%E6%9D%B1%E8%A5%BF/#D-Mass-Conservation-or-Continuity-Equation">continuity equation</a> (質量守恆)</p>
-<a id="more"></a>
 <p><span>$$\begin{align}
 \frac{\partial p_t(x)}{\partial t}
 +
@@ -505,9 +505,9 @@ u_t(x|x_1)=\frac{\sigma_t&apos;(x_1)}{\sigma_t(x_1)}(x-\mu_t(x_1))+\mu_t&apos;(x
       
         <div class="post-tags">
           
-            <a href="/tags/Continuity-Equation/" rel="tag"># Continuity Equation</a>
-          
             <a href="/tags/Flow-Matching/" rel="tag"># Flow Matching</a>
+          
+            <a href="/tags/Continuity-Equation/" rel="tag"># Continuity Equation</a>
           
         </div>
       
