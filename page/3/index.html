@@ -267,6 +267,163 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2023/10/28/Quantization-Error-Case-without-Clipping/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2023/10/28/Quantization-Error-Case-without-Clipping/" itemprop="url">
+                  Quantization Error (Case without Clipping)
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2023-10-28T18:05:30+08:00">
+                2023-10-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SP/" itemprop="url" rel="index">
+                    <span itemprop="name">SP</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>我在閱讀這篇論文: “Optimal Clipping and Magnitude-aware Differentiation for Improved Quantization-aware Training” [<a href="https://arxiv.org/abs/2206.06501">arxiv</a>] 的時候, 看到這個式子說明 uniform constrained quantizer 有這樣的 quantization error:<br><span>$$\begin{align}
+J=s_{\text max}^2{4^{-B}\over 3}
+\end{align}$$</span><!-- Has MathJax --> 當下看得我一頭霧水, 後來查了資料才了解這個 quantization error 的推導, 因此筆記一下. [<a href="https://www.youtube.com/watch?v=V56yTln1krg">來源1</a>], [<a href="https://www.youtube.com/watch?v=-e8fqr53Kg4">來源2</a>]</p>
+<blockquote>
+<p>這裡要特別說明一下, 這邊的 quantization error 沒有考慮超過最大最小值造成的 clipping error. 將 clipping error 一起考慮是開頭說的那篇<a href="https://arxiv.org/abs/2206.06501">論文</a>會探討的情況.</p>
+</blockquote>
+<p>這樣的 quantization error 分析在傳統訊號處理可以看到, 例如 analog 訊號經過 ADC 變成 digital 訊號後會有 quantization 損失. 如果 quantization bit 增加 1 bit 則 SNR 增加約 6dB. 又如果採用 nonlinear quantization 則對音量較低的情況其 SNR 提昇會比 linear quantization 好. Nonlinear quantization 又分 $\mu$-law (北美 and 日本) 和 A-law (歐洲 and 其他). 這些內容在下面的筆記都會解釋. Let’s go~</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/10/28/Quantization-Error-Case-without-Clipping/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2023/10/09/Pruning-Meets-Low-Rank-Parameter-Efficient-Fine-Tuning-筆記/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1693,165 +1850,6 @@ q=\text{round_to_int}(r/s)+z
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chih-Sheng Chen">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="棒棒生">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2022/05/07/Hamiltonian-Monte-Carlo/" itemprop="url">
-                  忘記物理也要搞懂的 Hamiltonian Monte Carlo (HMC) 筆記
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2022-05-07T18:09:02+08:00">
-                2022-05-07
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分類於</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ML/" itemprop="url" rel="index">
-                    <span itemprop="name">ML</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-<hr>
-<ul>
-<li>2024/07/28 更新 (見本文最後一段): 補充與 Langevin Dynamics 的關係, 這是我們在 [<a href="https://bobondemon.github.io/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/">Score Matching 系列 (五) SM 加上 Langevin Dynamics 變成生成模型</a>] 裡提到一旦訓練出 score function 後, 模型使用的採樣技術. 另外 Score Match + Langevin Dynamics (SMLD) 這種生成模型事實上跟 <a href="https://arxiv.org/abs/2006.11239">DDPM (Denoising Diffusion Probabilistic Models)</a> 是一樣的! Yang Song 這篇 2021 ICLR best paper award (<a href="https://arxiv.org/abs/2011.13456">Score-Based Generative Modeling through Stochastic Differential Equations</a>) 闡明了 SMLD 跟 DDPM 其實是兩種不同的觀點, 都可以用相同的 SDE (Stochastic Differential Equation) 來表達.</li>
-</ul>
-<p>先說我物理什麼的都還給老師了, 只能用自己理解的方式, 筆記下 <strong>Hamiltonian dynamic.</strong></p>
-<blockquote>
-<p>　💡 如果連我都能懂, 相信大家都能理解 HMC 了</p>
-</blockquote>
-<p>但還是<strong>建議先看 <a href="https://bobondemon.github.io/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/">MCMC by Gibbs and Metropolis-Hasting Sampling</a></strong>, 因為這篇要說的 Hamiltonian Monte Carlo (HMC) 是 Metropolis-Hastings (MH) 方法的一種, 只是 proposal distribution 從 random walk 改成使用 Hamiltonian dynamics 來做, 因而變的非常有效率 (accept rate 很高), 且對於高維度資料採樣也很有效.</p>
-<p>首先粗體字如 <span>$\mathbf{x}, \mathbf{v}, \mathbf{p}$</span><!-- Has MathJax --> 都是 column vector, 而非粗體字表 scalar, e.g. $m,t$</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2022/05/07/Hamiltonian-Monte-Carlo/#more" rel="contents">
-              閱讀全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1901,7 +1899,7 @@ q=\text{round_to_int}(r/s)+z
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">102</span>
+                <span class="site-state-item-count">103</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -1923,7 +1921,7 @@ q=\text{round_to_int}(r/s)+z
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">216</span>
+                <span class="site-state-item-count">217</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>

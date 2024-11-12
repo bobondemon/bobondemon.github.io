@@ -1,0 +1,880 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Langevin Dynamics,Denoising Diffusion Probabilistic Models,Diffusion Model,Continuity Equation,Fokker-Planck Equation," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="筆記來源 **[DeepBayes2019]: Day 5, Lecture 3. Langevin dynamics for sampling and global optimization 前半小時. 非常精彩!**
+粒子 $x$ follow Langevin dynamics 的話: $$x-x&amp;apos;=-\nabla U(x&amp;apos;)dt+\mathcal{N}(0,\s">
+<meta property="og:type" content="article">
+<meta property="og:title" content="筆記 Langevin Dynamics 和 Fokker-Planck Equation 推導">
+<meta property="og:url" content="https://bobondemon.github.io/2024/11/12/筆記-Langevin-Dynamics-和-Fokker-Planck-Equation-推導/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="筆記來源 **[DeepBayes2019]: Day 5, Lecture 3. Langevin dynamics for sampling and global optimization 前半小時. 非常精彩!**
+粒子 $x$ follow Langevin dynamics 的話: $$x-x&amp;apos;=-\nabla U(x&amp;apos;)dt+\mathcal{N}(0,\s">
+<meta property="og:image" content="https://bobondemon.github.io/2024/11/12/筆記-Langevin-Dynamics-和-Fokker-Planck-Equation-推導/single_particles.gif">
+<meta property="og:image" content="https://bobondemon.github.io/2024/11/12/筆記-Langevin-Dynamics-和-Fokker-Planck-Equation-推導/FP_simulation_stat.gif">
+<meta property="og:image" content="https://bobondemon.github.io/2024/11/12/筆記-Langevin-Dynamics-和-Fokker-Planck-Equation-推導/Untitled.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/11/12/筆記-Langevin-Dynamics-和-Fokker-Planck-Equation-推導/image.png">
+<meta property="og:updated_time" content="2024-11-12T11:56:36.785Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="筆記 Langevin Dynamics 和 Fokker-Planck Equation 推導">
+<meta name="twitter:description" content="筆記來源 **[DeepBayes2019]: Day 5, Lecture 3. Langevin dynamics for sampling and global optimization 前半小時. 非常精彩!**
+粒子 $x$ follow Langevin dynamics 的話: $$x-x&amp;apos;=-\nabla U(x&amp;apos;)dt+\mathcal{N}(0,\s">
+<meta name="twitter:image" content="https://bobondemon.github.io/2024/11/12/筆記-Langevin-Dynamics-和-Fokker-Planck-Equation-推導/single_particles.gif">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2024/11/12/筆記-Langevin-Dynamics-和-Fokker-Planck-Equation-推導/"/>
+
+
+
+
+
+  <title> 筆記 Langevin Dynamics 和 Fokker-Planck Equation 推導 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/11/12/筆記-Langevin-Dynamics-和-Fokker-Planck-Equation-推導/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                筆記 Langevin Dynamics 和 Fokker-Planck Equation 推導
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2024-11-12T19:21:29+08:00">
+                2024-11-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>筆記來源 <a href="https://www.youtube.com/watch?v=3-KzIjoFJy4&amp;list=PLe5rNUydzV9QHe8VDStpU0o8Yp63OecdW&amp;index=24" target="_blank" rel="external">**[DeepBayes2019]: Day 5, Lecture 3. Langevin dynamics for sampling and global optimization</a> 前半小時. 非常精彩!**</p>
+<p>粒子 $x$ follow Langevin dynamics 的話: <span>$$x-x&apos;=-\nabla U(x&apos;)dt+\mathcal{N}(0,\sigma^2dt)$$</span><!-- Has MathJax --> $x$ 隨時間的機率分布 $p_t(x)$ 會滿足 Fokker-Planck equation 這種  <a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/#Week-7-7-Ito%E2%80%99s-formula">Stochastic Differential Equation (SDE)</a> 的形式:<br><span>$$\frac{\partial }{\partial t}p_t(x)=\nabla p_t(x)^T\nabla U(x)+p_t(x)\text{div}\nabla U(x)+\frac{1}{2}\sigma^2\nabla^2p_t(x)$$</span><!-- Has MathJax --> 而從 F-P equation 我們可以發現最後 $t\rightarrow\infty$ 時某種設定下會有 stationary 分佈.<br>而如果將要採樣的目標分佈 $p(x)$ 設定成這種 stationary 分佈的話.<br>由於是 stationary 表示就算繼續 follow Langevin dynamics 讓粒子 $x$ 移動 (更新), 更新後的值仍然滿足目標分佈 $p(x)$, 因此達到採樣效果!<br>而這也是 <a href="https://arxiv.org/abs/2006.11239" target="_blank" rel="external">Denoising Diffusion Probabilistic Models (DDPM)</a> 做採樣時的方法.</p>
+<p>接著詳細記錄 Langevin dynamics, Fokker-Planck equation 推導, 以及 stationary 分佈和採樣方法.</p>
+<blockquote>
+<p>如果讀者知道 <a href="https://bobondemon.github.io/2024/10/29/%E8%AE%80-Flow-Matching-%E5%89%8D%E8%A6%81%E5%85%88%E7%90%86%E8%A7%A3%E7%9A%84%E6%9D%B1%E8%A5%BF/#D-Mass-Conservation-or-Continuity-Equation">Continuity equation</a> 的話, 應該會發現與 F-P equation 非常相似. 它們的關聯可以參考 “Flow Matching for Generative Modeling” <a href="https://arxiv.org/abs/2210.02747" target="_blank" rel="external">論文的 Appendix D</a>.</p>
+</blockquote>
+<a id="more"></a>
+<hr>
+<h2 id="Langevin-Dynamics"><a href="#Langevin-Dynamics" class="headerlink" title="Langevin Dynamics"></a>Langevin Dynamics</h2><p>從 Langevin dynamics 出發, 考慮如下的 <a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/#Week-7-7-Ito%E2%80%99s-formula">Stochastic Differential Equation (SDE)</a> 其中 $X(t)$ 是 <a href="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/">random process</a>:<br><span>$$\begin{align}
+dX(t)=\underbrace{-\nabla U(X(t))dt}_{\text{Force}}+\underbrace{\sigma dBt}_{\text{random fluctuation}}
+\end{align}$$</span><!-- Has MathJax --> 其中 $B_t$ 是 <a href="https://bobondemon.github.io/2024/09/25/%E6%95%B4%E7%90%86%E9%9A%A8%E6%A9%9F%E9%81%8E%E7%A8%8B%E7%9A%84%E9%80%A3%E7%BA%8C%E6%80%A7%E3%80%81%E5%BE%AE%E5%88%86%E3%80%81%E7%A9%8D%E5%88%86%E5%92%8CBrownian-Motion/#Brownian-Motion-Week4-6">Brownian motion</a>, (或稱 Wiener process)<br>對它做離散逼近:<br><span>$$\begin{align}
+X_{t+1}-X_t=-dt\nabla U(X_t)+\sigma\sqrt{dt}\mathcal{N}(0,I)
+\end{align}$$</span><!-- Has MathJax --> 注意到 <span>$B_{t+dt}-B_t\sim\mathcal{N}(0,dt)=\sqrt{dt}\mathcal{N}(0,I)$</span><!-- Has MathJax -->.<br>下圖顯示粒子使用 (1) 的移動軌跡:<br><img src="/2024/11/12/筆記-Langevin-Dynamics-和-Fokker-Planck-Equation-推導/single_particles.gif" width="60%" height="60%"><br>這個 SDE 其實跟 Machine Learning 的 Gradient Descent 很有關聯, 改寫一下:<br><span>$$\begin{align}
+W_{t+1}-W_t=-\varepsilon\nabla \mathcal{L}(W_t)+\sigma\sqrt{\varepsilon}\mathcal{N}(0,I)
+\end{align}$$</span><!-- Has MathJax --> 其中 $W_t$ 表示第 $t$ 次 iteration 時的 parameter, $\mathcal{L}$ 表示 loss function.<br>會發現就是 gradient descent 公式多一個 random 項.</p>
+<hr>
+<h2 id="Fokker-Planck-Equation"><a href="#Fokker-Planck-Equation" class="headerlink" title="Fokker-Planck Equation"></a>Fokker-Planck Equation</h2><p>Fokker-Planck equation 描述了如果 partical $x$ 的移動遵從 Langevin dynamics, 則 density 隨著時間的變化, i.e. <span>$\frac{\partial}{\partial t}p_t(x)$</span><!-- Has MathJax -->, 可以被描述出來<br><span>$$\frac{\partial }{\partial t}p_t(x)=\nabla p_t(x)^T\nabla U(x)+p_t(x)\text{div}\nabla U(x)+\frac{1}{2}\sigma^2\nabla^2p_t(x)$$</span><!-- Has MathJax --> 其中 <span>$\text{div},\nabla^2$</span><!-- Has MathJax --> 為 <a href="https://www.notion.so/Vector-Calculus-and-Partial-Differential-Equations-112edc3d531d80a9afb3d2ba4368c635?pvs=21" target="_blank" rel="external">divergence 和 Laplace operators</a>.<br><img src="/2024/11/12/筆記-Langevin-Dynamics-和-Fokker-Planck-Equation-推導/FP_simulation_stat.gif" width="60%" height="60%"><br>隨著時間似乎會達到 stationary distribution.<br>詳細推導請看最後一段 Appendix. 另外補充 F-P equation 與 Continuity equation 的關係可以參考<a href="https://arxiv.org/abs/2210.02747" target="_blank" rel="external">論文的 Appendix D</a>.</p>
+<h3 id="Stationary-distribution"><a href="#Stationary-distribution" class="headerlink" title="Stationary distribution"></a>Stationary distribution</h3><p>要怎麼找到這樣的 distribution? 流程就是先假設有 stationary density 且令其為 Gibbs distribution, $p_G(x)$, 的形式<br><span>$$p_G(x)=\frac{1}{Z}\exp\left(-\frac{U(x)}{T}\right)\\
+,\text{where}\quad Z=\int\exp\left(-\frac{U(x)}{T}\right)dx$$</span><!-- Has MathJax --> 然後帶入 Fokker-Planck equation 觀察什麼樣的情況會滿足.<br>我們最終得到 $T=\sigma^2/2$. 說明了 stationary distribution 的長相為 $T=\sigma^2/2$ 的 Gibbs distribution.</p>
+<p><strong>[$T=\sigma^2/2$ 的推導]</strong><br>我們會利用到 divergence, $\nabla\cdot$, 具有 linearity 性質.<br>把 $p_G(x)$ 帶入到 Fokker-Planck equation 其中 normalization term $Z$ 可以忽略 (會被除掉)<br><span>$$0=\left(\nabla\exp(-U(x)/T)\right)^T\nabla U(x)+\exp(-U(x)/T)\nabla\cdot\nabla U(x)+\frac{1}{2}\sigma^2\nabla\cdot\nabla\exp(-U(x)/T) \\
+= \nabla\cdot\left[\exp(-U(x)/T)\nabla U(x)\right]+\frac{1}{2}\sigma^2\nabla\cdot\nabla\exp(-U(x)/T) \\
+=\nabla\cdot\left[\exp(-U(x)/T)\nabla U(x)-\frac{\sigma^2}{2T}\exp(-U(x)/T)\nabla U(x)\right] \\
+=\nabla\cdot\left[\left(1-\frac{\sigma^2}{2T}\right)\exp(-U(x)/T)\nabla U(x)\right]=0$$</span><!-- Has MathJax --> 注意到最後一行由於我們沒有對 potential field $U(x)$ 有所限制<br>因此 $=0$ 只有可能中括號內 $=0$, 所以<br><span>$$\left(1-\frac{\sigma^2}{2T}\right)\exp(-U(x)/T)\nabla U(x)=0 \\
+\Longrightarrow 1-\frac{\sigma^2}{2T}=0 \Longrightarrow T=\frac{\sigma^2}{2}$$</span><!-- Has MathJax --></p>
+<h3 id="對目標分布做採樣"><a href="#對目標分布做採樣" class="headerlink" title="對目標分布做採樣"></a>對目標分布做採樣</h3><p>因此我們知道, 如果使用 Langevin equation 做擴散的話且希望它最終達到 target distribution $p(x)$, 只要定義 $U(x)=-\log p(x)$ and $\sigma=\sqrt{2}$, i.e. $T=1$. 則根據 $p_G(x)$ 的定義, $p_G(x)$ 會等於我們的 target distribution $p(x)$, 又已知 $p_G(x)$ 為 stationary distribution, 所以用 Langevin equation 擴散隨著時間到最後等同於從 $p_G(x)=p(x)$ 採樣.<br>所以可以這麼做 Langevin dynamics sampling (只利用到 score function 做 sampling)<br><img src="/2024/11/12/筆記-Langevin-Dynamics-和-Fokker-Planck-Equation-推導/Untitled.png" width="60%" height="60%"></p>
+<hr>
+<h2 id="Appendix-Derivation-of-the-Fokker-Planck-Equation"><a href="#Appendix-Derivation-of-the-Fokker-Planck-Equation" class="headerlink" title="Appendix: Derivation of the Fokker-Planck Equation"></a>Appendix: Derivation of the Fokker-Planck Equation</h2><p>重複一下 Langevin dynamics<br><span>$$dX(t)=-\nabla U(X(t))dt+\sigma dBt$$</span><!-- Has MathJax --> 離散化:<br><span>$$\begin{align}
+x-x&apos;=-\nabla U(x&apos;)dt+\mathcal{N}(0,\sigma^2dt) \\
+\Longrightarrow x\sim\mathcal{N}(x&apos;-\nabla U(x&apos;)dt,\sigma^2dt):=q(x|x&apos;)
+\end{align}$$</span><!-- Has MathJax --><br><img src="/2024/11/12/筆記-Langevin-Dynamics-和-Fokker-Planck-Equation-推導/image.png" width="50%" height="50%"><br>所以 $p_t(x)$ 我們可以這麼寫:<br><span>$$\begin{align}
+p_t(x)=\int p_{t-dt}(x&apos;)q(x|x&apos;)dx&apos;
+\end{align}$$</span><!-- Has MathJax --> 注意到 <span>$p_{t-dt}(x&apos;)$</span><!-- Has MathJax --> 我們也不知道. 但我們知道 $q(x|x’)$ 定義在式 (5), 展開來:<br><span>$$\begin{align}
+q(x|x&apos;)=\frac{1}{(2\pi\sigma^2 dt)^{n/2}}\exp\left(\frac
+{-({\color{orange}{x&apos;-x-\nabla U(x&apos;)dt}})^2}
+{2\sigma^2dt}\right) \\
+\end{align}$$</span><!-- Has MathJax --> 定義:<br><span>$$\begin{align}
+{\color{orange}{y\triangleq x&apos;-x-\nabla U(x&apos;)dt}}:=f(x&apos;)
+\end{align}$$</span><!-- Has MathJax --> 則根據 <a href="https://www.notion.so/Change-of-Variables-Theorem-and-Surface-Integral-124edc3d531d80128d9ee2462bc67a70?pvs=21" target="_blank" rel="external">change of variables</a> 我們知道式 (6) 變成<br><span>$$\begin{align}
+p_t(x)=\int p_{t-dt}({\color{blue}{x&apos;(y)}})\mathcal{N}(y|0,\sigma^2dt\cdot I)
+{\color{blue}{\left|\frac{\partial x&apos;}{\partial y}\right|}}
+dy
+\end{align}$$</span><!-- Has MathJax --> 就算簡化了 $q(x|x’)$ 成上式, 藍色的部分 <span>${\color{blue}{x&apos;(y)}}$</span><!-- Has MathJax -->, <span>${\color{blue}{|\partial x&apos;/\partial y|}}$</span><!-- Has MathJax --> 我們仍不知道, 必須想辦法從 $y$ (8) 的定義反寫.<br>先處理比較好做的 <span>${\color{blue}{|\partial x&apos;/\partial y|}}$</span><!-- Has MathJax --><br>根據定義 <span>$y=x&apos;-x-\nabla U(x&apos;)dt$</span><!-- Has MathJax --> 且我們有 <span>$(I-A)^{-1}=I+A+A^2+A^3+...$</span><!-- Has MathJax --> 的公式 [<a href="https://math.stackexchange.com/questions/298616/what-is-inverse-of-ia" target="_blank" rel="external">ref</a>], 先計算 <span>$\partial y/\partial x&apos;$</span><!-- Has MathJax --> 得到:<br><span>$$\frac{\partial y}{\partial x&apos;}=I-\text{div}\nabla U(x&apos;)dt:=I-Adt$$</span><!-- Has MathJax --> 其中 $\text{div}$ 表示 <a href="https://www.notion.so/Vector-Calculus-and-Partial-Differential-Equations-112edc3d531d80a9afb3d2ba4368c635?pvs=21" target="_blank" rel="external">divergence</a>, 再計算 inverse:<br><span>$$\frac{\partial x&apos;}{\partial y}=\left(\frac{\partial y}{\partial x&apos;}\right)^{-1}=\left(I-Adt\right)^{-1} \\
+=I+Adt+o(dt) \\
+=I+\text{div}\nabla U(x&apos;)dt + o(dt)$$</span><!-- Has MathJax --> 所以<br><span>$$\begin{align}
+{\color{blue}{\left|\frac{\partial x&apos;}{\partial y}\right|}}=1+\text{div}\nabla U(x&apos;)dt+o(dt)
+\end{align}$$</span><!-- Has MathJax --> 再想辦法把 <span>${\color{blue}{x&apos;(y)}}$</span><!-- Has MathJax --> 寫出來, 比較複雜, 把 $\nabla U(x’)$ 在 $x$ 這點做 Taylor expansion:<br><span>$$y\triangleq x&apos;-x-\nabla U(x&apos;)dt \\
+= x&apos;-x-\left(
+\nabla U(x)+(x&apos;-x)\frac{\partial \nabla U(x)}{\partial x}+o(x&apos;-x)
+\right)dt \\$$</span><!-- Has MathJax --> 把 $x’$ 合併展開並整理, 並注意到 $o(x’-x)dt$ 這項為 $o(dt)$, 因為根據 (4):<br><span>$$=\left(I-\frac{\partial \nabla U(x)}{\partial x}dt\right)x&apos;-x -\nabla U(x)dt +x\frac{\partial \nabla U(x)}{\partial x}dt + o(dt) \\
+\Longrightarrow x&apos;=\left(I-\frac{\partial \nabla U(x)}{\partial x}dt\right)^{-1}
+\left(y+x+\nabla U(x)dt-x\frac{\partial \nabla U(x)}{\partial x}dt+o(dt)
+\right)$$</span><!-- Has MathJax --> 利用 <span>$(I-A)^{-1}=I+A+A^2+A^3+...$</span><!-- Has MathJax --> 的公式 [<a href="https://youtu.be/3-KzIjoFJy4?si=EGAy-7G63n0_rug6&amp;t=846" target="_blank" rel="external">YouTube with time</a>] [<a href="https://math.stackexchange.com/questions/298616/what-is-inverse-of-ia" target="_blank" rel="external">ref</a>]:<br><span>$$\left(I-\frac{\partial \nabla U(x)}{\partial x}dt\right)^{-1}=I+\frac{\partial \nabla U(x)}{\partial x}dt+o(dt)$$</span><!-- Has MathJax --> 代回去得到<br><span>$$x&apos;=\left(I+\frac{\partial \nabla U(x)}{\partial x}dt+o(dt)\right)
+\left(y+x+\nabla U(x)dt-\frac{\partial \nabla U(x)}{\partial x}xdt+o(dt)
+\right) \\
+=y+x+\nabla U(x)dt-\frac{\partial \nabla U(x)}{\partial x}xdt+\frac{\partial \nabla U(x)}{\partial x}ydt+\frac{\partial \nabla U(x)}{\partial x}xdt+o(dt) \\
+=y+x+\nabla U(x)dt+\frac{\partial \nabla U(x)}{\partial x}{\color{orange}{ydt}}+o(dt)$$</span><!-- Has MathJax --> 先對 $ydt$ 分析一下到時候代回去<br>根據 $y$ 和 $x-x’$ 的定義 (8) 和 (4):<br><span>$$y= x&apos;-x-\nabla U(x&apos;)dt \\
+= \nabla U(x&apos;)dt-\mathcal{N}(0,\sigma^2dt)-\nabla U(x&apos;)dt \\
+=-\mathcal{N}(0,\sigma^2dt)$$</span><!-- Has MathJax --> 所以<br><span>$$ydt=-\mathcal{N}(0,\sigma^2dt)dt=-dt\sqrt{dt}\mathcal{N}(0,\sigma^2) \\
+=o(dt)$$</span><!-- Has MathJax --> 代回去得到<br><span>$$\begin{align}
+x&apos;=y+x+\nabla U(x)dt+\frac{\partial \nabla U(x)}{\partial x}{\color{orange}{o(dt)}}+o(dt) \\
+\Longrightarrow {\color{blue}{x&apos;(y)}}=x+y+\nabla U(x)dt+o(dt)
+\end{align}$$</span><!-- Has MathJax --> 因此 (10), (12) 代回去 (9)<br><span>$$\begin{align}
+p_t(x)=\int p_{t-dt}({\color{blue}{x&apos;(y)}})\mathcal{N}(y|0,\sigma^2dt\cdot I)
+{\color{blue}{\left|\frac{\partial x&apos;}{\partial y}\right|}}
+dy \\
+= (1+\text{div}\nabla U(x)dt)\mathbb{E}_y\left[
+{\color{red}{p_{t-dt}(x+y+\nabla U(x)dt)}}
+\right] \\
+,\quad\text{where}\quad y\sim\mathcal{N}(0,\sigma^2dt\cdot I)
+\end{align}$$</span><!-- Has MathJax --> 紅色部分做 Taylor expansion 對 $p_t(x)$ 展開:<br>(<em>0th order</em>): $p_t(x)$<br>(<em>1st order</em>):<br><span>$$\nabla p_t(x)^T(y+\nabla U(x)dt) + \frac{\partial }{\partial t}p_t(x)(-dt)$$</span><!-- Has MathJax --> (<em>2nd order</em>):<br><span>$$\frac{1}{2}(y+\nabla U(x)dt)^T\frac{\partial^2p_t(x)}{\partial x^2}(y+\nabla U(x)dt)$$</span><!-- Has MathJax --> 2nd order 還有對 $t$ 的二次微分項, <span>$(dt)^2(\partial^2 p_t(x)/\partial t^2)$</span><!-- Has MathJax --> 由於是 $o(dt)$ 所以可以省略不寫</p>
+<p>取 $\mathbb{E}_y$:<br>(<em>0th order</em>): 與 $y$ 無關, 是 constant:<br><span>$$\mathbb{E}_y[p_t(x)]=p_t(x)$$</span><!-- Has MathJax --><br>(<em>1st order</em>):<br><span>$$\mathbb{E}_y\left[\nabla p_t(x)^T(y+\nabla U(x)dt) + \frac{\partial }{\partial t}p_t(x)(-dt)\right] \\
+=\nabla p_t(x)^T(\mathbb{E}_y[y]+\nabla U(x)dt)-\frac{\partial }{\partial t}p_t(x)dt \\
+=\nabla p_t(x)^T\nabla U(x)dt-\frac{\partial }{\partial t}p_t(x)dt$$</span><!-- Has MathJax --> (<em>2nd order</em>):<br><span>$$\frac{1}{2}\mathbb{E}_y\left[(y+\nabla U(x)dt)^T\frac{\partial^2p_t(x)}{\partial x^2}(y+\nabla U(x)dt)\right] \\
+=\frac{1}{2}\mathbb{E}_y\left[
+y^t\frac{\partial^2p_t(x)}{\partial x^2}y\right] + 2dt\nabla U(x)^T\frac{\partial^2p_t(x)}{\partial x^2}\mathbb{E}_y[y] + o(dt) \\
+= \frac{1}{2}\mathbb{E}_y\left[
+y^t\frac{\partial^2p_t(x)}{\partial x^2}y\right] + o(dt) \\
+=\frac{1}{2}\sum_{i=j}\left(\frac{\partial^2p_t(x)}{\partial x^2}\right)_{ii}\mathbb{E}_y[y_i^2] + \frac{1}{2}\sum_{i\neq j}\left(\frac{\partial^2p_t(x)}{\partial x^2}\right)_{ij}\mathbb{E}_y[y_iy_j] + o(dt) \\$$</span><!-- Has MathJax --> 因為 <span>$y\sim\mathcal{N}(0,\sigma^2dt\cdot I)$</span><!-- Has MathJax -->, see (7) and (8), 所以第二項為零<br><span>$$=\frac{1}{2}\sum_{i=j}\left(\frac{\partial^2p_t(x)}{\partial x^2}\right)_{ii}\mathbb{E}_y[y_i^2] + o(dt) \\
+= \frac{1}{2}\sum_{i=j}\left(\frac{\partial^2p_t(x)}{\partial x^2}\right)_{ii}\sigma^2dt + o(dt) \\
+= \frac{1}{2}\nabla^2p_t(x)\sigma^2dt + o(dt)$$</span><!-- Has MathJax --> 其中 $\nabla^2$ 是 <a href="https://www.notion.so/Vector-Calculus-and-Partial-Differential-Equations-112edc3d531d80a9afb3d2ba4368c635?pvs=21" target="_blank" rel="external">Laplace operator</a>.<br>因此代回去 (14):<br><span>$$p_t(x)= (1+\text{div}\nabla U(x)dt)\mathbb{E}_y\left[
+p_{t-dt}(x+y+\nabla U(x)dt)
+\right] \\
+\approx (1+\text{div}\nabla U(x)dt) \\ \cdot \left(
+p_t(x)+\nabla p_t(x)^T\nabla U(x)dt-\frac{\partial }{\partial t}p_t(x)dt+\frac{1}{2}\nabla^2p_t(x)\sigma^2dt + o(dt)
+\right)$$</span><!-- Has MathJax --> 展開整理得<br><span>$$\frac{\partial }{\partial t}p_t(x)=\nabla p_t(x)^T\nabla U(x)+p_t(x)\text{div}\nabla U(x)+\frac{1}{2}\sigma^2\nabla^2p_t(x)+\underbrace{\frac{o(dt)}{dt}}_{=0}$$</span><!-- Has MathJax --> 重複一次, 這就是最後的 <strong>Fokker-Planck equation</strong>:<br><span>$$\frac{\partial }{\partial t}p_t(x)=\nabla p_t(x)^T\nabla U(x)+p_t(x)\text{div}\nabla U(x)+\frac{1}{2}\sigma^2\nabla^2p_t(x)$$</span><!-- Has MathJax --> Q.E.D.</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2024/11/12/筆記-Langevin-Dynamics-和-Fokker-Planck-Equation-推導/" title="筆記 Langevin Dynamics 和 Fokker-Planck Equation 推導">https://bobondemon.github.io/2024/11/12/筆記-Langevin-Dynamics-和-Fokker-Planck-Equation-推導/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Langevin-Dynamics/" rel="tag"># Langevin Dynamics</a>
+          
+            <a href="/tags/Denoising-Diffusion-Probabilistic-Models/" rel="tag"># Denoising Diffusion Probabilistic Models</a>
+          
+            <a href="/tags/Diffusion-Model/" rel="tag"># Diffusion Model</a>
+          
+            <a href="/tags/Continuity-Equation/" rel="tag"># Continuity Equation</a>
+          
+            <a href="/tags/Fokker-Planck-Equation/" rel="tag"># Fokker-Planck Equation</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/11/06/嘗試理解-Flow-Matching/" rel="next" title="嘗試理解 Flow Matching">
+                <i class="fa fa-chevron-left"></i> 嘗試理解 Flow Matching
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">103</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">217</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Langevin-Dynamics"><span class="nav-number">1.</span> <span class="nav-text">Langevin Dynamics</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Fokker-Planck-Equation"><span class="nav-number">2.</span> <span class="nav-text">Fokker-Planck Equation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Stationary-distribution"><span class="nav-number">2.1.</span> <span class="nav-text">Stationary distribution</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#對目標分布做採樣"><span class="nav-number">2.2.</span> <span class="nav-text">對目標分布做採樣</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Appendix-Derivation-of-the-Fokker-Planck-Equation"><span class="nav-number">3.</span> <span class="nav-text">Appendix: Derivation of the Fokker-Planck Equation</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
