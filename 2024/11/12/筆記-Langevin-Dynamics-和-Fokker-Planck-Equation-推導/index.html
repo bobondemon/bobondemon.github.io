@@ -99,7 +99,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/12/筆記-Langevin-Dynamics-和-Fokker-Planck-Equation-推導/FP_simulation_stat.gif">
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/12/筆記-Langevin-Dynamics-和-Fokker-Planck-Equation-推導/Untitled.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/12/筆記-Langevin-Dynamics-和-Fokker-Planck-Equation-推導/image.png">
-<meta property="og:updated_time" content="2024-11-12T14:11:07.040Z">
+<meta property="og:updated_time" content="2024-12-19T12:08:42.611Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="筆記 Langevin Dynamics 和 Fokker-Planck Equation 推導">
 <meta name="twitter:description" content="筆記來源 **[DeepBayes2019]: Day 5, Lecture 3. Langevin dynamics for sampling and global optimization 前半小時. 非常精彩!**
@@ -421,9 +421,16 @@ q(x|x&apos;)=\frac{1}{(2\pi\sigma^2 dt)^{n/2}}\exp\left(\frac
 p_t(x)=\int p_{t-dt}({\color{blue}{x&apos;(y)}})\mathcal{N}(y|0,\sigma^2dt\cdot I)
 {\color{blue}{\left|\frac{\partial x&apos;}{\partial y}\right|}}
 dy
-\end{align}$$</span><!-- Has MathJax --> 就算簡化了 $q(x|x’)$ 成上式, 藍色的部分 <span>${\color{blue}{x&apos;(y)}}$</span><!-- Has MathJax -->, <span>${\color{blue}{|\partial x&apos;/\partial y|}}$</span><!-- Has MathJax --> 我們仍不知道, 必須想辦法從 $y$ (8) 的定義反寫.<br>先處理比較好做的 <span>${\color{blue}{|\partial x&apos;/\partial y|}}$</span><!-- Has MathJax --><br>根據定義 <span>$y=x&apos;-x-\nabla U(x&apos;)dt$</span><!-- Has MathJax --> 且我們有 <span>$(I-A)^{-1}=I+A+A^2+A^3+...$</span><!-- Has MathJax --> 的公式 [<a href="https://math.stackexchange.com/questions/298616/what-is-inverse-of-ia" target="_blank" rel="external">ref</a>], 先計算 <span>$\partial y/\partial x&apos;$</span><!-- Has MathJax --> 得到:<br><span>$$\frac{\partial y}{\partial x&apos;}=I-\text{div}\nabla U(x&apos;)dt:=I-Adt$$</span><!-- Has MathJax --> 其中 $\text{div}$ 表示 <a href="https://www.notion.so/Vector-Calculus-and-Partial-Differential-Equations-112edc3d531d80a9afb3d2ba4368c635?pvs=21" target="_blank" rel="external">divergence</a>, 再計算 inverse:<br><span>$$\frac{\partial x&apos;}{\partial y}=\left(\frac{\partial y}{\partial x&apos;}\right)^{-1}=\left(I-Adt\right)^{-1} \\
-=I+Adt+o(dt) \\
-=I+\text{div}\nabla U(x&apos;)dt + o(dt)$$</span><!-- Has MathJax --> 所以<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 就算簡化了 $q(x|x’)$ 成上式, 藍色的部分 <span>${\color{blue}{x&apos;(y)}}$</span><!-- Has MathJax -->, <span>${\color{blue}{|\partial x&apos;/\partial y|}}$</span><!-- Has MathJax --> 我們仍不知道, 必須想辦法從 $y$ (8) 的定義反寫.<br>先處理比較好做的 <span>${\color{blue}{|\partial x&apos;/\partial y|}}$</span><!-- Has MathJax --> (<strong>謝謝某位讀者來信討論, 幫助推導</strong>)<br>根據定義 <span>$y=x&apos;-x-\nabla U(x&apos;)dt$</span><!-- Has MathJax --> 且我們有 <span>$(I-A)^{-1}=I+A+A^2+A^3+...$</span><!-- Has MathJax --> 的公式 [<a href="https://math.stackexchange.com/questions/298616/what-is-inverse-of-ia" target="_blank" rel="external">ref</a>], 先計算 <span>$\partial y/\partial x&apos;$</span><!-- Has MathJax --> 得到:<br><span>$$\frac{\partial y}{\partial x&apos;}=I-H(x&apos;)dt$$</span><!-- Has MathJax --> 其中 $H(x’)$ 為 $U$ 的 Hessian matrix, 其第 $(i,j)$ element 為:<br><span>$$H_{ij}=\frac{\partial^2 U}{\partial x_i\partial x_j}$$</span><!-- Has MathJax --> 再計算 inverse:<br><span>$$\frac{\partial x&apos;}{\partial y}=\left(\frac{\partial y}{\partial x&apos;}\right)^{-1}=\left(I-H(x&apos;)dt\right)^{-1} \\
+=I+H(x&apos;)dt+o(dt)$$</span><!-- Has MathJax --> 觀察 $I+H(x’)dt$ 的 determinant, 簡單用 $2\times 2$ 矩陣來看 (很容易拓展到 $n\times n$):<br><span>$$|I+H(x&apos;)dt|=\left|
+\begin{array}{cc}
+1+\frac{\partial^2 U}{\partial x_1^2}dt &amp; \frac{\partial^2 U}{\partial x_1\partial x_2}dt \\
+\frac{\partial^2 U}{\partial x_2\partial x_1}dt &amp; 1+\frac{\partial^2 U}{\partial x_2^2}dt
+\end{array}
+\right| \\=\left(1+\frac{\partial^2U}{\partial x_1^2}dt\right)\left(1+\frac{\partial^2U}{\partial x_2^2}dt\right)+o(dt) \\
+= \left(1+\frac{\partial^2U}{\partial x_1^2}dt\right) + \left(1+\frac{\partial^2U}{\partial x_1^2}dt\right)\frac{\partial^2U}{\partial x_2^2}dt + o(dt) \\
+= 1+\frac{\partial^2U}{\partial x_1^2}dt + \frac{\partial^2U}{\partial x_2^2}dt + o(dt) \\
+= 1 + \text{div}\nabla U(x&apos;)dt + o(dt)$$</span><!-- Has MathJax --> 其中 $\text{div}$ 表示 <a href="https://bobondemon.notion.site/Vector-Calculus-and-Partial-Differential-Equations-112edc3d531d80a9afb3d2ba4368c635?pvs=74" target="_blank" rel="external">divergence</a>, 所以得到:<br><span>$$\begin{align}
 {\color{blue}{\left|\frac{\partial x&apos;}{\partial y}\right|}}=1+\text{div}\nabla U(x&apos;)dt+o(dt)
 \end{align}$$</span><!-- Has MathJax --> 再想辦法把 <span>${\color{blue}{x&apos;(y)}}$</span><!-- Has MathJax --> 寫出來, 比較複雜, 把 $\nabla U(x’)$ 在 $x$ 這點做 Taylor expansion:<br><span>$$y\triangleq x&apos;-x-\nabla U(x&apos;)dt \\
 = x&apos;-x-\left(
