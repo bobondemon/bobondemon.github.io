@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Continuity Equation,Flow Matching," />
+  <meta name="keywords" content="Flow Matching,Continuity Equation," />
 
 
 
@@ -99,7 +99,7 @@ Flow matching 模型在時間 $t=0$ 的時候從常態分佈出發 $p_0(x)=\math
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/image 1.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/image 2.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/image 3.png">
-<meta property="og:updated_time" content="2024-11-12T12:08:29.695Z">
+<meta property="og:updated_time" content="2025-01-03T11:15:15.299Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="嘗試理解 Flow Matching">
 <meta name="twitter:description" content="接續上一篇: 讀 Flow Matching 前要先理解的東西 (建議先閱讀)
@@ -381,7 +381,7 @@ Flow matching 模型在時間 $t=0$ 的時候從常態分佈出發 $p_0(x)=\math
 
 <hr>
 <p>接續上一篇: <a href="https://bobondemon.github.io/2024/10/29/%E8%AE%80-Flow-Matching-%E5%89%8D%E8%A6%81%E5%85%88%E7%90%86%E8%A7%A3%E7%9A%84%E6%9D%B1%E8%A5%BF/">讀 Flow Matching 前要先理解的東西</a> (建議先閱讀)</p>
-<p>Flow matching 模型在時間 $t=0$ 的時候從常態分佈出發 $p_0(x)=\mathcal{N}(0,I)$, 隨著時間變化其 pdf, 例如時間 $t$ 時的 pdf 變化成為 $p_t(x)$, 直到時間 $t=1$ 時希望變成接近目標分佈 $q(x)$, 即希望 $p_1(x)\approx q(x)$.<br>概念是頭尾 pdf 確定後, 中間這無限多種可能的 $p_t(x)$ 變化經過作者的巧妙設定, 讓學 vector field $u_t(x)$ 變的可能! (不學 pdf 而是學 vector field)<br>結果就是用 NN 學到的 $u_t(x)$ 可以讓 pdf 從開頭的常態分佈一路變化到最後的資料目標分佈 $q(x)$.</p>
+<p>Flow matching 模型在時間 $t=0$ 的時候從常態分佈出發 $p_0(x)=\mathcal{N}(0,I)$, 隨著時間變化其 pdf, 例如時間 $t$ 時的 pdf 變化成為 $p_t(x)$, 直到時間 $t=1$ 時希望變成接近目標分佈 $q(x)$, 即希望 $p_1(x)\approx q(x)$.<br>概念是頭尾 pdf 確定後, 中間這無限多種可能的 $p_t(x)$ 變化經過作者的巧妙設定, 讓學 vector field $u_t(x)$ 變的可能! (不學 pdf 而是學 vector field)<br>結果就是用 NN 學到的 $u_t(x)$ 可以讓 pdf 從開頭的常態分佈一路變化到最後的資料目標分佈 $q(x)$.<br>[備註]: Divergence (散度) 的寫法為 $\nabla\cdot$ 或 $\text{div}$, 定義為:<br><span>$$\text{div}(F)=\nabla\cdot F=\sum_{i=1}^n\frac{\partial F_i}{\partial x_i}$$</span><!-- Has MathJax --> 其中 $F(x_1,…,x_n)=(F_1,…,F_n)$. 更多請參考: [<a href="https://bobondemon.github.io/2024/10/29/%E8%AE%80-Flow-Matching-%E5%89%8D%E8%A6%81%E5%85%88%E7%90%86%E8%A7%A3%E7%9A%84%E6%9D%B1%E8%A5%BF/#B-Divergence-%E6%95%A3%E5%BA%A6">筆記</a>]</p>
 <a id="more"></a>
 <hr>
 <h2 id="Vector-Field-決定了-Probability-Path"><a href="#Vector-Field-決定了-Probability-Path" class="headerlink" title="Vector Field 決定了 Probability Path"></a>Vector Field 決定了 Probability Path</h2><p>注意到這一路變化的過程要滿足 <a href="https://bobondemon.github.io/2024/10/29/%E8%AE%80-Flow-Matching-%E5%89%8D%E8%A6%81%E5%85%88%E7%90%86%E8%A7%A3%E7%9A%84%E6%9D%B1%E8%A5%BF/#D-Mass-Conservation-or-Continuity-Equation">continuity equation</a> (質量守恆)</p>
@@ -389,7 +389,7 @@ Flow matching 模型在時間 $t=0$ 的時候從常態分佈出發 $p_0(x)=\math
 \frac{\partial p_t(x)}{\partial t}
 +
 \nabla\cdot(p_t(x) u_t(x))=0
-\end{align}$$</span><!-- Has MathJax --> 其中 $u_t(x)$ 表示時間 $t$ 時在位置 $x$ 的 vector field.<br>從 continuity equation 出發, 可推導出 Instantaneous Change of Variables Theorem [1]:<br><span>$$\frac{d\log p_t(x)}{dt}=-\text{div}(u_t(x))$$</span><!-- Has MathJax --> 因此得到 log-likelihood, 就是積分起來的結果: <span>$$\log p_{\color{orange}{t}}(x)=\log p_0(z)+\int_{\hat{t}=0}^{\color{orange}{t}}-\text{div}(u_{\hat{t}}(x))d\hat{t}$$</span><!-- Has MathJax --> 因此可以發現, 如果有每個時間 $t$ 的 vector field $u_t(x)$, 透過上式就可以得到對應的 pdf $p_t(x)$.</p>
+\end{align}$$</span><!-- Has MathJax --> 其中 $u_t(x)$ 表示時間 $t$ 時在位置 $x$ 的 vector field.<br>從 continuity equation 出發, 可推導出 Instantaneous Change of Variables Theorem [1]:<br><span>$$\frac{d\log p_t(x)}{dt}=-\nabla\cdot u_t(x)$$</span><!-- Has MathJax --> 因此得到 log-likelihood, 就是積分起來的結果: <span>$$\log p_{\color{orange}{t}}(x)=\log p_0(z)+\int_{\hat{t}=0}^{\color{orange}{t}}-\nabla\cdot u_{\hat{t}}(x) d\hat{t}$$</span><!-- Has MathJax --> 因此可以發現, 如果有每個時間 $t$ 的 vector field $u_t(x)$, 透過上式就可以得到對應的 pdf $p_t(x)$.</p>
 <p><strong>[觀念]: Vector field $u_t(x)$ 決定了 probability path $p_t(x)$.</strong></p>
 <hr>
 <h2 id="Flow-Matching-Loss"><a href="#Flow-Matching-Loss" class="headerlink" title="Flow Matching Loss"></a>Flow Matching Loss</h2><p>既然 $u_t(x)$ 決定了 $p_t(x)$, 讓 NN 直接學 $u_t(x)$ 就好了, 因此目標函式:<br><span>$$\mathcal{L}_{FM}(\theta)=\mathbb{E}_{t,x\sim {\color{orange}{p_t(x)}}}\|v_t(x)-{\color{orange}{u_t(x)}}\|^2, \qquad (\star)$$</span><!-- Has MathJax --> 其中 $v_t(x)$ 是我們的 NN, 具有參數 $\theta$.<br>$t\sim U[0,1]$ 表示對任意時間 $t$ 都要去學 vector field.<br>注意到我們根本不知道真實的 <span>${\color{orange}{u_t(x)}}$</span><!-- Has MathJax --> 和 <span>${\color{orange}{p_t(x)}}$</span><!-- Has MathJax -->, 所以 <span>$\mathcal{L}_{FM}$</span><!-- Has MathJax --> 該怎麼計算?<br>High level picture 的想法是, 我們定義出頭尾分佈, 頭的分佈就用標準常態分佈, 尾的分佈從 training data 設計出來. 中間變化的分佈論文經過特殊設計.<br>設計好後, 就能找出 <span>${\color{orange}{u_t(x)}}$</span><!-- Has MathJax --> 和 <span>${\color{orange}{p_t(x)}}$</span><!-- Has MathJax --> 了, 找出來後應該就有機會算 <span>$\mathcal{L}_{FM}$</span><!-- Has MathJax --> 了.<br>以下詳細說明.</p>
@@ -505,9 +505,9 @@ u_t(x|x_1)=\frac{\sigma_t&apos;(x_1)}{\sigma_t(x_1)}(x-\mu_t(x_1))+\mu_t&apos;(x
       
         <div class="post-tags">
           
-            <a href="/tags/Continuity-Equation/" rel="tag"># Continuity Equation</a>
-          
             <a href="/tags/Flow-Matching/" rel="tag"># Flow Matching</a>
+          
+            <a href="/tags/Continuity-Equation/" rel="tag"># Continuity Equation</a>
           
         </div>
       
@@ -684,7 +684,7 @@ u_t(x|x_1)=\frac{\sigma_t&apos;(x_1)}{\sigma_t(x_1)}(x-\mu_t(x_1))+\mu_t&apos;(x
         <div class="copyright" >
   
   &copy; 
-  <span itemprop="copyrightYear">2024</span>
+  <span itemprop="copyrightYear">2025</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
