@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Flow Matching,Continuity Equation," />
+  <meta name="keywords" content="Continuity Equation,Flow Matching," />
 
 
 
@@ -95,16 +95,19 @@ Flow matching 模型在時間 $t=0$ 的時候從常態分佈出發 $p_0(x)=\math
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="接續上一篇: 讀 Flow Matching 前要先理解的東西 (建議先閱讀)
 Flow matching 模型在時間 $t=0$ 的時候從常態分佈出發 $p_0(x)=\mathcal{N}(0,I)$, 隨著時間變化其 pdf, 例如時間 $t$ 時的 pdf 變化成為 $p_t(x)$, 直到時間 $t=1$ 時希望變成接近目標分佈 $q(x)$, 即希望 $p_1(x)\appro">
-<meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/image.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/cfm_lipman.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/cfm_indep_coupling.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/cfm_ot.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/gmm8_to_spiral.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/image 1.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/image 2.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/image 3.png">
-<meta property="og:updated_time" content="2025-01-03T11:15:15.299Z">
+<meta property="og:updated_time" content="2025-01-12T07:55:54.217Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="嘗試理解 Flow Matching">
 <meta name="twitter:description" content="接續上一篇: 讀 Flow Matching 前要先理解的東西 (建議先閱讀)
 Flow matching 模型在時間 $t=0$ 的時候從常態分佈出發 $p_0(x)=\mathcal{N}(0,I)$, 隨著時間變化其 pdf, 例如時間 $t$ 時的 pdf 變化成為 $p_t(x)$, 直到時間 $t=1$ 時希望變成接近目標分佈 $q(x)$, 即希望 $p_1(x)\appro">
-<meta name="twitter:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/image.png">
+<meta name="twitter:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/cfm_lipman.png">
 
 
 
@@ -399,7 +402,7 @@ p_0(x|x_1^n)=p_0(x)=\mathcal{N}(0,I)
 \end{align}$$</span><!-- Has MathJax --> 也就是初始分佈與資料無關, 全部都是標準常態分佈<br>接著設定 $t=1$ 時條件機率分佈:<br><span>$$\begin{align}
 p_1(x|x_1^n)=\mathcal{N}\left(x_1^n,\sigma_{min}^2I\right)
 \end{align}$$</span><!-- Has MathJax --> 並假設每一筆訓練資料機率相同, <span>$q(x_1^n)=1/N,\forall n=1,2,...,N$</span><!-- Has MathJax -->. 則<br><span>$$p_1(x)=\sum_{n=1}^N p_1(x|x_1^n)q(x_1^n)\\
-=\frac{1}{N}\sum_{n=1}^N p_1(x|x_1^n)=\frac{1}{N}\sum_{n=1}^N \mathcal{N}\left(x_1^n,\sigma_{min}^2I\right)$$</span><!-- Has MathJax --> 這是個 Gaussin <a href="https://www.wikiwand.com/en/articles/Mixture_model" target="_blank" rel="external">Mixture Model</a> (GMM) 分佈<br>理論上 <span>$N\rightarrow\infty,\sigma_{min}\rightarrow0$</span><!-- Has MathJax --> 時 $p_1(x)$ 就會等於目標分佈 $q(x)$. 或我們寫成連續積分形式<br><span>$$\begin{align}
+=\frac{1}{N}\sum_{n=1}^N p_1(x|x_1^n)=\frac{1}{N}\sum_{n=1}^N \mathcal{N}\left(x_1^n,\sigma_{min}^2I\right)$$</span><!-- Has MathJax --> 這是個 <strong>Gaussin <a href="https://www.wikiwand.com/en/articles/Mixture_model" target="_blank" rel="external">Mixture Model</a> (GMM)</strong> 分佈<br>理論上 <span>$N\rightarrow\infty,\sigma_{min}\rightarrow0$</span><!-- Has MathJax --> 時 $p_1(x)$ 就會等於目標分佈 $q(x)$. 或我們寫成連續積分形式<br><span>$$\begin{align}
 p_1(x)=\int p_1(x|x_1)q(x_1)dx_1
 \end{align}$$</span><!-- Has MathJax --> 其中 <span>$p_1(x|x_1)=\mathcal{N}(x_1,\sigma_{min}^2I)$</span><!-- Has MathJax -->, $q(x_1)$ 是目標分佈, 也就是從手上的 training data 採樣就可以.<br>事實上 $q(x_1)$ 可以設定的很彈性, 不一定要從 training data 採樣. 更廣泛來說下式數學上本就成立:<br><span>$$p_1(x)=\int p_1(x|{\color{orange}{z}})q({\color{orange}{z}})d{\color{orange}{z}}$$</span><!-- Has MathJax --> $z$ 可以是很彈性的變量, 而 $q(z)$ 是它的 distribution.<br>現在我們先想成 $z$ 就是 training data $x_1$ 即可. $q(z)$ 就是目標分佈 $q(x_1)$, 即手上的 data 分佈<br>後面會說明 $z$ 和 $q(z)$ 的其他選擇.<br>任何時間 $t$ 都可以這樣寫: <span>$$\begin{align}
 p_{\color{orange}{t}}(x)=\int p_{\color{orange}{t}}(x|x_1)q(x_1)dx_1
@@ -407,12 +410,11 @@ p_{\color{orange}{t}}(x)=\int p_{\color{orange}{t}}(x|x_1)q(x_1)dx_1
 <hr>
 <h2 id="中間分佈的設定"><a href="#中間分佈的設定" class="headerlink" title="中間分佈的設定"></a>中間分佈的設定</h2><p>由式 (2) 和 (4) 我們設定好了頭尾分佈, 那中間的 pdf $p_t(x)$ 怎麼設定?<br>或是因為 $u_t(x)$ 決定了 $p_t(x)$, 我們改問 $u_t(x)$ 怎麼設定?<br>可以想像有無窮多種 $u_t(x)$ 的設定方法 (因為只要滿足頭尾 pdf 即可)<br>但還是要有個變化規則, 這樣 NN 才知道要學什麼.<br>$u_t(x)$ 的規則是 (注意到這是人為定義的):<br><span>$$\begin{align}
 u_t(x) \triangleq \int u_t(x|x_1)\frac{p_t(x|x_1)q(x_1)}{p_t(x)}dx_1
-\end{align}$$</span><!-- Has MathJax --> 怕大家看到這裡忘記: $x_1$ 是訓練資料 <span>$\{x_1^1,x_1^2,...,x_1^N\}$</span><!-- Has MathJax -->, 然後 $q(x_1)$ 表示目標分佈 (資料分佈).<br>其中特別說明 $u_t(x|x_1)$ 與 $p_t(x|x_1)$ 是一對的, 也就是說 $u_t(x|x_1)$ 產生 $p_t(x|x_1)$ 因此需滿足質量守恆 continuity equation (1). 這裡我們先假設已經有這樣一對的東西.<br>因為 $u_t(x)$ 是人為定義, 我們需要驗證它是合法的 vector field, i.e. 能產生 $p_t(x)$ (5), 即要滿足 continuity equation (1). 證明放在 Appendix.<br>因此得到 $u_t(x)$ 和 $p_t(x)$ 是一對的, 式 (6) 定義的 $u_t(x)$ 是 well-defined.<br>接著說明 $u_t(x|x_1)$ 和 $p_t(x|x_1)$ 的長相, 其中 $p_t(x|x_1)$ 論文這樣定義:<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 怕大家看到這裡忘記: $x_1$ 是訓練資料 <span>$\{x_1^1,x_1^2,...,x_1^N\}$</span><!-- Has MathJax -->, 然後 $q(x_1)$ 表示目標分佈 (資料分佈).<br>其中特別說明 $u_t(x|x_1)$ 與 $p_t(x|x_1)$ 是一對的, 也就是說 $u_t(x|x_1)$ 產生 $p_t(x|x_1)$ 因此需滿足質量守恆 continuity equation (1). 這裡我們先假設已經有這樣一對的東西.<br>因為 $u_t(x)$ 是人為定義, 我們需要驗證它是合法的 vector field, i.e. 能產生 $p_t(x)$ (5), 即要滿足 continuity equation (1). 證明放在 Appendix.<br>因此得到 $u_t(x)$ 和 $p_t(x)$ 是一對的, 式 (6) 定義的 $u_t(x)$ 是 well-defined.<br>不過我們仍不知道 (6) 中的 $u_t(x|x_1)$ 和 $p_t(x|x_1)$ 的長相, 論文直接定義 $p_t(x|x_1)$ 長這樣:<br><span>$$\begin{align}
 p_t(x|x_1)\triangleq\mathcal{N}\left(
 \mu_t(x_1),\sigma_t(x_1)^2I
 \right)
-\end{align}$$</span><!-- Has MathJax --> Mean 和 covariance matrix 都是 $x_1$ 的函數.<br>由於要滿足頭尾 pdf 的設定, i.e. 式 (2) <span>$p_0(x|x_1)=\mathcal{N}(0,I)$</span><!-- Has MathJax --> 和式 (3) <span>$p_1(x|x_1)=\mathcal{N}(x_1,\sigma_{min}^2I)$</span><!-- Has MathJax -->.<br>所以 $\mu_t,\sigma_t$ 需滿足:<br><span>$$\mu_0(x_1)=0,\quad \sigma_0(x_1)=1 \\
-\mu_1(x_1)=x_1,\quad \sigma_1(x_1)=\sigma_{min}$$</span><!-- Has MathJax --> 這裡有個問題, 什麼長相的 $u_t(x|x_1)$ 會產生式 (7) $p_t(x|x_1)$ 的定義?</p>
+\end{align}$$</span><!-- Has MathJax --> Mean 和 covariance matrix 都是 $x_1$ 的函數.<br>這樣定義後有個問題, 什麼長相的 $u_t(x|x_1)$ 會產生式 (7) $p_t(x|x_1)$ 的定義?</p>
 <p>論文的 Theorem 3 證明了<strong>存在唯一</strong> $u_t(x|x_1)$ 產生式 (7) $p_t(x|x_1)$:<br><span>$$\begin{align}
 u_t(x|x_1)=\frac{\sigma_t&apos;(x_1)}{\sigma_t(x_1)}(x-\mu_t(x_1))+\mu_t&apos;(x_1)
 \end{align}$$</span><!-- Has MathJax --> 證明放在 Appendix<br>這結果實在太方便了, 基本上只要把 $\mu_t$ 和 $\sigma_t$ 定義好, $u_t(x|x_1)$ 有 closed form solution!</p>
@@ -428,18 +430,20 @@ u_t(x|x_1)=\frac{\sigma_t&apos;(x_1)}{\sigma_t(x_1)}(x-\mu_t(x_1))+\mu_t&apos;(x
 <h2 id="Conditional-Probability-和-Conditional-Vector-Field-的選擇"><a href="#Conditional-Probability-和-Conditional-Vector-Field-的選擇" class="headerlink" title="Conditional Probability 和 Conditional Vector Field 的選擇"></a>Conditional Probability 和 Conditional Vector Field 的選擇</h2><p>條件分佈 $p_t(x|x_1)$ 如下設定後會有唯一的條件向量場 $u_t(x|x_1)$:<br><span>$$p_t(x|x_1)\triangleq\mathcal{N}\left(
 \mu_t(x_1),\sigma_t(x_1)^2I
 \right) \\
-u_t(x|x_1)=\frac{\sigma_t&apos;(x_1)}{\sigma_t(x_1)}(x-\mu_t(x_1))+\mu_t&apos;(x_1)$$</span><!-- Has MathJax --> $\sigma_t’$ 表示 $\sigma_t$ 對 $t$ 偏微分, $\mu_t’$ 表示 $\mu$ 對 $t$ 偏微分, 其中<br><span>$$\mu_0(x_1)=0,\quad \sigma_0(x_1)=1 \\
-\mu_1(x_1)=x_1,\quad \sigma_1(x_1)=\sigma_{min}$$</span><!-- Has MathJax --> 這樣的設定能讓我們方便計算 <span>$\mathcal{L}_{CFM}$</span><!-- Has MathJax --> (等價於 <span>$\mathcal{L}_{FM}$</span><!-- Has MathJax -->).<br>同時保證 NN 學出來的 $v_t(x)$ 其對應的 $p_t(x)$ 能滿足頭是標準常態分佈, 尾是目標分佈.<br>因此我們可以設計不同的 $\mu_t$ 和 $\sigma_t$, 就可以有不同的中間 pdf $p_t$ 演變方式.</p>
+u_t(x|x_1)=\frac{\sigma_t&apos;(x_1)}{\sigma_t(x_1)}(x-\mu_t(x_1))+\mu_t&apos;(x_1)$$</span><!-- Has MathJax --> $\sigma_t’$ 表示 $\sigma_t$ 對 $t$ 偏微分, $\mu_t’$ 表示 $\mu$ 對 $t$ 偏微分<br>這樣的設定能讓我們方便計算 <span>$\mathcal{L}_{CFM}$</span><!-- Has MathJax --> (等價於 <span>$\mathcal{L}_{FM}$</span><!-- Has MathJax -->).<br>同時保證 NN 學出來的 $v_t(x)$ 其對應的 $p_t(x)$ 能滿足頭是標準常態分佈, 尾是目標分佈.<br>因此我們可以設計不同的 $\mu_t$ 和 $\sigma_t$, 就可以有不同的中間 pdf $p_t$ 演變方式.</p>
 <h3 id="Conditional-flows-from-FM-Lipman-et-al"><a href="#Conditional-flows-from-FM-Lipman-et-al" class="headerlink" title="Conditional flows from FM (Lipman et al.)"></a>Conditional flows from FM (Lipman et al.)</h3><p>選擇 conditional probability path $p_t(x|x_1)$ 的 $\mu_t,\sigma_t$ 為:<br><span>$$\mu_t(x)=tx_1 \\
 \sigma_t(x)=1-(1-\sigma_{min})t$$</span><!-- Has MathJax --> 套 (8) 得到具有唯一的 conditional vector field $u_t(x|x_1)$:<br><span>$$u_t(x|x_1)=\frac{x_1-(1-\sigma_{min})x}{1-(1-\sigma_{min})t}$$</span><!-- Has MathJax --> 讀者可自行對 $\mu_t$ 和 $\sigma_t$ 對 $t$ 偏微分驗證.</p>
-<h3 id="I-CFM-Independent-Coupling"><a href="#I-CFM-Independent-Coupling" class="headerlink" title="I-CFM (Independent Coupling)"></a>I-CFM (Independent Coupling)</h3><p>選擇 conditional probability path $p_t(x|z)$ 的 $\mu_t,\sigma_t$ 為:<br><span>$$\mu_t(x)=tx_1+(1-t)x_0 \\
-\sigma_t(x)=\sigma_{min}$$</span><!-- Has MathJax --> 其中 $z\triangleq(x_0,x_1)$ 且 $x_0$ 從開頭分佈 $p_0$ 去採樣, $x_1$ 從目標分佈 $q$ 去採樣, 且 $x_0$ 和 $x_1$ 獨立採樣:<br><span>$$q(z)\triangleq p_0(x_0)p_1(x_1)=\mathcal{N}(0,I)q(x_1)$$</span><!-- Has MathJax --> 套 (8) 導致具有唯一的 conditional vector field $u_t(x|x_1)$:<br><span>$$u_t(x|x_1)=x_1-x_0$$</span><!-- Has MathJax --> 詳細可參考論文 [2]</p>
-<h3 id="OT-CFM-Optimal-transport"><a href="#OT-CFM-Optimal-transport" class="headerlink" title="OT-CFM (Optimal transport)"></a>OT-CFM (Optimal transport)</h3><p>選擇 conditional probability path $p_t(x|z)$ 的 $\mu_t,\sigma_t$ 為:<br><span>$$\mu_t(x)=tx_1+(1-t)x_0 \\
-\sigma_t(x)=\sigma_{min}$$</span><!-- Has MathJax --> $z\triangleq(x_0,x_1)$ 的 $x_0$ 和 $x_1$ 不再是獨立採樣, 而是根據 2-Wasserstein distance, 即最小搬運 cost, 詳細參考論文 [2], 論文裡給出這三種設定差別:<br><img src="/2024/11/06/嘗試理解-Flow-Matching/image.png" width="100%" height="100%"></p>
-<blockquote>
-<p><strong>Left</strong>: Conditional flows from FM (Lipman et al., 2023), I-CFM (§3.2.2), and OT-CFM (§3.2.3).<br><strong>Right</strong>: Learned flows (green) from moons (blue) to 8gaussians (black) using I-CFM (centre-right) and OT-CFM (far right).</p>
-</blockquote>
-<p>圖示很精闢</p>
+<p>對於這裡的 $\mu_t,\sigma_t$ 我們設定 $t=0$ 和 $t=1$ 觀察得到<br><span>$$\mu_0(x_1)=0,\quad \sigma_0(x_1)=1 \\
+\mu_1(x_1)=x_1,\quad \sigma_1(x_1)=\sigma_{min}$$</span><!-- Has MathJax --> 代入到 (7) 得到<br><span>$$p_0(x|x_1)=\mathcal{N}(0,I) \\
+p_1(x|x_1)=\mathcal{N}(x_1,\sigma_{min}^2I)$$</span><!-- Has MathJax --> 我們觀察最終 marginal 後的頭尾分佈 $p_0(x),p_1(x)$<br><span>$$p_0(x)=\int_{x_1}p_0(x|x_1)q(x_1)dx_1=\mathcal{N}(0,I)\int_{x_1}q(x_1)dx_1=\mathcal{N}(0,I) \\
+p_1(x)=\int_{x_1}p_1(x|x_1)q(x_1)dx_1=\int_{x_1}\mathcal{N}(x_1,\sigma_{min}^2)q(x_1)dx_1$$</span><!-- Has MathJax --> 正好就是頭分佈為 standard Gaussian (2) 而尾分佈是 training data 形成的 Gaussian mixture model (GMM) 式 (4)<br>見論文 [2] 的圖如下:<br><img src="/2024/11/06/嘗試理解-Flow-Matching/cfm_lipman.png" width="40%" height="40%"> 可以看到開頭大家都是 standard Gaussian 然後漸漸演變到各自的位置</p>
+<h3 id="I-CFM-Independent-Coupling"><a href="#I-CFM-Independent-Coupling" class="headerlink" title="I-CFM (Independent Coupling)"></a>I-CFM (Independent Coupling)</h3><p>選擇 conditional probability path $p_t(x|z)$ 的 $\mu_t,\sigma_t$ 為:<br><span>$$\mu_t(z)=tx_1+(1-t)x_0 \\
+\sigma_t(z)=\sigma_{min}$$</span><!-- Has MathJax --> 其中 $z\triangleq(x_0,x_1)$ 且 $x_0$ 從開頭分佈 $p_0$ 去採樣, $x_1$ 從目標分佈 $q$ 去採樣, 且 $x_0$ 和 $x_1$ 獨立採樣:<br><span>$$q(z)\triangleq p_0(x_0)p_1(x_1)=\mathcal{N}(0,I)q(x_1)$$</span><!-- Has MathJax --> 套 (8) 導致具有唯一的 conditional vector field $u_t(x|x_1)$:<br><span>$$u_t(x|x_1)=x_1-x_0$$</span><!-- Has MathJax --> 詳細可參考論文 [2]<br>此時一樣觀察 $t=0$ 和 $t=1$ 的 $\mu_t,\sigma_t$:<br><span>$$\mu_0(z)=x_0,\quad \sigma_0(x_1)=\sigma_{min} \\
+\mu_1(z)=x_1,\quad \sigma_1(x_1)=\sigma_{min}$$</span><!-- Has MathJax --> 同樣地代入到 (7) 得到<br><span>$$p_0(x|z)=\mathcal{N}(x_0,\sigma_{min}^2I) \\
+p_1(x|z)=\mathcal{N}(x_1,\sigma_{min}^2I)$$</span><!-- Has MathJax --> 我們觀察最終 marginal 後的頭分佈 $p_0(x)$:<br><span>$$p_0(x)=\int_{z}p_0(x|z)q(z)dz=\int_{x_0}\int_{x_1}\mathcal{N}(x_0,\sigma_{min}^2I)p_0(x_0)p_1(x_1)d{x_1}d{x_0} \\
+=\left(\int_{x_0}\mathcal{N}(x_0,\sigma_{min}^2I)p_0(x_0)\right) \left(\int_{x_1}p_1(x_1)d{x_1}\right)=\left(\int_{x_0}\mathcal{N}(x_0,\sigma_{min}^2I)p_0(x_0)\right)$$</span><!-- Has MathJax --> 可以看到 $p_0(x)$ 可以想成是一個 GMM 分佈, 每一個從 $p_0(x_0)$ 採樣出來的點 $x_0$ 都為 <span>$\mathcal{N}(x_0,\sigma_{min}^2I)$</span><!-- Has MathJax --> 的”小Gaussian”.<br>因此廣義上來說, 頭分佈 $p_0(x)$ 不一定都要從 standard Gaussian 出發, 因此只要 $p_0(x_0)$ 是我們容易採樣地任意分佈都可以, 這樣衍生出來的頭分佈只是多疊加了”小Gaussian”的分佈而已, 有點像把分佈”模糊一下”.<br>而尾分佈一樣的推導也是一個 GMM 分佈, 每一個從 $p_1(x_1)$ (資料分布) 採樣出來的點 $x_0$ 都為 <span>$\mathcal{N}(x_0,\sigma_{min}^2I)$</span><!-- Has MathJax --> 的”小Gaussian”.<br>見論文 [2] 的圖如下:<br><img src="/2024/11/06/嘗試理解-Flow-Matching/cfm_indep_coupling.png" width="40%" height="40%"> 可以看到有那些 “小Gaussian”, 這與 Lipman 的設定不同.</p>
+<h3 id="OT-CFM-Optimal-transport"><a href="#OT-CFM-Optimal-transport" class="headerlink" title="OT-CFM (Optimal transport)"></a>OT-CFM (Optimal transport)</h3><p>選擇 conditional probability path $p_t(x|z)$ 的 $\mu_t,\sigma_t$ 為:<br><span>$$\mu_t(z)=tx_1+(1-t)x_0 \\
+\sigma_t(z)=\sigma_{min}$$</span><!-- Has MathJax --> $z\triangleq(x_0,x_1)$ 這與 I-CFM 一樣, 不同的是此時的 $x_0$ 和 $x_1$ 不再是獨立採樣, 而是根據 2-Wasserstein distance, 即最小搬運 cost, 詳細參考論文 [2], 圖如下:<br><img src="/2024/11/06/嘗試理解-Flow-Matching/cfm_ot.png" width="40%" height="40%"> 譬如圖中一次選擇了 3 個 $x_0$, 和 3 個 $x_1$, 由 OT 來決定怎麼找出最佳配對.<br>另外論文也展示了頭分佈為一個 8 個 mixtures 的 GMM, 而尾分佈為螺旋分佈:<br><img src="/2024/11/06/嘗試理解-Flow-Matching/gmm8_to_spiral.png" width="80%" height="80%"> 明顯看到經過 OT 的分配路徑的演變簡單得多, 論文也說明這會更穩定也更容易訓練.</p>
 <hr>
 <h2 id="Inference-and-Sampling"><a href="#Inference-and-Sampling" class="headerlink" title="Inference and Sampling"></a>Inference and Sampling</h2><p>我們花了大把的篇幅來說明怎麼學 vector field $u_t(x)$.<br>如同 “<a href="https://bobondemon.github.io/2024/10/29/%E8%AE%80-Flow-Matching-%E5%89%8D%E8%A6%81%E5%85%88%E7%90%86%E8%A7%A3%E7%9A%84%E6%9D%B1%E8%A5%BF/">讀 Flow Matching 前要先理解的東西</a>” 說的 vector field 我們想成是速度的話, 理論上時間 $t$ 時 $p_t(x)$ 的任一點 $x_t$ 都能夠得出演變的路徑.<br><span>$$\frac{d}{dt}x_t=u_t(x_t)$$</span><!-- Has MathJax --> 這個路徑我們叫 flow.<br>因此採樣就是從 <span>$p_0(x)=\mathcal{N}(0,I)$</span><!-- Has MathJax --> 出發得到一個點 $x_0$, 離散的估計 $\Delta t$ 時間後的位置為:<br><span>$$x_{\Delta t}=x_0+\frac{d}{dt}x_0\cdot \Delta t \\
 =x_0+u_0(x_0)\cdot \Delta t$$</span><!-- Has MathJax --> 所以時間 $t$ 時, $t+\Delta t$ 的位置為:<br><span>$$x_{t+\Delta t}=x_t+\frac{d}{dt}x_t\cdot \Delta t \\
@@ -505,9 +509,9 @@ u_t(x|x_1)=\frac{\sigma_t&apos;(x_1)}{\sigma_t(x_1)}(x-\mu_t(x_1))+\mu_t&apos;(x
       
         <div class="post-tags">
           
-            <a href="/tags/Flow-Matching/" rel="tag"># Flow Matching</a>
-          
             <a href="/tags/Continuity-Equation/" rel="tag"># Continuity Equation</a>
+          
+            <a href="/tags/Flow-Matching/" rel="tag"># Flow Matching</a>
           
         </div>
       
@@ -530,8 +534,8 @@ u_t(x|x_1)=\frac{\sigma_t&apos;(x_1)}{\sigma_t(x_1)}(x-\mu_t(x_1))+\mu_t&apos;(x
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2024/11/12/筆記-Langevin-Dynamics-和-Fokker-Planck-Equation-推導/" rel="prev" title="筆記 Langevin Dynamics 和 Fokker-Planck Equation 推導">
-                筆記 Langevin Dynamics 和 Fokker-Planck Equation 推導 <i class="fa fa-chevron-right"></i>
+              <a href="/2024/11/06/嘗試理解-Flow-Matching_bk/" rel="prev" title="嘗試理解 Flow Matching">
+                嘗試理解 Flow Matching <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -604,7 +608,7 @@ u_t(x|x_1)=\frac{\sigma_t&apos;(x_1)}{\sigma_t(x_1)}(x-\mu_t(x_1))+\mu_t&apos;(x
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">103</span>
+                <span class="site-state-item-count">104</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>

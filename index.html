@@ -423,6 +423,158 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching_bk/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2024/11/06/嘗試理解-Flow-Matching_bk/" itemprop="url">
+                  嘗試理解 Flow Matching
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2024-11-06T19:33:29+08:00">
+                2024-11-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>接續上一篇: <a href="https://bobondemon.github.io/2024/10/29/%E8%AE%80-Flow-Matching-%E5%89%8D%E8%A6%81%E5%85%88%E7%90%86%E8%A7%A3%E7%9A%84%E6%9D%B1%E8%A5%BF/">讀 Flow Matching 前要先理解的東西</a> (建議先閱讀)</p>
+<p>Flow matching 模型在時間 $t=0$ 的時候從常態分佈出發 $p_0(x)=\mathcal{N}(0,I)$, 隨著時間變化其 pdf, 例如時間 $t$ 時的 pdf 變化成為 $p_t(x)$, 直到時間 $t=1$ 時希望變成接近目標分佈 $q(x)$, 即希望 $p_1(x)\approx q(x)$.<br>概念是頭尾 pdf 確定後, 中間這無限多種可能的 $p_t(x)$ 變化經過作者的巧妙設定, 讓學 vector field $u_t(x)$ 變的可能! (不學 pdf 而是學 vector field)<br>結果就是用 NN 學到的 $u_t(x)$ 可以讓 pdf 從開頭的常態分佈一路變化到最後的資料目標分佈 $q(x)$.<br>[備註]: Divergence (散度) 的寫法為 $\nabla\cdot$ 或 $\text{div}$, 定義為:<br><span>$$\text{div}(F)=\nabla\cdot F=\sum_{i=1}^n\frac{\partial F_i}{\partial x_i}$$</span><!-- Has MathJax --> 其中 $F(x_1,…,x_n)=(F_1,…,F_n)$. 更多請參考: [<a href="https://bobondemon.github.io/2024/10/29/%E8%AE%80-Flow-Matching-%E5%89%8D%E8%A6%81%E5%85%88%E7%90%86%E8%A7%A3%E7%9A%84%E6%9D%B1%E8%A5%BF/#B-Divergence-%E6%95%A3%E5%BA%A6">筆記</a>]</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2024/11/06/嘗試理解-Flow-Matching_bk/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1660,158 +1812,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/05/04/Model-Generalization-with-Flat-Optimum/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chih-Sheng Chen">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="棒棒生">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2024/05/04/Model-Generalization-with-Flat-Optimum/" itemprop="url">
-                  Model Generalization with Flat Optimum
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2024-05-04T11:45:43+08:00">
-                2024-05-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分類於</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ML/" itemprop="url" rel="index">
-                    <span itemprop="name">ML</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-<hr>
-<p>訓練模型時我們盯著 tensorboard 看著 training loss 一直降低直到收斂, 收斂後每個 checkpoint 的 training loss 都差不多, 那該挑哪一個 checkpoint 呢?<br>就選 validation loss 最低的那些吧, 由 <a href="https://bobondemon.github.io/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-%E6%9E%97%E8%BB%92%E7%94%B0%E8%AA%B2%E7%A8%8B%E7%AD%86%E8%A8%98/">PAC</a> 我們知道 validation error 約等於 test error (validation set 愈大愈好), 但我們能不能對泛化能力做得更好? 如果 training 時就能讓泛化能力提升, 是否更有效率?</p>
-<h2 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h2><p>很多提升泛化能力的論文和觀點都從 “<strong>flat</strong>“ optimum 出發. 下圖清楚說明這個想法 ([<a href="https://research.samsung.com/blog/ASAM-Adaptive-Sharpness-Aware-Minimization-for-Scale-Invariant-Learning-of-Deep-Neural-Networks">圖來源</a>]):</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2024/05/04/Model-Generalization-with-Flat-Optimum/#more" rel="contents">
-              閱讀全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1861,7 +1861,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">103</span>
+                <span class="site-state-item-count">104</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
