@@ -267,6 +267,168 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/" itemprop="url">
+                  Qualcomm Data-Free Quantization 詳讀
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2023-11-24T23:20:05+08:00">
+                2023-11-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>總歸來說 Data-Free Quantization (DFQ) 的目的是讓 floating model 做 weights 各種調整, 使得不管是 weights or activations 都變得適合 per tensor 量化.這樣理想上就不需用到 per channel 量化, 因為 per channel 雖然效果很好, 但硬體比較不友善, 且花的運算量較高. 另外 DFQ 屬於 Post-Training Quantization (PTQ) 方法. PTQ 對佈署到 edge 端很方便, 但一般來說 PTQ 都不如 Quantization-Aware Training (QAT) 的效果好, 因此 DFQ 嘗試提升效果.</p>
+<p>DFQ 共四步, 對照圖看, 需照順序:<br><img src="/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled.png" width="100%" height="100%"></p>
+<ol>
+<li><strong>Cross-Layer Equalization (CLE)</strong>: 輸入 fused BN 後的 float model <span>$M_f^1$</span><!-- Has MathJax -->, floating 操作對 weights 做調整使得更均衡方便 per tensor 量化, 為 step 3 的前置作業, 輸出仍為 float model <span>$M_f^2$</span><!-- Has MathJax -->.</li>
+<li><strong>Bias Absorption (BA)</strong>: 輸入 CLE 後的 float model <span>$M_f^2$</span><!-- Has MathJax -->, floating 操作對 activations 做調整使得更均衡方便 per tensor 量化, 為 step 3 的前置作業, 輸出仍為 float model <span>$M_f^3$</span><!-- Has MathJax -->.</li>
+<li><strong>PTQ 量化</strong>: 輸入 CLE+BA 後的 float model <span>$M_f^3$</span><!-- Has MathJax -->, 此時不管 weights or activations 都適合做 per-tensor 量化了, 所以直接 PTQ 輸出 int model <span>$M_i^1$</span><!-- Has MathJax -->.</li>
+<li><strong>Bias Correction (BC)</strong>: 輸入 float model <span>$M_f^1$</span><!-- Has MathJax --> 和 step 3 的 <span>$M_i^1$</span><!-- Has MathJax -->, 並且(option)給一些 unlabeled 的代表 data, BC 會對 <span>$M_i^1$</span><!-- Has MathJax --> 的 bias 參數補償因為量化造成的數值 mean 偏移, 輸出為最終 fixed point model <span>$M_i^2$</span><!-- Has MathJax -->.</li>
+</ol>
+<blockquote>
+<p>Qualcomm AI Lab 的 tool <a href="https://quic.github.io/aimet-pages/releases/latest/user_guide/index.html">AIMET</a> 說 BC 這一步驟可以用 <a href="https://quic.github.io/aimet-pages/releases/latest/user_guide/adaround.html#ug-adaround">AdaRound</a> (需要一小部分的 unlabelled training data) 取代</p>
+</blockquote>
+<p>其實認真看完論文, 覺得限制有點多啊! 很多時候不能套 CLE, 有時 BA 也用不了. 把限制條列一下:<br></p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2023/11/04/Quantization-Error-Case-with-Clipping/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1703,157 +1865,6 @@ q=\text{round_to_int}(r/s)+z
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/05/28/SGD-Ggeneralization-Notes/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chih-Sheng Chen">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="棒棒生">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2022/05/28/SGD-Ggeneralization-Notes/" itemprop="url">
-                  SGD 泛化能力的筆記
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2022-05-28T22:15:58+08:00">
-                2022-05-28
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分類於</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Optimization/" itemprop="url" rel="index">
-                    <span itemprop="name">Optimization</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-<hr>
-<h2 id="Sharp-V-S-Flat-Local-Minimum-的泛化能力"><a href="#Sharp-V-S-Flat-Local-Minimum-的泛化能力" class="headerlink" title="Sharp V.S. Flat Local Minimum 的泛化能力"></a>Sharp V.S. Flat Local Minimum 的泛化能力</h2><p>先簡單介紹這篇文章:<br><a href="https://arxiv.org/abs/1609.04836">On large-batch training for deep learning: Generalization gap and sharp minima</a><br>考慮下圖兩個 minimum, 對於 training loss 來說其 losses 一樣.<br><img src="/2022/05/28/SGD-Ggeneralization-Notes/Untitled.png" width="70%" height="70%"> 從圖可以容易理解到, 如果找到太 sharp 的點, 由於 test and train 的 mismatch, 會導致測試的時候 data 一點偏移就會對 model output 影響很大.<br>論文用實驗的方式, 去評量一個 local minimum 的 sharpness 程度, 簡單說利用 random perturb 到附近其他點, 然後看看該點 loss 變化的程度如何, 變化愈大, 代表該 local minimum 可能愈 sharp.<br>然後找兩個 local minimums, 一個估出來比較 sharp 另一個比較 flat. 接著對這兩點連成的線, 線上的參數值對應的 loss 劃出圖來, 長相如下:<br><img src="/2022/05/28/SGD-Ggeneralization-Notes/Untitled 1.png" width="100%" height="100%"> 這也是目前一個普遍的認知: flat 的 local minimum 泛化能力較好.<br>所以可以想像, step size (learning rate) 如果愈大, 愈有可能跳出 sharp minimum.<br>而 batch size 愈小, 表示 gradient 因為 mini-batch 造成的 noise 愈大, 相當於愈有可能”亂跑”跑出 sharp minimum.<br>但這篇文章<em>僅止於實驗性質上的驗證</em>. Step size and batch size 對於泛化能力, 或是說對於找到比較 flat optimum 的機率會不會比較高? 兩者有什麼關聯呢?<br><strong>DeepMind 的近期 (2021) 兩篇文章給出了很漂亮的理論分析.</strong></p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2022/05/28/SGD-Ggeneralization-Notes/#more" rel="contents">
-              閱讀全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1903,7 +1914,7 @@ q=\text{round_to_int}(r/s)+z
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">104</span>
+                <span class="site-state-item-count">105</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -1925,7 +1936,7 @@ q=\text{round_to_int}(r/s)+z
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">217</span>
+                <span class="site-state-item-count">219</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>

@@ -267,6 +267,158 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2019/06/18/SphereFace-paper-study-and-implementation-notes/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2019/06/18/SphereFace-paper-study-and-implementation-notes/" itemprop="url">
+                  SphereFace Paper Study and Implementation Notes
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2019-06-18T21:13:46+08:00">
+                2019-06-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p><a href="https://arxiv.org/pdf/1704.08063.pdf">SphereFace: Deep Hypersphere Embedding for Face Recognition</a> 使得訓練出來的 embeddings 可以很好的使用 cosine similarity 做 verification/identification. 可以先網路上搜尋一下其他人的筆記和討論, 當然直接看論文最好.<br>一般來說我們對訓練集的每個人用 classification 的方式訓練出 embeddings, 然後在測試的時候可以對比兩個人的 embeddings 來判斷是否為同一個人. 使用 verification 當例子, 實用上測試的人不會出現在訓練集中, 此情形稱為 openset 設定.</p>
+<p><img src="/2019/06/18/SphereFace-paper-study-and-implementation-notes/openset.png" width="70%" height="70%"></p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/06/18/SphereFace-paper-study-and-implementation-notes/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1658,158 +1810,6 @@ Y_k=R_k\exp(j\theta_k)$$</span><!-- Has MathJax --></p>
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2018/10/16/CTC-Implementation-Practice/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chih-Sheng Chen">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="棒棒生">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2018/10/16/CTC-Implementation-Practice/" itemprop="url">
-                  CTC Implementation Practice
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2018-10-16T20:25:10+08:00">
-                2018-10-16
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分類於</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ML/" itemprop="url" rel="index">
-                    <span itemprop="name">ML</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-<hr>
-<p>Credit 是此篇 <a href="https://github.com/DingKe/ml-tutorial/blob/master/ctc/CTC.ipynb">DingKe ipynb</a> 的, 他完整呈現了 CTC loss 以及 gradient 的計算, 非常棒!<br>此筆記加入自己的說明, 並且最後使用 tensorflow 來驗證.<br>這篇另一個主要目的為改成可以練習的格式 (<strong>#TODO tag</strong>). 因為我相信最好的學習方式是自己造一次輪子, 所以可以的話, 請試著把 #TODO tag 的部分做完吧.<br>我們只專注在 CTC loss 的 forward, backwark and gradient. Decoding 部分請參考原作者的 <a href="https://github.com/DingKe/ml-tutorial/blob/master/ctc/CTC.ipynb">ipynb</a>. 最後使用 <code>tf.nn.ctc_loss</code> and <code>tf.gradients</code> 與我們的計算做對比</p>
-<!--<img src="cover.png" width=70% height=70%>-->
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/10/16/CTC-Implementation-Practice/#more" rel="contents">
-              閱讀全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1859,7 +1859,7 @@ Y_k=R_k\exp(j\theta_k)$$</span><!-- Has MathJax --></p>
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">104</span>
+                <span class="site-state-item-count">105</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -1881,7 +1881,7 @@ Y_k=R_k\exp(j\theta_k)$$</span><!-- Has MathJax --></p>
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">217</span>
+                <span class="site-state-item-count">219</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>

@@ -1,0 +1,844 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="SGD,Stochastic Gradient Descent,Robbins-Monro Algorithm,Dvoretzky's Convergence Theorem," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Stochastic Gradient Descent (SGD) 算法:
+$$\begin{align*}
+\quad w_{k+1}=w_k-\alpha_k\nabla_wf(w_k,x_k)
+\end{align*}$$ 其中 $f$ 是要 minimized 的目標函數, $x_k$, $w_k$ 是 $k$-th iteration 的 data 和 weight.以前在學的時">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Robbins-Monro Algorithm 和 Dvoretzky's Convergence Theorem 筆記">
+<meta property="og:url" content="https://bobondemon.github.io/2025/05/02/RM-algo/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="Stochastic Gradient Descent (SGD) 算法:
+$$\begin{align*}
+\quad w_{k+1}=w_k-\alpha_k\nabla_wf(w_k,x_k)
+\end{align*}$$ 其中 $f$ 是要 minimized 的目標函數, $x_k$, $w_k$ 是 $k$-th iteration 的 data 和 weight.以前在學的時">
+<meta property="og:image" content="https://bobondemon.github.io/2025/05/02/RM-algo/image.png">
+<meta property="og:updated_time" content="2025-05-02T13:25:46.359Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Robbins-Monro Algorithm 和 Dvoretzky's Convergence Theorem 筆記">
+<meta name="twitter:description" content="Stochastic Gradient Descent (SGD) 算法:
+$$\begin{align*}
+\quad w_{k+1}=w_k-\alpha_k\nabla_wf(w_k,x_k)
+\end{align*}$$ 其中 $f$ 是要 minimized 的目標函數, $x_k$, $w_k$ 是 $k$-th iteration 的 data 和 weight.以前在學的時">
+<meta name="twitter:image" content="https://bobondemon.github.io/2025/05/02/RM-algo/image.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2025/05/02/RM-algo/"/>
+
+
+
+
+
+  <title> Robbins-Monro Algorithm 和 Dvoretzky's Convergence Theorem 筆記 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2025/05/02/RM-algo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Robbins-Monro Algorithm 和 Dvoretzky's Convergence Theorem 筆記
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2025-05-02T20:53:39+08:00">
+                2025-05-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Optimization/" itemprop="url" rel="index">
+                    <span itemprop="name">Optimization</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>Stochastic Gradient Descent (SGD) 算法:</p>
+<span>$$\begin{align*}
+\quad w_{k+1}=w_k-\alpha_k\nabla_wf(w_k,x_k)
+\end{align*}$$</span><!-- Has MathJax --> 其中 $f$ 是要 minimized 的目標函數, $x_k$, $w_k$ 是 $k$-th iteration 的 data 和 weight.<br>以前在學的時候都會提到 step size $\alpha_k$ 有這樣一個神奇的條件:<br><span>$$\sum_{k=1}^\infty \alpha_k^2&lt;\infty,\quad \sum_{k=1}^\infty \alpha_k=\infty;$$</span><!-- Has MathJax --> 左邊的條件希望 step size 要愈來愈小, 而右邊的條件又說也不能太小.<br>聽起來就有點神奇, 不知道藏了什麼秘密在裡面.<br>直到許多年後, 在我學赵世钰老師的 <a href="https://www.youtube.com/watch?v=LCckI8egBvo&amp;list=PLEhdbSEZZbDYwsXT1NeBZbmPCbIIqlgLS&amp;index=24" target="_blank" rel="external">RL 課程第 6 章</a>的時候才解開了以前不懂的地方.<br><br>鄭重介紹 Robbins-Monro (RM) 算法!<br><br>RM 可說十分重要, 除了可以證明 SGD 是 RM 算法的一個 special case. (因此只要保證滿足 RM 收斂的條件, SGD 就會收斂)<br>同時 RL (強化學習) 裡經典的 Temporal Difference (TD), Q-Learning 等的方法也依賴 RM 算法的觀念.<br>所以 RM 算法可說是 RL 的基石之一! 知道 RM 算法還是相當有好處的.<br>以下特別筆記赵世钰老師的 <a href="https://www.youtube.com/watch?v=LCckI8egBvo&amp;list=PLEhdbSEZZbDYwsXT1NeBZbmPCbIIqlgLS&amp;index=24" target="_blank" rel="external">RL 課程第 6 章</a> 內容.<br><br><a id="more"></a>
+<hr>
+<h2 id="Robbins-Monro-Algorithm-and-Theorem"><a href="#Robbins-Monro-Algorithm-and-Theorem" class="headerlink" title="Robbins-Monro Algorithm and Theorem"></a>Robbins-Monro Algorithm and Theorem</h2><p>一句話描述 RM 算法可以解什麼問題: 在<strong><em>不知道函式長相</em></strong>且觀測值具有<strong><em>誤差</em></strong>情況下, 解 <strong><em>root finding</em></strong> problem<br>(當然有一些前提條件要滿足)<br>具體來說我們要找 $w$ s.t. $g(w)=0$, 但我們只能觀測到有誤差的值 $\tilde{g}(w,\eta)=g(w)+\eta$:<br><img src="/2025/05/02/RM-algo/image.png" width="75%" height="75%"></p>
+<p><strong><em>(這個誤差 random variable $\eta$ 是精髓)</em></strong></p>
+<p>由於很多時候 $g(w)$ 會是真實期望值, 但由於我們只能觀測到有誤差的 sample 值<br>這種觀測 sample 與真實期望值之間的差, 就是 random variable $\eta$, 因此就能套進 RM 算法框架中.</p>
+<p>SGD 和 RL 中的 TD, Q-Learning 就是這麼套用的.</p>
+<h3 id="Robbins-Monro-Algorithm"><a href="#Robbins-Monro-Algorithm" class="headerlink" title="Robbins-Monro Algorithm"></a>Robbins-Monro Algorithm</h3><p>RM 算法流程為:<br><span>$$\begin{align}
+{\color{orange}{w_{k+1}=w_k-a_k\tilde{g}(w_k,\eta_k)}},\quad k=1,2,3,...
+\end{align}$$</span><!-- Has MathJax --> 其中 $a_k\geq 0$ 且有一些條件要滿足, $\eta_k$ 是觀測 noise 也同樣有一些條件要滿足, 見下面 RM theorem</p>
+<h3 id="Robbins-Monro-Theorem"><a href="#Robbins-Monro-Theorem" class="headerlink" title="Robbins-Monro Theorem"></a>Robbins-Monro Theorem</h3><p>對 RM algorithm (1) 來說, 如果滿足:<br>&emsp; 1. <span>$0\leq c_1\leq\nabla_wg(w)\leq c_2,\quad \forall w;$</span><!-- Has MathJax --> (函式 $g$ 為單調遞增)<br>&emsp; 2. <span>$\sum_{k=1}^\infty a_k=\infty$</span><!-- Has MathJax --> and <span>$\sum_{k=1}^\infty a_k^2&lt;\infty;$</span><!-- Has MathJax --><br>&emsp; 3. <span>$\mathbb{E}[\eta_k|\mathcal{H}_k]=0$</span><!-- Has MathJax --> and <span>$\mathbb{E}[\eta_k^2|\mathcal{H}_k]&lt;\infty;$</span><!-- Has MathJax --> </p>
+<p>其中 <span>$\mathcal{H}_k=\{w_k,w_{k-1},...\}$</span><!-- Has MathJax --> 表示過往的紀錄 (稱 <a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/#Week-7-4-5-Integrals-of-the-type-%E2%88%AB-X-t-dW-t">filtration</a>)<br>則 $w_k$ <a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/#Self-Study-Convergence-of-random-variables">almost surely (a.s.) converges</a> 到 root $w^\ast$, where $g(w^\ast)=0$.<br>分析:</p>
+<ul>
+<li>第 1 個條件在最佳化問題 (optimize 函式 $f(w)$) 的時候, 由於我們設定 $g(w)=\nabla_w f(w)$ 所以變成要求 $\nabla_w^2 f(w)$ 必須是正定矩陣, 即 $f$ 是 strictly convex function.</li>
+<li>第 2 個條件很有趣, 首先如果滿足 $\sum_{k=1}^\infty a_k^2&lt;\infty$, 表示 $a_k\longrightarrow 0$ for $k\longrightarrow\infty$ (反證法即可知), 說明希望 $a_k$ 確實要愈來愈小, 這位什麼重要呢? 我們分析一下<br>  因為 <span>$w_{k+1}-w_k=-a_k\tilde{g}(w_k,\eta_k)$</span><!-- Has MathJax -->, 如果 $\tilde{g}$ is bounded 則<br>  <span>$$\because a_k\xrightarrow[k\rightarrow\infty]{} 0, \quad \therefore a_k\tilde{g}\xrightarrow[k\rightarrow\infty]{} 0;\quad\Longrightarrow (w_{k+1}-w_k)\xrightarrow[k\rightarrow\infty]{} 0$$</span><!-- Has MathJax --> 不然的話 <span>$w_{k+1}-w_k$</span><!-- Has MathJax --> 會震盪.<br>  再來 <span>$\sum_{k=1}^\infty a_k=\infty$</span><!-- Has MathJax --> 則希望 $a_k$ 不要過小, 這樣有什麼好處呢? 我們觀察 (1)<br>  <span>$$\begin{align*}
+(1)\Longrightarrow w_{k+1}-w_k=-a_k\tilde{g}(w_k,\eta_k) \\
+\Longrightarrow\sum_{k=1}^\infty(w_{k+1}-w_k)=-\sum_{k=1}^\infty a_k\tilde{g}(w_k,\eta_k) \\
+\Longrightarrow w_\infty-w_1=-\sum_{k=1}^\infty a_k\tilde{g}(w_k,\eta_k)
+\end{align*}$$</span><!-- Has MathJax --> 如果 <span>$\sum_{k=1}^\infty a_k&lt;\infty$</span><!-- Has MathJax --> 加上 $\tilde g$ 是 bounded, 則 <span>$w_\infty-w_1&lt;\infty$</span><!-- Has MathJax --> 是 bounded, 這樣會讓我們的 initial $w_1$ 沒辦法隨意選擇</li>
+<li>第 3 個條件, 一般來說 <span>$\{\eta_k\}$</span><!-- Has MathJax --> 是 i.i.d. 滿足 <span>$\mathbb{E}[\eta_k]=0$</span><!-- Has MathJax --> 和 <span>$\mathbb{E}[\eta_k^2]&lt;\infty$</span><!-- Has MathJax --></li>
+</ul>
+<p>RM theorem 的證明要使用下段介紹的 Dvoretzky’s convergence theorem</p>
+<h2 id="Dvoretzky’s-Convergence-Theorem"><a href="#Dvoretzky’s-Convergence-Theorem" class="headerlink" title="Dvoretzky’s Convergence Theorem"></a>Dvoretzky’s Convergence Theorem</h2><p>考慮如下的 stochastic process<br><span>$$\begin{align}
+{\color{orange}{\Delta_{k+1}=(1-\alpha_k)\Delta_k+\beta_k\eta_k}}, \quad k=1,2,3,...
+\end{align}$$</span><!-- Has MathJax --> 其中 <span>$\{\alpha_k\}_{k=1}^\infty$</span><!-- Has MathJax -->, <span>$\{\beta_k\}_{k=1}^\infty$</span><!-- Has MathJax -->, 和 <span>$\{\eta_k\}_{k=1}^\infty$</span><!-- Has MathJax --> 也都是 stochastic sequences, 且 <span>$\alpha_k\geq0,\beta_k\geq0$</span><!-- Has MathJax --> for all $k$. 則<br><span>$$\Delta_k\xrightarrow[]{a.s.}0,\quad k\rightarrow\infty$$</span><!-- Has MathJax --> 如果滿足以下條件:<br>&emsp; 1. <span>$\sum_{k=1}^\infty \alpha_k=\infty$</span><!-- Has MathJax -->, <span>$\sum_{k=1}^\infty \alpha_k^2&lt;\infty$</span><!-- Has MathJax -->, and <span>$\sum_{k=1}^\infty \beta_k^2&lt;\infty$</span><!-- Has MathJax --> uniformly almost surely;<br>&emsp; 2. <span>$\mathbb{E}[\eta_k|\mathcal{H}_k]=0$</span><!-- Has MathJax --> and <span>$\mathbb{E}[\eta_k^2|\mathcal{H}_k]\leq C;$</span><!-- Has MathJax --><br>其中 <span>$\mathcal{H}_k=\{\Delta_k,\Delta_{k-1},..., \eta_{k-1},...,\alpha_{k-1},...,\beta_{k-1},...\}$</span><!-- Has MathJax --> 表示過往的紀錄 (稱 <a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/#Week-7-4-5-Integrals-of-the-type-%E2%88%AB-X-t-dW-t">filtration</a>).</p>
+<p>證明請自行看課本: Book-Mathematical-Foundation-of-Reinforcement-Learning, [<a href="https://github.com/MathFoundationRL/Book-Mathematical-Foundation-of-Reinforcement-Learning/blob/main/3%20-%20Chapter%206%20Stochastic%20Approximation.pdf" target="_blank" rel="external">3 - Chapter 6 Stochastic Approximation.pdf</a>]</p>
+<h3 id="用-Dvoretzky’s-Convergence-Theorem-證明-Robbins-Monro-Theorem"><a href="#用-Dvoretzky’s-Convergence-Theorem-證明-Robbins-Monro-Theorem" class="headerlink" title="用 Dvoretzky’s Convergence Theorem 證明 Robbins-Monro Theorem"></a>用 Dvoretzky’s Convergence Theorem 證明 Robbins-Monro Theorem</h3><p>令 $w^\ast$ 為 root, i.e. $g(w^\ast)=0$. 改寫一下 RM algo. (1)<br><span>$$\begin{align*}
+w_{k+1}=w_k-a_k(g(w_k)+\eta_k) \\
+\Longrightarrow w_{k+1}-w^\ast=w_k-w^\ast-a_k( {\color{green}{g(w_k)-g(w^\ast)}} +\eta_k)
+\end{align*}$$</span><!-- Has MathJax --> 綠色的地方使用 mean value theorem, 即 <span>$g(w_k)-g(w^\ast)=\nabla_w g(w_k&apos;)(w_k-w^\ast)$</span><!-- Has MathJax -->, 並令 <span>$\Delta_k=w_k-w^\ast$</span><!-- Has MathJax --> 代回去得到:<br><span>$$\begin{align*}
+\Longrightarrow \Delta_{k+1}=\Delta_k-a_k(\nabla_w g(w_k&apos;)\Delta_k+\eta_k) \\
+\Longrightarrow \Delta_{k+1}=(1-\underbrace{a_k\nabla_w g(w_k&apos;)}_{\doteq\alpha_k})\Delta_k + \underbrace{a_k}_{\doteq\beta_k} (-\eta_k)
+\end{align*}$$</span><!-- Has MathJax --> 很容易看到從 RM thoerem 要求的條件能滿足 Dvoretzky’s convergence theorem 的要求條件, 因此 $\Delta_k\longrightarrow0$, as $k\longrightarrow\infty$.<br>即 $w_k\longrightarrow w^\ast$, as $k\longrightarrow\infty$.</p>
+<hr>
+<h2 id="SGD-是-RM-Algorithm-的一個特例"><a href="#SGD-是-RM-Algorithm-的一個特例" class="headerlink" title="SGD 是 RM Algorithm 的一個特例"></a>SGD 是 RM Algorithm 的一個特例</h2><p>首先我們有 Loss function 如下:<br><span>$$\min_w J(w)=\frac{1}{n}\sum_{i=1}^nf(w,x_i)=\mathbb{E}[f(w,X)]$$</span><!-- Has MathJax --> Gradient Descent (GD) 和 SGD 算法如下:<br><span>$$\begin{align*}
+\text{GD:}\quad w_{k+1}
+=w_k-\alpha_k\mathbb{E}[\nabla_wf(w_k,X)]\\
+\text{SGD}:\quad w_{k+1}=w_k-\alpha_k\nabla_wf(w_k,x_k)
+\end{align*}$$</span><!-- Has MathJax --> GD 計算 gradient 的時候要對所有的 data 計算後取期望, 而 SGD 只取一個 sample 的 gradient.<br>定義 $g(w)$:<br><span>$$g(w)\doteq\mathbb{E}[\nabla_wf(w,X)]$$</span><!-- Has MathJax --> 則當 $w^\ast$ 為 root 時, 滿足 <span>$g(w^\ast)=0\Longrightarrow \mathbb{E}[\nabla_wf(w,X)]=0$</span><!-- Has MathJax -->, gradient 為 0 表示達到 critical point. (解了最佳化問題)<br>而真正觀測值為 SGD 的 gradient:<br><span>$$\tilde{g}(w)=\nabla_wf(w,x)=g(w)+\underbrace{[\nabla_wf(w,x)-\mathbb{E}[\nabla_wf(w,X)]]}_{\doteq \eta}$$</span><!-- Has MathJax --> 套用 RM 算法可以發現正好是 SGD 算法:<br><span>$$\begin{align*}
+\text{RM algo}\quad w_{k+1}=w_k-\alpha_k\tilde{g}(w_k,\eta_k) \\
+\text{SGD algo}\quad=w_k-\alpha_k\nabla_wf(w,x)
+\end{align*}$$</span><!-- Has MathJax --> 因此 RM 算法的收斂性和條件可以直接延伸過去給 SGD.</p>
+<hr>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li>赵世钰老師的 RL 課程和課本: 强化学习的数学原理. [<a href="https://www.youtube.com/watch?v=LCckI8egBvo&amp;list=PLEhdbSEZZbDYwsXT1NeBZbmPCbIIqlgLS&amp;index=24" target="_blank" rel="external">YouTube</a>] [<a href="https://github.com/MathFoundationRL/Book-Mathematical-Foundation-of-Reinforcement-Learning" target="_blank" rel="external">GitHub</a>]</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2025/05/02/RM-algo/" title="Robbins-Monro Algorithm 和 Dvoretzky's Convergence Theorem 筆記">https://bobondemon.github.io/2025/05/02/RM-algo/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/SGD/" rel="tag"># SGD</a>
+          
+            <a href="/tags/Stochastic-Gradient-Descent/" rel="tag"># Stochastic Gradient Descent</a>
+          
+            <a href="/tags/Robbins-Monro-Algorithm/" rel="tag"># Robbins-Monro Algorithm</a>
+          
+            <a href="/tags/Dvoretzky-s-Convergence-Theorem/" rel="tag"># Dvoretzky's Convergence Theorem</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2025/03/13/愉快充實的學習旅程/" rel="next" title="愉快充實的學習旅程 (Prof. Jeffrey R. Chasnov 的課程)">
+                <i class="fa fa-chevron-left"></i> 愉快充實的學習旅程 (Prof. Jeffrey R. Chasnov 的課程)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">105</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">219</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Robbins-Monro-Algorithm-and-Theorem"><span class="nav-number">1.</span> <span class="nav-text">Robbins-Monro Algorithm and Theorem</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Robbins-Monro-Algorithm"><span class="nav-number">1.1.</span> <span class="nav-text">Robbins-Monro Algorithm</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Robbins-Monro-Theorem"><span class="nav-number">1.2.</span> <span class="nav-text">Robbins-Monro Theorem</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dvoretzky’s-Convergence-Theorem"><span class="nav-number">2.</span> <span class="nav-text">Dvoretzky’s Convergence Theorem</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#用-Dvoretzky’s-Convergence-Theorem-證明-Robbins-Monro-Theorem"><span class="nav-number">2.1.</span> <span class="nav-text">用 Dvoretzky’s Convergence Theorem 證明 Robbins-Monro Theorem</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SGD-是-RM-Algorithm-的一個特例"><span class="nav-number">3.</span> <span class="nav-text">SGD 是 RM Algorithm 的一個特例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">4.</span> <span class="nav-text">References</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
