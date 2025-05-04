@@ -98,7 +98,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2025/05/04/Convolution-與-BatchNorm-的融合大法/image 1.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/05/04/Convolution-與-BatchNorm-的融合大法/image 2.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/05/04/Convolution-與-BatchNorm-的融合大法/image 3.png">
-<meta property="og:updated_time" content="2025-05-04T01:53:09.999Z">
+<meta property="og:updated_time" content="2025-05-04T02:00:59.998Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Convolution 與 BatchNorm 的融合大法：從推論、QAT 到 PyTorch 的加速">
 <meta name="twitter:description" content="常見的 NN blocks: Convolution (Conv) —&amp;gt; Batch Normalization (BN) —&amp;gt; ReLU這 3 個 OPs 在量化後 inference 的時候可以直接融合成一個 OP:&amp;emsp; - Conv —&amp;gt; BN 可以融合是因為 BN 可以視為一個 1x1 convolution, 所以兩者的 weights 可以合併&amp;ems">
@@ -437,7 +437,7 @@ W_{inf}=\frac{\gamma W}{\sigma}, \quad b_{inf}=\beta-\gamma\frac{\mu}{\sigma}
 \frac{\sigma}{\sigma_B}\cdot fq(W_{inf})\approx fq\left(\frac{\sigma}{\sigma_B}\cdot\frac{\gamma W} {\sigma}\right) \\
 =fq\left(\frac{\gamma W}{\sigma_B}\right)=fq(W_{train})
 \end{align*}$$</span><!-- Has MathJax --> 這樣我們就能在 training 的時候就能使用 <span>$W_{train}$</span><!-- Has MathJax -->, 且又能避免 fake quant 造成的不穩定.<br>觀察一下 bias term, 注意到此時<strong><em>不能</em></strong> freeze BN status 所以圖中的邏輯閘為 False:<br><span>$$0 + \beta - \frac{\gamma\mu_B}{\sigma_B} = \beta-\frac{\mu_B}{\sigma_B} = b_{train}$$</span><!-- Has MathJax --></p>
-<p><strong>[Inference]:</strong><br>此時要 freeze BN status 所以邏輯閘為 True<br>因此<strong><em>不用</em></strong>乘上 correction term $\sigma/\sigma<em>B$, 所以用的是 $W</em>{inf}$ 去做 fake quant.<br>觀察一下 bias term, 設定邏輯閘為 True:<br><span>$$\gamma\left(\frac{\mu_B}{\sigma_B}-\frac{\mu}{\sigma}\right) + \beta - \frac{\gamma\mu_B}{\sigma_B} = \beta-\frac{\mu}{\sigma} = b_{inf}$$</span><!-- Has MathJax --></p>
+<p><strong>[Inference]:</strong><br>此時要 freeze BN status 所以邏輯閘為 True<br>因此<strong><em>不用</em></strong>乘上 correction term $\sigma/\sigma_B$, 所以用的是 <span>$W_{inf}$</span><!-- Has MathJax --> 去做 fake quant.<br>觀察一下 bias term, 設定邏輯閘為 True:<br><span>$$\gamma\left(\frac{\mu_B}{\sigma_B}-\frac{\mu}{\sigma}\right) + \beta - \frac{\gamma\mu_B}{\sigma_B} = \beta-\frac{\mu}{\sigma} = b_{inf}$$</span><!-- Has MathJax --></p>
 <hr>
 <h2 id="PyTorch-作法"><a href="#PyTorch-作法" class="headerlink" title="PyTorch 作法"></a>PyTorch 作法</h2><p>上面提到的作法 “fake quant with correction term” 就是 PyTorch <code>_ConvBnNd</code> 這個 class 的 <code>_forward_slow</code> 作法 [<a href="https://github.com/pytorch/pytorch/blob/main/torch/ao/nn/intrinsic/qat/modules/conv_fused.py#L162" target="_blank" rel="external">code link</a>]<br>名字上都有 slow 這個字眼了, 但為什麼是 slow 呢?<br>其實我們上面有提過, 為了計算一個 batch 的 $\mu_B$ 和 $\sigma_B$ 要多一次 convolution 運算.<br>PyTorch 做了 <code>_forward_approximate</code> [<a href="https://github.com/pytorch/pytorch/blob/main/torch/ao/nn/intrinsic/qat/modules/conv_fused.py#L133" target="_blank" rel="external">code link</a>] 來加速, 但注意到如同函數名字一樣, 雖然加速, 但這是 approximate 作法. (也是預設做法)<br>我們來分析看看 PyTorch 怎麼避掉那個多的 covolution 吧…<br><img src="/2025/05/04/Convolution-與-BatchNorm-的融合大法/image 3.png" width="60%" height="60%"><br>跟論文做法 (<code>_forward_slow</code>) 最主要差別是在套用 BN 的時候, $\mu_B$ 和 $\sigma_B$ 的統計是<strong><em>已經經過 fake quant 後</em></strong>的值去統計出來的<br>注意到原本論文作法, $\mu_B$ 和 $\sigma_B$ 使用的是最精準的 float 結果 (無 fake quant 損失) 去統計的.</p>
 <blockquote>
