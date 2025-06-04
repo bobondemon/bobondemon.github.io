@@ -1,0 +1,900 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Re-parameterization trick,REINFORCE,ChatGPT,Baseline method,Control variates,Fisher Information Matrix," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="某天忘記幹嘛了突然回想起之前學到的一個問題是有關 gradient 的 variance 很大, 使得 gradient descent 訓練不夠穩定.不過可以利用扣掉一個 bias 或是使用 re-parameterization trick 來大幅降低 variance 解決此問題.
+想了很久忘了在哪邊…縱使翻自己的 blog 筆記有時也沒查到很全面的資訊.所以就開始跟 ChatGPT">
+<meta property="og:type" content="article">
+<meta property="og:title" content="REINFORCE Estimator">
+<meta property="og:url" content="https://bobondemon.github.io/2025/06/04/REINFORCE-estimator/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="某天忘記幹嘛了突然回想起之前學到的一個問題是有關 gradient 的 variance 很大, 使得 gradient descent 訓練不夠穩定.不過可以利用扣掉一個 bias 或是使用 re-parameterization trick 來大幅降低 variance 解決此問題.
+想了很久忘了在哪邊…縱使翻自己的 blog 筆記有時也沒查到很全面的資訊.所以就開始跟 ChatGPT">
+<meta property="og:updated_time" content="2025-06-04T13:34:25.108Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="REINFORCE Estimator">
+<meta name="twitter:description" content="某天忘記幹嘛了突然回想起之前學到的一個問題是有關 gradient 的 variance 很大, 使得 gradient descent 訓練不夠穩定.不過可以利用扣掉一個 bias 或是使用 re-parameterization trick 來大幅降低 variance 解決此問題.
+想了很久忘了在哪邊…縱使翻自己的 blog 筆記有時也沒查到很全面的資訊.所以就開始跟 ChatGPT">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2025/06/04/REINFORCE-estimator/"/>
+
+
+
+
+
+  <title> REINFORCE Estimator | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '[object Object]', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2025/06/04/REINFORCE-estimator/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                REINFORCE Estimator
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2025-06-04T20:57:02+08:00">
+                2025-06-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>某天忘記幹嘛了突然回想起之前學到的一個問題是有關 gradient 的 variance 很大, 使得 gradient descent 訓練不夠穩定.<br>不過可以利用扣掉一個 bias 或是使用 re-parameterization trick 來大幅降低 variance 解決此問題.</p>
+<p>想了很久忘了在哪邊…縱使翻自己的 blog 筆記有時也沒查到很全面的資訊.<br>所以就開始跟 ChatGPT 學習, 只能說 👏🏻 ChatGPT 完美!! 👏🏻</p>
+<blockquote>
+<p>現在這個時代隨時都有一個 (AI知道的絕對超越單一人類個體) 上通天文下知地理的助手在你旁邊, 這在以前根本很難想像, 且也只是這短短幾年才發生的事情.<br>這麼棒的東西, 還不把它用爆嗎?</p>
+</blockquote>
+<p>好了, 回到本篇文章, 以下除了開頭的問題設定, 其他都是 ChatGPT 寫的, 根本超方便.</p>
+<a id="more"></a>
+<hr>
+<h2 id="問題設定"><a href="#問題設定" class="headerlink" title="問題設定"></a><strong>問題設定</strong></h2><p>假設我們有一個機率分佈 $p_\theta(x)$，其中 $x$ 是隨機變數，而 $\theta$ 是控制該分佈的參數。我們的目標是對以下期望值求梯度：<br><span>$$F(\theta)=\mathbb{E}_{x\sim p_\theta}[f(x)]$$</span><!-- Has MathJax --> 即：<br><span>$$F(\theta) = \int f(x) p_\theta(x) dx$$</span><!-- Has MathJax --> 我們希望計算 <span>$\nabla_\theta F(\theta)$</span><!-- Has MathJax -->。</p>
+<hr>
+<h2 id="推導-REINFORCE-Estimator"><a href="#推導-REINFORCE-Estimator" class="headerlink" title="推導 REINFORCE Estimator"></a><strong>推導 REINFORCE Estimator</strong></h2><p>直接對積分求梯度：<br><span>$$\nabla_\theta F(\theta) = \nabla_\theta \int f(x) p_\theta(x) dx$$</span><!-- Has MathJax --> 為 $p_\theta(x)$ 是依賴於 $\theta$ 的，我們使用 <strong>log-derivative trick</strong>，即：<br><span>$$\nabla_\theta p_\theta(x) = p_\theta(x) \nabla_\theta \log p_\theta(x)$$</span><!-- Has MathJax --> 將其帶入上式：<br><span>$$\begin{align*}
+\nabla_\theta F(\theta) = \int f(x) \nabla_\theta p_\theta(x) dx \\
+= \int f(x) p_\theta(x) \nabla_\theta \log p_\theta(x) dx \\
+= \mathbb{E}_{x \sim p_\theta} [f(x) \nabla_\theta \log p_\theta(x)]
+\end{align*}$$</span><!-- Has MathJax --> 這就是 <strong>REINFORCE estimator</strong>：<br><span>$$\nabla_\theta F(\theta) \approx \frac{1}{N} \sum_{i=1}^{N} f(x_i) \nabla_\theta \log p_\theta(x_i)$$</span><!-- Has MathJax --> 其中 <span>$x_i \sim p_\theta(x)$</span><!-- Has MathJax --> 是從該分佈中抽樣的樣本。</p>
+<h3 id="直覺解釋"><a href="#直覺解釋" class="headerlink" title="直覺解釋"></a><strong>直覺解釋</strong></h3><ul>
+<li><p><strong>關鍵技巧是對機率密度取對數的梯度</strong>：<br>  <span>$$\nabla_\theta p_\theta(x) = p_\theta(x) \nabla_\theta \log p_\theta(x)$$</span><!-- Has MathJax --> 這使得我們可以用機率本身作為權重，而不直接對機率密度求梯度（避免計算困難）。</p>
+</li>
+<li><p><strong>這是一種無偏估計 (unbiased estimator)</strong>：<br>  <span>$$\mathbb{E}_{x \sim p_\theta} [f(x) \nabla_\theta \log p_\theta(x)]$$</span><!-- Has MathJax --> 這個估計的期望值與真實梯度一致。</p>
+</li>
+<li><p><strong>只需要能對樣本計算對數機率的梯度</strong>：</p>
+<ul>
+<li>這使得該方法適用於各種離散或連續分佈。</li>
+</ul>
+</li>
+</ul>
+<h3 id="應用"><a href="#應用" class="headerlink" title="應用"></a><strong>應用</strong></h3><p>這個技巧非常普遍，除了 Reinforcement Learning 之外，也應用於：</p>
+<ul>
+<li><strong>變分推理 (Variational Inference)</strong>：用來估計變分下界 (ELBO) 的梯度。</li>
+<li><strong>黑箱優化 (Black-box optimization)</strong>：在不知道目標函數明確梯度的情況下仍可進行參數更新。</li>
+<li><strong>離散隨機變數的梯度估計</strong>：適用於沒有可微分重參數化技巧 (reparameterization trick) 的情境。</li>
+</ul>
+<p>這樣的推導完全基於機率分佈的性質，並不依賴於強化學習的框架。</p>
+<hr>
+<h2 id="改善-REINFORCE-Estimator-的方法"><a href="#改善-REINFORCE-Estimator-的方法" class="headerlink" title="改善 REINFORCE Estimator 的方法"></a><strong>改善 REINFORCE Estimator 的方法</strong></h2><p>REINFORCE estimator 雖然是一種無偏 (unbiased) 估計方法，但它的主要問題是 <strong>方差過大</strong> ，導致學習不穩定。以下是一些常見的改善方法：</p>
+<h3 id="基線-Baseline-方法"><a href="#基線-Baseline-方法" class="headerlink" title="基線 (Baseline) 方法"></a><strong>基線 (Baseline) 方法</strong></h3><p>由於 REINFORCE estimator 的梯度公式是：<br><span>$$\nabla_\theta F(\theta) = \mathbb{E}_{x \sim p_\theta} [f(x) \nabla_\theta \log p_\theta(x)]$$</span><!-- Has MathJax --> 如果我們從中減去某個與 $x$ 無關的基線 $b$，梯度估計仍然是無偏的：<br><span>$$\nabla_\theta F(\theta) = \mathbb{E}_{x \sim p_\theta} [(f(x) - b) \nabla_\theta \log p_\theta(x)]$$</span><!-- Has MathJax --> 因為 <span>$\mathbb{E}[\nabla_\theta \log p_\theta(x)] = 0$</span><!-- Has MathJax -->，所以加入 $b$ <strong>不影響期望值</strong>，但可以降低方差。</p>
+<p><strong>[推導]:</strong><br>從機率分佈的性質出發，對任何參數 $\theta$ 控制的機率密度 <span>$p_\theta(x)$</span><!-- Has MathJax -->，我們知道它的總機率必須滿足歸一化條件：<br><span>$$\int p_\theta(x) dx = 1$$</span><!-- Has MathJax --> 對兩邊對 $\theta$ 求梯度：<br><span>$$\nabla_\theta \int p_\theta(x) dx = \int \nabla_\theta p_\theta(x) dx = 0$$</span><!-- Has MathJax --> 接著，我們應用 <strong>log-derivative trick</strong>（即 <strong>score function</strong> 的概念）：<br><span>$$\nabla_\theta p_\theta(x) = p_\theta(x) \nabla_\theta \log p_\theta(x)$$</span><!-- Has MathJax --> 將這個代入上式：<br><span>$$\int p_\theta(x) \nabla_\theta \log p_\theta(x) dx = 0$$</span><!-- Has MathJax --> 這其實就是期望值的定義：<br><span>$$\mathbb{E}_{x \sim p_\theta} [\nabla_\theta \log p_\theta(x)] = 0$$</span><!-- Has MathJax --> 這證明了對於任何機率分佈 <span>$p_\theta(x)$</span><!-- Has MathJax -->，它的 log 機率的梯度的期望值總是 $0$。</p>
+<p><strong>[直覺]:</strong><br>當 $f(x)$ 本身有高方差時，減去一個適當的基線可以讓梯度的變化更小，使優化更穩定。<br>常見選擇：</p>
+<ul>
+<li><strong>均值基線</strong>：  <span>$$b = \mathbb{E}[f(x)]$$</span><!-- Has MathJax --></li>
+<li><strong>狀態價值函數</strong>：$b=V(x)$，這就是 Actor-Critic 方法中的 <strong>Critic</strong> 作用。</li>
+</ul>
+<h3 id="控制變數-Control-Variates"><a href="#控制變數-Control-Variates" class="headerlink" title="控制變數 (Control Variates)"></a><strong>控制變數 (Control Variates)</strong></h3><p>這種方法是基於 <strong>方差減少技術 (variance reduction techniques)</strong>，可以通過添加一個與梯度相關但均值為 0 的項來減少方差。例如：<br><span>$$\nabla_\theta F(\theta) = \mathbb{E}_{x \sim p_\theta} [(f(x) - c(x)) \nabla_\theta \log p_\theta(x)]$$</span><!-- Has MathJax --> 其中 $c(x)$ 是一個選擇得當的函數，使得 <strong>新梯度估計的方差較低</strong>。</p>
+<p><strong>[應用]:</strong></p>
+<ul>
+<li>一種常見的選擇是讓 $c(x)$ 盡量貼近 $f(x)$ 的趨勢，這樣可以減少變異性。</li>
+<li>在強化學習中，這可以是 <strong>優勢函數 $A(s,a)$</strong>，這就是 <strong>Advantage Actor-Critic (A2C/A3C)</strong> 方法的基礎。</li>
+</ul>
+<h3 id="低方差梯度估計-Low-Variance-Gradient-Estimators"><a href="#低方差梯度估計-Low-Variance-Gradient-Estimators" class="headerlink" title="低方差梯度估計 (Low-Variance Gradient Estimators)"></a><strong>低方差梯度估計 (Low-Variance Gradient Estimators)</strong></h3><p>當我們的分佈 $p_\theta(x)$ 是連續的時，通常可以用 <strong>重參數化技巧 (Reparameterization Trick)</strong> 來減少梯度估計的方差。</p>
+<p><strong>[概念]:</strong><br>如果我們可以將 $x$ 重新參數化為一個<strong>可微的變換</strong>，即：<br><span>$$x = g(\epsilon, \theta)$$</span><!-- Has MathJax --> 其中 $\epsilon$ 是與 $\theta$ 無關的隨機變數，那麼期望可以改寫為：<br><span>$$\mathbb{E}_{x \sim p_\theta} [f(x)] = \mathbb{E}_{\epsilon \sim p(\epsilon)} [f(g(\epsilon, \theta))]$$</span><!-- Has MathJax --> 這樣求梯度時：<br><span>$$\nabla_\theta F(\theta) = \mathbb{E}_{\epsilon \sim p(\epsilon)} [\nabla_\theta f(g(\epsilon, \theta))]$$</span><!-- Has MathJax --> 這種方式的梯度方差通常遠小於 <strong>REINFORCE estimator</strong>。</p>
+<p><strong>[應用]:</strong></p>
+<ul>
+<li>高斯分佈 <span>$x \sim \mathcal{N}(\mu, \sigma^2)$</span><!-- Has MathJax --> 時，可以重參數化為：<br>  <span>$$x = \mu + \sigma \epsilon, \quad \epsilon \sim \mathcal{N}(0,1)$$</span><!-- Has MathJax --> 這就是變分自動編碼器 (VAE) 使用的技巧。</li>
+<li>但這方法不適用於離散隨機變數，因此在離散情境下仍需使用 REINFORCE 或其他變異性降低技巧。</li>
+</ul>
+<h3 id="使用-Natural-Gradient-自然梯度"><a href="#使用-Natural-Gradient-自然梯度" class="headerlink" title="使用 Natural Gradient (自然梯度)"></a><strong>使用 Natural Gradient (自然梯度)</strong></h3><p>REINFORCE 使用標準的梯度下降方法，但有時可以透過 <strong>自然梯度 (Natural Gradient)</strong> 改善收斂速度。自然梯度的公式是：<br><span>$$\tilde{\nabla}_\theta = F^{-1} \nabla_\theta J(\theta)$$</span><!-- Has MathJax --> 其中 $F$ 是 Fisher 信息矩陣 (Fisher Information Matrix)，它考慮了參數空間的幾何性質，使梯度下降的步伐更合理。</p>
+<p><strong>[應用]:</strong></p>
+<ul>
+<li>自然梯度方法在 <strong>Trust Region Policy Optimization (TRPO)</strong> 和 <strong>Natural Policy Gradient (NPG)</strong> 中被使用，這些方法比普通梯度下降更穩定。</li>
+</ul>
+<hr>
+<h2 id="總結"><a href="#總結" class="headerlink" title="總結"></a><strong>總結</strong></h2><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>主要目標</th>
+<th>主要技術</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>基線 (Baseline)</strong></td>
+<td>減少方差</td>
+<td>減去一個不影響期望的基線 $b$</td>
+</tr>
+<tr>
+<td><strong>控制變數 (Control Variates)</strong></td>
+<td>減少方差</td>
+<td>選擇適當的函數 $c(x)$ 來減少變異性</td>
+</tr>
+<tr>
+<td><strong>重參數化技巧 (Reparameterization Trick)</strong></td>
+<td>降低梯度估計方差</td>
+<td>透過變換將梯度計算從概率分佈轉換為函數內部計算</td>
+</tr>
+<tr>
+<td><strong>自然梯度 (Natural Gradient)</strong></td>
+<td>提高學習效率</td>
+<td>使用 Fisher 信息矩陣來進行更新</td>
+</tr>
+</tbody>
+</table>
+<p>不同方法適用於不同情境，通常可以組合使用，例如：</p>
+<ul>
+<li><strong>Actor-Critic = Baseline + Advantage Control Variates</strong></li>
+<li><strong>Variational Autoencoder (VAE) = Reparameterization Trick</strong></li>
+<li><strong>TRPO = Natural Gradient + Trust Region Constraint</strong></li>
+</ul>
+<p>這些技術的目標都是讓梯度估計更穩定、更高效。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2025/06/04/REINFORCE-estimator/" title="REINFORCE Estimator">https://bobondemon.github.io/2025/06/04/REINFORCE-estimator/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Re-parameterization-trick/" rel="tag"># Re-parameterization trick</a>
+          
+            <a href="/tags/REINFORCE/" rel="tag"># REINFORCE</a>
+          
+            <a href="/tags/ChatGPT/" rel="tag"># ChatGPT</a>
+          
+            <a href="/tags/Baseline-method/" rel="tag"># Baseline method</a>
+          
+            <a href="/tags/Control-variates/" rel="tag"># Control variates</a>
+          
+            <a href="/tags/Fisher-Information-Matrix/" rel="tag"># Fisher Information Matrix</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2025/05/04/Convolution-與-BatchNorm-的融合大法/" rel="next" title="Convolution 與 BatchNorm 的融合大法：從推論、QAT 到 PyTorch 的加速">
+                <i class="fa fa-chevron-left"></i> Convolution 與 BatchNorm 的融合大法：從推論、QAT 到 PyTorch 的加速
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">107</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">223</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#問題設定"><span class="nav-number">1.</span> <span class="nav-text">問題設定</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#推導-REINFORCE-Estimator"><span class="nav-number">2.</span> <span class="nav-text">推導 REINFORCE Estimator</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#直覺解釋"><span class="nav-number">2.1.</span> <span class="nav-text">直覺解釋</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#應用"><span class="nav-number">2.2.</span> <span class="nav-text">應用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#改善-REINFORCE-Estimator-的方法"><span class="nav-number">3.</span> <span class="nav-text">改善 REINFORCE Estimator 的方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基線-Baseline-方法"><span class="nav-number">3.1.</span> <span class="nav-text">基線 (Baseline) 方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#控制變數-Control-Variates"><span class="nav-number">3.2.</span> <span class="nav-text">控制變數 (Control Variates)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#低方差梯度估計-Low-Variance-Gradient-Estimators"><span class="nav-number">3.3.</span> <span class="nav-text">低方差梯度估計 (Low-Variance Gradient Estimators)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用-Natural-Gradient-自然梯度"><span class="nav-number">3.4.</span> <span class="nav-text">使用 Natural Gradient (自然梯度)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#總結"><span class="nav-number">4.</span> <span class="nav-text">總結</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
