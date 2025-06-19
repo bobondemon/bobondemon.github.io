@@ -95,11 +95,14 @@
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="某天忘記幹嘛了突然回想起之前學到的一個問題是有關 gradient 的 variance 很大, 使得 gradient descent 訓練不夠穩定.不過可以利用扣掉一個 bias 或是使用 re-parameterization trick 來大幅降低 variance 解決此問題.
 想了很久忘了在哪邊…縱使翻自己的 blog 筆記有時也沒查到很全面的資訊.所以就開始跟 ChatGPT">
-<meta property="og:updated_time" content="2025-06-04T13:34:25.108Z">
+<meta property="og:image" content="https://bobondemon.github.io/2025/06/04/REINFORCE-estimator/mode_averaging_and_seeking.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/06/04/REINFORCE-estimator/KL_with_Control_Variates.png">
+<meta property="og:updated_time" content="2025-06-19T12:04:22.822Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="REINFORCE Estimator">
 <meta name="twitter:description" content="某天忘記幹嘛了突然回想起之前學到的一個問題是有關 gradient 的 variance 很大, 使得 gradient descent 訓練不夠穩定.不過可以利用扣掉一個 bias 或是使用 re-parameterization trick 來大幅降低 variance 解決此問題.
 想了很久忘了在哪邊…縱使翻自己的 blog 筆記有時也沒查到很全面的資訊.所以就開始跟 ChatGPT">
+<meta name="twitter:image" content="https://bobondemon.github.io/2025/06/04/REINFORCE-estimator/mode_averaging_and_seeking.png">
 
 
 
@@ -387,9 +390,9 @@
 <p>某天忘記幹嘛了突然回想起之前學到的一個問題是有關 gradient 的 variance 很大, 使得 gradient descent 訓練不夠穩定.<br>不過可以利用扣掉一個 bias 或是使用 re-parameterization trick 來大幅降低 variance 解決此問題.</p>
 <p>想了很久忘了在哪邊…縱使翻自己的 blog 筆記有時也沒查到很全面的資訊.<br>所以就開始跟 ChatGPT 學習, 只能說 👏🏻 ChatGPT 完美!! 👏🏻</p>
 <blockquote>
-<p>現在這個時代隨時都有一個 (AI知道的絕對超越單一人類個體) 上通天文下知地理的助手在你旁邊, 這在以前根本很難想像, 且也只是這短短幾年才發生的事情.<br>這麼棒的東西, 還不把它用爆嗎?</p>
+<p>現在這個時代隨時都有一個上通天文下知地理的助手在你旁邊 (或許無法贏過專精該領域最頂尖的人類, 但作為輔助絕對稱得上稱職), 這在以前根本很難想像, 且也只是這短短幾年才發生的事情.<br>這麼棒的東西, 還不把它用爆嗎?</p>
 </blockquote>
-<p>好了, 回到本篇文章, 以下除了開頭的問題設定, 其他都是 ChatGPT 寫的, 根本超方便.</p>
+<p>好了, 回到本篇文章, 以下除了開頭的問題設定, 以及有一段人工補充的段落, 其他都是 ChatGPT 寫的, 根本超方便.</p>
 <a id="more"></a>
 <hr>
 <h2 id="問題設定"><a href="#問題設定" class="headerlink" title="問題設定"></a><strong>問題設定</strong></h2><p>假設我們有一個機率分佈 $p_\theta(x)$，其中 $x$ 是隨機變數，而 $\theta$ 是控制該分佈的參數。我們的目標是對以下期望值求梯度：<br><span>$$F(\theta)=\mathbb{E}_{x\sim p_\theta}[f(x)]$$</span><!-- Has MathJax --> 即：<br><span>$$F(\theta) = \int f(x) p_\theta(x) dx$$</span><!-- Has MathJax --> 我們希望計算 <span>$\nabla_\theta F(\theta)$</span><!-- Has MathJax -->。</p>
@@ -432,6 +435,23 @@
 <li>一種常見的選擇是讓 $c(x)$ 盡量貼近 $f(x)$ 的趨勢，這樣可以減少變異性。</li>
 <li>在強化學習中，這可以是 <strong>優勢函數 $A(s,a)$</strong>，這就是 <strong>Advantage Actor-Critic (A2C/A3C)</strong> 方法的基礎。</li>
 </ul>
+<p><strong>[使用 Control Variates 估計 KL divergence]</strong><br>此段為人工補充, 參考自 [<a href="https://www.youtube.com/watch?v=tXE23653JrU" target="_blank" rel="external">YouTube</a>]<br>當要估計兩個 distributions $P(x)$ and $Q(x)$ 的時候通常使用 KL-divergence 當作”距離”衡量<br>注意到因為非對稱所以嚴格上非距離定義<br>所以 <span>$D_{KL}(P\|Q)$</span><!-- Has MathJax --> 和 <span>$D_{KL}(Q\|P)$</span><!-- Has MathJax --> 分別對應 mode averaging 和 mode seeking 兩種行為 [<a href="https://youtu.be/tXE23653JrU?si=x1JBoyTZviHtcl7E&amp;t=274" target="_blank" rel="external">YouTube with time stamp</a>]<br><img src="/2025/06/04/REINFORCE-estimator/mode_averaging_and_seeking.png" width="80%" height="80%"><br>扯遠了, 回到 KL-div 估計<br>首先 KL-div 的 Monte Carlo 估計為:<br><span>$$\begin{align*}
+D_{KL}(P\|Q)=\mathbb{E}_{x\sim P}\left[\log\frac{P(x)}{Q(x)}\right] \\
+\approx \frac{1}{N}\sum_{k=1}^N\log\frac{P(x_k)}{Q(x_k)},\quad\text{where }x_k\sim P
+\end{align*}$$</span><!-- Has MathJax --> 則將 $c(x)$ 定義為, 其中 $\lambda$ 是個常數 (之後會設定為 $1$)<br><span>$$\begin{align*}
+c(x)\doteq -\lambda(r(x)-\mathbb{E}_{x\sim P}\left[r(x)\right])
+\end{align*}$$</span><!-- Has MathJax --> 很容易驗證 <span>$\mathbb{E}_{x\sim P}[c(x)]=0$</span><!-- Has MathJax --><br>那麼我們得到 KL-div MC 的 control variates 版本:<br><span>$$\begin{align*}
+\hat{D}_{KL}(P\|Q)=\frac{1}{N}\sum_{k=1}^N\left[
+\log\frac{P(x_k)}{Q(x_k)} - c(x_k)
+\right] \\
+=\frac{1}{N}\sum_{k=1}^N\left[
+\log\frac{P(x_k)}{Q(x_k)} + \lambda(r(x_k)-\mathbb{E}_{x\sim P}\left[r(x_k)\right])
+\right]
+\end{align*}$$</span><!-- Has MathJax --> 最後定義 <span>$r(x)=Q(x)/P(x)$</span><!-- Has MathJax -->, 則我們知道 <span>$\mathbb{E}_{x\sim P}[r(x)]=1$</span><!-- Has MathJax -->.<br>代入上式變成:<br><span>$$\begin{align*}
+\hat{D}_{KL}(P\|Q)=\frac{1}{N}\sum_{k=1}^N\left[
+-\log r(x_k) + \lambda(r(x_k)-1)
+\right]
+\end{align*}$$</span><!-- Has MathJax --><br><img src="/2025/06/04/REINFORCE-estimator/KL_with_Control_Variates.png" width="80%" height="80%"><br>可以發現當 $\lambda=1$ 的時候, 橘色減去紫色一定 $&gt;0$. 所以保證了 <span>$\hat{D}_{KL}(P\|Q)\geq0$</span><!-- Has MathJax -->. (這很好, 因為本來 KL-div 就是 non-negative)<br>所以我們得到了 unbias 且 low variance 的 KL-divergence 估計方法了! Great 👏🏻!</p>
 <h3 id="低方差梯度估計-Low-Variance-Gradient-Estimators"><a href="#低方差梯度估計-Low-Variance-Gradient-Estimators" class="headerlink" title="低方差梯度估計 (Low-Variance Gradient Estimators)"></a><strong>低方差梯度估計 (Low-Variance Gradient Estimators)</strong></h3><p>當我們的分佈 $p_\theta(x)$ 是連續的時，通常可以用 <strong>重參數化技巧 (Reparameterization Trick)</strong> 來減少梯度估計的方差。</p>
 <p><strong>[概念]:</strong><br>如果我們可以將 $x$ 重新參數化為一個<strong>可微的變換</strong>，即：<br><span>$$x = g(\epsilon, \theta)$$</span><!-- Has MathJax --> 其中 $\epsilon$ 是與 $\theta$ 無關的隨機變數，那麼期望可以改寫為：<br><span>$$\mathbb{E}_{x \sim p_\theta} [f(x)] = \mathbb{E}_{\epsilon \sim p(\epsilon)} [f(g(\epsilon, \theta))]$$</span><!-- Has MathJax --> 這樣求梯度時：<br><span>$$\nabla_\theta F(\theta) = \mathbb{E}_{\epsilon \sim p(\epsilon)} [\nabla_\theta f(g(\epsilon, \theta))]$$</span><!-- Has MathJax --> 這種方式的梯度方差通常遠小於 <strong>REINFORCE estimator</strong>。</p>
 <p><strong>[應用]:</strong></p>
