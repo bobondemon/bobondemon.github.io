@@ -107,7 +107,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/image 11.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/image 12.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/cover_by_ChatGPT.png">
-<meta property="og:updated_time" content="2025-07-08T12:31:14.624Z">
+<meta property="og:updated_time" content="2025-07-08T13:04:12.815Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="神經網路鍊金術之高手心法">
 <meta name="twitter:description" content="這裡指的 “高手” 來自 Google DeepMind 的科學家 Sander Dieleman [blog], 而他的工作有多大影響力請自行查看 [google scholar] 就會知道.這是筆者參加 ACDL 2025 MLSS 的其中一個 lecture, 也是私心認為最好的演講.共分三堂, 前兩堂講了 diffusion models, 最後一堂講了他目前對神經網路訓練的各種心">
@@ -416,23 +416,19 @@
 <ul>
 <li><p><strong>先決定 metric 是什麼並盡量自動化</strong>:<br>  當一個 metric 包含了人工流程, 絕對會拖慢整個研發進度<br>  也不用太擔心 metric 不夠”精準”, 就算比較簡單粗暴的 metrics (e.g. FID or BLEU) 也很有用<br>  另外注意到 metric $\neq$ loss, 我們不能僅僅看訓練的 loss 來挑模型, 也要根據 metric 來挑選</p>
 </li>
-<li><p><strong>實驗的 Iteration 速度是關鍵</strong>:<br>  別急著把 dataset/model 等等 scale up, 先讓自己在一個合適的 scale 上快速做實驗<br>  這裡的快速是重點, 誰能更快做更多出實驗嘗試, 誰就更有可能達到目標<br>  有個例外: O(10B) 參數量以上的等級例外, 因為有可能小模型的結論在這個等級以上不適用</p>
+<li><p><strong>實驗的 Iteration 速度是關鍵</strong>:<br>  別急著把 dataset/model 等等 scale up, 先讓自己在一個合適的 scale 上快速做實驗<br>  這裡的快速是重點, 誰能更快做出更多實驗, 誰就更有可能達到目標<br>  有個例外: O(10B) 參數量以上的等級, 因為有可能小模型的結論在這個等級以上不適用</p>
 </li>
-<li><p><strong>擁抱不確定性</strong>:<br>  並不是每項實驗都必須做到 100% 確定有效, 該方法才有效, 有時候一靠直覺判斷輔以一些實驗就能判斷並且前進, 這時候會更有效率<br>  因此策略就是: commit &amp; revisit (自己的解釋: 稍微驗證後, 方法先上, 後續回顧驗證、補充)</p>
+<li><p><strong>擁抱不確定性</strong>:<br>  並不是每項實驗都必須做到 100% 確定有效, 該方法才有效, 有時候依靠直覺輔以一些實驗就能判斷並且前進, 這時候會更有效率<br>  因此策略就是: <strong>commit &amp; revisit</strong> (自己的解釋: 稍微驗證後, 方法先上, 後續回顧驗證、補充)</p>
 </li>
-<li><p><strong>不要忽略工程上的投資</strong>:<br>  基於速度和實驗數量才是王道的原因, 要能瞭解訓練或是推論時的 bottelneck 在哪裡<br>  善用 profiler 來分析哪個節點拖慢速度<br>  並且要注意不要被 training iteration 數量誤導, 要看的是 wall-clock time (牆上的時間)<br>  意思是真正一次實驗的 ”物理時間” 有沒有縮短<br>  還有 matrix multiplications 很快速, 盡量什麼運算都用矩陣乘法完成<br>  他還舉個例, 在做一個 CV 題目時, 為了處理 rotation invariant 問題還特地寫了底層的 CUDA 程式來加速<br>  他說那是他第一次寫 CUDA codes, 雖然還要花時間學, 但獲得的收益讓他覺得是個相當划算的投資!</p>
+<li><p><strong>不要忽略工程上的投資</strong>:<br>  基於速度和實驗數量才是王道的理由, 我們要能瞭解訓練或是推論時的 bottelneck 在哪裡<br>  善用 profiler 來分析哪個節點拖慢速度<br>  並且要注意不要被 training iteration 數量誤導, 要看的是 wall-clock time (牆上的時間)<br>  意思是真正一次實驗的 ”物理時間” 有沒有縮短<br>  還有 matrix multiplications 很快速, 盡量什麼運算都用矩陣乘法完成<br>  他還舉個例, 在做一個 CV 題目時, 為了處理 rotation invariant 問題還特地寫了底層的 CUDA 程式來加速<br>  他說那是他第一次寫 CUDA codes, 雖然還要花時間學, 但獲得的收益讓他覺得是個相當划算的投資!<br>  <img src="/2025/07/08/神經網路鍊金術之高手心法/image 2.png" width="75%" height="75%"> <img src="/2025/07/08/神經網路鍊金術之高手心法/image 3.png" width="75%" height="75%"> (CUDA 的幾行 codes 卻大大加速了實驗速度)</p>
 </li>
-</ul>
-<p><img src="/2025/07/08/神經網路鍊金術之高手心法/image 2.png" width="75%" height="75%"> <img src="/2025/07/08/神經網路鍊金術之高手心法/image 3.png" width="75%" height="75%"> (CUDA 的幾行 codes 卻大大加速了實驗速度)</p>
-<ul>
 <li><p><strong>時刻思考兩個問題, 什麼能讓 metric 進步, 以及為什麼可以?</strong></p>
 </li>
-<li><p><strong>Hyperparameter 的尋找, Grid V.S. Random</strong>:<br>  大部分超參數可以採用 logarithm scale, e.g. …, 0.1, 0.3, 1.0, 3.0, 10.0, …<br>  Gird search 有助於我們理解那些超參數有作用<br>  而 random search 有助於我們最後達到 SoTA 的模型<br>  下圖雖然是 2-dim 的超參數, 但很形象的展示出 random search 能找到最大點的 metric</p>
+<li><p><strong>Hyperparameter 的尋找, Grid V.S. Random</strong>:<br>  大部分超參數可以採用 logarithm scale, e.g. …, 0.1, 0.3, 1.0, 3.0, 10.0, …<br>  Gird search 有助於我們理解那些超參數有作用<br>  而 random search 有助於我們最後達到 SoTA 的模型<br>  下圖雖然是 2-dim 的超參數, 但很形象的展示出 random search 能找到最大點的 metric<br>  <img src="/2025/07/08/神經網路鍊金術之高手心法/image 4.png" width="75%" height="75%"></p>
 </li>
 </ul>
-<p><img src="/2025/07/08/神經網路鍊金術之高手心法/image 4.png" width="75%" height="75%"></p>
 <hr>
-<h2 id="Architecture-NN-backbone"><a href="#Architecture-NN-backbone" class="headerlink" title="Architecture (NN backbone)"></a>Architecture (NN backbone)</h2><p>省略基本 layers, 如 linear, ReLU, GeLU, conv., pooling, attention, initialization, … etc.</p>
+<h2 id="Architecture-NN-backbone"><a href="#Architecture-NN-backbone" class="headerlink" title="Architecture (NN backbone)"></a>Architecture (NN backbone)</h2><p>省略說明基本 layers, 如 linear, ReLU, GeLU, conv., pooling, attention, initialization, … etc.</p>
 <ul>
 <li><p><strong>Residual connections 非常有效</strong>:<br>  這是最簡單且有效的模型設計技巧 (或許 dropout 也是)<br>  他能有效保證 gradient 流通並且層數可以很深<br>  <strong>Morden version: divided by $\sqrt{2}$, or residual 初始化為 $0$</strong>. (這我不清楚, 有機會找找來源)</p>
 </li>
@@ -440,13 +436,13 @@
 \mathbf{y}=a\cdot\frac{\mathbf{x}-\mu}{\sigma}+b
 \end{align*}$$</span><!-- Has MathJax --> <img src="/2025/07/08/神經網路鍊金術之高手心法/image 5.png" width="75%" height="75%"></p>
 </li>
-<li><p><strong>BatchNorm 漸漸淡出</strong>:<br>  說的一個原因是太多可能的 bug 出現在 deploy 階段了<br>  (看看筆者之前<a href="https://bobondemon.github.io/2025/05/04/Convolution-%E8%88%87-BatchNorm-%E7%9A%84%E8%9E%8D%E5%90%88%E5%A4%A7%E6%B3%95/">這篇筆記</a>就知道 BN 確實比較複雜)<br>  但目前自己的工作上還是很多地方依賴 BN layer…</p>
+<li><p><strong>BatchNorm 漸漸淡出</strong>:<br>  說的一個原因是太多可能的 bug 出現在 deploy 階段了<br>  (看看筆者之前<a href="https://bobondemon.github.io/2025/05/04/Convolution-%E8%88%87-BatchNorm-%E7%9A%84%E8%9E%8D%E5%90%88%E5%A4%A7%E6%B3%95/">這篇筆記</a>就知道 BN 確實比較複雜, 但自己目前的工作上還是很多地方依賴 BN layer…)</p>
 </li>
-<li><p><strong>使用 FlashAttention</strong>:<br>  Transformer 加速必不可少的技巧是使用 FlashAttention<br>  (目前已經出到 ver. 3 了, 另外 <a href="https://www.youtube.com/@jbhuang0604" target="_blank" rel="external">Jia-Bin Huang</a> 的這部影片: <a href="https://www.youtube.com/watch?v=gBMO1JZav44" target="_blank" rel="external">How FlashAttention Accelerates Generative AI Revolution</a> 解說清準清晰, 推薦觀看)</p>
+<li><p><strong>使用 FlashAttention</strong>:<br>  Transformer 加速必不可少的技巧是使用 FlashAttention<br>  (目前已經出到 ver. 3 了, 另外 <a href="https://www.youtube.com/@jbhuang0604" target="_blank" rel="external">Jia-Bin Huang</a> 的這部影片: <a href="https://www.youtube.com/watch?v=gBMO1JZav44" target="_blank" rel="external">How FlashAttention Accelerates Generative AI Revolution</a> 解說精準清晰, 推薦觀看)</p>
 </li>
 <li><p><strong>大模型使用 QK normalization</strong>:<br>  在超過O(10B)參數的大模型 logits 會長得非常大使得訓練不穩, 一個簡單作法是把 Q, K 再過一個 LayerNorm<br><img src="/2025/07/08/神經網路鍊金術之高手心法/image 6.png" width="75%" height="75%"></p>
 </li>
-<li><p><strong>注意模型中的 Information bottlenecks</strong>:<br>  例如假設在你的模型裡有使用 Gumbel-softmax, Concrete distribution, VQ (as in VQ-VAE), KL penalty (as in VAE), …, 要特別注意這些損失<br>  例如可能要增加 VQ 的 table size, KL penalty 的權重等等.<br>  Gumbel-softmax 或是 VQ (Vector quantization) 都要使用 STE 技巧, 有關 STE (Straight Through Estimator) 筆者以前文章有紀錄不少, <a href="https://bobondemon.github.io/tags/Straight-Through-Estimator-STE/">參考索引</a>.<br><img src="/2025/07/08/神經網路鍊金術之高手心法/image 7.png" width="75%" height="75%"></p>
+<li><p><strong>注意模型中的 Information bottlenecks</strong>:<br>  例如假設在你的模型裡有使用 Gumbel-softmax, Concrete distribution, VQ (as in VQ-VAE), KL penalty (as in VAE), …, 要特別注意這些技巧帶來的準確度損失<br>  例如可能要增加 VQ 的 table size, KL penalty 的權重等等.<br>  Gumbel-softmax 或是 VQ (Vector quantization) 都要使用 STE 技巧, 有關 STE (Straight Through Estimator) 筆者以前文章有紀錄不少, <a href="https://bobondemon.github.io/tags/Straight-Through-Estimator-STE/">參考索引</a>.<br><img src="/2025/07/08/神經網路鍊金術之高手心法/image 7.png" width="75%" height="75%"></p>
 </li>
 </ul>
 <hr>
@@ -459,16 +455,16 @@
 </li>
 <li><p><strong>Scaling across devices: parallelism and sharding</strong><br>  Data parallelism 通常就很夠用且運作很好了 (模型小於 O(10B))<br>  Model parallelism 已經愈來愈容易實現了 (e.g. jax.jit)<br>  基本原則就是減少 devices 之間的通訊開銷<br>  (推薦看 <a href="https://hanlab.mit.edu/" target="_blank" rel="external">Song Han</a> 教授的課程: <a href="https://hanlab.mit.edu/courses/2024-fall-65940" target="_blank" rel="external">TinyML and Efficient Deep Learning Computing</a> 的 Chapter III: Efficient Training)</p>
 </li>
-<li><p><strong>有時候重算比較快</strong>:<br>  因為 memory access 比起計算來說更慢, 所以可以考慮乾脆重算 (FlashAttention有用到的技巧之一)</p>
+<li><p><strong>有時候重算比較快</strong>:<br>  因為 memory access 比起計算來說更慢, 所以與其從 memory 拿上次算過的內容, 或許乾脆考慮重算就好 (FlashAttention有用到的技巧之一)</p>
 </li>
-<li><p><strong>Low-precision arithmetic</strong>:<br>  訓練時使用 half precision (float16, bfloat16) 可以省記憶體和更快速<br>  不過要小心由於使用 low precision 可能在 rescaling 和 stochastic rounding 這些 op 帶來的 performance drop 或不穩定<br>  在 quantization 時要特別觀察 <strong>outliers</strong>, 這也是 Transformer 的 PTQ 效果不好的主要挑戰!<br>  注意到 <strong>Transformer 的 outlier</strong> 底層原因由 Qualcomm <a href="https://arxiv.org/abs/2306.12929" target="_blank" rel="external">這篇文章</a>分析得到 (PS: <a href="https://arxiv.org/abs/2309.17453" target="_blank" rel="external"><strong>attention sink</strong></a> 也同樣解釋了一樣的原因). 解法可用 clipped softmax 或 gating 方法, 又或者使用 <a href="https://www.evanmiller.org/attention-is-off-by-one.html" target="_blank" rel="external">softmax1 的 QuietAttention</a> 作法 (實務上相當於 Q 和 K 都增加一個 zero vector 的 token).<br>  有提到 QAT (int8, int4) 已經開始是個趨勢了<br>  (這邊有點不確定有沒有理解錯? 如果是的話就太好了, 不然對 LLM 還要花很多精力 PTQ, 還不如大廠一開始就鎖定 QAT 的 LLM model, 這樣對下游廠商最友善, 也利於推廣 edge 應用)</p>
+<li><p><strong>Low-precision arithmetic</strong>:<br>  訓練時使用 half precision (float16, bfloat16) 可以省記憶體和更快速<br>  不過要小心由於使用 low precision 可能在 rescaling 和 stochastic rounding 這些 op 帶來的 performance drop 或不穩定<br>  在 quantization 時要特別觀察 <strong>outliers</strong>, 這也是 Transformer 的 PTQ 效果不好的主要挑戰!<br>  注意到 <strong>Transformer 的 outlier</strong> 底層原因由 Qualcomm <a href="https://arxiv.org/abs/2306.12929" target="_blank" rel="external">這篇論文</a>分析的結果可得知原因 (PS: <a href="https://arxiv.org/abs/2309.17453" target="_blank" rel="external"><strong>attention sink</strong></a> 也同樣解釋了一樣的原因). 解法可用論文裡的 clipped softmax 或 gating 方法, 又或者使用 <a href="https://www.evanmiller.org/attention-is-off-by-one.html" target="_blank" rel="external">softmax1 的 QuietAttention</a> 作法 (實務上相當於 Q 和 K 都增加一個 zero vector 的 token).<br>  有提到 QAT (int8, int4) 已經開始是個趨勢了<br>  (這邊有點不確定有沒有理解錯? 如果是的話就太好了, 不然對 LLM 還要花很多精力 PTQ, 還不如大廠一開始就鎖定 QAT 的 LLM model, 這樣對下游廠商最友善, 也利於推廣 edge 應用)</p>
 </li>
 </ul>
 <hr>
 <h2 id="Miscellany-其他各種雜項心得"><a href="#Miscellany-其他各種雜項心得" class="headerlink" title="Miscellany (其他各種雜項心得)"></a>Miscellany (其他各種雜項心得)</h2><ul>
 <li><p><strong>可以嘗試 distillation 各種用法</strong>:<br>  降低模型大小, 從大模型蒸餾給小模型<br>  模型重鑄, 意思是直接重新蒸餾出另一個一樣大小的新模型 (可能效果更好?)<br>  換架構, 例如 teacher model 是 transformer 而 student model 是 RNN</p>
 </li>
-<li><p><strong>Autodiff 是項偉大的工具</strong>:<br>  理解底層 autodiff 如何運作是非常有幫助的 (例如從比較底層理解 computation graph [<a href="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/">筆記</a>], 到底層 PyTorch 的一些實作)<br>  對於 debug 會很有幫助, 其中要注意 gradients of gradients<br>  NN 大部分情況都很 linear, 意思是 second order gradients 很 sparse</p>
+<li><p><strong>Autodiff 是項偉大的工具</strong>:<br>  理解底層 autodiff 如何運作是非常有幫助的 (例如從比較底層理解 computation graph [<a href="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/">以前筆記</a>], 到底層 PyTorch 的一些實作)<br>  對於 debug 會很有幫助, 其中要注意 gradients of gradients<br>  NN 大部分情況都很 linear, 意思是 second order gradients 很 sparse</p>
 </li>
 <li><p><strong>Sprinkling epsilons (除零, sqrt 等都要加上)</strong>:<br><img src="/2025/07/08/神經網路鍊金術之高手心法/image 11.png" width="75%" height="75%"></p>
 </li>
