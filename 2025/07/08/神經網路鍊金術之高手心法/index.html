@@ -1,0 +1,923 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="ACDL,Sander Dieleman," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="這裡指的 “高手” 來自 Google DeepMind 的科學家 Sander Dieleman [blog], 而他的工作有多大影響力請自行查看 [google scholar] 就會知道.這是筆者參加 ACDL 2025 MLSS 的其中一個 lecture, 也是私心認為最好的演講.共分三堂, 前兩堂講了 diffusion models, 最後一堂講了他目前對神經網路訓練的各種心">
+<meta property="og:type" content="article">
+<meta property="og:title" content="神經網路鍊金術之高手心法">
+<meta property="og:url" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="這裡指的 “高手” 來自 Google DeepMind 的科學家 Sander Dieleman [blog], 而他的工作有多大影響力請自行查看 [google scholar] 就會知道.這是筆者參加 ACDL 2025 MLSS 的其中一個 lecture, 也是私心認為最好的演講.共分三堂, 前兩堂講了 diffusion models, 最後一堂講了他目前對神經網路訓練的各種心">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/image.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/image 1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/image 2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/image 3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/image 4.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/image 5.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/image 6.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/image 7.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/image 8.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/image 9.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/image 10.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/image 11.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/image 12.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/cover_by_ChatGPT.png">
+<meta property="og:updated_time" content="2025-07-08T12:31:14.624Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="神經網路鍊金術之高手心法">
+<meta name="twitter:description" content="這裡指的 “高手” 來自 Google DeepMind 的科學家 Sander Dieleman [blog], 而他的工作有多大影響力請自行查看 [google scholar] 就會知道.這是筆者參加 ACDL 2025 MLSS 的其中一個 lecture, 也是私心認為最好的演講.共分三堂, 前兩堂講了 diffusion models, 最後一堂講了他目前對神經網路訓練的各種心">
+<meta name="twitter:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/image.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/"/>
+
+
+
+
+
+  <title> 神經網路鍊金術之高手心法 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '[object Object]', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                神經網路鍊金術之高手心法
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2025-07-08T19:55:45+08:00">
+                2025-07-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>這裡指的 “高手” 來自 Google DeepMind 的科學家 <strong>Sander Dieleman</strong> [<a href="https://sander.ai/" target="_blank" rel="external">blog</a>], 而他的工作有多大影響力請自行查看 [<a href="https://scholar.google.com/citations?user=yNNIKJsAAAAJ&amp;hl=en" target="_blank" rel="external">google scholar</a>] 就會知道.<br>這是筆者參加 <a href="https://acdl2025.icas.events/" target="_blank" rel="external">ACDL 2025</a> MLSS 的其中一個 lecture, 也是私心認為最好的演講.<br>共分三堂, 前兩堂講了 diffusion models, 最後一堂講了他目前對神經網路訓練的各種心得/mindsets<br>能從這麼頂尖的 AI 科學家直接聽取經驗實屬難得!</p>
+<blockquote>
+<p>有意思的是…這些經驗和目前主流技術, 有一些已經落實在自己的工作上, 這讓我感覺到自己確實也走在對的方向上.</p>
+</blockquote>
+<p>但比較可惜的是過了一個月後才開始想要紀錄一下當時聽到的內容, 因此以下筆記或許會跟原本的意思有偏差, 對此情況則會融入自身的理解來記錄.<br>分四個部分<br><img src="/2025/07/08/神經網路鍊金術之高手心法/image.png" width="100%" height="100%"></p>
+<ol>
+<li><strong>Process</strong>: 點出該用什麼心態和工作流程, 來產生模型</li>
+<li><strong>Architecture</strong>: 針對 NN backbone 設計的一些說明</li>
+<li><strong>Training</strong>: 訓練 NN 的一些心得和技巧</li>
+<li><strong>Miscellany</strong>: 其他各種雜項心得</li>
+</ol>
+<a id="more"></a>
+<hr>
+<h2 id="Process-mindset-和工作流程"><a href="#Process-mindset-和工作流程" class="headerlink" title="Process (mindset 和工作流程)"></a>Process (mindset 和工作流程)</h2><ul>
+<li><strong>大部分想法都沒用, 多嘗試就對了</strong>:<br>  當我們在開啟一個 ML 研究問題時, Sander Dieleman 劈頭就先說大部分的想法都沒用, 但大家不用因此而沮喪<br>  需要的僅僅是嘗試大量的想法, 且不要在同一個方向投資太多 (鑽牛角尖)</li>
+</ul>
+<p><img src="/2025/07/08/神經網路鍊金術之高手心法/image 1.png" width="75%" height="75%"></p>
+<ul>
+<li><p><strong>先決定 metric 是什麼並盡量自動化</strong>:<br>  當一個 metric 包含了人工流程, 絕對會拖慢整個研發進度<br>  也不用太擔心 metric 不夠”精準”, 就算比較簡單粗暴的 metrics (e.g. FID or BLEU) 也很有用<br>  另外注意到 metric $\neq$ loss, 我們不能僅僅看訓練的 loss 來挑模型, 也要根據 metric 來挑選</p>
+</li>
+<li><p><strong>實驗的 Iteration 速度是關鍵</strong>:<br>  別急著把 dataset/model 等等 scale up, 先讓自己在一個合適的 scale 上快速做實驗<br>  這裡的快速是重點, 誰能更快做更多出實驗嘗試, 誰就更有可能達到目標<br>  有個例外: O(10B) 參數量以上的等級例外, 因為有可能小模型的結論在這個等級以上不適用</p>
+</li>
+<li><p><strong>擁抱不確定性</strong>:<br>  並不是每項實驗都必須做到 100% 確定有效, 該方法才有效, 有時候一靠直覺判斷輔以一些實驗就能判斷並且前進, 這時候會更有效率<br>  因此策略就是: commit &amp; revisit (自己的解釋: 稍微驗證後, 方法先上, 後續回顧驗證、補充)</p>
+</li>
+<li><p><strong>不要忽略工程上的投資</strong>:<br>  基於速度和實驗數量才是王道的原因, 要能瞭解訓練或是推論時的 bottelneck 在哪裡<br>  善用 profiler 來分析哪個節點拖慢速度<br>  並且要注意不要被 training iteration 數量誤導, 要看的是 wall-clock time (牆上的時間)<br>  意思是真正一次實驗的 ”物理時間” 有沒有縮短<br>  還有 matrix multiplications 很快速, 盡量什麼運算都用矩陣乘法完成<br>  他還舉個例, 在做一個 CV 題目時, 為了處理 rotation invariant 問題還特地寫了底層的 CUDA 程式來加速<br>  他說那是他第一次寫 CUDA codes, 雖然還要花時間學, 但獲得的收益讓他覺得是個相當划算的投資!</p>
+</li>
+</ul>
+<p><img src="/2025/07/08/神經網路鍊金術之高手心法/image 2.png" width="75%" height="75%"> <img src="/2025/07/08/神經網路鍊金術之高手心法/image 3.png" width="75%" height="75%"> (CUDA 的幾行 codes 卻大大加速了實驗速度)</p>
+<ul>
+<li><p><strong>時刻思考兩個問題, 什麼能讓 metric 進步, 以及為什麼可以?</strong></p>
+</li>
+<li><p><strong>Hyperparameter 的尋找, Grid V.S. Random</strong>:<br>  大部分超參數可以採用 logarithm scale, e.g. …, 0.1, 0.3, 1.0, 3.0, 10.0, …<br>  Gird search 有助於我們理解那些超參數有作用<br>  而 random search 有助於我們最後達到 SoTA 的模型<br>  下圖雖然是 2-dim 的超參數, 但很形象的展示出 random search 能找到最大點的 metric</p>
+</li>
+</ul>
+<p><img src="/2025/07/08/神經網路鍊金術之高手心法/image 4.png" width="75%" height="75%"></p>
+<hr>
+<h2 id="Architecture-NN-backbone"><a href="#Architecture-NN-backbone" class="headerlink" title="Architecture (NN backbone)"></a>Architecture (NN backbone)</h2><p>省略基本 layers, 如 linear, ReLU, GeLU, conv., pooling, attention, initialization, … etc.</p>
+<ul>
+<li><p><strong>Residual connections 非常有效</strong>:<br>  這是最簡單且有效的模型設計技巧 (或許 dropout 也是)<br>  他能有效保證 gradient 流通並且層數可以很深<br>  <strong>Morden version: divided by $\sqrt{2}$, or residual 初始化為 $0$</strong>. (這我不清楚, 有機會找找來源)</p>
+</li>
+<li><p><strong>Normalization layers 設計</strong>:<br>  不管 BatchNorm, LayerNorm, GroupNorm, InstanceNorm, RMSNorm 或是 FiLM 都用以下公式:<br>  <span>$$\begin{align*}
+\mathbf{y}=a\cdot\frac{\mathbf{x}-\mu}{\sigma}+b
+\end{align*}$$</span><!-- Has MathJax --> <img src="/2025/07/08/神經網路鍊金術之高手心法/image 5.png" width="75%" height="75%"></p>
+</li>
+<li><p><strong>BatchNorm 漸漸淡出</strong>:<br>  說的一個原因是太多可能的 bug 出現在 deploy 階段了<br>  (看看筆者之前<a href="https://bobondemon.github.io/2025/05/04/Convolution-%E8%88%87-BatchNorm-%E7%9A%84%E8%9E%8D%E5%90%88%E5%A4%A7%E6%B3%95/">這篇筆記</a>就知道 BN 確實比較複雜)<br>  但目前自己的工作上還是很多地方依賴 BN layer…</p>
+</li>
+<li><p><strong>使用 FlashAttention</strong>:<br>  Transformer 加速必不可少的技巧是使用 FlashAttention<br>  (目前已經出到 ver. 3 了, 另外 <a href="https://www.youtube.com/@jbhuang0604" target="_blank" rel="external">Jia-Bin Huang</a> 的這部影片: <a href="https://www.youtube.com/watch?v=gBMO1JZav44" target="_blank" rel="external">How FlashAttention Accelerates Generative AI Revolution</a> 解說清準清晰, 推薦觀看)</p>
+</li>
+<li><p><strong>大模型使用 QK normalization</strong>:<br>  在超過O(10B)參數的大模型 logits 會長得非常大使得訓練不穩, 一個簡單作法是把 Q, K 再過一個 LayerNorm<br><img src="/2025/07/08/神經網路鍊金術之高手心法/image 6.png" width="75%" height="75%"></p>
+</li>
+<li><p><strong>注意模型中的 Information bottlenecks</strong>:<br>  例如假設在你的模型裡有使用 Gumbel-softmax, Concrete distribution, VQ (as in VQ-VAE), KL penalty (as in VAE), …, 要特別注意這些損失<br>  例如可能要增加 VQ 的 table size, KL penalty 的權重等等.<br>  Gumbel-softmax 或是 VQ (Vector quantization) 都要使用 STE 技巧, 有關 STE (Straight Through Estimator) 筆者以前文章有紀錄不少, <a href="https://bobondemon.github.io/tags/Straight-Through-Estimator-STE/">參考索引</a>.<br><img src="/2025/07/08/神經網路鍊金術之高手心法/image 7.png" width="75%" height="75%"></p>
+</li>
+</ul>
+<hr>
+<h2 id="Training-心得和技巧"><a href="#Training-心得和技巧" class="headerlink" title="Training (心得和技巧)"></a>Training (心得和技巧)</h2><ul>
+<li><p><strong>Optimizers 心得</strong>:<br>  沒其他理由就用 Adam<br>  (筆者認為應該用 AdamW, 參考 <a href="https://www.youtube.com/@jbhuang0604" target="_blank" rel="external">Jia-Bin Huang</a> 的這部解說: <a href="https://www.youtube.com/watch?v=1_nujVNUsto&amp;t=6s" target="_blank" rel="external">The Algorithm that Helps Machines Learn</a>)<br>  注意到超參數 $\beta_2$ (adaptive step size 的控制) 也是很重要的, 需要調整<br>  別忽略另一個可條的超參數 $\epsilon$! (這其實也影響到 step size 的控制)<br>  <img src="/2025/07/08/神經網路鍊金術之高手心法/image 8.png" width="50%" height="50%"></p>
+</li>
+<li><p><strong>Scheduler 心得</strong>:<br>  Sander Dieleman 提醒到利用 scheduler 把 learning rate 階梯式的降低很關鍵, 可以大大進步<br>  <img src="/2025/07/08/神經網路鍊金術之高手心法/image 9.png" width="75%" height="75%"></p>
+</li>
+<li><p><strong>模型上的 Exponential Moving Average (EMA)</strong>:<br>  筆者以前這篇文章: <a href="https://bobondemon.github.io/2022/07/20/Why-Stochastic-Weight-Averaging-averaging-results-V-S-averaging-weights/">Why Stochastic Weight Averaging? averaging results V.S. averaging weights</a> 解釋到 model 的 aggregation 會得到不錯且 robust 的結果<br>  呼應了 Sander Dieleman 實務上的心得<br>  <img src="/2025/07/08/神經網路鍊金術之高手心法/image 10.png" width="75%" height="75%"></p>
+</li>
+<li><p><strong>Scaling across devices: parallelism and sharding</strong><br>  Data parallelism 通常就很夠用且運作很好了 (模型小於 O(10B))<br>  Model parallelism 已經愈來愈容易實現了 (e.g. jax.jit)<br>  基本原則就是減少 devices 之間的通訊開銷<br>  (推薦看 <a href="https://hanlab.mit.edu/" target="_blank" rel="external">Song Han</a> 教授的課程: <a href="https://hanlab.mit.edu/courses/2024-fall-65940" target="_blank" rel="external">TinyML and Efficient Deep Learning Computing</a> 的 Chapter III: Efficient Training)</p>
+</li>
+<li><p><strong>有時候重算比較快</strong>:<br>  因為 memory access 比起計算來說更慢, 所以可以考慮乾脆重算 (FlashAttention有用到的技巧之一)</p>
+</li>
+<li><p><strong>Low-precision arithmetic</strong>:<br>  訓練時使用 half precision (float16, bfloat16) 可以省記憶體和更快速<br>  不過要小心由於使用 low precision 可能在 rescaling 和 stochastic rounding 這些 op 帶來的 performance drop 或不穩定<br>  在 quantization 時要特別觀察 <strong>outliers</strong>, 這也是 Transformer 的 PTQ 效果不好的主要挑戰!<br>  注意到 <strong>Transformer 的 outlier</strong> 底層原因由 Qualcomm <a href="https://arxiv.org/abs/2306.12929" target="_blank" rel="external">這篇文章</a>分析得到 (PS: <a href="https://arxiv.org/abs/2309.17453" target="_blank" rel="external"><strong>attention sink</strong></a> 也同樣解釋了一樣的原因). 解法可用 clipped softmax 或 gating 方法, 又或者使用 <a href="https://www.evanmiller.org/attention-is-off-by-one.html" target="_blank" rel="external">softmax1 的 QuietAttention</a> 作法 (實務上相當於 Q 和 K 都增加一個 zero vector 的 token).<br>  有提到 QAT (int8, int4) 已經開始是個趨勢了<br>  (這邊有點不確定有沒有理解錯? 如果是的話就太好了, 不然對 LLM 還要花很多精力 PTQ, 還不如大廠一開始就鎖定 QAT 的 LLM model, 這樣對下游廠商最友善, 也利於推廣 edge 應用)</p>
+</li>
+</ul>
+<hr>
+<h2 id="Miscellany-其他各種雜項心得"><a href="#Miscellany-其他各種雜項心得" class="headerlink" title="Miscellany (其他各種雜項心得)"></a>Miscellany (其他各種雜項心得)</h2><ul>
+<li><p><strong>可以嘗試 distillation 各種用法</strong>:<br>  降低模型大小, 從大模型蒸餾給小模型<br>  模型重鑄, 意思是直接重新蒸餾出另一個一樣大小的新模型 (可能效果更好?)<br>  換架構, 例如 teacher model 是 transformer 而 student model 是 RNN</p>
+</li>
+<li><p><strong>Autodiff 是項偉大的工具</strong>:<br>  理解底層 autodiff 如何運作是非常有幫助的 (例如從比較底層理解 computation graph [<a href="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/">筆記</a>], 到底層 PyTorch 的一些實作)<br>  對於 debug 會很有幫助, 其中要注意 gradients of gradients<br>  NN 大部分情況都很 linear, 意思是 second order gradients 很 sparse</p>
+</li>
+<li><p><strong>Sprinkling epsilons (除零, sqrt 等都要加上)</strong>:<br><img src="/2025/07/08/神經網路鍊金術之高手心法/image 11.png" width="75%" height="75%"></p>
+</li>
+<li><p><strong>Neural nets have low Lipschitz constants</strong>:<br>  呼應到上面提到 second order gradients 很 sparse, 數學一點就是具有很小的 Lipschitz constants.<br>  而 Sander Dieleman 提到, 如果想要<strong>增加 nonlinear 程度</strong>可以使用 <strong>positional encodings</strong>, random Fourier features 或是 activation 使用 <strong>sin(x)</strong> (<strong>SIREN</strong>)<br>  <img src="/2025/07/08/神經網路鍊金術之高手心法/image 12.png" width="75%" height="75%"></p>
+</li>
+</ul>
+<hr>
+<h2 id="總結"><a href="#總結" class="headerlink" title="總結"></a>總結</h2><p><img src="/2025/07/08/神經網路鍊金術之高手心法/cover_by_ChatGPT.png" width="40%" height="40%"> (by ChatGPT)</p>
+<ul>
+<li><strong>Process (mindset 和工作流程)</strong><ul>
+<li>大部分想法都沒用, 多嘗試就對了</li>
+<li>先決定 metric 是什麼並盡量自動化</li>
+<li>實驗的 Iteration 速度是關鍵</li>
+<li>擁抱不確定性</li>
+<li>不要忽略工程上的投資</li>
+<li>時刻思考兩個問題, 什麼能讓 metric 進步, 以及為什麼可以?</li>
+<li>Hyperparameter 的尋找, Grid V.S. Random</li>
+</ul>
+</li>
+<li><strong>Architecture (NN backbone)</strong><ul>
+<li>Residual connections 非常有效</li>
+<li>Normalization layers 設計</li>
+<li>BatchNorm 漸漸淡出</li>
+<li>使用 FlashAttention</li>
+<li>大模型使用 QK normalization</li>
+<li>注意模型中的 Information bottlenecks</li>
+</ul>
+</li>
+<li><strong>Training (心得和技巧)</strong><ul>
+<li>Optimizers 心得, 用 Adam, AdamW 以及調整它們的超參數</li>
+<li>Scheduler 心得, learning rate 要階梯式降低</li>
+<li>模型上的 Exponential Moving Average (EMA)</li>
+<li>Scaling across devices: parallelism and sharding</li>
+<li>有時候重算比較快</li>
+<li>Low-precision arithmetic, 訓練使用 half precision, transformer 注意 outliers 並使用 QuietAttention</li>
+</ul>
+</li>
+<li><strong>Miscellany (其他各種雜項心得)</strong><ul>
+<li>可以嘗試 distillation 各種用法</li>
+<li>Autodiff 是項偉大的工具, 理解底層原理對於 debug 很有幫助</li>
+<li>Sprinkling epsilons (除零, sqrt 等都要加上)</li>
+<li>Neural nets have low Lipschitz constants, 如果要增加非線性程度, 可以考慮 positional embeddings 或 sin(x) (SIREN)</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/" title="神經網路鍊金術之高手心法">https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/ACDL/" rel="tag"># ACDL</a>
+          
+            <a href="/tags/Sander-Dieleman/" rel="tag"># Sander Dieleman</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2025/06/04/REINFORCE-estimator/" rel="next" title="REINFORCE Estimator">
+                <i class="fa fa-chevron-left"></i> REINFORCE Estimator
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">108</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">225</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Process-mindset-和工作流程"><span class="nav-number">1.</span> <span class="nav-text">Process (mindset 和工作流程)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Architecture-NN-backbone"><span class="nav-number">2.</span> <span class="nav-text">Architecture (NN backbone)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Training-心得和技巧"><span class="nav-number">3.</span> <span class="nav-text">Training (心得和技巧)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Miscellany-其他各種雜項心得"><span class="nav-number">4.</span> <span class="nav-text">Miscellany (其他各種雜項心得)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#總結"><span class="nav-number">5.</span> <span class="nav-text">總結</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
