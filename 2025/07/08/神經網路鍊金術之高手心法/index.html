@@ -107,7 +107,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/image 11.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/image 12.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/cover_by_ChatGPT.png">
-<meta property="og:updated_time" content="2025-07-08T13:04:12.815Z">
+<meta property="og:updated_time" content="2025-07-08T13:09:40.447Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="神經網路鍊金術之高手心法">
 <meta name="twitter:description" content="這裡指的 “高手” 來自 Google DeepMind 的科學家 Sander Dieleman [blog], 而他的工作有多大影響力請自行查看 [google scholar] 就會知道.這是筆者參加 ACDL 2025 MLSS 的其中一個 lecture, 也是私心認為最好的演講.共分三堂, 前兩堂講了 diffusion models, 最後一堂講了他目前對神經網路訓練的各種心">
@@ -410,10 +410,8 @@
 <a id="more"></a>
 <hr>
 <h2 id="Process-mindset-和工作流程"><a href="#Process-mindset-和工作流程" class="headerlink" title="Process (mindset 和工作流程)"></a>Process (mindset 和工作流程)</h2><ul>
-<li><strong>大部分想法都沒用, 多嘗試就對了</strong>:<br>  當我們在開啟一個 ML 研究問題時, Sander Dieleman 劈頭就先說大部分的想法都沒用, 但大家不用因此而沮喪<br>  需要的僅僅是嘗試大量的想法, 且不要在同一個方向投資太多 (鑽牛角尖)</li>
-</ul>
-<p><img src="/2025/07/08/神經網路鍊金術之高手心法/image 1.png" width="75%" height="75%"></p>
-<ul>
+<li><p><strong>大部分想法都沒用, 多嘗試就對了</strong>:<br>  當我們在開啟一個 ML 研究問題時, Sander Dieleman 劈頭就先說大部分的想法都沒用, 但大家不用因此而沮喪<br>  需要的僅僅是嘗試大量的想法, 且不要在同一個方向投資太多 (鑽牛角尖) <img src="/2025/07/08/神經網路鍊金術之高手心法/image 1.png" width="75%" height="75%"></p>
+</li>
 <li><p><strong>先決定 metric 是什麼並盡量自動化</strong>:<br>  當一個 metric 包含了人工流程, 絕對會拖慢整個研發進度<br>  也不用太擔心 metric 不夠”精準”, 就算比較簡單粗暴的 metrics (e.g. FID or BLEU) 也很有用<br>  另外注意到 metric $\neq$ loss, 我們不能僅僅看訓練的 loss 來挑模型, 也要根據 metric 來挑選</p>
 </li>
 <li><p><strong>實驗的 Iteration 速度是關鍵</strong>:<br>  別急著把 dataset/model 等等 scale up, 先讓自己在一個合適的 scale 上快速做實驗<br>  這裡的快速是重點, 誰能更快做出更多實驗, 誰就更有可能達到目標<br>  有個例外: O(10B) 參數量以上的等級, 因為有可能小模型的結論在這個等級以上不適用</p>
