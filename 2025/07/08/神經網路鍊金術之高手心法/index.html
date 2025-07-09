@@ -107,7 +107,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/image 11.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/image 12.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/cover_by_ChatGPT.png">
-<meta property="og:updated_time" content="2025-07-08T13:09:40.447Z">
+<meta property="og:updated_time" content="2025-07-09T12:44:35.488Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="神經網路鍊金術之高手心法">
 <meta name="twitter:description" content="這裡指的 “高手” 來自 Google DeepMind 的科學家 Sander Dieleman [blog], 而他的工作有多大影響力請自行查看 [google scholar] 就會知道.這是筆者參加 ACDL 2025 MLSS 的其中一個 lecture, 也是私心認為最好的演講.共分三堂, 前兩堂講了 diffusion models, 最後一堂講了他目前對神經網路訓練的各種心">
@@ -455,7 +455,11 @@
 </li>
 <li><p><strong>有時候重算比較快</strong>:<br>  因為 memory access 比起計算來說更慢, 所以與其從 memory 拿上次算過的內容, 或許乾脆考慮重算就好 (FlashAttention有用到的技巧之一)</p>
 </li>
-<li><p><strong>Low-precision arithmetic</strong>:<br>  訓練時使用 half precision (float16, bfloat16) 可以省記憶體和更快速<br>  不過要小心由於使用 low precision 可能在 rescaling 和 stochastic rounding 這些 op 帶來的 performance drop 或不穩定<br>  在 quantization 時要特別觀察 <strong>outliers</strong>, 這也是 Transformer 的 PTQ 效果不好的主要挑戰!<br>  注意到 <strong>Transformer 的 outlier</strong> 底層原因由 Qualcomm <a href="https://arxiv.org/abs/2306.12929" target="_blank" rel="external">這篇論文</a>分析的結果可得知原因 (PS: <a href="https://arxiv.org/abs/2309.17453" target="_blank" rel="external"><strong>attention sink</strong></a> 也同樣解釋了一樣的原因). 解法可用論文裡的 clipped softmax 或 gating 方法, 又或者使用 <a href="https://www.evanmiller.org/attention-is-off-by-one.html" target="_blank" rel="external">softmax1 的 QuietAttention</a> 作法 (實務上相當於 Q 和 K 都增加一個 zero vector 的 token).<br>  有提到 QAT (int8, int4) 已經開始是個趨勢了<br>  (這邊有點不確定有沒有理解錯? 如果是的話就太好了, 不然對 LLM 還要花很多精力 PTQ, 還不如大廠一開始就鎖定 QAT 的 LLM model, 這樣對下游廠商最友善, 也利於推廣 edge 應用)</p>
+<li><p><strong>Low-precision arithmetic</strong>:<br>  訓練時使用 half precision (float16, bfloat16) 可以省記憶體和更快速<br>  不過要小心由於使用 low precision 可能在 rescaling 和 stochastic rounding 這些 op 帶來的 performance drop 或不穩定<br>  在 quantization 時要特別觀察 <strong>outliers</strong>, 這也是 Transformer 的 PTQ 效果不好的主要挑戰!<br>  注意到 <strong>Transformer 的 outlier</strong> 底層原因由 Qualcomm <a href="https://arxiv.org/abs/2306.12929" target="_blank" rel="external">這篇論文</a>分析的結果可得知原因 (PS: <a href="https://arxiv.org/abs/2309.17453" target="_blank" rel="external"><strong>attention sink</strong></a> 也同樣解釋了一樣的原因). 解法可用論文裡的 clipped softmax 或 gating 方法, 又或者使用 <a href="https://www.evanmiller.org/attention-is-off-by-one.html" target="_blank" rel="external">softmax1 的 QuietAttention</a> 作法 (實務上相當於 Q 和 K 都增加一個 zero vector 的 token).</p>
+<blockquote>
+<p>這部分詳見筆者的筆記: <a href="https://bobondemon.github.io/2025/07/09/%E4%B8%8D%E8%A6%81%E9%80%BC-Attention-%E9%81%B8%E6%93%87-%E7%95%99%E5%80%8B%E5%87%BA%E5%8F%A3%E5%90%A7/">不要逼 Attention 選擇, 留個出口吧</a>.</p>
+</blockquote>
+<p>  有提到 QAT (int8, int4) 已經開始是個趨勢了<br>  (這邊有點不確定有沒有理解錯? 如果是的話就太好了, 不然對 LLM 還要花很多精力 PTQ, 還不如大廠一開始就鎖定 QAT 的 LLM model, 這樣對下游廠商最友善, 也利於推廣 edge 應用)</p>
 </li>
 </ul>
 <hr>
