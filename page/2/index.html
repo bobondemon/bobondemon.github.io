@@ -276,6 +276,161 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/10/18/高維度的常態分佈長得像-蛋殼/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2024/10/18/高維度的常態分佈長得像-蛋殼/" itemprop="url">
+                  高維度的常態分佈長得像...蛋殼?
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2024-10-18T20:39:42+08:00">
+                2024-10-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<h2 id="隱變量的內插"><a href="#隱變量的內插" class="headerlink" title="隱變量的內插"></a>隱變量的內插</h2><p>還記得經典的 word embedding 特性嗎? 在當時 Mikolov 這篇經典的 <a href="https://aclanthology.org/N13-1090.pdf">word2vec 論文</a>可讓人震驚了<br><span>$$\mathbf{e}_{king}+(\mathbf{e}_{man}-\mathbf{e}_{woman})\approx\mathbf{e}_{queen}$$</span><!-- Has MathJax --> 這樣看起來 embedding space 似乎滿足某些線性特性, 使得我們後來在做 embedding 的內插往往採用線性內插:<br><span>$$\mathbf{e}_{new}=t\mathbf{e}_1+(1-t)\mathbf{e}_2$$</span><!-- Has MathJax --> 讓我們把話題轉到 generative model 上面<br>不管是 VAE, GAN, flow-based, diffusion-based or flow matching models 都是利用 NN 學習如何從一個”<strong>簡單容易採樣”</strong>的分布, e.g. standard normal distribution <span>$\mathcal{N}(\mathbf{0},\mathbf{I})$</span><!-- Has MathJax -->, 到資料分布 $p_{data}$ 的一個過程.<br><span>$$\mathbf{x}=\text{Decoder}_\theta(\mathbf{z}),\quad \mathbf{z}\sim\mathcal{N}(\mathbf{0},\mathbf{I})$$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>Lil’Log “<a href="https://lilianweng.github.io/posts/2021-07-11-diffusion-models/">What are Diffusion Models?</a>” Fig. 1. 的 variable $\mathbf{z}$ 實務上大多使用 <span>$\mathcal{N}(\mathbf{0},\mathbf{I})$</span><!-- Has MathJax --> 的設定</p>
+</blockquote>
+<p>(借用 <a href="https://www.youtube.com/@jbhuang0604">Jia-Bin Huang</a> 影片的圖 <a href="https://www.youtube.com/watch?v=i2qSxMVeVLI">How I Understand Diffusion Models</a> 來舉例)<br><img src="/2024/10/18/高維度的常態分佈長得像-蛋殼/image 2.png" width="80%" height="80%"><br>因此如果我們想產生狗和牛的混合體, 是不是可以這樣作?<br><span>$$\text{Decoder}_\theta(t\mathbf{z}_{dog}+(1-t)\mathbf{z}_{cow}), \quad t\in[0,1]$$</span><!-- Has MathJax --> 答案是不行, 效果不好. 那具體怎麼做呢? 其實應該這麼做 [1]<br><span>$$\text{Decoder}_\theta(\cos(t\pi/2)\mathbf{z}_{dog}+\sin(t\pi/2)\mathbf{z}_{cow}), \quad t\in[0,1]$$</span><!-- Has MathJax --> 要使用 spherical linear interpolation [2] 這種內插方式<br></p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2024/10/18/高維度的常態分佈長得像-蛋殼/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/09/25/整理隨機過程的連續性、微分、積分和Brownian-Motion/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1665,157 +1820,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-詳讀2/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chih-Sheng Chen">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="棒棒生">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2024/01/08/Speculative-Decoding-詳讀2/" itemprop="url">
-                  Speculative Decoding 詳讀 (下)
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2024-01-08T22:21:17+08:00">
-                2024-01-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分類於</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ML/" itemprop="url" rel="index">
-                    <span itemprop="name">ML</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-<hr>
-<p>接續<a href="https://bobondemon.github.io/2024/01/08/Speculative-Decoding-%E8%A9%B3%E8%AE%80/">上一篇</a><br>現在我們可以真正的來探討以下問題了:<br>&emsp;<strong>A. 速度的分析:</strong> 加速到什麼程度? 跟小模型的速度和準確度有關聯嗎? (想像如果 draft 一直被拒絕, 則小模型都是多跑的)<br>&emsp;<strong>B. 運算量的分析:</strong> Operation 數 (計算量) 也會減少嗎? 還是會增加?<br>&emsp;<strong>C. Memory bandwidth 的分析:</strong> 會減少還是增加?<br>&emsp;<strong>D. Performance 能維持住嗎</strong> (PPL, WER, BLEU, … 端看 model task 是什麼): 還是會有 degrade?</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2024/01/08/Speculative-Decoding-詳讀2/#more" rel="contents">
-              閱讀全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1865,7 +1869,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">108</span>
+                <span class="site-state-item-count">109</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -1887,7 +1891,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">225</span>
+                <span class="site-state-item-count">228</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>

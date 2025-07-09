@@ -1,0 +1,835 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Attention,Softmax1,QuietAttention," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="我們在看一些 attention 有時會看到會將 key 和 value ($K,V$) 各自 padding 一個 zero vector 的 token embedding. 如下圖所示  初次看到可能會很疑惑, 為啥要多 padding zero vectors? 本文就來解釋一下原因.但首先故事要先回到 Transformer 本身以下一些投影片內容取自 Song Han 課程投影">
+<meta property="og:type" content="article">
+<meta property="og:title" content="不要逼 Attention 選擇, 留個出口吧">
+<meta property="og:url" content="https://bobondemon.github.io/2025/07/09/不要逼-Attention-選擇-留個出口吧/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="我們在看一些 attention 有時會看到會將 key 和 value ($K,V$) 各自 padding 一個 zero vector 的 token embedding. 如下圖所示  初次看到可能會很疑惑, 為啥要多 padding zero vectors? 本文就來解釋一下原因.但首先故事要先回到 Transformer 本身以下一些投影片內容取自 Song Han 課程投影">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/09/不要逼-Attention-選擇-留個出口吧/image.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/09/不要逼-Attention-選擇-留個出口吧/image 1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/09/不要逼-Attention-選擇-留個出口吧/image 2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/09/不要逼-Attention-選擇-留個出口吧/image 3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/09/不要逼-Attention-選擇-留個出口吧/image 4.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/09/不要逼-Attention-選擇-留個出口吧/image 5.png">
+<meta property="og:updated_time" content="2025-07-09T12:34:27.216Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="不要逼 Attention 選擇, 留個出口吧">
+<meta name="twitter:description" content="我們在看一些 attention 有時會看到會將 key 和 value ($K,V$) 各自 padding 一個 zero vector 的 token embedding. 如下圖所示  初次看到可能會很疑惑, 為啥要多 padding zero vectors? 本文就來解釋一下原因.但首先故事要先回到 Transformer 本身以下一些投影片內容取自 Song Han 課程投影">
+<meta name="twitter:image" content="https://bobondemon.github.io/2025/07/09/不要逼-Attention-選擇-留個出口吧/image.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2025/07/09/不要逼-Attention-選擇-留個出口吧/"/>
+
+
+
+
+
+  <title> 不要逼 Attention 選擇, 留個出口吧 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '[object Object]', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2025/07/09/不要逼-Attention-選擇-留個出口吧/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                不要逼 Attention 選擇, 留個出口吧
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2025-07-09T20:07:28+08:00">
+                2025-07-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>我們在看一些 attention 有時會看到會將 key 和 value ($K,V$) 各自 padding 一個 zero vector 的 token embedding. 如下圖所示 <img src="/2025/07/09/不要逼-Attention-選擇-留個出口吧/image.png" width="35%" height="35%"> 初次看到可能會很疑惑, 為啥要多 padding zero vectors? 本文就來解釋一下原因.<br>但首先故事要先回到 Transformer 本身<br>以下一些投影片內容取自 <a href="https://hanlab.mit.edu/" target="_blank" rel="external">Song Han</a> 課程<a href="https://www.dropbox.com/scl/fi/aorbruqhmbu3cpqtnbuyo/Lec15-Long-Context-LLM.pdf?rlkey=i7d5urg0m4mm96wc82nx76lgs&amp;e=1&amp;st=nssefmxf&amp;dl=0" target="_blank" rel="external">投影片</a></p>
+<a id="more"></a>
+<hr>
+<h2 id="Transformer-的消耗改善"><a href="#Transformer-的消耗改善" class="headerlink" title="Transformer 的消耗改善"></a>Transformer 的消耗改善</h2><p>眾所周知 Transformer 的 attention 計算消耗為 $O(T^2)$ 其中 $T$ 為 context (token) length<br>而雖然 KV-cache memory 消耗為 $O(T)$ 但 out token 長度稍大的話記憶體需求很容易直接超過 model 本身的大小了<br>基於此理由, 減少 context length 對計算或記憶體的影響就很關鍵</p>
+<h3 id="縮短-Attention-的-Context-Length"><a href="#縮短-Attention-的-Context-Length" class="headerlink" title="縮短 Attention 的 Context Length"></a>縮短 Attention 的 Context Length</h3><p><img src="/2025/07/09/不要逼-Attention-選擇-留個出口吧/image 1.png" width="80%" height="80%"> Dense attention (a) 是原本的結果, 可以看到如果 inference 的時候 context length 超過 training 當時設定的長度時, 則 PPL 就爆掉了. 不僅如此計算開銷非常大 $O(T^2)$.<br>一個很直覺的改善方法就是讓 attention 只能處理過去的 $L$ 個 (含自己) tokens, 這樣計算開銷就變成固定值, $O(TL)$. 這方法稱為 window attention (b).<br>但是一旦要輸出超過第 $L$ 個位置的 token 的話, PPL 一樣馬上爆掉.<br>為了改善這現象, (c) sliding window w/ re-computation 方法就乾脆設定每 $L$ 個 tokens 後就 reset 整個 Transformer, 意思是一樣是做 dense attetion, 只是每 $L$ 個 tokens 後就 reset.<br>這方法雖然 PPL 沒問題了, 但是計算量仍然算高 $O(TL^2)$.</p>
+<p>有沒有更好的方法讓計算量低的同時 PPL 也不會爆掉呢?<br>有的, 但提出方法之前要先理解到底 window attention (b) 為什麼會壞掉</p>
+<h3 id="The-“Attention-Sink”-Phenomenon"><a href="#The-“Attention-Sink”-Phenomenon" class="headerlink" title="The “Attention Sink” Phenomenon"></a>The “Attention Sink” Phenomenon</h3><p><img src="/2025/07/09/不要逼-Attention-選擇-留個出口吧/image 2.png" width="80%" height="80%"> 上圖是在說明 “papers” 這個 token 的 attention map, 可以觀察到 “papers” 跟開頭第一個 token “He” 有很強的 attention 結果.<br>這有點怪… 照理說這兩個 tokens 應該沒啥特別關聯阿<br>再看上圖下面那三句話的例子<br>可以看到很多 tokens 都可以被 prune 掉而不影響產生最後的 token “English”<br>但是唯獨不能 prune 掉第一個 token “Du”<br>“Du Fu” 中文是杜甫, 他是以前唐朝的一位詩人, 他的姓氏 “Du” 跟 “English” 應該沒有關聯才對.</p>
+<p>他們做了更多的觀察, 發現這個現象在很多 layers 都如此<br><img src="/2025/07/09/不要逼-Attention-選擇-留個出口吧/image 3.png" width="80%" height="80%"> 1st token 常常都是大家的關注點, probability 很容易非常高.<br>但為什麼? 又為何是 1st token 呢?</p>
+<p>其實這是因為 auto-regressive 的時候 1st token 永遠會在所有的 attention KV-cache 中, <strong>當沒有任何想要關注的 tokens 的時候, 總是可以把 1st token 當垃圾桶去 attention</strong>!<br>這個現象 Song Han 他們稱為 <strong>Attention Sink</strong>.</p>
+<blockquote>
+<p>Sink 中文是水槽, 有點像是不知道關注哪裡的時候, 就往那裏跑. 好的命名能讓人一聽就記住.</p>
+</blockquote>
+<p>因此 Song Han 他們就提出 StreamingLLM, 意思就是 window attention 的時候, 永遠會 append 1st token 在 window 的開頭<br><img src="/2025/07/09/不要逼-Attention-選擇-留個出口吧/image 4.png" width="80%" height="80%"> 很神奇的是, 一旦這麼做了計算量和 PPL 全部都好了</p>
+<blockquote>
+<p>Song Han 他們也做了一些實驗, 譬如讓 1st token 的 embedding 是可學的, 還有不只加入 1st token, 前幾個 tokens 都可以一起加入等等的實驗, 詳細可參考他們論文</p>
+</blockquote>
+<hr>
+<h2 id="回頭看-K-V-Padding-Zero-Vector"><a href="#回頭看-K-V-Padding-Zero-Vector" class="headerlink" title="回頭看 K, V Padding Zero Vector"></a>回頭看 K, V Padding Zero Vector</h2><p>到這可能讀者已經猜出來為什麼要 padding zero vector 了</p>
+<p><strong>這個 padding 的 zero vector 其作用就相當於 1st token 的功能.</strong></p>
+<p>當沒有任何 tokens 想要 attention 的時候, 給 softmax 一個 “出口”<br>觀察 softmax 公式, 把第一個 token embedding $x_1$ 拉出來並定義其為 zero , $x_1=0$.<br><span>$$\begin{align*}
+(\text{softmax}(\mathbf{x}))_i=
+\frac{e^{x_i}}{e^{\color{orange}{x_1}}+\sum_{j=2}^N e^{x_j}}
+=\frac{e^{x_i}}{e^{\color{orange}{0}}+\sum_{j=2}^N e^{x_j}} \\
+=\frac{e^{x_i}}{\color{orange}{1}+\sum_{j=2}^N e^{x_j}}=:(\text{softmax}_{\color{orange}{1}}(\mathbf{x}))_i
+\end{align*}$$</span><!-- Has MathJax --> 我們稱這樣的 <span>$\text{softmax}$</span><!-- Has MathJax --> (第一個 token 為 $0$) 為 <span>$\text{softmax}_{\color{orange}{1}}$</span><!-- Has MathJax -->. [參考自 <a href="https://www.evanmiller.org/attention-is-off-by-one.html" target="_blank" rel="external">Attention Is Off By One</a>]<br>以前當所有 token 都不想關注的時候<br>就算把他們 query-key 的內積結果都拉到 $-\infty$ 也不會讓它們的 attention map 機率變成 $0$.<br><span>$$\begin{align*}
+\lim_{x_1\rightarrow-\infty}\cdots\lim_{x_k\rightarrow-\infty}(\text{softmax}(\mathbf{x}))_i=\frac{1}{k}&gt;0
+\end{align*}$$</span><!-- Has MathJax --> 但如果是 <span>$\text{softmax}_{\color{orange}{1}}$</span><!-- Has MathJax --> 的話能真正讓機率變成 $0$.<br><span>$$\begin{align*}
+\lim_{x_1\rightarrow-\infty}\cdots\lim_{x_k\rightarrow-\infty}(\text{softmax}_{\color{orange}{1}}(\mathbf{x}))_i=0
+\end{align*}$$</span><!-- Has MathJax --> 讓機率變成 $0$ 也就達到了 “<strong>沒有任何想要 attention</strong>” 的效果了!<br>這就是為什麼 Key 要 append zero vector.<br>注意到 Value 也同樣要 append zero vector.<br>這是因為當 attention sink 現象發生的時候 (沒有想要 attention 的情況)<br>Sink token 的機率最高 ($\approx1$), 所以 sink token 的 value 會決定了這次 attention block 的結果 value<br>為了讓 attention block 失去作用, 所以設定 sink token 的 value 為 zero vector<br><img src="/2025/07/09/不要逼-Attention-選擇-留個出口吧/image 5.png" width="40%" height="40%"> 相當於上圖紅色方框的 attention block 什麼都不做, 所以輸出直接等於輸入 $\mathbf{x}$. 這等同於模型在這個 layer 什麼都不做, “<strong>do-nothing</strong>”.</p>
+<hr>
+<h2 id="Conclusions"><a href="#Conclusions" class="headerlink" title="Conclusions"></a>Conclusions</h2><p>其實 Qualcomm 的這篇論文 (<a href="https://arxiv.org/abs/2306.12929" target="_blank" rel="external">Quantizable Transformers: Removing Outliers by Helping Attention Heads Do Nothing</a>, arXiv 2023) 也同樣梳理了 attention sink 的現象和其原因<br>不只發生在 LLM, 在圖像的 ViT 架構也是如此<br>總歸來說, 我們需要為 softmax 找到一個 “出口”, 當沒有想要 attention 的時候, 有個垃圾桶的 token 去關注.<br>對於 Key 和 Value 都 append 一個 zero vector 是非常簡單且有用的方法 (見文章開頭的圖)</p>
+<p>另外, 這種 softmax 也是造成 Transformer 有很大的 outlier 的原因之一 (詳見剛提到的 Qualcomm <a href="https://arxiv.org/abs/2306.12929" target="_blank" rel="external">論文</a>) 而這些 outliers 正是 Transformer 難以 PTQ 的主要兇手!</p>
+<blockquote>
+<p>改成用 $\text{softmax}_{\color{orange}{1}}$, 或是 Qualcomm <a href="https://arxiv.org/abs/2306.12929" target="_blank" rel="external">論文</a> 提的 clipped softmax 和 gating 方法比較能從根源解決這問題. 而 SmoothQuant, AWQ, … 比較像是事後補救</p>
+</blockquote>
+<p>Softmax 硬要選的原罪… 有時候我們反而應該什麼都不做<br>不強求, 順其自然, 阿咪陀佛… (诶不是, 跑題了)</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2025/07/09/不要逼-Attention-選擇-留個出口吧/" title="不要逼 Attention 選擇, 留個出口吧">https://bobondemon.github.io/2025/07/09/不要逼-Attention-選擇-留個出口吧/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Attention/" rel="tag"># Attention</a>
+          
+            <a href="/tags/Softmax1/" rel="tag"># Softmax1</a>
+          
+            <a href="/tags/QuietAttention/" rel="tag"># QuietAttention</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2025/07/08/神經網路鍊金術之高手心法/" rel="next" title="神經網路鍊金術之高手心法">
+                <i class="fa fa-chevron-left"></i> 神經網路鍊金術之高手心法
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">109</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">228</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Transformer-的消耗改善"><span class="nav-number">1.</span> <span class="nav-text">Transformer 的消耗改善</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#縮短-Attention-的-Context-Length"><span class="nav-number">1.1.</span> <span class="nav-text">縮短 Attention 的 Context Length</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#The-“Attention-Sink”-Phenomenon"><span class="nav-number">1.2.</span> <span class="nav-text">The “Attention Sink” Phenomenon</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#回頭看-K-V-Padding-Zero-Vector"><span class="nav-number">2.</span> <span class="nav-text">回頭看 K, V Padding Zero Vector</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Conclusions"><span class="nav-number">3.</span> <span class="nav-text">Conclusions</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

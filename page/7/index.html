@@ -276,6 +276,166 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2020/05/11/Note-for-Framework-of-GAN/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2020/05/11/Note-for-Framework-of-GAN/" itemprop="url">
+                  Framework of GAN
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2020-05-11T20:29:12+08:00">
+                2020-05-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>說來汗顏, 自從17年三月筆記完 WGAN 後, 就沒再碰 GAN 相關的東西了. 惡補了一下 <a href="https://www.youtube.com/playlist?list=PLJV_el3uVTsMq6JEFPW35BCiOQTsoqwNw">李宏毅GAN</a> 的課程和其他相關資料, 因此筆記一下.</p>
+<p>MMGAN(最原始的GAN), NSGAN(跟MMGAN差別在 G 的 update 目標函式有點不同), f-GAN, WGAN, ADDA (Adversarial Discriminative Domain Adaptation), infoGAN, VAE-GAN 等… 這些全部都是 follow 下面這樣的 framework:</p>
+<span>$$\begin{align}
+Div\left(P_d\|P_G\right) = \max_D\left[ E_{x\sim P_d} D(x) - E_{x\sim P_G}f^*(D(x)) \right] \\
+G^*=\arg\min_G{Div\left(P_d\|P_G\right)} + reg(G) \\
+\end{align}$$</span><!-- Has MathJax -->
+<p>其中 $P_d$ 為 real data pdf, $P_G$ 為 generator 產生的 data pdf. $f^*$ 帶入不同的定義會產生不同的 divergence, 這之後會再說明.</p>
+<p>式 (1) 定義了 $P_G$ 與 $P_d$ 的 divergence, 其中這個 divergence 的值為藉由解這個最佳化問題求得的.</p>
+<p>式 (2) 表示要找的 $G$ 就是 divergence 最小的那個. Divergence 最小 ($=0$) 同時也表示 $P_G=P_d$ (生成器鍊成). 如果同時考慮 regularization term, $reg(G)$, 則會有很多變化產生, 如 ADDA, infoGAN, VAE-GAN…</p>
+<p>我們接著來看 MMGAN, NSGAN, f-GAN, WGAN, ADDA, infoGAN, VAE-GAN 這些怎麼 fit 進這個框架.</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2020/05/11/Note-for-Framework-of-GAN/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2020/05/02/Notes-for-conditional-cross-Entropy-Mutual-information/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1672,159 +1832,6 @@ Y_k=R_k\exp(j\theta_k)$$</span><!-- Has MathJax --></p>
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chih-Sheng Chen">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="棒棒生">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/" itemprop="url">
-                  Far Field Notes (2) LCMV filter and Frost's algorithm
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2019-03-02T17:36:58+08:00">
-                2019-03-02
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分類於</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/SP/" itemprop="url" rel="index">
-                    <span itemprop="name">SP</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-<hr>
-<p>這是 far field 筆記系列第二篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 <a href="https://www.springer.com/in/book/9783540786115">Microphone Array Signal Processing</a> Ch4 和 <a href="http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=1450747">Frost’s algorithm</a></p>
-<p><a href="https://bobondemon.github.io/2019/02/26/Far-Field-Notes-1-Beampattern/">上一篇</a>最後雖然使用 fixed beamformer 得到了 response-invariant beamformer, 但這個方法限制是 filter 一旦設計好就寫死了, 沒辦法自己 update (所以才叫 “fixed” beamformer). 這引入一個問題是, 如果剛好有一個 inteference noise 在衰減不那麼大的角度時, 就無法壓得很好. 而這篇要介紹的 LCMV (Linear Constrained minimum variance) filter 以及 Frost’s beamformer 能針對給定的方向抽取訊號, 並且對其他方向的 inteference nosie 壓抑的最好. 注意 sound source 方向必須給定, LCMV 求得的 weights 會想辦法對其他方向的 inteference 壓抑.</p>
-<p>如同 LCMV 字面上的意思一樣. 會將整個問題轉換成 minimize variance subject to some linear constraints. 另外相當經典的 Frost’s beamformer (1972年呢!) 則將 filter 的 optimal 求解改成使用 stochastic gradient descent 方式, 所以非常適合實際的 real time 系統, 這些下文會詳細說明.</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/#more" rel="contents">
-              閱讀全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1874,7 +1881,7 @@ Y_k=R_k\exp(j\theta_k)$$</span><!-- Has MathJax --></p>
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">108</span>
+                <span class="site-state-item-count">109</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -1896,7 +1903,7 @@ Y_k=R_k\exp(j\theta_k)$$</span><!-- Has MathJax --></p>
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">225</span>
+                <span class="site-state-item-count">228</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>
