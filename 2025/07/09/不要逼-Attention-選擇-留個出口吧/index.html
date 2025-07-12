@@ -99,7 +99,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2025/07/09/不要逼-Attention-選擇-留個出口吧/image 3.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/07/09/不要逼-Attention-選擇-留個出口吧/image 4.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/07/09/不要逼-Attention-選擇-留個出口吧/image 5.png">
-<meta property="og:updated_time" content="2025-07-09T12:34:27.216Z">
+<meta property="og:updated_time" content="2025-07-12T04:33:24.609Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="不要逼 Attention 選擇, 留個出口吧">
 <meta name="twitter:description" content="我們在看一些 attention 有時會看到會將 key 和 value ($K,V$) 各自 padding 一個 zero vector 的 token embedding. 如下圖所示  初次看到可能會很疑惑, 為啥要多 padding zero vectors? 本文就來解釋一下原因.但首先故事要先回到 Transformer 本身以下一些投影片內容取自 Song Han 課程投影">
@@ -388,7 +388,7 @@
 </script>
 
 <hr>
-<p>我們在看一些 attention 有時會看到會將 key 和 value ($K,V$) 各自 padding 一個 zero vector 的 token embedding. 如下圖所示 <img src="/2025/07/09/不要逼-Attention-選擇-留個出口吧/image.png" width="35%" height="35%"> 初次看到可能會很疑惑, 為啥要多 padding zero vectors? 本文就來解釋一下原因.<br>但首先故事要先回到 Transformer 本身<br>以下一些投影片內容取自 <a href="https://hanlab.mit.edu/" target="_blank" rel="external">Song Han</a> 課程<a href="https://www.dropbox.com/scl/fi/aorbruqhmbu3cpqtnbuyo/Lec15-Long-Context-LLM.pdf?rlkey=i7d5urg0m4mm96wc82nx76lgs&amp;e=1&amp;st=nssefmxf&amp;dl=0" target="_blank" rel="external">投影片</a></p>
+<p>我們在看一些 attention 有時會看到會將 key 和 value ($K,V$) 各自 padding 一個 zero vector 的 token embedding. 如下圖所示 <img src="/2025/07/09/不要逼-Attention-選擇-留個出口吧/image.png" width="100%" height="100%"> 初次看到可能會很疑惑, 為啥要多 padding zero vectors? 本文就來解釋一下原因.<br>但首先故事要先回到 Transformer 本身<br>以下一些投影片內容取自 <a href="https://hanlab.mit.edu/" target="_blank" rel="external">Song Han</a> 課程<a href="https://www.dropbox.com/scl/fi/aorbruqhmbu3cpqtnbuyo/Lec15-Long-Context-LLM.pdf?rlkey=i7d5urg0m4mm96wc82nx76lgs&amp;e=1&amp;st=nssefmxf&amp;dl=0" target="_blank" rel="external">投影片</a></p>
 <a id="more"></a>
 <hr>
 <h2 id="Transformer-的消耗改善"><a href="#Transformer-的消耗改善" class="headerlink" title="Transformer 的消耗改善"></a>Transformer 的消耗改善</h2><p>眾所周知 Transformer 的 attention 計算消耗為 $O(T^2)$ 其中 $T$ 為 context (token) length<br>而雖然 KV-cache memory 消耗為 $O(T)$ 但 out token 長度稍大的話記憶體需求很容易直接超過 model 本身的大小了<br>基於此理由, 減少 context length 對計算或記憶體的影響就很關鍵</p>
