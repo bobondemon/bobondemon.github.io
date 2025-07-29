@@ -276,6 +276,159 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2025/07/29/筆記-PyTorch-FX-的-Graph-Node-一些基礎概念/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2025/07/29/筆記-PyTorch-FX-的-Graph-Node-一些基礎概念/" itemprop="url">
+                  筆記 PyTorch FX 的 Graph Node 一些基礎概念
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2025-07-29T19:54:07+08:00">
+                2025-07-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p><a href="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/">Computational graph</a> 相當於 NN 的一種 IR (intermediate representation) 表達方式.<br>在 PyTorch 的 <code>nn.Module</code> 裡通常由 user 來定義 <code>forward</code> 函式藉此來表達這些 ops 怎麼關聯何其執行順序.<br>但在 <code>torch.fx</code> 把 NN 改由 <a href="https://docs.pytorch.org/docs/stable/fx.html#torch.fx.Graph">Graph</a> 來定義該怎麼 forward. 精確來說, 一個 GraphModule 包含了原本的 <code>nn.Module</code> 之外, 還包含了一個 Graph 物件, 並且Module 裡的 <code>forward</code> 函式改成由 Graph 物件來 ”自動生成”.<br>這樣做有許多好處, 例如可以自由地對 Graph 修改後, 再重新產生 forward. 更多請參考<a href="https://docs.pytorch.org/docs/stable/fx.html#">官方文件</a>說明.</p>
+<p>例如一些操作範例: [<a href="https://github.com/pytorch/examples/blob/master/fx/replace_op.py">Replace one op</a>], [<a href="https://github.com/pytorch/pytorch/blob/40cbf342d3c000712da92cfafeaca651b3e0bd3e/torch/fx/experimental/optimization.py#L50">Conv/Batch Norm fusion</a>], [<a href="https://github.com/pytorch/examples/blob/master/fx/subgraph_rewriter_basic_use.py">replace_pattern: Basic usage</a>], [<a href="https://pytorch.org/docs/main/quantization.html#prototype-fx-graph-mode-quantization">Quantization</a>], [<a href="https://github.com/pytorch/examples/blob/master/fx/invert.py">Invert Transformation</a>]</p>
+<p>當我在看 <a href="https://github.com/pytorch/examples/blob/master/fx/replace_op.py">Replace one op</a> 的時候, codes 雖然非常短, 但其實我產生了很多底層 graph 操作的疑問.<br>因此仔細對照 source codes 理解後特別紀錄一下.<br>相信對 Graph, Node, 和底層 fx 怎麼運作會有初步比較好的理解.</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2025/07/29/筆記-PyTorch-FX-的-Graph-Node-一些基礎概念/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2025/07/09/不要逼-Attention-選擇-留個出口吧/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1655,159 +1808,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/10/29/讀-Flow-Matching-前要先理解的東西/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chih-Sheng Chen">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="棒棒生">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2024/10/29/讀-Flow-Matching-前要先理解的東西/" itemprop="url">
-                  讀 Flow Matching 前要先理解的東西
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2024-10-29T21:17:24+08:00">
-                2024-10-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分類於</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ML/" itemprop="url" rel="index">
-                    <span itemprop="name">ML</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-<hr>
-<p>下一篇: <a href="https://bobondemon.github.io/2024/11/06/%E5%98%97%E8%A9%A6%E7%90%86%E8%A7%A3-Flow-Matching/">嘗試理解 Flow Matching</a></p>
-<p>如果你跟我一樣看 <a href="https://arxiv.org/abs/2210.02747">flow matching 論文</a>時, 在還在說明預備知識的地方就陣亡了, 別擔心你不孤單! 我也死在那裡.<br>論文裡很多地方用到了 <a href="https://www.wikiwand.com/en/articles/Continuity_equation">Continuity Equation</a> 來推導. 這個定理也相當於是一個核心概念.<br>抱持一定要了解清楚的想法, 結果是學習到了美妙的 <strong>Gauss’s Divergence Theorem</strong> 和 <strong>Continuity Equation</strong>!<br>通了! 通暢了! …. 我指任督二脈<br>🎉 也剛好這是本部落格第 100 篇的文章, 就決定用這個主題了! 🎉<br>讓我們進入這美妙的 <strong>“物理 feat 機器學習 (Physics x ML)”</strong> 的世界吧!<br>(本文用的圖檔: <a href="div_fig.drawio">div_fig.drawio</a>)</p>
-<p>我們分成幾大段落來說明:<br>&emsp;A. Vector Field<br>&emsp;B. Divergence (散度)<br>&emsp;C. Gauss’s Divergence Theorem<br>&emsp;D. Mass Conservation or Continuity Equation<br>&emsp;E. 跟 Flow Matching 有啥關聯?</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2024/10/29/讀-Flow-Matching-前要先理解的東西/#more" rel="contents">
-              閱讀全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1857,7 +1857,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">109</span>
+                <span class="site-state-item-count">110</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -1879,7 +1879,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">228</span>
+                <span class="site-state-item-count">229</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>

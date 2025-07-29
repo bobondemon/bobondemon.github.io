@@ -1,0 +1,834 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="PyTorch,Computational Graph,FX," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Computational graph 相當於 NN 的一種 IR (intermediate representation) 表達方式.在 PyTorch 的 nn.Module 裡通常由 user 來定義 forward 函式藉此來表達這些 ops 怎麼關聯何其執行順序.但在 torch.fx 把 NN 改由 Graph 來定義該怎麼 forward. 精確來說, 一個 GraphMo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="筆記 PyTorch FX 的 Graph Node 一些基礎概念">
+<meta property="og:url" content="https://bobondemon.github.io/2025/07/29/筆記-PyTorch-FX-的-Graph-Node-一些基礎概念/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="Computational graph 相當於 NN 的一種 IR (intermediate representation) 表達方式.在 PyTorch 的 nn.Module 裡通常由 user 來定義 forward 函式藉此來表達這些 ops 怎麼關聯何其執行順序.但在 torch.fx 把 NN 改由 Graph 來定義該怎麼 forward. 精確來說, 一個 GraphMo">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/29/筆記-PyTorch-FX-的-Graph-Node-一些基礎概念/image.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/29/筆記-PyTorch-FX-的-Graph-Node-一些基礎概念/image 1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/29/筆記-PyTorch-FX-的-Graph-Node-一些基礎概念/image 2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/29/筆記-PyTorch-FX-的-Graph-Node-一些基礎概念/image 3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/29/筆記-PyTorch-FX-的-Graph-Node-一些基礎概念/image 4.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/29/筆記-PyTorch-FX-的-Graph-Node-一些基礎概念/image 5.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/29/筆記-PyTorch-FX-的-Graph-Node-一些基礎概念/image 6.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/07/29/筆記-PyTorch-FX-的-Graph-Node-一些基礎概念/image 7.png">
+<meta property="og:updated_time" content="2025-07-29T12:14:55.856Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="筆記 PyTorch FX 的 Graph Node 一些基礎概念">
+<meta name="twitter:description" content="Computational graph 相當於 NN 的一種 IR (intermediate representation) 表達方式.在 PyTorch 的 nn.Module 裡通常由 user 來定義 forward 函式藉此來表達這些 ops 怎麼關聯何其執行順序.但在 torch.fx 把 NN 改由 Graph 來定義該怎麼 forward. 精確來說, 一個 GraphMo">
+<meta name="twitter:image" content="https://bobondemon.github.io/2025/07/29/筆記-PyTorch-FX-的-Graph-Node-一些基礎概念/image.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2025/07/29/筆記-PyTorch-FX-的-Graph-Node-一些基礎概念/"/>
+
+
+
+
+
+  <title> 筆記 PyTorch FX 的 Graph Node 一些基礎概念 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '[object Object]', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2025/07/29/筆記-PyTorch-FX-的-Graph-Node-一些基礎概念/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                筆記 PyTorch FX 的 Graph Node 一些基礎概念
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2025-07-29T19:54:07+08:00">
+                2025-07-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p><a href="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/">Computational graph</a> 相當於 NN 的一種 IR (intermediate representation) 表達方式.<br>在 PyTorch 的 <code>nn.Module</code> 裡通常由 user 來定義 <code>forward</code> 函式藉此來表達這些 ops 怎麼關聯何其執行順序.<br>但在 <code>torch.fx</code> 把 NN 改由 <a href="https://docs.pytorch.org/docs/stable/fx.html#torch.fx.Graph" target="_blank" rel="external">Graph</a> 來定義該怎麼 forward. 精確來說, 一個 GraphModule 包含了原本的 <code>nn.Module</code> 之外, 還包含了一個 Graph 物件, 並且Module 裡的 <code>forward</code> 函式改成由 Graph 物件來 ”自動生成”.<br>這樣做有許多好處, 例如可以自由地對 Graph 修改後, 再重新產生 forward. 更多請參考<a href="https://docs.pytorch.org/docs/stable/fx.html#" target="_blank" rel="external">官方文件</a>說明.</p>
+<p>例如一些操作範例: [<a href="https://github.com/pytorch/examples/blob/master/fx/replace_op.py" target="_blank" rel="external">Replace one op</a>], [<a href="https://github.com/pytorch/pytorch/blob/40cbf342d3c000712da92cfafeaca651b3e0bd3e/torch/fx/experimental/optimization.py#L50" target="_blank" rel="external">Conv/Batch Norm fusion</a>], [<a href="https://github.com/pytorch/examples/blob/master/fx/subgraph_rewriter_basic_use.py" target="_blank" rel="external">replace_pattern: Basic usage</a>], [<a href="https://pytorch.org/docs/main/quantization.html#prototype-fx-graph-mode-quantization" target="_blank" rel="external">Quantization</a>], [<a href="https://github.com/pytorch/examples/blob/master/fx/invert.py" target="_blank" rel="external">Invert Transformation</a>]</p>
+<p>當我在看 <a href="https://github.com/pytorch/examples/blob/master/fx/replace_op.py" target="_blank" rel="external">Replace one op</a> 的時候, codes 雖然非常短, 但其實我產生了很多底層 graph 操作的疑問.<br>因此仔細對照 source codes 理解後特別紀錄一下.<br>相信對 Graph, Node, 和底層 fx 怎麼運作會有初步比較好的理解.</p>
+<a id="more"></a>
+<hr>
+<h2 id="Topological-List-of-NN"><a href="#Topological-List-of-NN" class="headerlink" title="Topological List of NN"></a>Topological List of NN</h2><p><a href="https://docs.pytorch.org/docs/stable/fx.html#torch.fx.Graph" target="_blank" rel="external">Graph</a> 就是一個 NN 的 DAG (Directed Acyclic Graph) 每個 <a href="https://docs.pytorch.org/docs/stable/fx.html#torch.fx.Node" target="_blank" rel="external">node</a> 代表執行哪種運算, edge 連接著不同 nodes 代表輸出輸入的關聯.<br>我們在執行 NN 的 fowards 的時候, 會需要一個執行 nodes (運算op) 的順序, 稱為 topological order. (請自行搜尋 “Topological Sort”)<br>這個 topological order 不唯一. 但表明了照著這個 order 來執行所有 nodes 就可以跑完這個 NN 的 forward graph.<br>Graph 的 attribute <code>nodes</code> 保存了這個 topological order 的 list. 事實上使用 doubly-linked list 來實作.<br>因此可以看到 Node 有兩個 attributes: <code>_prev</code> 和 <code>_next</code> 分別存著前一個或下一個 topological order 的 node.</p>
+<blockquote>
+<p>注意到 <code>_prev</code> 和 <code>_next</code> 指的是 topological list 的連結, 不是 Graph 圖 (DAG) 的 nodes 的 edges 關聯喔.</p>
+</blockquote>
+<p><img src="/2025/07/29/筆記-PyTorch-FX-的-Graph-Node-一些基礎概念/image.png" width="50%" height="50%"> 以這個圖來說, 隨便列出兩個可能的 topological list 為: <code>[p, q, n, t, a, b, c]</code>, <code>[q, p, n, t, b, a, c]</code> , 所以不同的 list <code>n._prev</code> 會不同, 一個是 <code>q</code>, 另一個是 <code>p</code>.<br>DAG 中 nodes 的關聯 (edges) 儲存在 Node 的 attributes: <code>_input_nodes</code> 和 <code>users</code>.<br>&emsp; - <strong><code>_input_nodes</code></strong>: 說明此 node 的 input nodes 是那些, 建議透過 <code>all_input_nodes()</code> 來獲取<br>&emsp; - <strong><code>users</code></strong>: 有哪些 nodes 需要使用此 node 的結果, 這個很重要, 當 <code>users</code> 為空的時候, 代表沒有任何 nodes 需要使用此 node, 因此可以被安全刪掉. (Graph 的 <a href="https://github.com/pytorch/pytorch/blob/v2.7.0/torch/fx/graph.py#L1162" target="_blank" rel="external">erase_node</a> 判斷條件)<br>同樣以上面的圖來舉例, <code>n._input_nodes=[p, q]</code>, <code>n.users=[a, b, c]</code>.<br><strong>這兩個 attributes <code>_input_nodes</code> 和 <code>users</code> 相當重要, 會反覆用到.</strong></p>
+<hr>
+<h2 id="Node-基礎屬性"><a href="#Node-基礎屬性" class="headerlink" title="Node 基礎屬性"></a>Node 基礎屬性</h2><p>列出 Node 一些基礎 attributes<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># in file "pytorch/torch/_C/__init__.pyi.in"</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">_NodeBase</span>:</span></div><div class="line">    _erased: _bool</div><div class="line">    _prev: FxNode</div><div class="line">    _next: FxNode</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, graph, name, op, target, return_type)</span> -&gt; <span class="keyword">None</span>:</span> ...</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_update_args_kwargs</span><span class="params">(self, args: tuple[Any, ...], kwargs: dict[str, Any])</span>:</span> ...</div><div class="line"></div><div class="line"><span class="comment"># in file "pytorch/torch/fx/node.py"</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Node</span><span class="params">(_NodeBase)</span>:</span></div><div class="line">      graph: <span class="string">"Graph"</span></div><div class="line">    name: str</div><div class="line">    op: str</div><div class="line">    target: <span class="string">"Target"</span></div><div class="line">    _input_nodes: dict[<span class="string">"Node"</span>, <span class="keyword">None</span>]</div><div class="line">    users: dict[<span class="string">"Node"</span>, <span class="keyword">None</span>]</div><div class="line">    ...</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, graph, name, op, target, args, kwargs, return_type)</span> -&gt; <span class="keyword">None</span>:</span></div><div class="line">        ...</div><div class="line">        self._update_args_kwargs(args, kwargs)</div></pre></td></tr></table></figure></p>
+<p>基本上 node 有分五種 opcode, 存在 attribute <code>op</code> 中: <code>placeholder</code>, <code>get_attr</code>, <code>call_function</code>, <code>call_module</code>, <code>call_method</code>, 和 <code>output</code>. 這五種 opcode 的說明參考 <a href="https://github.com/pytorch/pytorch/blob/v2.7.0/torch/fx/node.py#L200" target="_blank" rel="external">source code 說明</a>.<br><code>graph</code> 表示此 node 隸屬於哪個 Graph, <code>name</code> 則表示該 node <em>唯一</em>的名稱, <code>target</code> 可以想成該 node 實體運算是哪個 function/module/method. <code>_input_nodes</code> 和 <code>users</code> 剛剛上面有提到.<br>在 init 一個 node 的時候, <code>_update_args_kwargs</code> 底層是 C codes 看不到, 但其實他會默默做一些事情, 包含更新 <code>args</code>, <code>kwargs</code> 和 <code>self</code> 這些 nodes 的 <code>users</code> 正確性. 這在後面的例子會看到.</p>
+<hr>
+<h2 id="Node-對-Topological-List-的基礎操作"><a href="#Node-對-Topological-List-的基礎操作" class="headerlink" title="Node 對 Topological List 的基礎操作"></a>Node 對 Topological List 的基礎操作</h2><p>對這個 doubly-linked list (topoligical list) 的基礎操作 <code>next</code>, <code>prev</code>, <code>prepend</code>, <code>append</code> 如下:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># in file "pytorch/torch/fx/node.py"</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Node</span><span class="params">(_NodeBase)</span>:</span></div><div class="line">    ...</div><div class="line"><span class="meta">    @property</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">next</span><span class="params">(self)</span> -&gt; "Node":</span></div><div class="line">          <span class="keyword">return</span> self._next</div><div class="line"><span class="meta">    @property</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">prev</span><span class="params">(self)</span> -&gt; "Node":</span></div><div class="line">          <span class="keyword">return</span> self._prev</div><div class="line">      <span class="function"><span class="keyword">def</span> <span class="title">_remove_from_list</span><span class="params">(self)</span> -&gt; <span class="keyword">None</span>:</span></div><div class="line">        p, n = self._prev, self._next</div><div class="line">        p._next, n._prev = n, p</div><div class="line"><span class="meta">      @compatibility(is_backward_compatible=True)</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">prepend</span><span class="params">(self, x: <span class="string">"Node"</span>)</span> -&gt; <span class="keyword">None</span>:</span></div><div class="line">        <span class="string">"""</span></div><div class="line">        Insert x before this node in the list of nodes in the graph. Example::</div><div class="line">            Before: p -&gt; self</div><div class="line">                    bx -&gt; x -&gt; ax</div><div class="line">            After:  p -&gt; x -&gt; self</div><div class="line">                    bx -&gt; ax</div><div class="line">        Args:</div><div class="line">            x (Node): The node to put before this node. Must be a member of the same graph.</div><div class="line">        """</div><div class="line">        <span class="keyword">assert</span> self.graph == x.graph, <span class="string">"Attempting to move a Node into a different Graph"</span></div><div class="line">        ...</div><div class="line">        x._remove_from_list()  <span class="comment"># "bx -&gt; x -&gt; ax" 變成 "bx -&gt; ax"</span></div><div class="line">        <span class="comment"># "p -&gt; self" 變成 "p -&gt; x -&gt; self"</span></div><div class="line">        p = self._prev</div><div class="line">        p._next, x._prev = x, p</div><div class="line">        x._next, self._prev = self, x</div><div class="line">        ...</div><div class="line"><span class="meta">    @compatibility(is_backward_compatible=True)</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">append</span><span class="params">(self, x: <span class="string">"Node"</span>)</span> -&gt; <span class="keyword">None</span>:</span></div><div class="line">        self._next.prepend(x)</div></pre></td></tr></table></figure></p>
+<p>不厭其煩說一下, <code>next</code>, <code>prev</code>, <code>prepend</code>, <code>append</code> 這四個操作只改變 “<strong>OP 執行順序</strong>”, 因為改的是 topological list, 不是改變 DAG 圖中 nodes 的連結 (edges) 關係.</p>
+<hr>
+<h2 id="Node-對-DAG-的操作"><a href="#Node-對-DAG-的操作" class="headerlink" title="Node 對 DAG 的操作"></a>Node 對 DAG 的操作</h2><p>接著以下的幾個 Node 操作就會改變 edges 了 (動到 <code>_input_nodes</code> 和 <code>users</code> 兩個 attributes)<br>先來看看 <code>args</code>, 其實 codes 寫得很清楚, 自行看懂即可:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># in file "pytorch/torch/fx/node.py"</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Node</span><span class="params">(_NodeBase)</span>:</span></div><div class="line">    ...</div><div class="line"><span class="meta">    @property</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">args</span><span class="params">(self)</span> -&gt; tuple[Argument, ...]:</span></div><div class="line">        <span class="keyword">return</span> self._args</div><div class="line"><span class="meta">    @args.setter</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">args</span><span class="params">(self, a: tuple[Argument, ...])</span> -&gt; <span class="keyword">None</span>:</span></div><div class="line">        <span class="comment"># DO NOT CALL `_update_args_kwargs` directly. The correct way to</span></div><div class="line">        <span class="comment"># set `args` is via direct assignment, i.e. `node.args = new_args`</span></div><div class="line">        self._update_args_kwargs(a, self._kwargs)</div><div class="line"><span class="meta">      @compatibility(is_backward_compatible=True)</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">update_arg</span><span class="params">(self, idx: int, arg: Argument)</span> -&gt; <span class="keyword">None</span>:</span></div><div class="line">        <span class="string">"""</span></div><div class="line">        Update an existing positional argument to contain the new value</div><div class="line">        ``arg``. After calling, ``self.args[idx] == arg``.</div><div class="line"></div><div class="line">        Args:</div><div class="line"></div><div class="line">            idx (int): The index into ``self.args`` of the element to update</div><div class="line">            arg (Argument): The new argument value to write into ``args``</div><div class="line">        """</div><div class="line">        args = list(self.args)</div><div class="line">        args[idx] = arg</div><div class="line">        self.args = tuple(args)</div></pre></td></tr></table></figure></p>
+<p>假設我們呼叫 <code>n.update_args(2, r)</code> 則表示對 node <code>n</code> 的 input nodes 要新增一個 node <code>r</code>.<br><img src="/2025/07/29/筆記-PyTorch-FX-的-Graph-Node-一些基礎概念/image 1.png" width="50%" height="50%"> 所以 <code>n._input_nodes=[p, q, r]</code> (多一個 <code>r</code>), 同時 node <code>r</code> 的 <code>users</code> 也要更新 (新增 <code>n</code>), i.e. <code>r.users=[n]</code>.<br><strong>這自動更新相關 nodes 的 <code>_input_nodes</code> 和 <code>users</code> 的操作由 <code>_update_args_kwargs</code> 來完成, 這點很重要 keep in mind.</strong></p>
+<hr>
+<h2 id="Node-重要操作-replace-all-users-with"><a href="#Node-重要操作-replace-all-users-with" class="headerlink" title="Node 重要操作 replace_all_users_with"></a>Node 重要操作 <code>replace_all_users_with</code></h2><p>再來另一個重要操作 <code>replace_all_uses_with</code>:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># in file "pytorch/torch/fx/node.py"</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Node</span><span class="params">(_NodeBase)</span>:</span></div><div class="line">    ...</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">replace_all_uses_with</span><span class="params">(self, replace_with: <span class="string">"Node"</span>, ...)</span> -&gt; list["Node"]:</span></div><div class="line">        ...</div><div class="line">        to_process = list(self.users)</div><div class="line">        skipped = []</div><div class="line">        ...</div><div class="line">        <span class="keyword">for</span> use_node <span class="keyword">in</span> to_process:</div><div class="line">            ...</div><div class="line">            <span class="function"><span class="keyword">def</span> <span class="title">maybe_replace_node</span><span class="params">(n: Node)</span> -&gt; Node:</span></div><div class="line">                <span class="keyword">if</span> n == self:</div><div class="line">                    <span class="keyword">return</span> replace_with</div><div class="line">                <span class="keyword">else</span>:</div><div class="line">                    <span class="keyword">return</span> n</div><div class="line">            ...</div><div class="line">            new_args = _fx_map_arg(use_node.args, maybe_replace_node)</div><div class="line">            new_kwargs = _fx_map_arg(use_node.kwargs, maybe_replace_node)</div><div class="line">            ...</div><div class="line">            use_node._update_args_kwargs(new_args, new_kwargs)</div><div class="line"></div><div class="line">        <span class="keyword">assert</span> len(self.users) - len(skipped) == <span class="number">0</span></div><div class="line">        <span class="keyword">return</span> [n <span class="keyword">for</span> n <span class="keyword">in</span> to_process <span class="keyword">if</span> n <span class="keyword">not</span> <span class="keyword">in</span> skipped]</div></pre></td></tr></table></figure></p>
+<p>這 function 的目的是希望用到此 node (假設為 <code>n</code>) 的其他 nodes (<code>n.users</code>) 都改成用新的 node (假設新的 node 為 <code>s</code>)<br>對照 codes 來說明當呼叫 <code>n.replace_all_uses_with(s)</code> 時發生的狀況<br>首先假設我們建立了新的 node <code>s</code>, 而 Node 的初始化 <code>__init__</code> 需要指定 <code>args</code> 和 <code>kwargs</code>, 我們設定成跟 n 一樣<br>因為 <code>__init__</code> 最後會呼叫 <code>self._update_args_kwargs(args, kwargs)</code> (參考上面的 codes 片段), 這使得新 node 在建立之初就已經跟 nodes <code>p</code> 和 <code>q</code> 關聯起來了.<br>即 <code>s._input_nodes=[p,q]</code>, 但此時 <code>s</code> 還沒有被任何其他 nodes 使用, 所以 <code>s.users=[ ]</code>.<br>(灰框 codes 紅色那行表示目前程式執行的位置)<br><img src="/2025/07/29/筆記-PyTorch-FX-的-Graph-Node-一些基礎概念/image 2.png" width="100%" height="100%"><br>首先 <code>to_process</code> 為 <code>[a, b, c]</code>. 然後 for loop <code>a</code>, <code>b</code>, <code>c</code>.<br>第一次 iteration 的 <code>use_node</code> 為 <code>a</code>.<br><code>_fx_map_arg</code> 會把 <code>a</code> 的 input nodes 做個整理, 意思是原本假設 input node 為 <code>n</code> 現在要換成 <code>s</code>.<br>因此 <code>new_args</code> 變成 <code>[s]</code>.<br><img src="/2025/07/29/筆記-PyTorch-FX-的-Graph-Node-一些基礎概念/image 3.png" width="100%" height="100%"><br>接著再透過 <code>_update_args_kwargs</code> 更新 node <code>a</code> 的 input node 為 <code>s</code>.<br>注意到之前提過 <code>_update_args_kwargs</code>  會自動更新相關 nodes 的 <code>_input_nodes</code> 和 <code>users</code>.<br>以這邊來說, 此時 <code>n.users</code> 會更新成 <code>[b, c]</code>, 而 s.users 會變成 <code>[a]</code>.<br><img src="/2025/07/29/筆記-PyTorch-FX-的-Graph-Node-一些基礎概念/image 4.png" width="100%" height="100%"><br>然後 for loop 繼續下去, 跑到最後一個 iteration <code>use_node</code> 為 <code>c</code>, 此時的 <code>new_args</code> 會變成 <code>[s,t]</code>.<br><img src="/2025/07/29/筆記-PyTorch-FX-的-Graph-Node-一些基礎概念/image 5.png" width="100%" height="100%"><br>同樣再透過 <code>_update_args_kwargs</code> 更新 node <code>c</code> 的 input node 為 <code>s</code>, 包含自動更新相關的 <code>_input_nodes</code> 和 <code>users</code>.<br>得到最後的 graph 為:<br><img src="/2025/07/29/筆記-PyTorch-FX-的-Graph-Node-一些基礎概念/image 6.png" width="100%" height="100%"> 至此所有用到 node <code>n</code> 的那些 nodes (<code>[a, b, c]</code>) 全部替換成使用 node <code>s</code> 了.</p>
+<hr>
+<h2 id="Graph-的-erase-node"><a href="#Graph-的-erase-node" class="headerlink" title="Graph 的 erase_node"></a>Graph 的 <code>erase_node</code></h2><p>到這部看起來 <code>s</code> 已能完全取代 <code>n</code> 的地位, 因此我們可以呼叫 <code>graph.erase_node(n)</code>, 能刪掉一個 node 的條件是該 node 已經沒人用了, i.e. <code>users</code> 為空.<br>另外因為 <code>n</code> 要被刪掉, 要更新其 parent nodes 他們的 <code>users</code> 屬性表明不再被 <code>n</code> 使用. 同時 <code>n</code> 的 <code>_input_nodes</code> 要變成空.<br>因此刪掉後圖最終為:<br><img src="/2025/07/29/筆記-PyTorch-FX-的-Graph-Node-一些基礎概念/image 7.png" width="60%" height="60%"></p>
+<p><code>graph.erase_node(to_ereas)</code> codes 片段為:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># in file "pytorch/torch/fx/graph.py"</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Graph</span>:</span></div><div class="line">    ...</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">erase_node</span><span class="params">(self, to_erase: Node)</span> -&gt; <span class="keyword">None</span>:</span></div><div class="line">        <span class="string">"""</span></div><div class="line">        Erases a ``Node`` from the ``Graph``. Throws an exception if</div><div class="line">        there are still users of that node in the ``Graph``.</div><div class="line"></div><div class="line">        Args:</div><div class="line"></div><div class="line">            to_erase (Node): The ``Node`` to erase from the ``Graph``.</div><div class="line">        """</div><div class="line">        <span class="keyword">if</span> len(to_erase.users) &gt; <span class="number">0</span>:</div><div class="line">            <span class="keyword">raise</span> RuntimeError(...)</div><div class="line">        ...</div><div class="line">        <span class="comment"># Null out this Node's argument nodes so that the Nodes referred to</span></div><div class="line">        <span class="comment"># can update their ``users`` accordingly</span></div><div class="line">        to_erase._update_args_kwargs(</div><div class="line">            map_arg(to_erase._args, <span class="keyword">lambda</span> n: <span class="keyword">None</span>),</div><div class="line">            map_arg(to_erase._kwargs, <span class="keyword">lambda</span> n: <span class="keyword">None</span>),</div><div class="line">        )</div></pre></td></tr></table></figure></p>
+<p>可以看到最後又呼叫了該 node 的 <code>_update_args_kwargs</code> 函式 (更新 parent nodes 的 <code>users</code> 屬性).</p>
+<hr>
+<h2 id="替換-Graph-中的-OP-範例"><a href="#替換-Graph-中的-OP-範例" class="headerlink" title="替換 Graph 中的 OP 範例"></a>替換 Graph 中的 OP 範例</h2><p>到這邊已經能全面理解 PyTroch 給的一個對 Graph 替換 op 的範例程式了: <a href="https://github.com/pytorch/examples/blob/main/fx/replace_op.py" target="_blank" rel="external">examples/fx/replace_op.py</a></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> torch</div><div class="line"><span class="keyword">from</span> torch.fx <span class="keyword">import</span> symbolic_trace</div><div class="line"><span class="keyword">import</span> operator</div><div class="line"></div><div class="line"><span class="comment"># Sample module</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">M</span><span class="params">(torch.nn.Module)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span><span class="params">(self, x, y)</span>:</span></div><div class="line">        <span class="keyword">return</span> x + y, torch.add(x, y), x.add(y)</div><div class="line"></div><div class="line"><span class="comment"># Symbolically trace an instance of the module</span></div><div class="line">traced = symbolic_trace(M())</div><div class="line"></div><div class="line">patterns = set([operator.add, torch.add, <span class="string">"add"</span>])</div><div class="line"></div><div class="line"><span class="comment"># Go through all the nodes in the Graph</span></div><div class="line"><span class="keyword">for</span> n <span class="keyword">in</span> traced.graph.nodes:</div><div class="line">    <span class="comment"># If the target matches one of the patterns</span></div><div class="line">    <span class="keyword">if</span> any(n.target == pattern <span class="keyword">for</span> pattern <span class="keyword">in</span> patterns):</div><div class="line">        <span class="comment"># Set the insert point, add the new node, and replace all uses</span></div><div class="line">        <span class="comment"># of `n` with the new node</span></div><div class="line">        <span class="keyword">with</span> traced.graph.inserting_after(n):</div><div class="line">            new_node = traced.graph.call_function(torch.bitwise_and, n.args, n.kwargs)</div><div class="line">            n.replace_all_uses_with(new_node)</div><div class="line">        <span class="comment"># Remove the old node from the graph</span></div><div class="line">        traced.graph.erase_node(n)</div><div class="line"></div><div class="line"><span class="comment"># Don't forget to recompile!</span></div><div class="line">traced.recompile()</div><div class="line">traced.graph.lint()</div></pre></td></tr></table></figure>
+<p>還有一些沒提到, 例如 <code>tracer</code>, <code>graph.inserting_after(n)</code>, <code>traced.recompile()</code>, <code>traced.graph.lint()</code> 等, 自行參考<a href="https://docs.pytorch.org/docs/stable/fx.html#" target="_blank" rel="external">官方 fx 文件</a>和對照 codes 應該也不難理解了</p>
+<hr>
+<h2 id="碎念"><a href="#碎念" class="headerlink" title="碎念"></a>碎念</h2><p>其實 fx 要深入研究下去還挺複雜的, 例如還有 tracer, proxy, interpreter.<br>另外 PyTorch 也支援使用 fx 做量化, 無奈<a href="https://docs.pytorch.org/docs/stable/quantization.html#prototype-maintenance-mode-fx-graph-mode-quantization" target="_blank" rel="external">官方文件</a>實在寫得太少, 自己挖 code study 也辛苦沒效率.<br>但好在藏在 source code repo 的這幾個 README.md 才是 fx 量化文件的真身:<br>&emsp; - <a href="https://github.com/pytorch/pytorch/blob/main/torch/ao/quantization/fx/README.md" target="_blank" rel="external">torch/ao/quantization/fx/README.md</a><br>&emsp; - <a href="https://github.com/pytorch/pytorch/blob/main/torch/ao/quantization/backend_config/README.md" target="_blank" rel="external">torch/ao/quantizaqtion/backend_config/README.md</a><br>&emsp; - <a href="https://github.com/pytorch/rfcs/blob/master/RFC-0019-Extending-PyTorch-Quantization-to-Custom-Backends.md" target="_blank" rel="external">rfcs/RFC-0019-Extending-PyTorch-Quantization-to-Custom-Backends.md</a></p>
+<p>總之, 這篇只算是一個基礎入門的筆記, 後續有用到再繼續研究即可<br>本文圖檔: <a href="all_fx_nodes.drawio">all_fx_nodes.drawio</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2025/07/29/筆記-PyTorch-FX-的-Graph-Node-一些基礎概念/" title="筆記 PyTorch FX 的 Graph Node 一些基礎概念">https://bobondemon.github.io/2025/07/29/筆記-PyTorch-FX-的-Graph-Node-一些基礎概念/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/PyTorch/" rel="tag"># PyTorch</a>
+          
+            <a href="/tags/Computational-Graph/" rel="tag"># Computational Graph</a>
+          
+            <a href="/tags/FX/" rel="tag"># FX</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2025/07/09/不要逼-Attention-選擇-留個出口吧/" rel="next" title="不要逼 Attention 選擇, 留個出口吧">
+                <i class="fa fa-chevron-left"></i> 不要逼 Attention 選擇, 留個出口吧
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">110</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">229</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Topological-List-of-NN"><span class="nav-number">1.</span> <span class="nav-text">Topological List of NN</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Node-基礎屬性"><span class="nav-number">2.</span> <span class="nav-text">Node 基礎屬性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Node-對-Topological-List-的基礎操作"><span class="nav-number">3.</span> <span class="nav-text">Node 對 Topological List 的基礎操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Node-對-DAG-的操作"><span class="nav-number">4.</span> <span class="nav-text">Node 對 DAG 的操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Node-重要操作-replace-all-users-with"><span class="nav-number">5.</span> <span class="nav-text">Node 重要操作 replace_all_users_with</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Graph-的-erase-node"><span class="nav-number">6.</span> <span class="nav-text">Graph 的 erase_node</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#替換-Graph-中的-OP-範例"><span class="nav-number">7.</span> <span class="nav-text">替換 Graph 中的 OP 範例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#碎念"><span class="nav-number">8.</span> <span class="nav-text">碎念</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
