@@ -102,7 +102,7 @@ Flow matching 模型在時間 $t=0$ 的時候從常態分佈出發 $p_0(x)=\math
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/image 1.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/image 2.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/image 3.png">
-<meta property="og:updated_time" content="2025-01-15T12:17:47.404Z">
+<meta property="og:updated_time" content="2025-08-21T11:32:03.924Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="嘗試理解 Flow Matching">
 <meta name="twitter:description" content="接續上一篇: 讀 Flow Matching 前要先理解的東西 (建議先閱讀)
@@ -427,7 +427,7 @@ p_t(x|x_1)\triangleq\mathcal{N}\left(
 \end{align}$$</span><!-- Has MathJax --> Mean 和 covariance matrix 都是 $x_1$ 的函數.<br>這樣定義後有個問題, 什麼長相的 $u_t(x|x_1)$ 會產生式 (7) $p_t(x|x_1)$ 的定義?</p>
 <p>論文的 Theorem 3 證明了<strong>存在唯一</strong> $u_t(x|x_1)$ 產生式 (7) $p_t(x|x_1)$:<br><span>$$\begin{align}
 u_t(x|x_1)=\frac{\sigma_t&apos;(x_1)}{\sigma_t(x_1)}(x-\mu_t(x_1))+\mu_t&apos;(x_1)
-\end{align}$$</span><!-- Has MathJax --> 證明放在 Appendix<br>這結果實在太方便了, 基本上只要把 $\mu_t$ 和 $\sigma_t$ 定義好, $u_t(x|x_1)$ 有 closed form solution!</p>
+\end{align}$$</span><!-- Has MathJax --> 其中 $\sigma_t’$ 和 $\mu_t’$ 分別表示 $\sigma_t$ 和 $\mu_t$ 對 $t$ 偏微分. 證明放在 Appendix<br>這結果實在太方便了, 基本上只要把 $\mu_t$ 和 $\sigma_t$ 定義好, $u_t(x|x_1)$ 有 closed form solution!</p>
 <p>講到現在可能有點亂了, 整理一下目前的故事線:<br>定義了條件機率 $p_t(x|x_1)$ 的長相後 (7), 我們可以得到存在唯一的條件向量場 $u_t(x|x_1)$ 長相 (8)<br>有了 $p_t(x|x_1)$ 和 $u_t(x|x_1)$, 我們就能得出向量場 <span>${\color{orange}{u_t(x)}}$</span><!-- Has MathJax --> (6) 和 <span>${\color{orange}{p_t(x)}}$</span><!-- Has MathJax --> (5).<br>Flow matching loss <span>$\mathcal{L}_{FM}(\theta)$</span><!-- Has MathJax --> 就能計算了!<br><span>$$\begin{align}
 \mathcal{L}_{FM}(\theta)=\mathbb{E}_{t,x\sim {\color{orange}{p_t(x)}}}\|v_t(x)-{\color{orange}{u_t(x)}}\|^2
 \end{align}$$</span><!-- Has MathJax --> 真的能算… 吧? 是吧?</p>
