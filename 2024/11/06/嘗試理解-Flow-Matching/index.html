@@ -100,9 +100,8 @@ Flow matching 模型在時間 $t=0$ 的時候從常態分佈出發 $p_0(x)=\math
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/cfm_ot.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/gmm8_to_spiral.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/image 1.png">
-<meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/image 2.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/image 3.png">
-<meta property="og:updated_time" content="2025-08-21T11:32:03.924Z">
+<meta property="og:updated_time" content="2025-08-22T12:30:35.489Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="嘗試理解 Flow Matching">
 <meta name="twitter:description" content="接續上一篇: 讀 Flow Matching 前要先理解的東西 (建議先閱讀)
@@ -426,8 +425,8 @@ p_t(x|x_1)\triangleq\mathcal{N}\left(
 \right)
 \end{align}$$</span><!-- Has MathJax --> Mean 和 covariance matrix 都是 $x_1$ 的函數.<br>這樣定義後有個問題, 什麼長相的 $u_t(x|x_1)$ 會產生式 (7) $p_t(x|x_1)$ 的定義?</p>
 <p>論文的 Theorem 3 證明了<strong>存在唯一</strong> $u_t(x|x_1)$ 產生式 (7) $p_t(x|x_1)$:<br><span>$$\begin{align}
-u_t(x|x_1)=\frac{\sigma_t&apos;(x_1)}{\sigma_t(x_1)}(x-\mu_t(x_1))+\mu_t&apos;(x_1)
-\end{align}$$</span><!-- Has MathJax --> 其中 $\sigma_t’$ 和 $\mu_t’$ 分別表示 $\sigma_t$ 和 $\mu_t$ 對 $t$ 偏微分. 證明放在 Appendix<br>這結果實在太方便了, 基本上只要把 $\mu_t$ 和 $\sigma_t$ 定義好, $u_t(x|x_1)$ 有 closed form solution!</p>
+u_t(x|x_1)=\frac{\dot{\sigma_t}(x_1)}{\sigma_t(x_1)}(x-\mu_t(x_1))+\dot{\mu_t}(x_1)
+\end{align}$$</span><!-- Has MathJax --> 其中 $\dot\sigma_t$ 和 $\dot\mu_t$ 分別表示 $\sigma_t$ 和 $\mu_t$ 對 $t$ 偏微分. 證明放在 Appendix<br>這結果實在太方便了, 基本上只要把 $\mu_t$ 和 $\sigma_t$ 定義好, $u_t(x|x_1)$ 有 closed form solution!</p>
 <p>講到現在可能有點亂了, 整理一下目前的故事線:<br>定義了條件機率 $p_t(x|x_1)$ 的長相後 (7), 我們可以得到存在唯一的條件向量場 $u_t(x|x_1)$ 長相 (8)<br>有了 $p_t(x|x_1)$ 和 $u_t(x|x_1)$, 我們就能得出向量場 <span>${\color{orange}{u_t(x)}}$</span><!-- Has MathJax --> (6) 和 <span>${\color{orange}{p_t(x)}}$</span><!-- Has MathJax --> (5).<br>Flow matching loss <span>$\mathcal{L}_{FM}(\theta)$</span><!-- Has MathJax --> 就能計算了!<br><span>$$\begin{align}
 \mathcal{L}_{FM}(\theta)=\mathbb{E}_{t,x\sim {\color{orange}{p_t(x)}}}\|v_t(x)-{\color{orange}{u_t(x)}}\|^2
 \end{align}$$</span><!-- Has MathJax --> 真的能算… 吧? 是吧?</p>
@@ -440,7 +439,7 @@ u_t(x|x_1)=\frac{\sigma_t&apos;(x_1)}{\sigma_t(x_1)}(x-\mu_t(x_1))+\mu_t&apos;(x
 <h2 id="Conditional-Probability-和-Conditional-Vector-Field-的選擇"><a href="#Conditional-Probability-和-Conditional-Vector-Field-的選擇" class="headerlink" title="Conditional Probability 和 Conditional Vector Field 的選擇"></a>Conditional Probability 和 Conditional Vector Field 的選擇</h2><p>條件分佈 $p_t(x|x_1)$ 如下設定後會有唯一的條件向量場 $u_t(x|x_1)$:<br><span>$$p_t(x|x_1)\triangleq\mathcal{N}\left(
 \mu_t(x_1),\sigma_t(x_1)^2I
 \right) \\
-u_t(x|x_1)=\frac{\sigma_t&apos;(x_1)}{\sigma_t(x_1)}(x-\mu_t(x_1))+\mu_t&apos;(x_1)$$</span><!-- Has MathJax --> $\sigma_t’$ 表示 $\sigma_t$ 對 $t$ 偏微分, $\mu_t’$ 表示 $\mu$ 對 $t$ 偏微分<br>這樣的設定能讓我們方便計算 <span>$\mathcal{L}_{CFM}$</span><!-- Has MathJax --> (等價於 <span>$\mathcal{L}_{FM}$</span><!-- Has MathJax -->).<br>同時保證 NN 學出來的 $v_t(x)$ 其對應的 $p_t(x)$ 能滿足頭是標準常態分佈, 尾是目標分佈. (其實頭分佈不一定要是標準常態, 以下段落會說明)<br>因此我們可以設計不同的 $\mu_t$ 和 $\sigma_t$, 就可以有不同的中間 pdf $p_t$ 演變方式.</p>
+u_t(x|x_1)=\frac{\dot{\sigma_t}(x_1)}{\sigma_t(x_1)}(x-\mu_t(x_1))+\dot{\mu_t}(x_1)$$</span><!-- Has MathJax --> $\dot\sigma_t$ 表示 $\sigma_t$ 對 $t$ 偏微分, $\dot\mu_t$ 表示 $\mu$ 對 $t$ 偏微分. (證明放在 Appendix)<br>這樣的設定能讓我們方便計算 <span>$\mathcal{L}_{CFM}$</span><!-- Has MathJax --> (等價於 <span>$\mathcal{L}_{FM}$</span><!-- Has MathJax -->).<br>同時保證 NN 學出來的 $v_t(x)$ 其對應的 $p_t(x)$ 能滿足頭是標準常態分佈, 尾是目標分佈. (其實頭分佈不一定要是標準常態, 以下段落會說明)<br>因此我們可以設計不同的 $\mu_t$ 和 $\sigma_t$, 就可以有不同的中間 pdf $p_t$ 演變方式.</p>
 <h3 id="Conditional-flows-from-FM-Lipman-et-al"><a href="#Conditional-flows-from-FM-Lipman-et-al" class="headerlink" title="Conditional flows from FM (Lipman et al.)"></a>Conditional flows from FM (Lipman et al.)</h3><p>選擇 conditional probability path $p_t(x|x_1)$ 的 $\mu_t,\sigma_t$ 為:<br><span>$$\mu_t(x)=tx_1 \\
 \sigma_t(x)=1-(1-\sigma_{min})t$$</span><!-- Has MathJax --> 套 (8) 得到具有唯一的 conditional vector field $u_t(x|x_1)$:<br><span>$$u_t(x|x_1)=\frac{x_1-(1-\sigma_{min})x}{1-(1-\sigma_{min})t}$$</span><!-- Has MathJax --> 讀者可自行對 $\mu_t$ 和 $\sigma_t$ 對 $t$ 偏微分驗證.</p>
 <p>對於這裡的 $\mu_t,\sigma_t$ 我們設定 $t=0$ 和 $t=1$ 觀察得到<br><span>$$\mu_0(x_1)=0,\quad \sigma_0(x_1)=1 \\
@@ -464,7 +463,30 @@ p_1(x|{\color{orange}{z}})=\mathcal{N}(x_1,\sigma_{min}^2I)$$</span><!-- Has Mat
 <hr>
 <h2 id="Appendix"><a href="#Appendix" class="headerlink" title="Appendix"></a>Appendix</h2><p>證明直接擷取自論文 [5], 為了完整性做紀錄而已</p>
 <h3 id="Vector-field-決定了-probability-path"><a href="#Vector-field-決定了-probability-path" class="headerlink" title="Vector field 決定了 probability path"></a>Vector field 決定了 probability path</h3><p>證明 $u_t(x)$ 能產生 $p_t(x)$<br><img src="/2024/11/06/嘗試理解-Flow-Matching/image 1.png" width="80%" height="80%"></p>
-<h3 id="證明存在唯一-u-t-x-x-1-產生式-7-p-t-x-x-1"><a href="#證明存在唯一-u-t-x-x-1-產生式-7-p-t-x-x-1" class="headerlink" title="證明存在唯一 $u_t(x|x_1)$ 產生式 (7) $p_t(x|x_1)$"></a>證明<strong>存在唯一</strong> $u_t(x|x_1)$ 產生式 (7) $p_t(x|x_1)$</h3><p>先說明一個觀念, vector field $u_t(x)$ 我們可以想成速度, 即位置對時間的微分, 有了速度就可以知道下一個時間點的位置<br>因此隨著時間變化的位置稱為 flow $\phi_t(x)$, 則 <span>$d\phi_t(x)/dt=u_t(\phi_t(x))$</span><!-- Has MathJax -->. 下面證明的 $\psi_t$ 也是 flow 只是用的是條件 vector field $u_t(x|x_1)$.<br><img src="/2024/11/06/嘗試理解-Flow-Matching/image 2.png" width="80%" height="80%"></p>
+<h3 id="證明存在唯一-u-t-x-x-1-產生式-7-p-t-x-x-1"><a href="#證明存在唯一-u-t-x-x-1-產生式-7-p-t-x-x-1" class="headerlink" title="證明存在唯一 $u_t(x|x_1)$ 產生式 (7) $p_t(x|x_1)$"></a>證明<strong>存在唯一</strong> $u_t(x|x_1)$ 產生式 (7) $p_t(x|x_1)$</h3><p>先說明一個觀念, vector field $u_t(x)$ 我們可以想成速度, 即位置對時間的微分, 有了速度就可以知道下一個時間點的位置<br>因此隨著時間變化的位置稱為 flow $\phi_t(x)$, 則 <span>$d\phi_t(x)/dt=u_t(\phi_t(x))$</span><!-- Has MathJax -->.<br>同樣的對 conditional vector field $u_t(x|z)$ 想成速度的話, 下一個時間點的位置為 conditional flow $\psi_t(x|z)$, 滿足:<br><span>$$\begin{align}
+d\psi_t(x|z)/dt=u_t(\psi_t(x|z)|z)
+\end{align}$$</span><!-- Has MathJax --> 以下為定理描述<br><strong>[Thm]:</strong><br>定義 <span>$\mu_0(z)=0$</span><!-- Has MathJax -->, <span>$\mu_1(z)=z$</span><!-- Has MathJax -->, <span>$\sigma_0(z)=1$</span><!-- Has MathJax -->, and <span>$\sigma_1(z)=\sigma_{min}$</span><!-- Has MathJax --> (此條件表示頭分佈為 Standard Normal, 尾分佈為接近資料分布的 GMM, 見上面 “<a href="http://localhost:4000/2024/11/06/%E5%98%97%E8%A9%A6%E7%90%86%E8%A7%A3-Flow-Matching/#%E9%A0%AD%E5%B0%BE%E7%9A%84%E5%88%86%E4%BD%88%E9%95%B7%E7%9B%B8" target="_blank" rel="external">頭尾的分佈長相</a>“ 的段落).<br>試證明當條件向量場 $u_t(x|z)$ 為下式時 ($\dot{\mu_t}$ 表示 $\mu_t$ 對 $t$ 篇微分, 同理 $\dot{\sigma_t}$):<br><span>$$\begin{align}
+u_t(x|z)=\frac{\dot{\sigma_t}(z)}{\sigma_t(z)}(x-\mu_t(z))+\dot{\mu_t}(z)
+\end{align}$$</span><!-- Has MathJax --> 此條件向量場所得到的條件機率 $p_t(x|z)$ 滿足此 Gaussian probability path:<br><span>$$\begin{align}
+p_t(x|z)\sim\mathcal{N}(\mu_t(z),\sigma_t^2(z)I)
+\end{align}$$</span><!-- Has MathJax --> <strong>[Pf]:</strong> (注意到這裡我們捨棄論文裡的證明方式, 看不太懂, 改從 “<a href="https://arxiv.org/abs/2506.02070" target="_blank" rel="external">An Introduction to Flow Matching and Diffusion Models</a>“ p17 Example 11 筆記下來)<br>給定 $z$ 條件下, 讓我們設定 $x$ 在時間 $t$ 時的位置函數為:<br><span>$$\begin{align}
+\psi_t(x|z)=\mu_t(z)+\sigma_t(z)x
+\end{align}$$</span><!-- Has MathJax --> 則因為頭分佈是 Standard Normal distribution, <span>$X_0\sim\mathcal{N}(0,I)$</span><!-- Has MathJax -->, 則<br><span>$$\begin{align*}
+X_t=\psi_t(X_0|z)=\mu_t(z)+\sigma_t(z)X_0\sim\mathcal{N}(\mu_t(z),\sigma_t^2(z)I)=p_t(X|z)
+\end{align*}$$</span><!-- Has MathJax --> 所以如果位置更新的方法使用式 (14), 那麼就滿足我們要的 conditional probability path $p_t(\cdot|z)$ 要求 (式 (13))<br>再來只需找出 (14) 對應的 (conditional) vector field $u_t(x|z)$ 即可.<br><span>$$\begin{align*}
+\frac{d}{dt}\psi_t(x|z)=u_t(\psi_t(x|z)|z),\quad \forall x, z,\quad \text{by (11)} \\
+\Longrightarrow \dot{\mu_t}(z)+\dot{\sigma_t}(z)x=u_t(\mu_t(z)+\sigma_t(z)x|z),\quad \text{by (14)} \\
+\end{align*}$$</span><!-- Has MathJax --> Let <span>$x&apos;\triangleq\mu_t(z)+\sigma_t(z)x \Leftrightarrow x=(x&apos;-\mu_t(z))/\sigma_t(z)$</span><!-- Has MathJax --> 代回去得到<br><span>$$\begin{align*}
+\Longrightarrow \dot{\mu_t}(z)+\dot{\sigma_t}(z)
+\left(\frac{x&apos;-\mu_t(z)}{\sigma_t(z)}\right)=\mu_t(x&apos;|z) \\
+\Longrightarrow \mu_t(x|z)=\frac{\dot{\sigma_t}(z)}{\sigma_t(z)}(x-\mu_t(z))+\dot{\mu_t}(z)
+\end{align*}$$</span><!-- Has MathJax --> Q.E.D.<br>最後一個推導只是重新把 $x’$ 改命名為 $x$ 然後整理一下而已. </p>
+<p>最後, 如果使用者設定 $\mu_t(z)=\mu_tz$ ($z$ 的線性函數), 條件向量場 $u_t(x|z)$ (12) 可改寫為以下形式:<br><span>$$\begin{align*}
+\frac{\dot{\sigma_t}(z)}{\sigma_t(z)}x +
+\left(
+\dot{\mu_t} - \frac{\dot{\sigma_t}(z)}{\sigma_t(z)}\mu_t
+\right)z
+\end{align*}$$</span><!-- Has MathJax --> 相當於看作是 $x$ 和 $z$ 的線性組合</p>
 <h3 id="Conditional-FM-與-FM-Losses-等價"><a href="#Conditional-FM-與-FM-Losses-等價" class="headerlink" title="Conditional FM 與 FM Losses 等價"></a>Conditional FM 與 FM Losses 等價</h3><p>證明 <span>$\nabla_\theta\mathcal{L}_{CFM}(\theta)=\nabla_\theta\mathcal{L}_{FM}(\theta)$</span><!-- Has MathJax -->.<br><img src="/2024/11/06/嘗試理解-Flow-Matching/image 3.png" width="80%" height="80%"></p>
 <hr>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ol>
@@ -474,6 +496,7 @@ p_1(x|{\color{orange}{z}})=\mathcal{N}(x_1,\sigma_{min}^2I)$$</span><!-- Has Mat
 <li><a href="https://bobondemon.github.io/2022/05/15/Numerical-Methods-for-Ordinary-Differential-Equations/">Numerical Methods for Ordinary Differential Equations</a></li>
 <li>Flow Matching for Generative Modeling [<a href="https://arxiv.org/abs/2210.02747" target="_blank" rel="external">arxiv</a>]</li>
 <li>Toy Example Codes from [<a href="https://github.com/jmtomczak/intro_dgm/blob/main/sbgms/fm_example.ipynb" target="_blank" rel="external">here</a>]</li>
+<li>20250822 更新: <a href="https://diffusion.csail.mit.edu/#instructors" target="_blank" rel="external"><strong>Introduction to Flow Matching and Diffusion Models</strong></a> 這門 MIT 的課程超級棒!! 將之前許多散亂的知識點系統性串再一起, 譬如 flow matching 和 score matching 的關聯, Fokker-Planck Equation 和 Continuity Equation 的關聯, Langevin dynamics 的關聯等等!</li>
 </ol>
 
       
