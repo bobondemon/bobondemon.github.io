@@ -276,6 +276,170 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2017/11/14/Notes-for-KKT-Conditions/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/11/14/Notes-for-KKT-Conditions/" itemprop="url">
+                  Notes for KKT Conditions
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2017-11-14T21:36:40+08:00">
+                2017-11-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Optimization/" itemprop="url" rel="index">
+                    <span itemprop="name">Optimization</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>2011年自己做的筆記, 放上來以免檔案丟失, 也方便隨時參考. 參考自 “Numerical Optimization” by Jorge Nocedal and Stephen J. Wright. 但是打算只用 Lagrange Multiplier Theorem 理解 KKT. :)</p>
+<p>就像是一般微積分裡學到的一樣, 對於一個函式 $f(x)$ 若 $x^\ast$ 為一 minimal/maximum point, 則必要條件為 $f’(x^\ast)=0$. 而在 <strong>constraint optimization 版本必要條件變成 KKT conditions</strong>. 說更清楚一點就是, 若 $x^\ast$ 為一 minimal/maximum point (+滿足某些神秘條件) , 則必要條件為在 $x^\ast$ 滿足 KKT Conditions.</p>
+<blockquote>
+<p>神秘條件稱為 Constraint Qualifications, 常見的為 LICQ, 在 Convex opt 裡為 Slater’s condition. <a href="https://en.wikipedia.org/wiki/Karush%E2%80%93Kuhn%E2%80%93Tucker_conditions">wiki KKT</a></p>
+</blockquote>
+<p>具體來說，我們要探討的是對於以下的問題，如果 $x^\ast$ 為一 minimal point 且滿足式 (2) 的條件, 則會發生什麼事情 (我們找的是<strong>必要條件</strong>)</p>
+<span>$$\begin{align} 
+\min f(x) \\
+\mbox{subject to } \begin{array}{rcl}
+c_i(x)=0,i \in \mathbf{E} \\
+c_i(x)\geq 0, i \in \mathbf{I} \\
+\end{array}
+\end{align}$$</span><!-- Has MathJax -->
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017/11/14/Notes-for-KKT-Conditions/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2017/11/01/TF-Notes-Speedup-and-Benchmark-with-Two-GPU-Cards/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1689,163 +1853,6 @@ F=
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chih-Sheng Chen">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="棒棒生">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/" itemprop="url">
-                  Notes for Kalman Filter and Extended KF
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2017-04-03T16:56:13+08:00">
-                2017-04-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分類於</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/SP/" itemprop="url" rel="index">
-                    <span itemprop="name">SP</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-<hr>
-<p><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/cover.png" width="60%" height="60%"><br>Udacity term2 (Sensor Fusion, Localization, and Control) 的第一個 Project 就是用 KF and EKF 將 Lidar and Radar 的資訊做 fusion 並且可以 tracking。由於 KF/EKF 的數學符號很多，因此想筆記一下方便日後回想，所以主要以我自己看的角度，可能有些地方會沒有明確說明。本篇的筆記來源是</p>
-<ol>
-<li><strong><a href="http://www.bzarg.com/p/how-a-kalman-filter-works-in-pictures/">這裡</a></strong>，這篇真的講的超棒的，清楚易懂! 非常建議直接去看!</li>
-<li>Udacity 課程內容</li>
-</ol>
-<p>若要實作所有的計算流程不管理論的話，可直接跳到 “7. 總結 Lidar and Radar Fusion”。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/#more" rel="contents">
-              閱讀全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1895,7 +1902,7 @@ F=
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">111</span>
+                <span class="site-state-item-count">112</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -1917,7 +1924,7 @@ F=
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">229</span>
+                <span class="site-state-item-count">231</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>

@@ -1,0 +1,914 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Score Matching,Langevin Dynamics,Denoising Diffusion Probabilistic Models,Diffusion Model,Ordinary Differential Equations,ELBO,Flow Matching,Continuity Equation,Fokker-Planck Equation,Stochastic Differential Equations,Classifier-Free Guidance," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="⚠️ [提醒]: 本篇難度可能偏高, 有些地方不會從頭開始解釋, 畢竟主要給自己筆記的, 請讀者見諒.
+筆記動機是由於之前陸陸續續讀過 (連結為之前的筆記們):
+
+Score matching: Langevin dynamics 可以使用 score function ($\nabla\log p_{data}$) 來取 sample, 取出來的 sample 具有 $p_{data}$">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一統 Flow and Score Matching 的框架">
+<meta property="og:url" content="https://bobondemon.github.io/2025/08/31/一統-Flow-and-Score-Matching-的框架/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="⚠️ [提醒]: 本篇難度可能偏高, 有些地方不會從頭開始解釋, 畢竟主要給自己筆記的, 請讀者見諒.
+筆記動機是由於之前陸陸續續讀過 (連結為之前的筆記們):
+
+Score matching: Langevin dynamics 可以使用 score function ($\nabla\log p_{data}$) 來取 sample, 取出來的 sample 具有 $p_{data}$">
+<meta property="og:image" content="https://bobondemon.github.io/2025/08/31/一統-Flow-and-Score-Matching-的框架/image.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/08/31/一統-Flow-and-Score-Matching-的框架/image 1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/08/31/一統-Flow-and-Score-Matching-的框架/image 2.png">
+<meta property="og:updated_time" content="2025-08-31T07:25:16.946Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="一統 Flow and Score Matching 的框架">
+<meta name="twitter:description" content="⚠️ [提醒]: 本篇難度可能偏高, 有些地方不會從頭開始解釋, 畢竟主要給自己筆記的, 請讀者見諒.
+筆記動機是由於之前陸陸續續讀過 (連結為之前的筆記們):
+
+Score matching: Langevin dynamics 可以使用 score function ($\nabla\log p_{data}$) 來取 sample, 取出來的 sample 具有 $p_{data}$">
+<meta name="twitter:image" content="https://bobondemon.github.io/2025/08/31/一統-Flow-and-Score-Matching-的框架/image.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2025/08/31/一統-Flow-and-Score-Matching-的框架/"/>
+
+
+
+
+
+  <title> 一統 Flow and Score Matching 的框架 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '[object Object]', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2025/08/31/一統-Flow-and-Score-Matching-的框架/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                一統 Flow and Score Matching 的框架
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2025-08-31T14:12:20+08:00">
+                2025-08-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>⚠️ [提醒]: 本篇難度可能偏高, 有些地方不會從頭開始解釋, 畢竟主要給自己筆記的, 請讀者見諒.</p>
+<p>筆記動機是由於之前陸陸續續讀過 (連結為之前的筆記們):</p>
+<ul>
+<li><a href="https://bobondemon.github.io/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/">Score matching</a>: <a href="https://bobondemon.github.io/2024/11/12/%E7%AD%86%E8%A8%98-Langevin-Dynamics-%E5%92%8C-Fokker-Planck-Equation-%E6%8E%A8%E5%B0%8E/#Langevin-Dynamics">Langevin dynamics</a> 可以使用 score function (<span>$\nabla\log p_{data}$</span><!-- Has MathJax -->) 來取 sample, 取出來的 sample 具有 $p_{data}$ 的分佈 (由 <a href="https://bobondemon.github.io/2024/11/12/%E7%AD%86%E8%A8%98-Langevin-Dynamics-%E5%92%8C-Fokker-Planck-Equation-%E6%8E%A8%E5%B0%8E/">Fokker-Planck Equation</a> 的定理可證).</li>
+<li><a href="https://bobondemon.github.io/2024/07/18/%E7%B4%80%E9%8C%84-Evidence-Lower-BOund-ELBO-%E7%9A%84%E4%B8%89%E7%A8%AE%E7%94%A8%E6%B3%95/#Diffusion-Model-%E7%94%A8%E6%B3%95">Denoised diffusion model</a>: 訓練出能去噪 (denoise) 的 NN model (加高斯噪聲的過程稱 forward process, 去噪稱 backward). 由於無法直接做 MLE (Maximal Likelihood), 因此訓練目標函式改為優化 MLE 的 lower bound, 稱 <a href="https://bobondemon.github.io/2024/07/18/%E7%B4%80%E9%8C%84-Evidence-Lower-BOund-ELBO-%E7%9A%84%E4%B8%89%E7%A8%AE%E7%94%A8%E6%B3%95/">ELBO (Evidence Lower Bound)</a>. 藉由訓練出的 denoised model, 一步一步還原乾淨資料.</li>
+<li><a href="https://bobondemon.github.io/2024/11/06/%E5%98%97%E8%A9%A6%E7%90%86%E8%A7%A3-Flow-Matching/">Flow matching</a>: 從已知且容易採樣的 <span>$p_{init}$</span><!-- Has MathJax --> 採樣出初始 sample $x_0$, 根據學到的 vector field $u_t^\theta$ 來更新 trajectory <span>$\{x_t\}_{0\leq t\leq1}$</span><!-- Has MathJax -->, 最終達到的 $x_1$ 滿足資料分布 <span>$p_{data}$</span><!-- Has MathJax -->. 如何設計並訓練這樣的 vector field <span>$u_t^\theta$</span><!-- Has MathJax --> 可說是非常精彩, 也會用到物理中的 <a href="https://bobondemon.github.io/2024/10/29/%E8%AE%80-Flow-Matching-%E5%89%8D%E8%A6%81%E5%85%88%E7%90%86%E8%A7%A3%E7%9A%84%E6%9D%B1%E8%A5%BF/#D-Mass-Conservation-or-Continuity-Equation">Continuity Equation</a> (質量守恆).</li>
+</ul>
+<p>我心理總認為這些東西應該有非常深刻的關聯 🤔, 但就是缺乏一個<strong>統一的框架</strong>來把這些觀念融合起來.</p>
+<p>直到我看到 MIT 這門<a href="https://diffusion.csail.mit.edu/#instructors" target="_blank" rel="external">課程</a>: Introduction to Flow Matching and Diffusion Models 的一些內容. (👍🏻 大推! 👍🏻)<br>簡直醍醐灌頂, 因此想筆記下來這個統一的框架. 正文開始</p>
+<a id="more"></a>
+<p>Flow/Score matching or diffusion model 這類的生成式 AI, 本質上在做的事情是從一個已知且容易採樣的 <span>$p_{init}$</span><!-- Has MathJax --> 分布出發, 找出一路變化到目標分布 <span>$p_{data}$</span><!-- Has MathJax --> 的過程.<br>中間變化的機率分布 <span>$\{p_t(x)\}_t,0\leq t\leq 1$</span><!-- Has MathJax --> 我們稱為 <strong>probability path</strong>.<br>因此目標就是設計有效的 probability path 使得滿足頭尾我們要求的 <span>$p_{init}$</span><!-- Has MathJax --> 和 <span>$p_{data}$</span><!-- Has MathJax -->.<br>Meta 的 [<a href="https://github.com/facebookresearch/flow_matching" target="_blank" rel="external">github repo</a>] 這張圖把 flow matching 精隨完全呈現了:<br><img src="/2025/08/31/一統-Flow-and-Score-Matching-的框架/image.png" width="100%" height="100%"><br>(a) 表明目標的頭尾分佈長相, <span>$p_{init}$</span><!-- Has MathJax --> 和 <span>$p_{data}$</span><!-- Has MathJax -->.<br>(b) 設計好 vector field $u_t$ 和其對應的中間變化過程的 probability path <span>$\{p_{t}\}_t$</span><!-- Has MathJax -->.<br>(c) 訓練 NN <span>$u_t^\theta$</span><!-- Has MathJax --> 逼近 vector field $u_t$.<br>(d) 從採樣的 <span>$x_0\sim p_{init}$</span><!-- Has MathJax --> 出發, 套用學到的 <span>$u_t^\theta$</span><!-- Has MathJax --> 一路得到 <span>$x_1\sim p_{data}$</span><!-- Has MathJax -->.</p>
+<hr>
+<h2 id="Flow-Matching-的-ODE-更新方式和-Vector-Field-的設計"><a href="#Flow-Matching-的-ODE-更新方式和-Vector-Field-的設計" class="headerlink" title="Flow Matching 的 ODE 更新方式和 Vector Field 的設計"></a>Flow Matching 的 ODE 更新方式和 Vector Field 的設計</h2><p>總歸來說給定初始位置 $x_0$, 整條 path <span>$\{x_t\}_t,0\leq t\leq 1$</span><!-- Has MathJax --> (稱為 flow) 為如下的 ODE (Ordinary Differential Equations) 解:<br><span>$$\begin{align}
+\frac{d}{dt}X_t=u_{t}^\text{flow}(X_t) \\
+\text{initial condition}:\quad X_0=x_0
+\end{align}$$</span><!-- Has MathJax --> 注意到 $X_t$ 是 random variable, <span>$0\leq t\leq 1$</span><!-- Has MathJax -->.<br>其中 <span>$u_t^\text{flow}(x)$</span><!-- Has MathJax --> 表示位置 $x$ 的 gradient vector. 可理解為順時的位置變化, 即速度.<br>一般來說我們可以採用例如最簡單的 Euler method 來做數值逼近找出 flow<br><span>$$\begin{align}
+x_{t+h}=x_t+hu_t^\text{flow}(x_t)
+\end{align}$$</span><!-- Has MathJax --> 經過聰明的研究人員設計出 <span>$u_t^\text{flow}(x)$</span><!-- Has MathJax --> 後, 其所對應的機率分布 <span>$\{p_t(x)\}_t,0\leq t\leq 1$</span><!-- Has MathJax --> 能滿足頭尾 <span>$p_{init}$</span><!-- Has MathJax --> 和 <span>$p_{data}$</span><!-- Has MathJax --> 的要求.</p>
+<blockquote>
+<p>(可跳過, 不影響本篇要講的重點)<br>設計方法比較精妙, 先定義出 conditional probability path 需滿足 <span>$p_0(\cdot|z)=p_{init}$</span><!-- Has MathJax --> 和 <span>$p_1(\cdot|z)=\delta_z$</span><!-- Has MathJax -->, 其中 $\delta_z$ 為 <a href="https://en.wikipedia.org/wiki/Dirac_delta_function" target="_blank" rel="external">Dirac delta function</a>, <span>$z\sim p_{data}$</span><!-- Has MathJax -->.<br>再設計出能滿足這樣的 conditional vector field <span>$u_t^\text{flow}(\cdot|z)$</span><!-- Has MathJax -->.<br>(使用 Gaussian probability path <span>$p_t(x|z)=\mathcal{N}(\alpha_tz,\beta_t^2I)$</span><!-- Has MathJax --> 的話, 則有唯一 analytical solution 的 <span>$u_t^\text{flow}(\cdot|z)$</span><!-- Has MathJax -->)<br>接著定義 <span>$u_t^\text{flow}(x)=\int u_t^\text{flow}(x|z)[p_t(x|z)p_{data}(z)/p_t(x)]dz$</span><!-- Has MathJax -->, 則此 <span>$u_t^\text{flow}(x)$</span><!-- Has MathJax --> 產生的 $p_t(x)$ 就能滿足頭尾 <span>$p_{init}$</span><!-- Has MathJax --> 和 <span>$p_{data}$</span><!-- Has MathJax --> 的要求.<br>所以目標就是訓練 NN <span>$u_t^\theta(x)\approx u_t^\text{flow}(x)$</span><!-- Has MathJax --> (因為根據上面的定義很難算出來), 因此實際上是透過訓練 <span>$u_t^\theta(x)\approx u_t^\text{flow}(x|z)$</span><!-- Has MathJax --> 不僅可行而且等價.<br>詳細請參考之前<a href="https://bobondemon.github.io/2024/11/06/%E5%98%97%E8%A9%A6%E7%90%86%E8%A7%A3-Flow-Matching/">筆記</a>.</p>
+</blockquote>
+<hr>
+<h2 id="擴展成-Langevin-Dynamics-的-SDE-更新方式-得到-Score-Matching"><a href="#擴展成-Langevin-Dynamics-的-SDE-更新方式-得到-Score-Matching" class="headerlink" title="擴展成 Langevin Dynamics 的 SDE 更新方式, 得到 Score Matching"></a>擴展成 <strong>Langevin</strong> Dynamics 的 SDE 更新方式, 得到 Score Matching</h2><p>如果我們將 flow matching 的 ODE 更新方法改成如下的 SDE (Stochastic Differential Equations)<br><span>$$\begin{align}
+dX_t=u_t^\text{score}(X_t)dt+
+{\color{orange}{\sigma_tdW_t}}
+ \\
+\text{initial condition}:\quad X_0=x_0
+\end{align}$$</span><!-- Has MathJax --> 其中 $W_t$ 是 <a href="https://bobondemon.github.io/2024/09/25/%E6%95%B4%E7%90%86%E9%9A%A8%E6%A9%9F%E9%81%8E%E7%A8%8B%E7%9A%84%E9%80%A3%E7%BA%8C%E6%80%A7%E3%80%81%E5%BE%AE%E5%88%86%E3%80%81%E7%A9%8D%E5%88%86%E5%92%8CBrownian-Motion/#Brownian-Motion-Week4-6">Brownian motion</a>, (或稱 Wiener process). $\sigma_t\geq0$ 且連續稱 diffusion coefficient (是事先定義好的).<br>寫成離散的更新步驟比較好理解:<br><span>$$\begin{align}
+X_{t+h}=X_t+hu_t^\text{score}(X_t)+\sigma_t(W_{t+h}-W_t) \\
+\Longrightarrow X_{t+h}=X_t+hu_t^\text{score}(X_t)+\sigma_t\sqrt{h}\epsilon,\quad \epsilon\sim\mathcal{N}(0,I)
+\end{align}$$</span><!-- Has MathJax --> 如果 <span>$u_t^\text{score}$</span><!-- Has MathJax --> 定義如下:<br><span>$$\begin{align}
+u_t^\text{score}(X_t):=u_t^\text{flow}(X_t)+
+{\color{orange}{\frac{\sigma_t^2}{2}\nabla\log p_t(X_t)}}
+\end{align}$$</span><!-- Has MathJax --> 其中 <span>$\nabla\log p_t(x)$</span><!-- Has MathJax --> 稱為 <strong>score function</strong>. 這裡的 gradient 寫清楚一點是 $\nabla_x$, 但以下都簡寫為 $\nabla$.<br>式 (8) 所定義的 vector field <span>$u_t^\text{score}$</span><!-- Has MathJax --> 已經不是 deterministic 了, 因為 $X_t$ 是 random variable. 所以看成是 “stochastic” vector field 也滿合理的.</p>
+<p>💡 <strong>則使用 <span>$u_t^\text{score}$</span><!-- Has MathJax --> (8) 去做 SDE (4) 更新步驟, 其所產生的 probability path <span>$\{p_t(x)\}_t,0\leq t\leq 1$</span><!-- Has MathJax --> 會跟用 <span>$u_t^\text{flow}(x)$</span><!-- Has MathJax --> 的 ODE 產生的 probability path 一樣!!</strong></p>
+<p>這個結論相當重要, 讓我們有機會把 <strong>flow matching 和 score matching 從本質上關聯起來</strong>.<br>(參考 <a href="https://arxiv.org/abs/2506.02070" target="_blank" rel="external">arxiv</a> Theorem 13 (SDE extension trick))</p>
+<blockquote>
+<p>直覺解釋為因為加入了 SDE 的 Brownian motion 的隨機項, 則 SDE 多出來的橘色 term 有點像是扮演抵銷的角色.<br>這個結論的證明需要使用 <a href="https://bobondemon.github.io/2024/11/12/%E7%AD%86%E8%A8%98-Langevin-Dynamics-%E5%92%8C-Fokker-Planck-Equation-%E6%8E%A8%E5%B0%8E/">Fokker-Planck Equation</a>, 即需證明 SDE (4) 和 (8) 滿足 F-P equation. (參考 <a href="https://arxiv.org/abs/2506.02070" target="_blank" rel="external">arxiv</a> Proof of Theorem 13. @p20)</p>
+</blockquote>
+<p>由於之前 flow matching 已經訓練出 NN <span>${\color{red}{u_t^\theta}}(x)\approx u_t^\text{flow}(x)$</span><!-- Has MathJax --> 了, 所以現在我們只要訓練另一個 NN <span>${\color{orange}{s_t^{\theta}}}(x)\approx \nabla\log p_t(x)$</span><!-- Has MathJax -->, 我們就能用下面的 SDE 方式更新了:<br><span>$$\begin{align}
+dX_t=\left[{\color{red}{u_t^\theta}}(X_t)+\frac{\sigma_t^2}{2}{\color{orange}{s_t^\theta}}(X_t)\right]dt
++
+\sigma_tdW_t
+ \\
+\text{initial condition}:\quad X_0=x_0
+\end{align}$$</span><!-- Has MathJax --> 注意到 ${\color{red}{u_t^\theta}}$ 和 ${\color{orange}{s_t^\theta}}$ 共享參數 $\theta$, 意思是同一個 NN predicts 兩個數值.<br>以上正是 vallina 的 score matching 作法.</p>
+<blockquote>
+<p>當然還有一些重要細節, 例如 <span>${\color{orange}{s_t^{\theta}}}(x)$</span><!-- Has MathJax --> 不是去逼近 <span>$\nabla\log p_t(x)$</span><!-- Has MathJax --> (因為實務上辦不到), 而是如同 flow matching 的訓練改為逼近 <span>$\nabla\log p_t(x|z)$</span><!-- Has MathJax -->. 然後這樣做是等價的.<br>(參考 <a href="https://arxiv.org/abs/2506.02070" target="_blank" rel="external">arxiv</a> Proof of Theorem 20. @p28)</p>
+</blockquote>
+<p>另外值得一提的是, 當訓練好 score function 的 NN ${\color{orange}{s_t^\theta}}$ 之後, <strong>diffusion coefficient $\sigma_t$ 可以自由設定</strong>, 只要 $\geq0$ 且連續即可.<br>所以可以看到當 $\sigma_t=0$ 的話, <strong>score matching reduce 成 flow matching</strong> 了.</p>
+<hr>
+<h2 id="Gaussian-Probability-Path-的-Score-Matching-訓練"><a href="#Gaussian-Probability-Path-的-Score-Matching-訓練" class="headerlink" title="Gaussian Probability Path 的 Score Matching 訓練"></a>Gaussian Probability Path 的 Score Matching 訓練</h2><p>我們知道若為 Gaussian probability path <span>$p_t(x|z)=\mathcal{N}(\alpha_tz,\beta_t^2I)$</span><!-- Has MathJax --> 的情形, 其 conditional vector field <span>$u_t^{flow}(x|z)$</span><!-- Has MathJax --> 為 (推導參考之前<a href="https://bobondemon.github.io/2024/11/06/%E5%98%97%E8%A9%A6%E7%90%86%E8%A7%A3-Flow-Matching/#%E8%AD%89%E6%98%8E%E5%AD%98%E5%9C%A8%E5%94%AF%E4%B8%80-u-t-x-x-1-%E7%94%A2%E7%94%9F%E5%BC%8F-7-p-t-x-x-1">筆記</a>): <span>$$\begin{align}
+u_t^{flow}(x|z)=\left(\dot{\alpha}_t-\frac{\dot{\beta}_t}{\beta_t}\alpha_t\right)z+\frac{\dot{\beta}_t}{\beta_t}x
+\end{align}$$</span><!-- Has MathJax --> 繼續做一些推導:<br><span>$$\begin{align*}
+=\left(\beta_t^2\frac{\dot\alpha_t}{\alpha_t}-\dot\beta_t\beta_t\right)
+\left(\frac{\alpha_tz-x}{\beta_t^2}\right)+\frac{\dot\alpha_t}{\alpha_t}x \\
+=\left(\beta_t^2\frac{\dot\alpha_t}{\alpha_t}-\dot\beta_t\beta_t\right)\nabla\log p_t(x|z) + \frac{\dot\alpha_t}{\alpha_t}x
+\end{align*}$$</span><!-- Has MathJax --> 推導用到了 <span>$\nabla\log p_t(x|z)=(\alpha_tz-x)/\beta_t^2$</span><!-- Has MathJax --> (由高斯分布定義得知). 因此我們得到 <span>$u_t^{flow}(x|z)$</span><!-- Has MathJax --> 和 <span>$\nabla\log p_t(x|z)$</span><!-- Has MathJax --> 的關聯.<br>同樣的也有 <span>$u_t^{flow}(x)$</span><!-- Has MathJax --> 和 <span>$\nabla\log p_t(x)$</span><!-- Has MathJax --> 的關聯. 統一整理如下:<br><span>$$\begin{align}
+u_t^{flow}(x|z)=\left(\beta_t^2\frac{\dot\alpha_t}{\alpha_t}-\dot\beta_t\beta_t\right)\nabla\log p_t(x|z) + \frac{\dot\alpha_t}{\alpha_t}x \\
+u_t^{flow}(x)=\left(\beta_t^2\frac{\dot\alpha_t}{\alpha_t}-\dot\beta_t\beta_t\right)\nabla\log p_t(x) + \frac{\dot\alpha_t}{\alpha_t}x
+\end{align}$$</span><!-- Has MathJax --> 上面的結果表明只要得到 $\nabla\log p_t$, 則 <span>$u_t^{flow}$</span><!-- Has MathJax --> 可透過上式也得到. 即 <strong>vector field 和 score function 在 Gaussian probability path 假設下等價!</strong><br>所以 vallina 的 score matching 作法 (9), (10) 可改寫成:<br><span>$$\begin{align}
+dX_t=\left[
+\left(\beta_t^2\frac{\dot\alpha_t}{\alpha_t}-\dot\beta_t\beta_t+\frac{\sigma_t^2}{2}\right){\color{orange}{s_t^\theta}}(X_t) + \frac{\dot\alpha_t}{\alpha_t}X_t
+\right]dt
++
+\sigma_tdW_t
+ \\
+\text{initial condition}:\quad X_0=x_0
+\end{align}$$</span><!-- Has MathJax --> (14) 是因為我們將 vector field 用 score function 替代:<br><span>$$\begin{align*}
+{\color{red}{u_t^\theta}}(X_t)=
+\left(\beta_t^2\frac{\dot\alpha_t}{\alpha_t}-\dot\beta_t\beta_t\right)
+{\color{orange}{s_t^\theta}}(X_t) + \frac{\dot\alpha_t}{\alpha_t}x
+\end{align*}$$</span><!-- Has MathJax --> 上面的 SDE (14) 就是 score matching 的更新方式, 也是一般指的 denoised diffusion model.</p>
+<hr>
+<h2 id="Flow-Matching-Model-with-Guided-Conditions"><a href="#Flow-Matching-Model-with-Guided-Conditions" class="headerlink" title="Flow Matching Model with Guided Conditions"></a>Flow Matching Model with Guided Conditions</h2><p>給定 <strong>guided</strong> conditions $y$, 可以是 prompt, class index, images, audio 等等, 希望能產生對應的 $x$.<br>式 (13) 可以看成 <span>$u_t^\text{flow}$</span><!-- Has MathJax --> 為 $x$ 和 <span>$\nabla\log p_t$</span><!-- Has MathJax --> 的線性組合<br><span>$$\begin{align}
+u_t^\text{flow}(x|y)=a_tx+b_t\nabla\log p_t(x|y) \\
+,\text{where} (a_t,b_t)=\left(\frac{\dot\alpha_t}{\alpha_t},\frac{\dot\alpha_t\beta_t^2-\dot\beta_t\beta_t\alpha_t}{\alpha_t}\right)
+\end{align}$$</span><!-- Has MathJax --> 根據 Bayes rule 繼續推導<br><span>$$\begin{align*}
+u_t^\text{flow}(x|y)=a_tx+b_t\nabla(\log p_t(y|x)+\log p_t(x) - \log p_t(y)) \\
+=(a_tx + b_t\nabla\log p_t(x)) + b_t\nabla\log p_t(y|x) \\
+=u_t^\text{flow}(x) + b_t\nabla\log p_t(y|x)
+\end{align*}$$</span><!-- Has MathJax --> $p_t(y|x)$ 通常表示 posterior probability, 用 MNIST 0~9 數字 images 來舉例, $y$ 就是 class index 0~9. 所以 $p_t(y|x)$ 就表示給定 image $x$ 屬於 class $y$ 的機率.<br>因此 guided vector field <span>$u_t^\text{flow}(x|y)$</span><!-- Has MathJax --> 就是 unguided vector field <span>$u_t^\text{flow}(x)$</span><!-- Has MathJax --> 加上一個 guided score <span>$\nabla\log p_t(y|x)$</span><!-- Has MathJax -->.<br>通常人們為了加強 guided 效果, 會把 guided score 乘上一個更大的權重 $w&gt;1$ (稱 <strong>guided scale</strong>), 因此實際上在用的 guided vector field <span>$\tilde{u}_t^{flow}$</span><!-- Has MathJax --> 為:<br><span>$$\begin{align}
+\tilde{u}_t^{flow}(x|y)=u_t^\text{flow}(x) + wb_t\nabla\log p_t(y|x)
+\end{align}$$</span><!-- Has MathJax --> 注意到當 $w\neq 1$ 時, <span>$\tilde{u}_t^\text{flow}(x|y)\neq u_t^\text{flow}(x|y)$</span><!-- Has MathJax -->, 已經不是正確數學上的 guided vector field 了. 縱使如此, 實務上使用 <span>$\tilde{u}_t^\text{flow}(x|y)$</span><!-- Has MathJax --> 仍然表現很好.<br>使用 (18) 的一個缺點是必須要額外訓練一個 NN 計算 posterior probability. 如果 $y$ 是簡單的 class index 那還好, 但對於常見的如 text prompt 就做不太到了.<br>因此會演變為以下介紹的 <strong>Classifier-Free Guidance (CFG)</strong> 的 flow matching<br>繼續使用 Bayes rule 推導 (18)<br><span>$$\begin{align*}
+= u_t^\text{flow}(x) + wb_t(\nabla\log p_t(x|y)-\nabla\log p_t(x)) \\
+= u_t^\text{flow}(x) - (wa_tx+wb_t\nabla\log p_t(x)) + (wa_tx+wb_t\nabla\log p_t(x|y)) \\
+=(1-w)u_t^\text{flow}(x) + wu_t^\text{flow}(x|y)
+\end{align*}$$</span><!-- Has MathJax --> 重寫一下我們得到<br><span>$$\begin{align}
+\tilde{u}_t^{flow}(x|y) = (1-w)u_t^\text{flow}(x) + wu_t^\text{flow}(x|y)
+\end{align}$$</span><!-- Has MathJax --> 實際上訓練 NN 時, unguilded vector field <span>$u_t^\text{flow}(x)$</span><!-- Has MathJax --> 視為某種情況的 guided vector field <span>$u_t^\text{flow}(x|\phi)$</span><!-- Has MathJax -->, 即 $y=\phi$ 條件下的 guided condition.<br>所以 <span>$u_t^\text{flow}(x|\phi)$</span><!-- Has MathJax --> 與 <span>$u_t^\text{flow}(x|y)$</span><!-- Has MathJax --> 就可以一起訓練. 只要取 <span>$(x,y)\sim p_{data}(X,Y)$</span><!-- Has MathJax --> 時, 有某個機率設定 $y=\phi$ 即可.</p>
+<p>演算法流程如下:<br><img src="/2025/08/31/一統-Flow-and-Score-Matching-的框架/image 1.png" width="90%" height="90%"><br><img src="/2025/08/31/一統-Flow-and-Score-Matching-的框架/image 2.png" width="90%" height="90%"><br>最後也可以把 guided condition 拓展到 score matching, 非常類似, 這裡就省略紀錄 (參考 <a href="https://arxiv.org/abs/2506.02070" target="_blank" rel="external">arxiv</a> 5.1.2 Guidance for Diffusion Models @p41).</p>
+<p>最後也非常推薦<a href="https://diffusion.csail.mit.edu/#instructors" target="_blank" rel="external">課程</a>的 Colab juypter notebook, 真的下次時做會更有幫助.</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2025/08/31/一統-Flow-and-Score-Matching-的框架/" title="一統 Flow and Score Matching 的框架">https://bobondemon.github.io/2025/08/31/一統-Flow-and-Score-Matching-的框架/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Score-Matching/" rel="tag"># Score Matching</a>
+          
+            <a href="/tags/Langevin-Dynamics/" rel="tag"># Langevin Dynamics</a>
+          
+            <a href="/tags/Denoising-Diffusion-Probabilistic-Models/" rel="tag"># Denoising Diffusion Probabilistic Models</a>
+          
+            <a href="/tags/Diffusion-Model/" rel="tag"># Diffusion Model</a>
+          
+            <a href="/tags/Ordinary-Differential-Equations/" rel="tag"># Ordinary Differential Equations</a>
+          
+            <a href="/tags/ELBO/" rel="tag"># ELBO</a>
+          
+            <a href="/tags/Flow-Matching/" rel="tag"># Flow Matching</a>
+          
+            <a href="/tags/Continuity-Equation/" rel="tag"># Continuity Equation</a>
+          
+            <a href="/tags/Fokker-Planck-Equation/" rel="tag"># Fokker-Planck Equation</a>
+          
+            <a href="/tags/Stochastic-Differential-Equations/" rel="tag"># Stochastic Differential Equations</a>
+          
+            <a href="/tags/Classifier-Free-Guidance/" rel="tag"># Classifier-Free Guidance</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2025/08/18/Recruiting/" rel="next" title="[徵才] AI 演算法夥伴: 與我們一起打造次世代語音技術!">
+                <i class="fa fa-chevron-left"></i> [徵才] AI 演算法夥伴: 與我們一起打造次世代語音技術!
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">112</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">231</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Flow-Matching-的-ODE-更新方式和-Vector-Field-的設計"><span class="nav-number">1.</span> <span class="nav-text">Flow Matching 的 ODE 更新方式和 Vector Field 的設計</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#擴展成-Langevin-Dynamics-的-SDE-更新方式-得到-Score-Matching"><span class="nav-number">2.</span> <span class="nav-text">擴展成 Langevin Dynamics 的 SDE 更新方式, 得到 Score Matching</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Gaussian-Probability-Path-的-Score-Matching-訓練"><span class="nav-number">3.</span> <span class="nav-text">Gaussian Probability Path 的 Score Matching 訓練</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Flow-Matching-Model-with-Guided-Conditions"><span class="nav-number">4.</span> <span class="nav-text">Flow Matching Model with Guided Conditions</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

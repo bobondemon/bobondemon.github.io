@@ -436,6 +436,166 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2025/08/31/一統-Flow-and-Score-Matching-的框架/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2025/08/31/一統-Flow-and-Score-Matching-的框架/" itemprop="url">
+                  一統 Flow and Score Matching 的框架
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2025-08-31T14:12:20+08:00">
+                2025-08-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>⚠️ [提醒]: 本篇難度可能偏高, 有些地方不會從頭開始解釋, 畢竟主要給自己筆記的, 請讀者見諒.</p>
+<p>筆記動機是由於之前陸陸續續讀過 (連結為之前的筆記們):</p>
+<ul>
+<li><a href="https://bobondemon.github.io/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/">Score matching</a>: <a href="https://bobondemon.github.io/2024/11/12/%E7%AD%86%E8%A8%98-Langevin-Dynamics-%E5%92%8C-Fokker-Planck-Equation-%E6%8E%A8%E5%B0%8E/#Langevin-Dynamics">Langevin dynamics</a> 可以使用 score function (<span>$\nabla\log p_{data}$</span><!-- Has MathJax -->) 來取 sample, 取出來的 sample 具有 $p_{data}$ 的分佈 (由 <a href="https://bobondemon.github.io/2024/11/12/%E7%AD%86%E8%A8%98-Langevin-Dynamics-%E5%92%8C-Fokker-Planck-Equation-%E6%8E%A8%E5%B0%8E/">Fokker-Planck Equation</a> 的定理可證).</li>
+<li><a href="https://bobondemon.github.io/2024/07/18/%E7%B4%80%E9%8C%84-Evidence-Lower-BOund-ELBO-%E7%9A%84%E4%B8%89%E7%A8%AE%E7%94%A8%E6%B3%95/#Diffusion-Model-%E7%94%A8%E6%B3%95">Denoised diffusion model</a>: 訓練出能去噪 (denoise) 的 NN model (加高斯噪聲的過程稱 forward process, 去噪稱 backward). 由於無法直接做 MLE (Maximal Likelihood), 因此訓練目標函式改為優化 MLE 的 lower bound, 稱 <a href="https://bobondemon.github.io/2024/07/18/%E7%B4%80%E9%8C%84-Evidence-Lower-BOund-ELBO-%E7%9A%84%E4%B8%89%E7%A8%AE%E7%94%A8%E6%B3%95/">ELBO (Evidence Lower Bound)</a>. 藉由訓練出的 denoised model, 一步一步還原乾淨資料.</li>
+<li><a href="https://bobondemon.github.io/2024/11/06/%E5%98%97%E8%A9%A6%E7%90%86%E8%A7%A3-Flow-Matching/">Flow matching</a>: 從已知且容易採樣的 <span>$p_{init}$</span><!-- Has MathJax --> 採樣出初始 sample $x_0$, 根據學到的 vector field $u_t^\theta$ 來更新 trajectory <span>$\{x_t\}_{0\leq t\leq1}$</span><!-- Has MathJax -->, 最終達到的 $x_1$ 滿足資料分布 <span>$p_{data}$</span><!-- Has MathJax -->. 如何設計並訓練這樣的 vector field <span>$u_t^\theta$</span><!-- Has MathJax --> 可說是非常精彩, 也會用到物理中的 <a href="https://bobondemon.github.io/2024/10/29/%E8%AE%80-Flow-Matching-%E5%89%8D%E8%A6%81%E5%85%88%E7%90%86%E8%A7%A3%E7%9A%84%E6%9D%B1%E8%A5%BF/#D-Mass-Conservation-or-Continuity-Equation">Continuity Equation</a> (質量守恆).</li>
+</ul>
+<p>我心理總認為這些東西應該有非常深刻的關聯 🤔, 但就是缺乏一個<strong>統一的框架</strong>來把這些觀念融合起來.</p>
+<p>直到我看到 MIT 這門<a href="https://diffusion.csail.mit.edu/#instructors">課程</a>: Introduction to Flow Matching and Diffusion Models 的一些內容. (👍🏻 大推! 👍🏻)<br>簡直醍醐灌頂, 因此想筆記下來這個統一的框架. 正文開始</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2025/08/31/一統-Flow-and-Score-Matching-的框架/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2025/07/29/筆記-PyTorch-FX-的-Graph-Node-一些基礎概念/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1673,159 +1833,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chih-Sheng Chen">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="棒棒生">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2024/11/06/嘗試理解-Flow-Matching/" itemprop="url">
-                  嘗試理解 Flow Matching
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2024-11-06T19:33:29+08:00">
-                2024-11-06
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分類於</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ML/" itemprop="url" rel="index">
-                    <span itemprop="name">ML</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-<hr>
-<p>接續上一篇: <a href="https://bobondemon.github.io/2024/10/29/%E8%AE%80-Flow-Matching-%E5%89%8D%E8%A6%81%E5%85%88%E7%90%86%E8%A7%A3%E7%9A%84%E6%9D%B1%E8%A5%BF/">讀 Flow Matching 前要先理解的東西</a> (建議先閱讀)</p>
-<p>Flow matching 模型在時間 $t=0$ 的時候從常態分佈出發 $p_0(x)=\mathcal{N}(0,I)$, 隨著時間變化其 pdf, 例如時間 $t$ 時的 pdf 變化成為 $p_t(x)$, 直到時間 $t=1$ 時希望變成接近目標分佈 $q(x)$, 即希望 $p_1(x)\approx q(x)$.<br>概念是頭尾 pdf 確定後, 中間這無限多種可能的 $p_t(x)$ 變化經過作者的巧妙設定, 讓學 vector field $u_t(x)$ 變的可能! (不學 pdf 而是學 vector field)<br>結果就是用 NN 學到的 $u_t(x)$ 可以讓 pdf 從開頭的常態分佈一路變化到最後的資料目標分佈 $q(x)$.</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2024/11/06/嘗試理解-Flow-Matching/#more" rel="contents">
-              閱讀全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1875,7 +1882,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">111</span>
+                <span class="site-state-item-count">112</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -1897,7 +1904,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">229</span>
+                <span class="site-state-item-count">231</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>
