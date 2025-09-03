@@ -90,7 +90,7 @@
 <meta name="description" content="⚠️ [提醒]: 本篇難度可能偏高, 有些地方不會從頭開始解釋, 畢竟主要給自己筆記的, 請讀者見諒.
 筆記動機是由於之前陸陸續續讀過 (連結為之前的筆記們):
 
-Score matching: Langevin dynamics 可以使用 score function ($\nabla\log p_{data}$) 來取 sample, 取出來的 sample 具有 $p_{data}$">
+[Score matching]: Langevin dynamics 可以使用 score function ($\nabla\log p_{data}$) 來取 sample, 取出來的 sample 具有 $p_{data">
 <meta property="og:type" content="article">
 <meta property="og:title" content="一統 Flow and Score Matching 的框架">
 <meta property="og:url" content="https://bobondemon.github.io/2025/08/31/一統-Flow-and-Score-Matching-的框架/index.html">
@@ -98,17 +98,17 @@ Score matching: Langevin dynamics 可以使用 score function ($\nabla\log p_{da
 <meta property="og:description" content="⚠️ [提醒]: 本篇難度可能偏高, 有些地方不會從頭開始解釋, 畢竟主要給自己筆記的, 請讀者見諒.
 筆記動機是由於之前陸陸續續讀過 (連結為之前的筆記們):
 
-Score matching: Langevin dynamics 可以使用 score function ($\nabla\log p_{data}$) 來取 sample, 取出來的 sample 具有 $p_{data}$">
+[Score matching]: Langevin dynamics 可以使用 score function ($\nabla\log p_{data}$) 來取 sample, 取出來的 sample 具有 $p_{data">
 <meta property="og:image" content="https://bobondemon.github.io/2025/08/31/一統-Flow-and-Score-Matching-的框架/image.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/08/31/一統-Flow-and-Score-Matching-的框架/image 1.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/08/31/一統-Flow-and-Score-Matching-的框架/image 2.png">
-<meta property="og:updated_time" content="2025-08-31T07:25:16.946Z">
+<meta property="og:updated_time" content="2025-09-03T10:56:03.943Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="一統 Flow and Score Matching 的框架">
 <meta name="twitter:description" content="⚠️ [提醒]: 本篇難度可能偏高, 有些地方不會從頭開始解釋, 畢竟主要給自己筆記的, 請讀者見諒.
 筆記動機是由於之前陸陸續續讀過 (連結為之前的筆記們):
 
-Score matching: Langevin dynamics 可以使用 score function ($\nabla\log p_{data}$) 來取 sample, 取出來的 sample 具有 $p_{data}$">
+[Score matching]: Langevin dynamics 可以使用 score function ($\nabla\log p_{data}$) 來取 sample, 取出來的 sample 具有 $p_{data">
 <meta name="twitter:image" content="https://bobondemon.github.io/2025/08/31/一統-Flow-and-Score-Matching-的框架/image.png">
 
 
@@ -398,9 +398,9 @@ Score matching: Langevin dynamics 可以使用 score function ($\nabla\log p_{da
 <p>⚠️ [提醒]: 本篇難度可能偏高, 有些地方不會從頭開始解釋, 畢竟主要給自己筆記的, 請讀者見諒.</p>
 <p>筆記動機是由於之前陸陸續續讀過 (連結為之前的筆記們):</p>
 <ul>
-<li><a href="https://bobondemon.github.io/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/">Score matching</a>: <a href="https://bobondemon.github.io/2024/11/12/%E7%AD%86%E8%A8%98-Langevin-Dynamics-%E5%92%8C-Fokker-Planck-Equation-%E6%8E%A8%E5%B0%8E/#Langevin-Dynamics">Langevin dynamics</a> 可以使用 score function (<span>$\nabla\log p_{data}$</span><!-- Has MathJax -->) 來取 sample, 取出來的 sample 具有 $p_{data}$ 的分佈 (由 <a href="https://bobondemon.github.io/2024/11/12/%E7%AD%86%E8%A8%98-Langevin-Dynamics-%E5%92%8C-Fokker-Planck-Equation-%E6%8E%A8%E5%B0%8E/">Fokker-Planck Equation</a> 的定理可證).</li>
-<li><a href="https://bobondemon.github.io/2024/07/18/%E7%B4%80%E9%8C%84-Evidence-Lower-BOund-ELBO-%E7%9A%84%E4%B8%89%E7%A8%AE%E7%94%A8%E6%B3%95/#Diffusion-Model-%E7%94%A8%E6%B3%95">Denoised diffusion model</a>: 訓練出能去噪 (denoise) 的 NN model (加高斯噪聲的過程稱 forward process, 去噪稱 backward). 由於無法直接做 MLE (Maximal Likelihood), 因此訓練目標函式改為優化 MLE 的 lower bound, 稱 <a href="https://bobondemon.github.io/2024/07/18/%E7%B4%80%E9%8C%84-Evidence-Lower-BOund-ELBO-%E7%9A%84%E4%B8%89%E7%A8%AE%E7%94%A8%E6%B3%95/">ELBO (Evidence Lower Bound)</a>. 藉由訓練出的 denoised model, 一步一步還原乾淨資料.</li>
-<li><a href="https://bobondemon.github.io/2024/11/06/%E5%98%97%E8%A9%A6%E7%90%86%E8%A7%A3-Flow-Matching/">Flow matching</a>: 從已知且容易採樣的 <span>$p_{init}$</span><!-- Has MathJax --> 採樣出初始 sample $x_0$, 根據學到的 vector field $u_t^\theta$ 來更新 trajectory <span>$\{x_t\}_{0\leq t\leq1}$</span><!-- Has MathJax -->, 最終達到的 $x_1$ 滿足資料分布 <span>$p_{data}$</span><!-- Has MathJax -->. 如何設計並訓練這樣的 vector field <span>$u_t^\theta$</span><!-- Has MathJax --> 可說是非常精彩, 也會用到物理中的 <a href="https://bobondemon.github.io/2024/10/29/%E8%AE%80-Flow-Matching-%E5%89%8D%E8%A6%81%E5%85%88%E7%90%86%E8%A7%A3%E7%9A%84%E6%9D%B1%E8%A5%BF/#D-Mass-Conservation-or-Continuity-Equation">Continuity Equation</a> (質量守恆).</li>
+<li><strong>[<a href="https://bobondemon.github.io/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/">Score matching</a>]</strong>: <a href="https://bobondemon.github.io/2024/11/12/%E7%AD%86%E8%A8%98-Langevin-Dynamics-%E5%92%8C-Fokker-Planck-Equation-%E6%8E%A8%E5%B0%8E/#Langevin-Dynamics">Langevin dynamics</a> 可以使用 score function (<span>$\nabla\log p_{data}$</span><!-- Has MathJax -->) 來取 sample, 取出來的 sample 具有 $p_{data}$ 的分佈 (由 <a href="https://bobondemon.github.io/2024/11/12/%E7%AD%86%E8%A8%98-Langevin-Dynamics-%E5%92%8C-Fokker-Planck-Equation-%E6%8E%A8%E5%B0%8E/">Fokker-Planck Equation</a> 的定理可證). 因此我們要做的就是訓練一個 NN <span>$s^\theta(x)\approx \nabla\log p_{data}(x)$</span><!-- Has MathJax -->, 這樣就能在 Langevin dynamics 中使用 $s^\theta$ 來對 <span>$p_{data}$</span><!-- Has MathJax --> 採樣了</li>
+<li><strong>[<a href="https://bobondemon.github.io/2024/07/18/%E7%B4%80%E9%8C%84-Evidence-Lower-BOund-ELBO-%E7%9A%84%E4%B8%89%E7%A8%AE%E7%94%A8%E6%B3%95/#Diffusion-Model-%E7%94%A8%E6%B3%95">Denoised diffusion model</a>]</strong>: 訓練出能去噪 (denoise) 的 NN model (加高斯噪聲的過程稱 forward process, 去噪稱 backward). 由於無法直接做 MLE (Maximal Likelihood), 因此訓練目標函式改為優化 MLE 的 lower bound, 稱 <a href="https://bobondemon.github.io/2024/07/18/%E7%B4%80%E9%8C%84-Evidence-Lower-BOund-ELBO-%E7%9A%84%E4%B8%89%E7%A8%AE%E7%94%A8%E6%B3%95/">ELBO (Evidence Lower Bound)</a>. 藉由訓練出的 denoised model, 一步一步還原乾淨資料.</li>
+<li><strong>[<a href="https://bobondemon.github.io/2024/11/06/%E5%98%97%E8%A9%A6%E7%90%86%E8%A7%A3-Flow-Matching/">Flow matching</a>]</strong>: 從已知且容易採樣的 <span>$p_{init}$</span><!-- Has MathJax --> 採樣出初始 sample $x_0$, 根據學到的 vector field $u_t^\theta$ 來更新 trajectory <span>$\{x_t\}_{0\leq t\leq1}$</span><!-- Has MathJax -->, 最終達到的 $x_1$ 滿足資料分布 <span>$p_{data}$</span><!-- Has MathJax -->. 如何設計並訓練這樣的 vector field <span>$u_t^\theta$</span><!-- Has MathJax --> 可說是非常精彩, 也會用到物理中的 <a href="https://bobondemon.github.io/2024/10/29/%E8%AE%80-Flow-Matching-%E5%89%8D%E8%A6%81%E5%85%88%E7%90%86%E8%A7%A3%E7%9A%84%E6%9D%B1%E8%A5%BF/#D-Mass-Conservation-or-Continuity-Equation">Continuity Equation</a> (質量守恆).</li>
 </ul>
 <p>我心理總認為這些東西應該有非常深刻的關聯 🤔, 但就是缺乏一個<strong>統一的框架</strong>來把這些觀念融合起來.</p>
 <p>直到我看到 MIT 這門<a href="https://diffusion.csail.mit.edu/#instructors" target="_blank" rel="external">課程</a>: Introduction to Flow Matching and Diffusion Models 的一些內容. (👍🏻 大推! 👍🏻)<br>簡直醍醐灌頂, 因此想筆記下來這個統一的框架. 正文開始</p>
@@ -408,7 +408,7 @@ Score matching: Langevin dynamics 可以使用 score function ($\nabla\log p_{da
 <p>Flow/Score matching or diffusion model 這類的生成式 AI, 本質上在做的事情是從一個已知且容易採樣的 <span>$p_{init}$</span><!-- Has MathJax --> 分布出發, 找出一路變化到目標分布 <span>$p_{data}$</span><!-- Has MathJax --> 的過程.<br>中間變化的機率分布 <span>$\{p_t(x)\}_t,0\leq t\leq 1$</span><!-- Has MathJax --> 我們稱為 <strong>probability path</strong>.<br>因此目標就是設計有效的 probability path 使得滿足頭尾我們要求的 <span>$p_{init}$</span><!-- Has MathJax --> 和 <span>$p_{data}$</span><!-- Has MathJax -->.<br>Meta 的 [<a href="https://github.com/facebookresearch/flow_matching" target="_blank" rel="external">github repo</a>] 這張圖把 flow matching 精隨完全呈現了:<br><img src="/2025/08/31/一統-Flow-and-Score-Matching-的框架/image.png" width="100%" height="100%"><br>(a) 表明目標的頭尾分佈長相, <span>$p_{init}$</span><!-- Has MathJax --> 和 <span>$p_{data}$</span><!-- Has MathJax -->.<br>(b) 設計好 vector field $u_t$ 和其對應的中間變化過程的 probability path <span>$\{p_{t}\}_t$</span><!-- Has MathJax -->.<br>(c) 訓練 NN <span>$u_t^\theta$</span><!-- Has MathJax --> 逼近 vector field $u_t$.<br>(d) 從採樣的 <span>$x_0\sim p_{init}$</span><!-- Has MathJax --> 出發, 套用學到的 <span>$u_t^\theta$</span><!-- Has MathJax --> 一路得到 <span>$x_1\sim p_{data}$</span><!-- Has MathJax -->.</p>
 <hr>
 <h2 id="Flow-Matching-的-ODE-更新方式和-Vector-Field-的設計"><a href="#Flow-Matching-的-ODE-更新方式和-Vector-Field-的設計" class="headerlink" title="Flow Matching 的 ODE 更新方式和 Vector Field 的設計"></a>Flow Matching 的 ODE 更新方式和 Vector Field 的設計</h2><p>總歸來說給定初始位置 $x_0$, 整條 path <span>$\{x_t\}_t,0\leq t\leq 1$</span><!-- Has MathJax --> (稱為 flow) 為如下的 ODE (Ordinary Differential Equations) 解:<br><span>$$\begin{align}
-\frac{d}{dt}X_t=u_{t}^\text{flow}(X_t) \\
+\boxed{d X_t=u_{t}^\text{flow}(X_t)dt} \\
 \text{initial condition}:\quad X_0=x_0
 \end{align}$$</span><!-- Has MathJax --> 注意到 $X_t$ 是 random variable, <span>$0\leq t\leq 1$</span><!-- Has MathJax -->.<br>其中 <span>$u_t^\text{flow}(x)$</span><!-- Has MathJax --> 表示位置 $x$ 的 gradient vector. 可理解為順時的位置變化, 即速度.<br>一般來說我們可以採用例如最簡單的 Euler method 來做數值逼近找出 flow<br><span>$$\begin{align}
 x_{t+h}=x_t+hu_t^\text{flow}(x_t)
@@ -418,18 +418,18 @@ x_{t+h}=x_t+hu_t^\text{flow}(x_t)
 </blockquote>
 <hr>
 <h2 id="擴展成-Langevin-Dynamics-的-SDE-更新方式-得到-Score-Matching"><a href="#擴展成-Langevin-Dynamics-的-SDE-更新方式-得到-Score-Matching" class="headerlink" title="擴展成 Langevin Dynamics 的 SDE 更新方式, 得到 Score Matching"></a>擴展成 <strong>Langevin</strong> Dynamics 的 SDE 更新方式, 得到 Score Matching</h2><p>如果我們將 flow matching 的 ODE 更新方法改成如下的 SDE (Stochastic Differential Equations)<br><span>$$\begin{align}
-dX_t=u_t^\text{score}(X_t)dt+
-{\color{orange}{\sigma_tdW_t}}
+\boxed{ dX_t=u_t^\text{score}(X_t)dt+
+{\color{orange}{\sigma_tdW_t}} }
  \\
 \text{initial condition}:\quad X_0=x_0
 \end{align}$$</span><!-- Has MathJax --> 其中 $W_t$ 是 <a href="https://bobondemon.github.io/2024/09/25/%E6%95%B4%E7%90%86%E9%9A%A8%E6%A9%9F%E9%81%8E%E7%A8%8B%E7%9A%84%E9%80%A3%E7%BA%8C%E6%80%A7%E3%80%81%E5%BE%AE%E5%88%86%E3%80%81%E7%A9%8D%E5%88%86%E5%92%8CBrownian-Motion/#Brownian-Motion-Week4-6">Brownian motion</a>, (或稱 Wiener process). $\sigma_t\geq0$ 且連續稱 diffusion coefficient (是事先定義好的).<br>寫成離散的更新步驟比較好理解:<br><span>$$\begin{align}
 X_{t+h}=X_t+hu_t^\text{score}(X_t)+\sigma_t(W_{t+h}-W_t) \\
 \Longrightarrow X_{t+h}=X_t+hu_t^\text{score}(X_t)+\sigma_t\sqrt{h}\epsilon,\quad \epsilon\sim\mathcal{N}(0,I)
 \end{align}$$</span><!-- Has MathJax --> 如果 <span>$u_t^\text{score}$</span><!-- Has MathJax --> 定義如下:<br><span>$$\begin{align}
-u_t^\text{score}(X_t):=u_t^\text{flow}(X_t)+
-{\color{orange}{\frac{\sigma_t^2}{2}\nabla\log p_t(X_t)}}
+\boxed{ u_t^\text{score}(X_t):=u_t^\text{flow}(X_t)+
+{\color{orange}{\frac{\sigma_t^2}{2}\nabla\log p_t(X_t)}} }
 \end{align}$$</span><!-- Has MathJax --> 其中 <span>$\nabla\log p_t(x)$</span><!-- Has MathJax --> 稱為 <strong>score function</strong>. 這裡的 gradient 寫清楚一點是 $\nabla_x$, 但以下都簡寫為 $\nabla$.<br>式 (8) 所定義的 vector field <span>$u_t^\text{score}$</span><!-- Has MathJax --> 已經不是 deterministic 了, 因為 $X_t$ 是 random variable. 所以看成是 “stochastic” vector field 也滿合理的.</p>
-<p>💡 <strong>則使用 <span>$u_t^\text{score}$</span><!-- Has MathJax --> (8) 去做 SDE (4) 更新步驟, 其所產生的 probability path <span>$\{p_t(x)\}_t,0\leq t\leq 1$</span><!-- Has MathJax --> 會跟用 <span>$u_t^\text{flow}(x)$</span><!-- Has MathJax --> 的 ODE 產生的 probability path 一樣!!</strong></p>
+<p>💡 <strong>則使用 <span>$u_t^\text{score}$</span><!-- Has MathJax --> (8) 去做 SDE (4) 更新步驟, 其所產生的 probability path <span>$\{p_t(x)\}_t,0\leq t\leq 1$</span><!-- Has MathJax --> 會跟用 <span>$u_t^\text{flow}(x)$</span><!-- Has MathJax --> 的 ODE (1) 產生的 probability path 一樣!!</strong></p>
 <p>這個結論相當重要, 讓我們有機會把 <strong>flow matching 和 score matching 從本質上關聯起來</strong>.<br>(參考 <a href="https://arxiv.org/abs/2506.02070" target="_blank" rel="external">arxiv</a> Theorem 13 (SDE extension trick))</p>
 <blockquote>
 <p>直覺解釋為因為加入了 SDE 的 Brownian motion 的隨機項, 則 SDE 多出來的橘色 term 有點像是扮演抵銷的角色.<br>這個結論的證明需要使用 <a href="https://bobondemon.github.io/2024/11/12/%E7%AD%86%E8%A8%98-Langevin-Dynamics-%E5%92%8C-Fokker-Planck-Equation-%E6%8E%A8%E5%B0%8E/">Fokker-Planck Equation</a>, 即需證明 SDE (4) 和 (8) 滿足 F-P equation. (參考 <a href="https://arxiv.org/abs/2506.02070" target="_blank" rel="external">arxiv</a> Proof of Theorem 13. @p20)</p>
@@ -464,9 +464,9 @@ dX_t=\left[
  \\
 \text{initial condition}:\quad X_0=x_0
 \end{align}$$</span><!-- Has MathJax --> (14) 是因為我們將 vector field 用 score function 替代:<br><span>$$\begin{align*}
-{\color{red}{u_t^\theta}}(X_t)=
+\boxed{ {\color{red}{u_t^\theta}}(X_t)=
 \left(\beta_t^2\frac{\dot\alpha_t}{\alpha_t}-\dot\beta_t\beta_t\right)
-{\color{orange}{s_t^\theta}}(X_t) + \frac{\dot\alpha_t}{\alpha_t}x
+{\color{orange}{s_t^\theta}}(X_t) + \frac{\dot\alpha_t}{\alpha_t}x }
 \end{align*}$$</span><!-- Has MathJax --> 上面的 SDE (14) 就是 score matching 的更新方式, 也是一般指的 denoised diffusion model.</p>
 <hr>
 <h2 id="Flow-Matching-Model-with-Guided-Conditions"><a href="#Flow-Matching-Model-with-Guided-Conditions" class="headerlink" title="Flow Matching Model with Guided Conditions"></a>Flow Matching Model with Guided Conditions</h2><p>給定 <strong>guided</strong> conditions $y$, 可以是 prompt, class index, images, audio 等等, 希望能產生對應的 $x$.<br>式 (13) 可以看成 <span>$u_t^\text{flow}$</span><!-- Has MathJax --> 為 $x$ 和 <span>$\nabla\log p_t$</span><!-- Has MathJax --> 的線性組合<br><span>$$\begin{align}
