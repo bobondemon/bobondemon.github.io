@@ -102,7 +102,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2025/08/31/一統-Flow-and-Score-Matching-的框架/image.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/08/31/一統-Flow-and-Score-Matching-的框架/image 1.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/08/31/一統-Flow-and-Score-Matching-的框架/image 2.png">
-<meta property="og:updated_time" content="2025-09-03T13:44:16.778Z">
+<meta property="og:updated_time" content="2025-09-03T13:58:17.341Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="一統 Flow and Score Matching 的框架">
 <meta name="twitter:description" content="⚠️ [提醒]: 本篇難度可能偏高, 有些地方不會從頭開始解釋, 畢竟主要給自己筆記的, 請讀者見諒.
@@ -456,11 +456,11 @@ u_t^{flow}(x|z)=\left(\dot{\alpha}_t-\frac{\dot{\beta}_t}{\beta_t}\alpha_t\right
 u_t^{flow}(x|z)=\left(\beta_t^2\frac{\dot\alpha_t}{\alpha_t}-\dot\beta_t\beta_t\right)\nabla\log p_t(x|z) + \frac{\dot\alpha_t}{\alpha_t}x \\
 u_t^{flow}(x)=\left(\beta_t^2\frac{\dot\alpha_t}{\alpha_t}-\dot\beta_t\beta_t\right)\nabla\log p_t(x) + \frac{\dot\alpha_t}{\alpha_t}x
 \end{align}$$</span><!-- Has MathJax --> 上面的結果表明只要得到 $\nabla\log p_t$, 則 <span>$u_t^{flow}$</span><!-- Has MathJax --> 可透過上式也得到. 即 <strong>vector field 和 score function 在 Gaussian probability path 假設下等價!</strong><br>所以 vallina 的 score matching 作法 (9), (10) 可改寫成:<br><span>$$\begin{align}
-dX_t=\left[
+\boxed{ dX_t=\left[
 \left(\beta_t^2\frac{\dot\alpha_t}{\alpha_t}-\dot\beta_t\beta_t+\frac{\sigma_t^2}{2}\right){\color{orange}{s_t^\theta}}(X_t) + \frac{\dot\alpha_t}{\alpha_t}X_t
 \right]dt
 +
-\sigma_tdW_t
+\sigma_tdW_t }
  \\
 \text{initial condition}:\quad X_0=x_0
 \end{align}$$</span><!-- Has MathJax --> (14) 是因為我們將 vector field 用 score function 替代:<br><span>$$\begin{align*}
