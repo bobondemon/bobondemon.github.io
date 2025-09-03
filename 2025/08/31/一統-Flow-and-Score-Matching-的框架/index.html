@@ -102,7 +102,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2025/08/31/一統-Flow-and-Score-Matching-的框架/image.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/08/31/一統-Flow-and-Score-Matching-的框架/image 1.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/08/31/一統-Flow-and-Score-Matching-的框架/image 2.png">
-<meta property="og:updated_time" content="2025-09-03T10:56:03.943Z">
+<meta property="og:updated_time" content="2025-09-03T13:44:16.778Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="一統 Flow and Score Matching 的框架">
 <meta name="twitter:description" content="⚠️ [提醒]: 本篇難度可能偏高, 有些地方不會從頭開始解釋, 畢竟主要給自己筆記的, 請讀者見諒.
@@ -435,9 +435,9 @@ X_{t+h}=X_t+hu_t^\text{score}(X_t)+\sigma_t(W_{t+h}-W_t) \\
 <p>直覺解釋為因為加入了 SDE 的 Brownian motion 的隨機項, 則 SDE 多出來的橘色 term 有點像是扮演抵銷的角色.<br>這個結論的證明需要使用 <a href="https://bobondemon.github.io/2024/11/12/%E7%AD%86%E8%A8%98-Langevin-Dynamics-%E5%92%8C-Fokker-Planck-Equation-%E6%8E%A8%E5%B0%8E/">Fokker-Planck Equation</a>, 即需證明 SDE (4) 和 (8) 滿足 F-P equation. (參考 <a href="https://arxiv.org/abs/2506.02070" target="_blank" rel="external">arxiv</a> Proof of Theorem 13. @p20)</p>
 </blockquote>
 <p>由於之前 flow matching 已經訓練出 NN <span>${\color{red}{u_t^\theta}}(x)\approx u_t^\text{flow}(x)$</span><!-- Has MathJax --> 了, 所以現在我們只要訓練另一個 NN <span>${\color{orange}{s_t^{\theta}}}(x)\approx \nabla\log p_t(x)$</span><!-- Has MathJax -->, 我們就能用下面的 SDE 方式更新了:<br><span>$$\begin{align}
-dX_t=\left[{\color{red}{u_t^\theta}}(X_t)+\frac{\sigma_t^2}{2}{\color{orange}{s_t^\theta}}(X_t)\right]dt
+\boxed{dX_t=\left[{\color{red}{u_t^\theta}}(X_t)+\frac{\sigma_t^2}{2}{\color{orange}{s_t^\theta}}(X_t)\right]dt
 +
-\sigma_tdW_t
+\sigma_tdW_t }
  \\
 \text{initial condition}:\quad X_0=x_0
 \end{align}$$</span><!-- Has MathJax --> 注意到 ${\color{red}{u_t^\theta}}$ 和 ${\color{orange}{s_t^\theta}}$ 共享參數 $\theta$, 意思是同一個 NN predicts 兩個數值.<br>以上正是 vallina 的 score matching 作法.</p>
