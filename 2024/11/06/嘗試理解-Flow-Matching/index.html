@@ -101,7 +101,7 @@ Flow matching 模型在時間 $t=0$ 的時候從常態分佈出發 $p_0(x)=\math
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/gmm8_to_spiral.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/image 1.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/image 3.png">
-<meta property="og:updated_time" content="2025-08-22T12:30:35.489Z">
+<meta property="og:updated_time" content="2025-09-30T13:48:16.297Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="嘗試理解 Flow Matching">
 <meta name="twitter:description" content="接續上一篇: 讀 Flow Matching 前要先理解的東西 (建議先閱讀)
@@ -469,8 +469,8 @@ X_t=\psi_t(X_0|z)=\mu_t(z)+\sigma_t(z)X_0\sim\mathcal{N}(\mu_t(z),\sigma_t^2(z)I
 \Longrightarrow \dot{\mu_t}(z)+\dot{\sigma_t}(z)x=u_t(\mu_t(z)+\sigma_t(z)x|z),\quad \text{by (14)} \\
 \end{align*}$$</span><!-- Has MathJax --> Let <span>$x&apos;\triangleq\mu_t(z)+\sigma_t(z)x \Leftrightarrow x=(x&apos;-\mu_t(z))/\sigma_t(z)$</span><!-- Has MathJax --> 代回去得到<br><span>$$\begin{align*}
 \Longrightarrow \dot{\mu_t}(z)+\dot{\sigma_t}(z)
-\left(\frac{x&apos;-\mu_t(z)}{\sigma_t(z)}\right)=\mu_t(x&apos;|z) \\
-\Longrightarrow \mu_t(x|z)=\frac{\dot{\sigma_t}(z)}{\sigma_t(z)}(x-\mu_t(z))+\dot{\mu_t}(z)
+\left(\frac{x&apos;-\mu_t(z)}{\sigma_t(z)}\right)=u_t(x&apos;|z) \\
+\Longrightarrow u_t(x|z)=\frac{\dot{\sigma_t}(z)}{\sigma_t(z)}(x-\mu_t(z))+\dot{\mu_t}(z)
 \end{align*}$$</span><!-- Has MathJax --> Q.E.D.<br>最後一個推導只是重新把 $x’$ 改命名為 $x$ 然後整理一下而已. </p>
 <p>最後, 如果使用者設定 $\mu_t(z)=\mu_tz$ ($z$ 的線性函數), 條件向量場 $u_t(x|z)$ (12) 可改寫為以下形式:<br><span>$$\begin{align*}
 \frac{\dot{\sigma_t}(z)}{\sigma_t(z)}x +
