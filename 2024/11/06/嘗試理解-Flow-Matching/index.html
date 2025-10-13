@@ -100,7 +100,7 @@ Flow matching 模型在時間 $t=0$ 的時候從常態分佈出發 $p_0(x)=\math
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/cfm_ot.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/gmm8_to_spiral.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/06/嘗試理解-Flow-Matching/image 1.png">
-<meta property="og:updated_time" content="2025-10-13T13:01:19.023Z">
+<meta property="og:updated_time" content="2025-10-13T13:28:54.716Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="嘗試理解 Flow Matching">
 <meta name="twitter:description" content="接續上一篇: 讀 Flow Matching 前要先理解的東西 (建議先閱讀)
@@ -479,7 +479,7 @@ X_t=\psi_t(X_0|z)=\mu_t(z)+\sigma_t(z)X_0\sim\mathcal{N}(\mu_t(z),\sigma_t^2(z)I
 \end{align*}$$</span><!-- Has MathJax --> 相當於看作是 $x$ 和 $z$ 的線性組合</p>
 <h3 id="Conditional-FM-與-FM-Losses-等價"><a href="#Conditional-FM-與-FM-Losses-等價" class="headerlink" title="Conditional FM 與 FM Losses 等價"></a>Conditional FM 與 FM Losses 等價</h3><p>證明 <span>$\nabla_\theta\mathcal{L}_{CFM}(\theta)=\nabla_\theta\mathcal{L}_{FM}(\theta)$</span><!-- Has MathJax --> 或等價於證明 <span>$\mathcal{L}_{FM}(\theta)=\mathcal{L}_{CFM}(\theta) + C$</span><!-- Has MathJax -->, 其中 $C$ 為與 $\theta$ 無關的 constant.<br>事實上 (9) 和 (10) 的 norm 可以選擇 L2 or L1 norm, 都使得 <span>$\nabla_\theta\mathcal{L}_{CFM}(\theta)=\nabla_\theta\mathcal{L}_{FM}(\theta)$</span><!-- Has MathJax --> 成立</p>
 <blockquote>
-<p>在 bilibili 開發的 IndexTTS2 (arxiv, 官網, Github) 裡面的 CFM loss 選用的是 L1-norm<br>以下L2-norm的證明從 <a href="https://arxiv.org/abs/2506.02070" target="_blank" rel="external">An Introduction to Flow Matching and Diffusion Models</a> (Theorem 18) 節錄</p>
+<p>在 bilibili 開發的 IndexTTS2 (<a href="https://arxiv.org/abs/2506.21619" target="_blank" rel="external">arxiv</a>, <a href="https://indextts2.org/" target="_blank" rel="external">官網</a>, <a href="https://github.com/index-tts/index-tts" target="_blank" rel="external">Github</a>) 裡面的 CFM loss 選用的是 L1-norm<br>以下L2-norm的證明從 <a href="https://arxiv.org/abs/2506.02070" target="_blank" rel="external">An Introduction to Flow Matching and Diffusion Models</a> (Theorem 18) 節錄</p>
 </blockquote>
 <p>一些 notation 改動:<br>&emsp;- 為了簡潔, 我們寫 <span>$\mathbb{E}_{t\sim\text{Unif}}$</span><!-- Has MathJax --> 為 <span>$\mathbb{E}_{t}$</span><!-- Has MathJax -->, 其中 <span>$t\sim\text{Unif}$</span><!-- Has MathJax --> 表示 $t$ 從 $[0,1]$ 的均勻分布採樣而來.<br>&emsp;- 將 L2-norm <span>$\|\cdot\|_2$</span><!-- Has MathJax --> 簡寫成 <span>$\|\cdot\|$</span><!-- Has MathJax -->, 而 L1-norm 維持<br>&emsp;- 同時為了強調出 NN 的參數 $\theta$, 將 $v_t(x)$ 改寫為 <span>$v_t^\theta(x)$</span><!-- Has MathJax -->.<br>&emsp;- $u_t(x)$ 仍然為目標的(要學的) vector field.</p>
 <p><strong>[Proof 當 Loss 為 “L2-norm”]:</strong><br>證明過程只需將 mean square error 展開並移除與參數無關的項<br><span>$$\begin{align*}
