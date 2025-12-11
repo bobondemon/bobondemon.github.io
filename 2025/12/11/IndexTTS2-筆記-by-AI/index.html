@@ -1,0 +1,996 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Gradient Reversal Layer,Flow Matching,TTS,Transformer," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="此篇文章為 IndexTTS2 論文 (arxiv, 官網, Github) 的筆記, 內容幾乎都是 AI 產出的, 而且也確實整理的很棒
+LLM 的進步已經從根本上改變我讀論文的方式了
+現在我都是想像有一個學生 (AI) 開始跟我報告, 先請他講論文的 whole (high-level) picture, 然後開始一點一點對話式的挖掘整個過程絲滑舒服, 想聽什麼論文的報告隨時都可以,">
+<meta property="og:type" content="article">
+<meta property="og:title" content="IndexTTS2 筆記 by AI">
+<meta property="og:url" content="https://bobondemon.github.io/2025/12/11/IndexTTS2-筆記-by-AI/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="此篇文章為 IndexTTS2 論文 (arxiv, 官網, Github) 的筆記, 內容幾乎都是 AI 產出的, 而且也確實整理的很棒
+LLM 的進步已經從根本上改變我讀論文的方式了
+現在我都是想像有一個學生 (AI) 開始跟我報告, 先請他講論文的 whole (high-level) picture, 然後開始一點一點對話式的挖掘整個過程絲滑舒服, 想聽什麼論文的報告隨時都可以,">
+<meta property="og:image" content="https://bobondemon.github.io/2025/12/11/IndexTTS2-筆記-by-AI/image.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/12/11/IndexTTS2-筆記-by-AI/image 1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/12/11/IndexTTS2-筆記-by-AI/image 2.png">
+<meta property="og:updated_time" content="2025-12-11T12:22:53.705Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="IndexTTS2 筆記 by AI">
+<meta name="twitter:description" content="此篇文章為 IndexTTS2 論文 (arxiv, 官網, Github) 的筆記, 內容幾乎都是 AI 產出的, 而且也確實整理的很棒
+LLM 的進步已經從根本上改變我讀論文的方式了
+現在我都是想像有一個學生 (AI) 開始跟我報告, 先請他講論文的 whole (high-level) picture, 然後開始一點一點對話式的挖掘整個過程絲滑舒服, 想聽什麼論文的報告隨時都可以,">
+<meta name="twitter:image" content="https://bobondemon.github.io/2025/12/11/IndexTTS2-筆記-by-AI/image.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2025/12/11/IndexTTS2-筆記-by-AI/"/>
+
+
+
+
+
+  <title> IndexTTS2 筆記 by AI | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2025/12/11/IndexTTS2-筆記-by-AI/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                IndexTTS2 筆記 by AI
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2025-12-11T19:38:44+08:00">
+                2025-12-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>此篇文章為 IndexTTS2 論文 (<a href="https://arxiv.org/abs/2506.21619" target="_blank" rel="external">arxiv</a>, <a href="https://indextts2.org/" target="_blank" rel="external">官網</a>, <a href="https://github.com/index-tts/index-tts" target="_blank" rel="external">Github</a>) 的筆記, 內容幾乎都是 AI 產出的, 而且也確實整理的很棒</p>
+<p>LLM 的進步已經從根本上改變我讀論文的方式了</p>
+<p>現在我都是想像有一個學生 (AI) 開始跟我報告, 先請他講論文的 whole (high-level) picture, 然後開始一點一點對話式的挖掘<br>整個過程絲滑舒服, 想聽什麼論文的報告隨時都可以, 想詢問多深入都可以, 也不用擔心學生報告整理太爛或沒準備好 😛</p>
+<p>閱讀體驗正式進入 “<em>Vibe Reading</em>” 時代 … 😃</p>
+<blockquote>
+<p>⚠️ 以下內容幾乎為 AI 口吻, 我依照結構整理起來而已(自己看的), 吃不下 AI 文的讀者請見諒左轉</p>
+</blockquote>
+<a id="more"></a>
+<hr>
+<h2 id="整體架構設計-High-Level-Architecture"><a href="#整體架構設計-High-Level-Architecture" class="headerlink" title="整體架構設計 (High-Level Architecture)"></a>整體架構設計 (High-Level Architecture)</h2><p><img src="/2025/12/11/IndexTTS2-筆記-by-AI/image.png" width="100%" height="100%"> 這邊的 Style Prompt 指的是 emotion 模組, 而 Timbre Prompt 指的是 speaker 特徵模組<br>IndexTTS2 採用了串接式的架構，主要由三個模組組成 ：</p>
+<ul>
+<li><strong>Text-to-Semantic (T2S) 模組</strong>：<ul>
+<li><strong>技術核心</strong>：基於 Autoregressive Transformer 。</li>
+<li><strong>功能</strong>：負責將文字轉換為語義 Tokens。</li>
+<li><strong>創新點 1 (時長控制)</strong>：它引入了一個特殊的機制，讓使用者可以「明確指定」生成的 Token 數量，從而精確控制語音長度；同時也支援不指定長度的自由生成模式 。</li>
+<li><strong>創新點 2 (情感解耦)</strong>：使用梯度反轉層 (GRL) 來分離「情感」與「說話者身分」，確保改變情感時不會影響到音色 。</li>
+</ul>
+</li>
+<li><strong>Semantic-to-Mel (S2M) 模組</strong>：<ul>
+<li><strong>技術核心</strong>：基於 <strong>Conditional Flow Matching</strong> (非自回歸) 。</li>
+<li><strong>功能</strong>：將 T2S 生成的語義 Tokens 轉換為梅爾頻譜圖 (Mel-spectrogram)。</li>
+<li><strong>創新點 (GPT Latent 增強)</strong>：為了避免在強烈情感表達時出現發音含糊的問題，它引入了 T2S 模型最後一層的 <strong>GPT 潛在特徵 (Latent Representations)</strong> 來增強語音的清晰度與穩定性 。</li>
+</ul>
+</li>
+<li><strong>Text-to-Emotion (T2E) 模組</strong> (輔助功能)：<ul>
+<li><strong>技術核心</strong>：基於大語言模型 (利用 Deepseek-r1 蒸餾到 Qwen-3-1.7b) 。</li>
+<li><strong>功能</strong>：讓使用者可以用「自然語言描述」（例如：”悲傷且緩慢的語氣”）來控制情感，而不僅僅是依賴參考音檔 。</li>
+</ul>
+</li>
+<li><strong>Vocoder</strong>：使用 BigVGANv2 將頻譜圖轉為最終的波形聲音 。</li>
+</ul>
+<hr>
+<h2 id="Text-to-Semantic-T2S-模組"><a href="#Text-to-Semantic-T2S-模組" class="headerlink" title="Text-to-Semantic (T2S) 模組"></a><strong>Text-to-Semantic (T2S) 模組</strong></h2><p><img src="/2025/12/11/IndexTTS2-筆記-by-AI/image 1.png" width="100%" height="100%"></p>
+<h3 id="輸入序列的構造-Input-Sequence-Construction"><a href="#輸入序列的構造-Input-Sequence-Construction" class="headerlink" title="輸入序列的構造 (Input Sequence Construction)"></a>輸入序列的構造 (Input Sequence Construction)</h3><p>T2S 的輸入不僅僅是文字，而是一個精心設計的序列，包含了控制語音生成的所有必要條件。其輸入序列 $X$ 被定義為：<br><span>$$\begin{align*}
+X = [c, p, e_{\langle BT\rangle}, E_{text}, e_{\langle BA\rangle}, E_{sem}]
+\end{align*}$$</span><!-- Has MathJax --> 各個符號的意義如下 ：</p>
+<ul>
+<li>$c$ <strong>(Speaker Attributes)</strong>：說話者特徵向量，控制音色。</li>
+<li>$p$ <strong>(Duration Embedding)</strong>：時長控制向量，這是 IndexTTS2 的核心創新之一。</li>
+<li><span>$E_{text}$</span><!-- Has MathJax -->：輸入文字的 Embedding。</li>
+<li><span>$E_{sem}$</span><!-- Has MathJax -->：目標語義 Tokens 的 Embedding（訓練時來自 Ground Truth，推論時由模型逐個生成）。</li>
+<li><span>$e_{\langle BT\rangle}, e_{\langle BA\rangle}$</span><!-- Has MathJax -->：邊界 Tokens，用來區隔文字序列與語義序列。</li>
+</ul>
+<p>在處理情感控制時，輸入會調整為 <span>$[c+e, \dots]$</span><!-- Has MathJax -->，其中 $e$ 是情感 Embedding 。</p>
+<h3 id="精確時長控制機制-Duration-Control-Mechanism"><a href="#精確時長控制機制-Duration-Control-Mechanism" class="headerlink" title="精確時長控制機制 (Duration Control Mechanism)"></a>精確時長控制機制 (Duration Control Mechanism)</h3><p>這是 IndexTTS2 解決 AR 模型難以控制長度的關鍵技術。</p>
+<ul>
+<li><strong>原理</strong>：模型不只依賴文字內容預測何時結束，而是直接將「目標長度」作為輸入條件 <strong>$p$</strong> 餵給模型。</li>
+<li><strong>數學定義</strong>：時長 Embedding <strong>$p$</strong> 計算公式為：  <span>$$\begin{align*}
+p = W_{num}h(T)
+\end{align*}$$</span><!-- Has MathJax -->
+  其中 $T$ 是目標語義 Token 的總長度，$h(T)$ 是將 $T$ 轉為 One-hot 向量的函數，$W_{num}$ 是一個 Embedding Table。</li>
+<li><strong>關鍵 Trick (<span>$W_{sem} = W_{num}$</span><!-- Has MathJax -->)</strong>：論文中使用了一個特殊的技巧，強制讓<strong>「時長 Embedding Table (<span>$W_{num}$</span><!-- Has MathJax -->)」</strong>與<strong>「語義位置 Embedding Table (<span>$W_{sem}$</span><!-- Has MathJax -->)」</strong>共享權重(Weight Sharing）。<ul>
+<li><strong>技術意義</strong>：這在數學上強制模型將「目標總長度資訊」與「序列的位置資訊」對齊。這讓自回歸系統能夠精確感知「我現在生成到第幾個 Token」以及「我總共應該生成幾個 Token」，從而精確地在指定長度結束生成 。</li>
+</ul>
+</li>
+<li><strong>推論模式</strong> ：<ul>
+<li><strong>指定時長模式</strong>：輸入具體的 $T$ 計算 $p$，模型會生成精確長度的語音。</li>
+<li><strong>自由生成模式</strong>：輸入 $p=0$，模型將自動決定長度（類似傳統 AR TTS）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="情感與音色的解耦-Emotion-amp-Timbre-Disentanglement"><a href="#情感與音色的解耦-Emotion-amp-Timbre-Disentanglement" class="headerlink" title="情感與音色的解耦 (Emotion &amp; Timbre Disentanglement)"></a>情感與音色的解耦 (Emotion &amp; Timbre Disentanglement)</h3><p>為了讓模型能用「A 的聲音」講出「B 的情感」，T2S 必須確保提取的情感特徵 $e$ 裡面<strong>不包含</strong>說話者的音色資訊。</p>
+<ul>
+<li><strong>雙編碼器架構</strong>：<ul>
+<li><strong>Speaker Perceiver Conditioner</strong>：提取 $c$，專注於說話者的音色。被動依賴 <strong>Pre-trained 模型</strong> 的強健性，並透過 <strong>Freeze</strong> 防止其變質。(極有可能是作者團隊利用 55k 小時數據自行預訓練的內部組件，而非直接調用通用的開源模型)</li>
+<li><strong>Emotion Perceiver Conditioner</strong>：從 Style Prompt 提取 $e$，專注於情感韻律。主動使用 <strong>GRL</strong>，強制去除說話者資訊，防止 $e$ 偷看 $c$ 的答案。</li>
+</ul>
+</li>
+<li><strong>梯度反轉層 (Gradient Reversal Layer, GRL)</strong>：這是在訓練階段使用的關鍵技術。<ul>
+<li><strong>機制</strong>：在 Emotion Conditioner 後面接一個 GRL 和一個 Speaker Classifier（說話者分類器）。</li>
+<li><strong>目的</strong>：Speaker Classifier 試圖從 $e$ 中分辨出是哪個說話者，而 GRL 會在反向傳播時將梯度<strong>取負號</strong>。這迫使 Emotion Conditioner 去「欺騙」分類器，也就是學會<strong>去除</strong> $e$ 裡面的說話者身分資訊。</li>
+<li><strong>結果</strong>：最終得到的 $e$ 只包含純粹的情感與韻律，與說話者無關，實現了完美的解耦。</li>
+</ul>
+</li>
+</ul>
+<h3 id="三階段訓練策略-Three-Stage-Training-Strategy"><a href="#三階段訓練策略-Three-Stage-Training-Strategy" class="headerlink" title="三階段訓練策略 (Three-Stage Training Strategy)"></a>三階段訓練策略 (Three-Stage Training Strategy)</h3><p>為了讓上述機制穩定運作，T2S 模組並非一次訓練完成，而是分為三個階段 ：</p>
+<ul>
+<li><strong>Stage 1 (基礎能力建立)</strong>：<ul>
+<li>使用完整數據集訓練。</li>
+<li><strong>關鍵操作</strong>：以 30% 的機率隨機將時長向量 $p$ 設為 0。這讓模型同時學會「依指令控制長度」和「自由生成」兩種能力。</li>
+</ul>
+</li>
+<li><strong>Stage 2 (情感解耦與細化)</strong>：<ul>
+<li>輸入改為 <span>$[c+e, \dots]$</span><!-- Has MathJax -->。</li>
+<li><strong>Freeze 操作</strong>：<strong>凍結</strong> Speaker Perceiver Conditioner ($c$)，只訓練 Emotion Perceiver Conditioner ($e$)。</li>
+<li><strong>加入 GRL</strong>：此階段引入 GRL 進行對抗式訓練，專門優化情感特徵的純淨度 。</li>
+<li>數據：使用 135 小時的高品質情感數據子集 。</li>
+</ul>
+</li>
+<li><strong>Stage 3 (整體微調)</strong>：<ul>
+<li>凍結所有特徵提取器 (Conditioners)，對 T2S 主體進行全量數據微調，提升整體魯棒性 。</li>
+</ul>
+</li>
+</ul>
+<p>總結來說，T2S 模組透過<strong>權重共享的 Embedding</strong> 解決了 AR 模型的長度控制問題，並透過 <strong>GRL 對抗訓練</strong> 解決了情感與音色糾纏的問題，是 IndexTTS2 最具技術含量的部分之一。</p>
+<hr>
+<h2 id="Semantic-to-Mel-S2M-模組"><a href="#Semantic-to-Mel-S2M-模組" class="headerlink" title="Semantic-to-Mel (S2M) 模組"></a>Semantic-to-Mel (S2M) 模組</h2><p><img src="/2025/12/11/IndexTTS2-筆記-by-AI/image 2.png" width="75%" height="75%"> 上圖為 training/inference 階段的圖<br>(人類): 其中 reference token 應該是用 T2S 模組 (吃 reference Mel) 產生出來的, 而 reference feature 指的是將 reference token 跟 speaker embedding concat 後的結果.<br>Speaker embeddings 是透過 speaker perceiver-based conditioner 抽取得到的<br>Guided CFM 的 “Guided” 部分為 Reference Mel + Reference Feature + Semantic Feature</p>
+<ul>
+<li>Reference Mel</li>
+<li>Reference Feature: reference token concate with speaker embedding</li>
+<li>Semantic Feature: semantic token fused with GPT latent then concate with speaker embedding</li>
+</ul>
+<blockquote>
+<p>(人類): 具體可能要看 <a href="https://github.com/index-tts/index-tts/tree/main/indextts/s2mel/modules" target="_blank" rel="external">codes</a> 怎麼寫, 這邊只看 paper 可能不準</p>
+</blockquote>
+<p>CFM loss 選用 L1-norm (Target Mel <span>$y_{tar}$</span><!-- Has MathJax --> V.S. CFM predicted Mel <span>$y_{pred}$</span><!-- Has MathJax -->), <strong>(CFM loss codes <a href="https://github.com/index-tts/index-tts/blob/main/indextts/s2mel/modules/flow_matching.py#L23" target="_blank" rel="external">片段</a>, 或<a href="https://arxiv.org/pdf/2506.21619" target="_blank" rel="external">論文</a>中 eq (2) 的描述)</strong></p>
+<p><span>$$\begin{align*}
+\mathcal{L}_{L1} = \frac{1}{F \cdot D} \sum_{f=1}^{F} \sum_{d=1}^{D} |(y_{pred}){f,d} - (y_{tar})_{f,d}|
+\end{align*}$$</span><!-- Has MathJax --> (人類): 訓練完後, inference 就是解 ODE 了, 這邊就沒啥好說, 自行參考<a href="https://bobondemon.github.io/2024/11/06/%E5%98%97%E8%A9%A6%E7%90%86%E8%A7%A3-Flow-Matching/#Inference-and-Sampling">筆記</a></p>
+<blockquote>
+<p>(人類): 一般來說 CFM 選用的是 L2-norm, 這能數學上保證 CFM 等價於 FM, 但也能推導如果用 L1-norm 則 CFM loss $\geq$ FM loss (<a href="https://bobondemon.github.io/2024/11/06/%E5%98%97%E8%A9%A6%E7%90%86%E8%A7%A3-Flow-Matching/#Conditional-FM-%E8%88%87-FM-Losses-%E7%AD%89%E5%83%B9">參考</a>)<br>因此最小化 CFM 也能盡量讓 FM 變小<br>L2 Loss (MSE) 傾向於懲罰大誤差，容易導致生成的頻譜圖過於平滑（模糊），因為它在平均化不確定性。L1 Loss (MAE) 對異常值較不敏感，能保留更多高頻細節（頻譜紋理），這對語音的清晰度和音質至關重要 。</p>
+</blockquote>
+<hr>
+<h2 id="Text-to-Emotion-T2E-模組-輔助功能"><a href="#Text-to-Emotion-T2E-模組-輔助功能" class="headerlink" title="Text-to-Emotion (T2E) 模組 (輔助功能)"></a>Text-to-Emotion (T2E) 模組 (輔助功能)</h2><p>這是一個非常巧妙的模組，它體現了目前 AI 領域將 <strong>Large Language Models (LLM)</strong> 的語義理解能力「跨界」應用到 <strong>Speech Synthesis</strong> 任務的趨勢。<br>Text-to-Emotion (T2E) 模組的目標是：讓使用者可以直接用<strong>自然語言</strong>（例如：「請用一種壓抑且帶有恐懼的語氣說…」）來控制語音的情感，而不需要提供一個真實的「恐懼錄音檔」作為參考<br>以下是 T2E 模組的詳細運作流程與技術拆解：</p>
+<h3 id="核心概念：從「文字描述」到「情感向量」的映射"><a href="#核心概念：從「文字描述」到「情感向量」的映射" class="headerlink" title="核心概念：從「文字描述」到「情感向量」的映射"></a>核心概念：從「文字描述」到「情感向量」的映射</h3><p>T2E 並不是直接生成語音，而是充當一個「翻譯官」。它將人類的文字指令翻譯成 T2S 模組看得懂的 <strong>情感嵌入向量 (Emotion Embedding, $e$)</strong>。<br>為了實現這一點，IndexTTS2 採用了一種 <strong>「Teacher-Student 知識蒸餾 (Knowledge Distillation)」</strong> 的策略，將超大模型（Deepseek-r1）的推理能力濃縮到輕量級模型（Qwen-3-1.7b）中 。</p>
+<h3 id="詳細運作步驟"><a href="#詳細運作步驟" class="headerlink" title="詳細運作步驟"></a>詳細運作步驟</h3><p><strong>Step 1:</strong> 建立情感的聲學錨點 (Acoustic Anchors)<br>首先，系統定義了 7 種基本情感：憤怒、快樂、恐懼、厭惡、悲傷、驚訝、中性 ( <span>$\mathcal{E} = \{Anger, Happiness, \dots, Neutral\}$</span><!-- Has MathJax --> ) 。</p>
+<ul>
+<li><strong>作法</strong>：從真實錄音數據中，挑選這 7 種情感的代表性音檔。</li>
+<li><strong>提取</strong>：使用 T2S 模組中預訓練好的 <strong>Emotion Perceiver Conditioner</strong>，從這些音檔中提取出固定的 Embeddings。</li>
+<li><strong>結果</strong>：形成一個固定的「情感嵌入集合」$V$，可以視為情感空間中的 7 個基準座標 。</li>
+</ul>
+<p><strong>Step 2:</strong> Teacher Model 生成「軟標籤」 (Soft Labels)<br>利用 <strong>Deepseek-r1</strong> 強大的文本理解能力，將文字描述映射為機率分佈 。</p>
+<ul>
+<li><strong>輸入</strong>：文字描述 $t$（例如 “His voice trembled with fear”）。</li>
+<li><strong>輸出</strong>：一個 7 維的機率分佈向量 $p$（例如：[0.8 恐懼, 0.1 悲傷, 0.1 中性, …]），且總和為 1。</li>
+<li><strong>數據生成</strong>：作者使用 Deepseek-r1 生成了 1000 筆訓練資料，包含「描述性文本」和「劇本式文本」，並要求 Deepseek-r1 自行標註這 7 種情感的機率 。</li>
+</ul>
+<p><strong>Step 3:</strong> Student Model 的蒸餾與微調 (Distillation via LoRA)<br>為了推論效率，不能每次都跑 Deepseek-r1。因此，作者訓練了一個較小的 <strong>Qwen-3-1.7b</strong> 來模仿老師的行為。</p>
+<ul>
+<li><strong>技術</strong>：使用 <strong>LoRA (Low-Rank Adaptation)</strong> 進行微調 。</li>
+<li><strong>Loss Function</strong>：最小化 Student 預測分佈與 Teacher 生成分佈之間的 <strong>Cross-Entropy Loss</strong> 。</li>
+<li><strong>目的</strong>：讓 Qwen-3-1.7b 能夠根據輸入文字，快速且準確地預測出那 7 個情感的混合比例 。</li>
+</ul>
+<p><strong>Step 4:</strong> 向量加權融合 (Weighted Average)<br>這是最關鍵的一步，將「語義機率」轉為「聲學向量」。</p>
+<ul>
+<li><strong>計算</strong>：最終輸入給 T2S 的情感向量 $e_{input}$，是上述 7 個基準情感向量 $V$ 的<strong>加權平均</strong>。</li>
+<li><strong>公式</strong>：其中 $p_i$ 是 Qwen 預測的第 $i$ 個情感的機率， $v_i$ 是第 $i$ 個情感的聲學 Embedding。<br>  <span>$$\begin{align*}
+e_{input} = \sum_{i=1}^{7} p_i \cdot v_i
+\end{align*}$$</span><!-- Has MathJax -->.</li>
+</ul>
+<h3 id="為什麼這個設計很聰明？"><a href="#為什麼這個設計很聰明？" class="headerlink" title="為什麼這個設計很聰明？"></a>為什麼這個設計很聰明？</h3><ul>
+<li><strong>解決了數據標註困難</strong>：<br>  要收集「帶有精確情感強度標籤（例如：70% 快樂 + 30% 驚訝）」的語音數據極其困難。這個方法利用 LLM 的常識推理來「憑空創造」出這些細膩的標籤。</li>
+<li><strong>支援混合情感 (Mixed Emotions)</strong>：<br>  因為輸出的是機率分佈 $p$，而非單一類別（One-hot），系統可以合成出「苦笑」（悲傷+快樂）或「驚喜」（驚訝+快樂）等複雜情感，透過向量加權平均實現平滑過渡。</li>
+<li><strong>推論效率與部署 (Model Compression)</strong>：<br>  這直接對應到您職缺中的「模型壓縮」與「實務經驗」。將 Deepseek 的能力蒸餾到 Qwen-1.7b，並通過 LoRA 實現，是極具實用價值的工程決策。</li>
+</ul>
+<h3 id="與-T2S-模組的介面"><a href="#與-T2S-模組的介面" class="headerlink" title="與 T2S 模組的介面"></a>與 T2S 模組的介面</h3><p>最終產生的 $e_{input}$ 會被當作一個普通的 Emotion Embedding，直接餵給 T2S 模組（取代原本由音檔提取的 $e$）。對 T2S 來說，它分不清楚這個向量是來自真實音檔，還是由 LLM「想像」出來的，它只負責將其還原為對應的韻律。</p>
+<hr>
+<h2 id="實驗數據和結論"><a href="#實驗數據和結論" class="headerlink" title="實驗數據和結論"></a>實驗數據和結論</h2><p>以下是 IndexTTS2 論文的實驗數據重點與最終結論整理：</p>
+<h3 id="實驗設置-Experimental-Setup"><a href="#實驗設置-Experimental-Setup" class="headerlink" title="實驗設置 (Experimental Setup)"></a>實驗設置 (Experimental Setup)</h3><p>為了證明模型的強大，作者使用了大規模的數據和多個強力的 Baseline 進行比較：</p>
+<ul>
+<li><strong>訓練數據龐大</strong>：使用了總計 <strong>55,000 小時</strong> 的數據（30k 中文 + 25k 英文），主要來自 Emilia 數據集與內部購買的有聲書數據 。其中包含 <strong>135 小時</strong> 的高品質情感數據 。</li>
+<li><strong>強勁的對手 (Baselines)</strong>：比較了目前市面上最強的 Zero-shot TTS 模型，包括：<ul>
+<li><strong>MaskGCT</strong> &amp; <strong>F5-TTS</strong> (非自回歸 NAR 的代表) 。</li>
+<li><strong>CosyVoice2</strong> &amp; <strong>SparkTTS</strong> (自回歸 AR 的代表) 。</li>
+<li><strong>IndexTTS (v1)</strong> (作者團隊的前一代模型) 。</li>
+</ul>
+</li>
+<li><strong>評估指標</strong>：<ul>
+<li><strong>客觀指標</strong>：WER (字錯率)、SS (語者相似度)、ES (情感相似度) 。</li>
+<li><strong>主觀指標 (MOS)</strong>：SMOS (相似度)、PMOS (韻律)、QMOS (音質)、EMOS (情感還原度) 。</li>
+</ul>
+</li>
+</ul>
+<h3 id="關鍵實驗結果-Key-Results"><a href="#關鍵實驗結果-Key-Results" class="headerlink" title="關鍵實驗結果 (Key Results)"></a>關鍵實驗結果 (Key Results)</h3><p><strong>A. 基礎能力：全面領先，但在 WER 上略有取捨</strong><br>在標準測試集（LibriSpeech, SeedTTS 等）上：</p>
+<ul>
+<li><strong>綜合表現</strong>：IndexTTS2 在大部分客觀指標上都達到了 SOTA 。</li>
+<li><strong>主觀聽感</strong>：在主觀評測中，IndexTTS2 幾乎在所有 Baseline 中勝出 。</li>
+<li><strong>與前代比較</strong>：相比 IndexTTS (v1)，v2 在某些 WER 指標上略高（例如 SeedTTS-en），但換來的是更強的語者相似度 (SS) 和情感表現 。</li>
+</ul>
+<p><strong>B. 情感表現 (Emotional Performance)：壓倒性勝利</strong><br>這是本論文最大的亮點（見論文 Table 2）：</p>
+<ul>
+<li><strong>數據證明</strong>：在情感測試集上，IndexTTS2 在所有主觀指標（SMOS, EMOS, PMOS, QMOS）都拿到了最高分 。</li>
+<li><strong>對手弱點</strong>：MaskGCT 和 F5-TTS 雖然音質好，但在情感表達（EMOS）上明顯不如 IndexTTS2 。</li>
+<li><strong>清晰度維持</strong>：雖然情感強烈時容易發音不清，但 IndexTTS2 透過 GPT Latent 增強，將 WER 控制在非常有競爭力的範圍 (1.883%)，遠優於 MaskGCT (4.059%) 。</li>
+</ul>
+<p><strong>C. 時長控制 (Duration Control)：精確度極高</strong><br>驗證 $W<em>{sem} = W</em>{num}$ 機制的有效性（見論文 Table 4 &amp; Figure 4）：</p>
+<ul>
+<li><strong>誤差率極低</strong>：在指定時長生成的任務中，Token數量的誤差率<strong>小於 0.02%</strong> 。</li>
+<li><strong>伸縮自如</strong>：即使將語速強制縮放（0.75x 到 1.25x），WER 的增加也非常微小，且優於 MaskGCT 。</li>
+<li><strong>韻律優勢</strong>：在控制時長的情況下，IndexTTS2 的韻律表現 (PMOS) 依然優於非自回歸模型 (F5-TTS/MaskGCT) 。</li>
+</ul>
+<p><strong>D. 消融研究 (Ablation Studies)：GPT Latent 的必要性</strong><br>作者測試了移除 S2M 模組中的 <strong>GPT Latent Enhancement</strong> 會發生什麼事：</p>
+<ul>
+<li><strong>結果</strong>：移除後，WER 上升（發音變差），且所有主觀評分（MOS）都下降 。</li>
+<li><strong>結論</strong>：證明了引入 T2S 的 GPT Latent 對於在「高情感強度」下維持「發音清晰度」至關重要 。</li>
+</ul>
+<h3 id="論文結論-Conclusion"><a href="#論文結論-Conclusion" class="headerlink" title="論文結論 (Conclusion)"></a>論文結論 (Conclusion)</h3><p>IndexTTS2 的結論非常有力，它宣稱解決了自回歸 TTS 長久以來的痛點：</p>
+<ul>
+<li><strong>首創的 AR 時長控制</strong>：它是第一個結合了「精確時長控制」與「自然生成」的自回歸 Zero-shot TTS 模型 。</li>
+<li><strong>解耦與情感 SOTA</strong>：透過 GRL 和多階段訓練，成功將情感與音色解耦，並在情感還原度上達到 SOTA 水準 。</li>
+<li><strong>應用價值</strong>：由於能精確控制時間且情感豐富，它非常適合用於<strong>自動配音 (AI Dubbing)</strong> 和影視解說等對「影音同步」有嚴格要求的場景 。</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2025/12/11/IndexTTS2-筆記-by-AI/" title="IndexTTS2 筆記 by AI">https://bobondemon.github.io/2025/12/11/IndexTTS2-筆記-by-AI/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Gradient-Reversal-Layer/" rel="tag"># Gradient Reversal Layer</a>
+          
+            <a href="/tags/Flow-Matching/" rel="tag"># Flow Matching</a>
+          
+            <a href="/tags/TTS/" rel="tag"># TTS</a>
+          
+            <a href="/tags/Transformer/" rel="tag"># Transformer</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2025/08/31/一統-Flow-and-Score-Matching-的框架/" rel="next" title="一統 Flow and Score Matching 的框架">
+                <i class="fa fa-chevron-left"></i> 一統 Flow and Score Matching 的框架
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">113</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">233</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#整體架構設計-High-Level-Architecture"><span class="nav-number">1.</span> <span class="nav-text">整體架構設計 (High-Level Architecture)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Text-to-Semantic-T2S-模組"><span class="nav-number">2.</span> <span class="nav-text">Text-to-Semantic (T2S) 模組</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#輸入序列的構造-Input-Sequence-Construction"><span class="nav-number">2.1.</span> <span class="nav-text">輸入序列的構造 (Input Sequence Construction)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#精確時長控制機制-Duration-Control-Mechanism"><span class="nav-number">2.2.</span> <span class="nav-text">精確時長控制機制 (Duration Control Mechanism)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#情感與音色的解耦-Emotion-amp-Timbre-Disentanglement"><span class="nav-number">2.3.</span> <span class="nav-text">情感與音色的解耦 (Emotion & Timbre Disentanglement)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三階段訓練策略-Three-Stage-Training-Strategy"><span class="nav-number">2.4.</span> <span class="nav-text">三階段訓練策略 (Three-Stage Training Strategy)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Semantic-to-Mel-S2M-模組"><span class="nav-number">3.</span> <span class="nav-text">Semantic-to-Mel (S2M) 模組</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Text-to-Emotion-T2E-模組-輔助功能"><span class="nav-number">4.</span> <span class="nav-text">Text-to-Emotion (T2E) 模組 (輔助功能)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#核心概念：從「文字描述」到「情感向量」的映射"><span class="nav-number">4.1.</span> <span class="nav-text">核心概念：從「文字描述」到「情感向量」的映射</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#詳細運作步驟"><span class="nav-number">4.2.</span> <span class="nav-text">詳細運作步驟</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#為什麼這個設計很聰明？"><span class="nav-number">4.3.</span> <span class="nav-text">為什麼這個設計很聰明？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#與-T2S-模組的介面"><span class="nav-number">4.4.</span> <span class="nav-text">與 T2S 模組的介面</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#實驗數據和結論"><span class="nav-number">5.</span> <span class="nav-text">實驗數據和結論</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#實驗設置-Experimental-Setup"><span class="nav-number">5.1.</span> <span class="nav-text">實驗設置 (Experimental Setup)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#關鍵實驗結果-Key-Results"><span class="nav-number">5.2.</span> <span class="nav-text">關鍵實驗結果 (Key Results)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#論文結論-Conclusion"><span class="nav-number">5.3.</span> <span class="nav-text">論文結論 (Conclusion)</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+
+<span id="busuanzi_container_site_pv">
+  本站總瀏覽 <span id="busuanzi_value_site_pv"></span> 次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站訪客 <span id="busuanzi_value_site_uv"></span> 人
+</span>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
