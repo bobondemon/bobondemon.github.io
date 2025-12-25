@@ -267,6 +267,159 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/05/04/Model-Generalization-with-Flat-Optimum/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2024/05/04/Model-Generalization-with-Flat-Optimum/" itemprop="url">
+                  Model Generalization with Flat Optimum
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2024-05-04T11:45:43+08:00">
+                2024-05-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>訓練模型時我們盯著 tensorboard 看著 training loss 一直降低直到收斂, 收斂後每個 checkpoint 的 training loss 都差不多, 那該挑哪一個 checkpoint 呢?<br>就選 validation loss 最低的那些吧, 由 <a href="https://bobondemon.github.io/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-%E6%9E%97%E8%BB%92%E7%94%B0%E8%AA%B2%E7%A8%8B%E7%AD%86%E8%A8%98/">PAC</a> 我們知道 validation error 約等於 test error (validation set 愈大愈好), 但我們能不能對泛化能力做得更好? 如果 training 時就能讓泛化能力提升, 是否更有效率?</p>
+<h2 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h2><p>很多提升泛化能力的論文和觀點都從 “<strong>flat</strong>“ optimum 出發. 下圖清楚說明這個想法 ([<a href="https://research.samsung.com/blog/ASAM-Adaptive-Sharpness-Aware-Minimization-for-Scale-Invariant-Learning-of-Deep-Neural-Networks">圖來源</a>]):</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2024/05/04/Model-Generalization-with-Flat-Optimum/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/03/20/Sharpness-Aware-Minimization-SAM-論文閱讀筆記/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1651,165 +1804,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2023/11/04/Quantization-Error-Case-with-Clipping/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chih-Sheng Chen">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="棒棒生">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2023/11/04/Quantization-Error-Case-with-Clipping/" itemprop="url">
-                  Quantization Error (Case with Clipping)
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2023-11-04T10:57:38+08:00">
-                2023-11-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分類於</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/SP/" itemprop="url" rel="index">
-                    <span itemprop="name">SP</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-<hr>
-<p><a href="https://bobondemon.github.io/2023/10/28/Quantization-Error-Case-without-Clipping/">上一篇文章</a>我們提到, uniformly constrained quantizer 有這樣的 quantization error:<br><span>$$\begin{align}
-J=s_{\text max}^2{4^{-B}\over 3}
-\end{align}$$</span><!-- Has MathJax --> 其中 <span>$s_{\text {max}}$</span><!-- Has MathJax --> 表示 input $x$ 在 <span>$[-s_{\text {max}}, s_{\text {max}}]$</span><!-- Has MathJax -->之間.<br>這麼做雖然能確保所有 $x$ 都不會發生 clipping error, 但如果有一些 outlier 則會使得 quantization step 變很大 (quantization resolution 變低), 因此 quantization 的離散化誤差 (discretization error) 變大.</p>
-<blockquote>
-<p>Quantization error = (<strong>Discretization</strong> error) + (<strong>Clipping</strong> error)</p>
-</blockquote>
-<p>舉例來說, 考慮下圖 (ref. from SongHan course <a href="https://youtu.be/n72ndSimkB8?si=HQORMN5Ve9ny7h3P&amp;t=1959">EfficientML.ai Lecture 6</a>):<br><img src="/2023/11/04/Quantization-Error-Case-with-Clipping/qerror_example.png" width="100%" height="100%"><br>上圖左是 clipping scalar 設定很大, 上圖右則是設定很小. 可以看見 discretization error 跟 clipping error 互為 trade-off.</p>
-<p>那麼問題來了, 怎麼設定 clipping scalar, 才會使得整體的 quantization error 最小?<br>這篇文章 “Optimal Clipping and Magnitude-aware Differentiation for Improved Quantization-aware Training” [<a href="https://arxiv.org/abs/2206.06501">arxiv</a>] 給出了理論值, 並使用 Newton’s method 幫助我們很快找到最佳解.</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2023/11/04/Quantization-Error-Case-with-Clipping/#more" rel="contents">
-              閱讀全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1859,7 +1853,7 @@ J=s_{\text max}^2{4^{-B}\over 3}
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">113</span>
+                <span class="site-state-item-count">114</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -1881,7 +1875,7 @@ J=s_{\text max}^2{4^{-B}\over 3}
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">233</span>
+                <span class="site-state-item-count">238</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>
