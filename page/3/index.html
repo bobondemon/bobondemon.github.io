@@ -267,6 +267,162 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/05/26/DARTS-經典論文閱讀-數學推導和-Codes-對應/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2024/05/26/DARTS-經典論文閱讀-數學推導和-Codes-對應/" itemprop="url">
+                  DARTS 經典論文閱讀 (數學推導和 Codes 對應)
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2024-05-26T19:23:43+08:00">
+                2024-05-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>在這篇之前的 NAS (Neural Architecture Search) 主流方法為 evolution or RL 在 discrete space 上搜尋, 雖然可以得到當時最佳的結果, 但搜索的 cost 很高.<br>這篇提出 DARTS (Differentiable ARchiTecture Search) 將 NAS 變成 continuous relaxation 的問題後, 就能套用 gradient-based optimize 方法來做 NAS. 因此比傳統方法快上一個 order. 雖然 gradient-based NAS 在這篇文章之前就有, 但是之前的方法沒辦法像 DARTS 一樣能套在各種不同的 architecture 上, 簡單講就是不夠 generalized.<br>核心想法是, 如果一個 layer 能包含多個 OPs (operations), 然後有個方法能找出最佳的 OP 應該是那些, 對每一層 layers 都這樣找我們就完成 NAS 了.</p>
+<p>圖片<a href="https://github.com/wangshusen/DeepLearning/blob/master/Slides/15_NAS_3.pdf">來源</a>, 或參考這個 <a href="https://www.youtube.com/watch?v=D9m9-CXw_HY">Youtube</a> 解說, 很清楚易懂<br><img src="/2024/05/26/DARTS-經典論文閱讀-數學推導和-Codes-對應/Untitled.png" width="80%" height="80%"> 不過關鍵是怎麼找? 這樣聽起來似乎需要為每個 OPs 都配上對應可訓練的權重, 最後選擇權重大的那些 OPs? 以及怎麼訓練這些架構權重?</p>
+<blockquote>
+<p>或這麼類比: 直接訓練一個很大的 super network, 根據 OP 對應的架構權重來選擇哪些 OPs 要留下來, 大概類似 model pruning 的想法</p>
+</blockquote>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2024/05/26/DARTS-經典論文閱讀-數學推導和-Codes-對應/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/05/04/Model-Generalization-with-Flat-Optimum/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1641,169 +1797,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chih-Sheng Chen">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="棒棒生">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/" itemprop="url">
-                  Qualcomm Data-Free Quantization 詳讀
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2023-11-24T23:20:05+08:00">
-                2023-11-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分類於</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ML/" itemprop="url" rel="index">
-                    <span itemprop="name">ML</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-<hr>
-<p>總歸來說 Data-Free Quantization (DFQ) 的目的是讓 floating model 做 weights 各種調整, 使得不管是 weights or activations 都變得適合 per tensor 量化.這樣理想上就不需用到 per channel 量化, 因為 per channel 雖然效果很好, 但硬體比較不友善, 且花的運算量較高. 另外 DFQ 屬於 Post-Training Quantization (PTQ) 方法. PTQ 對佈署到 edge 端很方便, 但一般來說 PTQ 都不如 Quantization-Aware Training (QAT) 的效果好, 因此 DFQ 嘗試提升效果.</p>
-<p>DFQ 共四步, 對照圖看, 需照順序:<br><img src="/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/Untitled.png" width="100%" height="100%"></p>
-<ol>
-<li><strong>Cross-Layer Equalization (CLE)</strong>: 輸入 fused BN 後的 float model <span>$M_f^1$</span><!-- Has MathJax -->, floating 操作對 weights 做調整使得更均衡方便 per tensor 量化, 為 step 3 的前置作業, 輸出仍為 float model <span>$M_f^2$</span><!-- Has MathJax -->.</li>
-<li><strong>Bias Absorption (BA)</strong>: 輸入 CLE 後的 float model <span>$M_f^2$</span><!-- Has MathJax -->, floating 操作對 activations 做調整使得更均衡方便 per tensor 量化, 為 step 3 的前置作業, 輸出仍為 float model <span>$M_f^3$</span><!-- Has MathJax -->.</li>
-<li><strong>PTQ 量化</strong>: 輸入 CLE+BA 後的 float model <span>$M_f^3$</span><!-- Has MathJax -->, 此時不管 weights or activations 都適合做 per-tensor 量化了, 所以直接 PTQ 輸出 int model <span>$M_i^1$</span><!-- Has MathJax -->.</li>
-<li><strong>Bias Correction (BC)</strong>: 輸入 float model <span>$M_f^1$</span><!-- Has MathJax --> 和 step 3 的 <span>$M_i^1$</span><!-- Has MathJax -->, 並且(option)給一些 unlabeled 的代表 data, BC 會對 <span>$M_i^1$</span><!-- Has MathJax --> 的 bias 參數補償因為量化造成的數值 mean 偏移, 輸出為最終 fixed point model <span>$M_i^2$</span><!-- Has MathJax -->.</li>
-</ol>
-<blockquote>
-<p>Qualcomm AI Lab 的 tool <a href="https://quic.github.io/aimet-pages/releases/latest/user_guide/index.html">AIMET</a> 說 BC 這一步驟可以用 <a href="https://quic.github.io/aimet-pages/releases/latest/user_guide/adaround.html#ug-adaround">AdaRound</a> (需要一小部分的 unlabelled training data) 取代</p>
-</blockquote>
-<p>其實認真看完論文, 覺得限制有點多啊! 很多時候不能套 CLE, 有時 BA 也用不了. 把限制條列一下:<br></p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/#more" rel="contents">
-              閱讀全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1853,7 +1846,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">114</span>
+                <span class="site-state-item-count">115</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -1875,7 +1868,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">238</span>
+                <span class="site-state-item-count">241</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>
