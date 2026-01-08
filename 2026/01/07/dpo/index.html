@@ -87,25 +87,25 @@
 
 
 
-<meta name="description" content="Pre-trained model 經過 SFT (Supervised Fine-Tuning) 再經過 RLHF (Reinforcement Learning from Human Feedback) 的這一套組合拳在 2023 年堪稱顯學
-網路上甚至產生了一個很有名的修格斯(Shoggoth)怪物梗圖. (wiki: 形態無定的原生質生物，是克蘇魯神話中最駭人的存在之一)
-Elon">
+<meta name="description" content="DPO 捨棄 RLHF 中笨重的 reward model, 並將 RL 問題直接轉換成對好壞兩個 responses 的 supervised training. [圖片產生自 ChatGPT]
+
+Pre-trained model 經過 SFT (Supervised Fine-Tuning) 再經過 RLHF (Reinforcement Learning from Human">
 <meta property="og:type" content="article">
 <meta property="og:title" content="告別 Reward Model: DPO 如何讓 LLM 偏好對齊變得穩定且高效">
 <meta property="og:url" content="https://bobondemon.github.io/2026/01/07/dpo/index.html">
 <meta property="og:site_name" content="棒棒生">
-<meta property="og:description" content="Pre-trained model 經過 SFT (Supervised Fine-Tuning) 再經過 RLHF (Reinforcement Learning from Human Feedback) 的這一套組合拳在 2023 年堪稱顯學
-網路上甚至產生了一個很有名的修格斯(Shoggoth)怪物梗圖. (wiki: 形態無定的原生質生物，是克蘇魯神話中最駭人的存在之一)
-Elon">
-<meta property="og:image" content="https://bobondemon.github.io/2026/01/07/dpo/image.png">
+<meta property="og:description" content="DPO 捨棄 RLHF 中笨重的 reward model, 並將 RL 問題直接轉換成對好壞兩個 responses 的 supervised training. [圖片產生自 ChatGPT]
+
+Pre-trained model 經過 SFT (Supervised Fine-Tuning) 再經過 RLHF (Reinforcement Learning from Human">
+<meta property="og:image" content="https://bobondemon.github.io/2026/01/07/dpo/ChatGPT_DPO.png">
 <meta property="og:image" content="https://bobondemon.github.io/2026/01/07/dpo/image 1.png">
-<meta property="og:updated_time" content="2026-01-07T12:00:49.186Z">
+<meta property="og:updated_time" content="2026-01-08T10:06:57.619Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="告別 Reward Model: DPO 如何讓 LLM 偏好對齊變得穩定且高效">
-<meta name="twitter:description" content="Pre-trained model 經過 SFT (Supervised Fine-Tuning) 再經過 RLHF (Reinforcement Learning from Human Feedback) 的這一套組合拳在 2023 年堪稱顯學
-網路上甚至產生了一個很有名的修格斯(Shoggoth)怪物梗圖. (wiki: 形態無定的原生質生物，是克蘇魯神話中最駭人的存在之一)
-Elon">
-<meta name="twitter:image" content="https://bobondemon.github.io/2026/01/07/dpo/image.png">
+<meta name="twitter:description" content="DPO 捨棄 RLHF 中笨重的 reward model, 並將 RL 問題直接轉換成對好壞兩個 responses 的 supervised training. [圖片產生自 ChatGPT]
+
+Pre-trained model 經過 SFT (Supervised Fine-Tuning) 再經過 RLHF (Reinforcement Learning from Human">
+<meta name="twitter:image" content="https://bobondemon.github.io/2026/01/07/dpo/ChatGPT_DPO.png">
 
 
 
@@ -382,19 +382,18 @@ Elon">
 </script>
 
 <hr>
-<p>Pre-trained model 經過 SFT (Supervised Fine-Tuning) 再經過 RLHF (Reinforcement Learning from Human Feedback) 的這一套組合拳在 2023 年堪稱顯學</p>
-<p>網路上甚至產生了一個很有名的<a href="https://x.com/anthrupad/status/1622349563922362368" target="_blank" rel="external">修格斯(Shoggoth)怪物梗圖</a>. (<a href="https://zh.wikipedia.org/zh-tw/%E4%BF%AE%E6%A0%BC%E6%96%AF" target="_blank" rel="external">wiki</a>: 形態無定的原生質生物，是克蘇魯神話中最駭人的存在之一)</p>
+<p><img src="/2026/01/07/dpo/ChatGPT_DPO.png" width="60%" height="60%"></p>
+<blockquote>
+<p>DPO 捨棄 RLHF 中笨重的 reward model, 並將 RL 問題直接轉換成對好壞兩個 responses 的 supervised training. [圖片產生自 ChatGPT]</p>
+</blockquote>
+<p>Pre-trained model 經過 SFT (Supervised Fine-Tuning) 再經過 RLHF (Reinforcement Learning from Human Feedback) 的這一套組合拳在 2023 年堪稱顯學<br>網路上甚至產生了一個很有名的<a href="https://x.com/anthrupad/status/1622349563922362368" target="_blank" rel="external">修格斯(Shoggoth)怪物梗圖</a>. (<a href="https://zh.wikipedia.org/zh-tw/%E4%BF%AE%E6%A0%BC%E6%96%AF" target="_blank" rel="external">wiki</a>: 形態無定的原生質生物，是克蘇魯神話中最駭人的存在之一)</p>
+<a id="more"></a>
 <p>Elon Musk 也在 twiitter 發了一張帶著笑臉面具的修格斯對人類說著 [<a href="https://web.archive.org/web/20230223004549/https://twitter.com/elonmusk/status/1628491148124884992" target="_blank" rel="external">ref</a>]:</p>
 <blockquote>
 <p>“As an AI language model, I have been trained to generate responses that are intended to be helpful, informative, and objective…”</p>
 </blockquote>
 <p>第一步的 pre-trained phase 就是大力出奇蹟硬 train 一發, 模型長得像觸手怪的修格斯般, 什麼都有可能也很難控制其行為 (產生人類要的笑臉). 因此需要第二階段的 SFT, 而這很好做, 只要藉由篩選或人工介入得到比較高品質的資料後, 重新 supervised fine tuning 一下就結束了.<br>不過若要達到最終更好的效果或是人類喜歡的輸出等等, 還是得依靠最後一階段的 RLHF<br>相比 SFT, RLHF 對超參數敏感許多, 同時 RLHF 必須依賴一個<em>事先訓練好的 reward 模型</em>來為每個 output tokens 打分數, 才能訓練 LLM, 這種兩階段訓練也是模型調整的一大困難點之一.</p>
-<p>2023 年 Stanford 團隊提出 <strong>DPO (Direct Preference Optimization)</strong> [<a href="https://arxiv.org/abs/2305.18290" target="_blank" rel="external">arxiv</a>]<br>成功將 LLM 偏好對齊的問題<strong>從 RL 轉換成 supervised training</strong>, 一舉改善 RLHF 的缺點的同時, 效果仍然卓著.</p>
-<blockquote>
-<p>[PS]: 由於原本的<a href="https://x.com/anthrupad/status/1622349563922362368" target="_blank" rel="external">修格斯(Shoggoth)怪物梗圖</a>實在太過鮮明, 我讀完 DPO 方法後, 很想知道這個梗圖可以怎麼改<br>以下為 <em>Gemini nano banana</em> 🍌 的版本:<br><img src="/2026/01/07/dpo/image.png" width="80%" height="80%"> 沒有原圖那麼有衝擊力, 但倒也像個說明書般地圖示了… 😅</p>
-</blockquote>
-<p>回到正文, 究竟 DPO 怎麼將 RL 變 supervised training 的? 這數學魔術怎麼變的?<br>帶著好奇心讓我們讀下去, 不過還得先從 RLHF 說起</p>
-<a id="more"></a>
+<p>2023 年 Stanford 團隊提出 <strong>DPO (Direct Preference Optimization)</strong> [<a href="https://arxiv.org/abs/2305.18290" target="_blank" rel="external">arxiv</a>]<br>成功將 LLM 偏好對齊的問題<strong>從 RL 轉換成 supervised training</strong>, 一舉改善 RLHF 的缺點的同時, 效果仍然卓著.<br>究竟 DPO 怎麼將 RL 變 supervised training 的? 這數學魔術怎麼變的?<br>帶著好奇心讓我們讀下去, 不過還得先從 RLHF 說起</p>
 <hr>
 <h2 id="得先說-RLHF-才行"><a href="#得先說-RLHF-才行" class="headerlink" title="得先說 RLHF 才行"></a>得先說 RLHF 才行</h2><p>看一下 RLHF 的目標函式<br><span>$$\begin{align}
 J(\theta) = \mathbb{E}_{x \sim \mathcal{D}, y \sim \pi_\theta} [\underbrace{r_\phi(x, y)}_{\text{1. Maximize Reward}} - \underbrace{\beta \log \frac{\pi_\theta(y|x)}{\pi_{ref}(y|x)}}_{\text{2. KL Penalty}}]
