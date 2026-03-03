@@ -1,0 +1,899 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Earth Mover’s Distance (EMD),Optimal Transport,Wasserstein distance,Sinkhorn Knopp Algorithm,Lagrangian function,KKT," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="這是初探最優傳輸 OT (Optimal Transport) 的第二篇, 聊一下背後的數學理論接續上一篇引導出 EMD 是什麼以及什麼情況下我們需要 EMD 而非 KL or JSD 距離後, 我們最後說到 EMD 的兩個缺點: 不夠有效率以及無法微分
+本篇我們介紹 EOT (Entorpic Optimal Transport)EOT 將 EMD 問題 relax 後, 雖然只能找到逼">
+<meta property="og:type" content="article">
+<meta property="og:title" content="初探推土機距離和 Entropic 最優傳輸 (EOT): 數學理論篇 (2/3)">
+<meta property="og:url" content="https://bobondemon.github.io/2026/03/03/EMD-2/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="這是初探最優傳輸 OT (Optimal Transport) 的第二篇, 聊一下背後的數學理論接續上一篇引導出 EMD 是什麼以及什麼情況下我們需要 EMD 而非 KL or JSD 距離後, 我們最後說到 EMD 的兩個缺點: 不夠有效率以及無法微分
+本篇我們介紹 EOT (Entorpic Optimal Transport)EOT 將 EMD 問題 relax 後, 雖然只能找到逼">
+<meta property="og:image" content="https://bobondemon.github.io/2026/03/03/EMD-2/image.png">
+<meta property="og:updated_time" content="2026-03-03T13:10:13.811Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="初探推土機距離和 Entropic 最優傳輸 (EOT): 數學理論篇 (2/3)">
+<meta name="twitter:description" content="這是初探最優傳輸 OT (Optimal Transport) 的第二篇, 聊一下背後的數學理論接續上一篇引導出 EMD 是什麼以及什麼情況下我們需要 EMD 而非 KL or JSD 距離後, 我們最後說到 EMD 的兩個缺點: 不夠有效率以及無法微分
+本篇我們介紹 EOT (Entorpic Optimal Transport)EOT 將 EMD 問題 relax 後, 雖然只能找到逼">
+<meta name="twitter:image" content="https://bobondemon.github.io/2026/03/03/EMD-2/image.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2026/03/03/EMD-2/"/>
+
+
+
+
+
+  <title> 初探推土機距離和 Entropic 最優傳輸 (EOT): 數學理論篇 (2/3) | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2026/03/03/EMD-2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                初探推土機距離和 Entropic 最優傳輸 (EOT): 數學理論篇 (2/3)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2026-03-03T20:44:14+08:00">
+                2026-03-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>這是初探最優傳輸 OT (Optimal Transport) 的第二篇, 聊一下背後的數學理論<br>接續上一篇引導出 EMD 是什麼以及什麼情況下我們需要 EMD 而非 KL or JSD 距離後, 我們最後說到 EMD 的兩個缺點: 不夠有效率以及無法微分</p>
+<p>本篇我們介紹 EOT (Entorpic Optimal Transport)<br>EOT 將 EMD 問題 relax 後, 雖然只能找到逼近解, 但卻能利用一個<strong>更有效率</strong>且<strong>可微分</strong>的 Sinkhorn 演算法來求解.<br>我們將著重在數學理論部分, 從而理解 EOT 及 Sinkhorn 演算法的本質內涵.<br>最後再介紹一個重要的變形, Partial OT, 可以不用所有的 “土堆” 都要搬運, 只匹配部分.<br>[備註]：在離散情況下 Earth Mover’s Distance (EMD) / Optimal Transport / Wasserstein distance 指同一件事情, 文章在不混淆情況下有時會混用</p>
+<a id="more"></a>
+<hr>
+<h2 id="背景：傳統最優傳輸的困境"><a href="#背景：傳統最優傳輸的困境" class="headerlink" title="背景：傳統最優傳輸的困境"></a>背景：傳統最優傳輸的困境</h2><p>在<strong>傳統最優傳輸 (Standard OT)</strong> 中, 我們試圖尋找一個傳輸矩陣 <span>$P$</span><!-- Has MathJax -->, 以最小化將分佈 <span>$a$</span><!-- Has MathJax --> 搬運到分佈 <span>$b$</span><!-- Has MathJax --> 的總成本.<br><span>$$\begin{align}
+\min_{P \in \mathbb{R}^{n \times m}} \langle P, C \rangle \quad &amp; = \min_{P \in \mathbb{R}^{n \times m}} \quad  \sum_{i=1}^n \sum_{j=1}^m P_{ij} C_{ij} \quad (\text{目標函數}) \\
+\text{s.t.} \quad &amp; \sum_{j=1}^m P_{ij} = a_i, \quad \forall i \in \{1, \dots, n\} \quad (\text{行約束}) \\
+&amp; \sum_{i=1}^n P_{ij} = b_j, \quad \forall j \in \{1, \dots, m\} \quad (\text{列約束}) \\
+&amp; P_{ij} \ge 0, \quad \forall i, j \quad (\text{非負約束})
+\end{align}$$</span><!-- Has MathJax --> 其中變量定義如下:<br>&emsp;$\circ$ <strong>來源分佈</strong>：向量 <span>$a \in \mathbb{R}^n_+$</span><!-- Has MathJax -->, 且 <span>$\sum_{i=1}^n a_i = 1$</span><!-- Has MathJax -->.<br>&emsp;$\circ$ <strong>目標分佈</strong>：向量 <span>$b \in \mathbb{R}^m_+$</span><!-- Has MathJax -->, 且 <span>$\sum_{j=1}^m b_j = 1$</span><!-- Has MathJax -->.<br>&emsp;$\circ$ <strong>代價矩陣</strong>： <span>$C \in \mathbb{R}^{n \times m}$</span><!-- Has MathJax -->, 其中 <span>$C_{ij}$</span><!-- Has MathJax --> 為從 <span>$i$</span><!-- Has MathJax --> 搬到 <span>$j$</span><!-- Has MathJax --> 的單位成本.<br>&emsp;$\circ$ <strong>傳輸矩陣（決策變量）</strong>： <span>$P \in \mathbb{R}^{n \times m}$</span><!-- Has MathJax -->, <span>$P_{ij}$</span><!-- Has MathJax --> 表示來源第 <span>$i$</span><!-- Has MathJax --> 個土堆 (<span>$a_i$</span><!-- Has MathJax -->) 要搬運多少量到目標第 <span>$j$</span><!-- Has MathJax --> 個土堆 (<span>$b_j$</span><!-- Has MathJax -->).<br>這是一個標準的 <strong><a href="https://zh.wikipedia.org/zh-tw/%E7%BA%BF%E6%80%A7%E8%A7%84%E5%88%92" target="_blank" rel="external">線性規劃</a> LP (Linear Programming)</strong> 問題, 使用 Simplex mehod 方法可求解, 但仍面臨了<strong>計算效率</strong> (相比於神經網路常用的 KL-divergence) 和<strong>不可微分</strong>兩個困難 (詳細參考前一篇文章)</p>
+<hr>
+<h2 id="熵正則化最優傳輸-Entropic-Optimal-Transport-EOT"><a href="#熵正則化最優傳輸-Entropic-Optimal-Transport-EOT" class="headerlink" title="熵正則化最優傳輸 (Entropic Optimal Transport, EOT)"></a>熵正則化最優傳輸 (Entropic Optimal Transport, EOT)</h2><h3 id="解法：引入熵正則化"><a href="#解法：引入熵正則化" class="headerlink" title="解法：引入熵正則化"></a>解法：引入熵正則化</h3><p>為了同時解決「速度」與「可微分性」, Marco Cuturi (2013) [<a href="https://papers.nips.cc/paper/2013/file/af21d0c97db2e27e13572cbf59eb343d-Paper.pdf" target="_blank" rel="external">pdf</a>] 提出在目標函數中加入<strong>負熵正則項</strong><br>新的目標函數 (Primal Problem):<br><span>$$\begin{align}
+\min_{P \in \mathbb{R}^{n \times m}} \quad \mathcal{E}(P) = \sum_{ij} P_{ij} C_{ij} + \epsilon \sum_{ij} P_{ij} (\log P_{ij} - 1)
+\end{align}$$</span><!-- Has MathJax --> (註: 使用 <span>$x(\log x - 1)$</span><!-- Has MathJax --> 而非 <span>$x \log x$</span><!-- Has MathJax --> 是為了求導後的簡潔性, 兩者只差一個常數項, 不影響最優解位置)<br>其中 <span>$\epsilon &gt; 0$</span><!-- Has MathJax --> 是正則化係數. 這將問題從線性規劃轉變為<strong>嚴格 Convex Optimization</strong> 問題.<br>約束條件為 <span>$\sum_j P_{ij} = a_i$</span><!-- Has MathJax -->, <span>$\sum_i P_{ij} = b_j$</span><!-- Has MathJax -->, 和 <span>$P_{ij} \ge 0$</span><!-- Has MathJax -->.<br>這樣轉換後, 雖然不再是線性規劃問題了, 但仍然是凸優化問題 (convex optimization)<br>解凸優化問題第一步就是先寫出 Lagrangian function</p>
+<h3 id="求解：寫出-Lagrangian-求解最佳化問題"><a href="#求解：寫出-Lagrangian-求解最佳化問題" class="headerlink" title="求解：寫出 Lagrangian 求解最佳化問題"></a>求解：寫出 Lagrangian 求解最佳化問題</h3><p>引入 Lagrange Multiplier: <span>$\alpha \in \mathbb{R}^n$</span><!-- Has MathJax --> (行約束), <span>$\beta \in \mathbb{R}^m$</span><!-- Has MathJax --> (列約束) 和 <span>$\lambda\in\mathbb{R}^{mn}$</span><!-- Has MathJax --> (非負約束) 寫出 Lagrangian function:<br><span>$$\begin{aligned}
+\mathcal{L}(P, \alpha, \beta, \lambda) = &amp; \sum_{ij} P_{ij} C_{ij} + \epsilon \sum_{ij} P_{ij} (\log P_{ij} - 1) \\
+&amp; + \sum_i \alpha_i (a_i - \sum_j P_{ij}) + \sum_j \beta_j (b_j - \sum_i P_{ij}) -\sum_{ij}\lambda_{ij}P_{ij}
+\end{aligned}$$</span><!-- Has MathJax --> 計算 gradient 並令其為 <span>$0$</span><!-- Has MathJax -->, i.e. <span>$\nabla_P\mathcal{L}=0$</span><!-- Has MathJax -->:<br><span>$$\begin{align}
+\frac{\partial \mathcal{L}}{\partial P_{ij}} = C_{ij} + \epsilon (\log P_{ij} + 1 - 1) - \alpha_i - \beta_j - \lambda_{ij} = 0 \\
+\Longrightarrow \epsilon \log P_{ij} = \alpha_i + \beta_j + \lambda_{ij} - C_{ij} \\
+\Longrightarrow P_{ij} = \exp\left( \frac{\alpha_i + \beta_j + \lambda_{ij} - C_{ij}}{\epsilon} \right) \\
+\end{align}$$</span><!-- Has MathJax --> 根據 K.K.T. conditions 的 complementarity slackness (<a href="https://bobondemon.github.io/2017/11/14/Notes-for-KKT-Conditions/#KKT-Conditions">KKT 筆記</a>) 我們知道一定會滿足:<br><span>$$\begin{align*}
+\lambda_{ij}P_{ij}=0
+\end{align*}$$</span><!-- Has MathJax --> 從 (8) 可以看出 <span>$P_{ij}&gt;0$</span><!-- Has MathJax -->, 因此得到 <span>$\lambda_{ij}=0$</span><!-- Has MathJax -->. (8) 去掉 <span>$\lambda_{ij}$</span><!-- Has MathJax --> 後得到<br><span>$$\begin{align}
+P_{ij} = \exp\left( \frac{\alpha_i}{\epsilon} \right) \cdot \exp\left( -\frac{C_{ij}}{\epsilon} \right) \cdot \exp\left( \frac{\beta_j}{\epsilon} \right)
+\end{align}$$</span><!-- Has MathJax --> 令 <span>$u_i = \exp(\alpha_i / \epsilon)$</span><!-- Has MathJax -->, <span>$v_j = \exp(\beta_j / \epsilon)$</span><!-- Has MathJax -->, and <span>$K_{ij} = \exp(-C_{ij} / \epsilon)$</span><!-- Has MathJax --> 代入上式<br>我們可以推導出最優解 <span>$P^*$</span><!-- Has MathJax --> 必須具備的形式:<br><span>$$\begin{align}
+\boxed{P^*_{ij} = u_i K_{ij} v_j}
+\end{align}$$</span><!-- Has MathJax --> 稱 <span>$K_{ij} = e^{-C_{ij}/\epsilon}$</span><!-- Has MathJax --> 為 <strong>Gibbs Kernel</strong>, 則:<br><span>$$\begin{align}
+P^* = \text{diag}(u) \, K \, \text{diag}(v)
+\end{align}$$</span><!-- Has MathJax --> 這意味著最優傳輸矩陣 <span>$P^*$</span><!-- Has MathJax -->, 本質上就是將一個基於幾何距離計算出的核矩陣 <span>$K$</span><!-- Has MathJax -->, 經過<strong>對角縮放 (Diagonal Scaling)</strong> 後得到的.</p>
+<h3 id="Sinkhorn-演算法和收斂討論"><a href="#Sinkhorn-演算法和收斂討論" class="headerlink" title="Sinkhorn 演算法和收斂討論"></a><strong>Sinkhorn 演算法和收斂討論</strong></h3><p>為了得到 <span>$P^*$</span><!-- Has MathJax --> (最優傳輸矩陣), 我們必須解出 <span>$u$</span><!-- Has MathJax --> 和 <span>$v$</span><!-- Has MathJax -->. <strong>Sinkhorn 演算法</strong>就是醫個高效的迭代求解步驟<br>利用邊緣分佈約束: (<span>$\odot$</span><!-- Has MathJax --> 表示 elementwised 相乘)<br>&emsp;$\circ$ 行約束 (2): <span>$P \mathbf{1} = a \implies u \odot (Kv) = a$</span><!-- Has MathJax --><br>&emsp;$\circ$ 列約束 (3): <span>$P^T \mathbf{1} = b \implies v \odot (K^T u) = b$</span><!-- Has MathJax --><br>這直接導出了 <strong>Sinkhorn 演算法</strong> 的迭代步驟<br><span>$$\begin{align}
+u \leftarrow \frac{a}{Kv}, \quad v \leftarrow \frac{b}{K^T u}
+\end{align}$$</span><!-- Has MathJax --><br>要說明為什麼 (12) 會收斂, 就不得不涉及到一些 convex optimization 的知識了.</p>
+<blockquote>
+<p>PS: 很好的整理 primal and dual problem: <a href="https://www.stat.cmu.edu/~ryantibs/convexopt-F15/scribes/11-dual-gen-scribed.pdf" target="_blank" rel="external">CMU lecture</a></p>
+</blockquote>
+<p>一般我們稱原來的最佳化問題為 primal problem (對應 (1) 到 (4) 的式子)<br>寫出 Lagrangian function <span>$\mathcal{L}(P,\alpha,\beta)$</span><!-- Has MathJax --> 後 (注意到因為 <span>$\lambda=0$</span><!-- Has MathJax --> 所以省略), 先定義 Lagrange dual function <span>$g$</span><!-- Has MathJax --> 為:<br><span>$$\begin{aligned}
+g(\alpha,\beta, \lambda)\doteq\inf_{P}\mathcal{L}(P,\alpha,\beta, \lambda)
+\end{aligned}$$</span><!-- Has MathJax --> 稱如下的問題為 dual problem (可以證明必定為 concave problem 不管原本 primal problem 是否為 convex problem):<br><span>$$\begin{aligned}
+\max_{\alpha,\beta, \lambda}\quad &amp; g(\alpha,\beta, \lambda) \\
+\text{s.t.}\quad &amp; \lambda\leq0
+\end{aligned}$$</span><!-- Has MathJax --> (註): <span>$\alpha,\beta$</span><!-- Has MathJax --> 對應到 primal problem 為等式的約束條件, 所以在 dual problem 沒有限制<br>由於我們已知 <span>$\lambda=0$</span><!-- Has MathJax -->, 所以 dual problem 只剩下<br><span>$$\begin{align}
+\max_{\alpha,\beta}\quad &amp; g(\alpha,\beta)
+\end{align}$$</span><!-- Has MathJax --> 再由於 dual problem (13) 是 concave 優化問題, 當 primal problem 是 convex 問題的時候, 兩個問題的最佳解會相等, i.e. dual gap 為 0. 換句話說解出 dual 的 <span>$\alpha^*$</span><!-- Has MathJax --> 和 <span>$\beta^*$</span><!-- Has MathJax --> 等同於解出 primal 的 <span>$P^*$</span><!-- Has MathJax -->.<br>而 Sinkhorn 演算法的迭代步驟 (12) 其實就是用<strong>塊坐標上升 (Block Coordinate Ascent)</strong> 方法解 dual problem (13).<br>最後因為 dual problem (13) 是 concave 優化問題, Block Coordinate Ascent 能保證收斂.</p>
+<h3 id="用-Sinkhorn-Divergence-修正偏差"><a href="#用-Sinkhorn-Divergence-修正偏差" class="headerlink" title="用 Sinkhorn Divergence 修正偏差"></a>用 Sinkhorn Divergence 修正偏差</h3><p>雖然 EOT 計算快且可微, 但引入的正則化項 <span>$\epsilon$</span><!-- Has MathJax --> 使得我們「自己到自己」的傳輸代價不為零:<br><span>$$\begin{align*}
+OT_\epsilon(a, a) \neq 0
+\end{align*}$$</span><!-- Has MathJax --> 為了修正這個問題, <a href="https://arxiv.org/abs/1706.00292" target="_blank" rel="external">這篇文章</a>提出用 <strong>Sinkhorn Divergence</strong> 減去由 <span>$\epsilon$</span><!-- Has MathJax --> 帶來的擴散偏差<br>定義新的損失函數：<br><span>$$\begin{align}
+S_\epsilon(a, b) = OT_\epsilon(a, b) - \frac{1}{2} OT_\epsilon(a, a) - \frac{1}{2} OT_\epsilon(b, b)
+\end{align}$$</span><!-- Has MathJax --> 論文就沒特別去閱讀了, 著名的 <code>POT</code> (Python Optimal Transport) package 有實作了這個 loss:<br><code>ot.bregman.empirical_sinkhorn_divergence</code> [<a href="https://pythonot.github.io/gen_modules/ot.bregman.html#ot.bregman.empirical_sinkhorn_divergence" target="_blank" rel="external">doc</a>]</p>
+<hr>
+<h2 id="Partial-Optimal-Transport-部分最優傳輸"><a href="#Partial-Optimal-Transport-部分最優傳輸" class="headerlink" title="Partial Optimal Transport (部分最優傳輸)"></a>Partial Optimal Transport (部分最優傳輸)</h2><p>在現實世界的數據中, 我們很少能遇到 “兩個分佈總質量完全相等” 或者 “每一個點都必須找到對應” 的完美情況<br>舉個圖像匹配 (Image Matching) 例子, 圖像 A 有一隻狗, 圖像 B 也有那隻狗但背景完全不同, 我們只希望匹配狗的部分, 可以忽略背景<br>以數學定義來說, 標準 OT 要求 <span>$\sum P_{ij} = \sum a_i = \sum b_j$</span><!-- Has MathJax --><br>Partial OT 則放寬了此限制, 只需要設定一個目標傳輸總質量 <span>$m$</span><!-- Has MathJax -->,  <span>$0 &lt; m \le \min(\sum a, \sum b)$</span><!-- Has MathJax -->.<br>整個優化問題變成: [<a href="https://pythonot.github.io/user_guide.html#partial-optimal-transport" target="_blank" rel="external">ref</a>]<br><span>$$\begin{align}
+\min_P \langle P, C \rangle \quad &amp; = \min_P \quad  \sum_{ij} P_{ij} C_{ij} \quad (\text{目標函數}) \\
+\text{s.t.} \quad &amp; \sum_j P_{ij} {\color{orange}{\leq}} a_i, \quad \forall i \quad (\text{行約束}) \\
+&amp; \sum_i P_{ij} {\color{orange}{\leq}} b_j, \quad \forall j \quad (\text{列約束}) \\
+&amp; P_{ij} \ge 0, \quad \forall i, j \quad (\text{非負約束}) \\
+&amp; {\color{orange}{\sum_{ij}P_{ij}=m}}, \quad (\text{總質量約束})
+\end{align}$$</span><!-- Has MathJax --> 注意到與原始 OT 問題 (1)~(4) 有幾個差異, 除了 (19) 設定的搬運總質量之外<br>&emsp;$\circ$ 式 (16) 行約束的 <span>$\leq$</span><!-- Has MathJax --> 表示搬走的量不能超過 Source 擁有的, 也表示 Source 不必都要搬動, 甚至可以不保留, i.e. 當 <span>$\sum_{j}P_{ij} &lt; a_i$</span><!-- Has MathJax --> 時表示 <span>$a_i$</span><!-- Has MathJax --> 有些土 “消失了”.<br>&emsp;$\circ$ 式 (17) 列約束的 <span>$\leq$</span><!-- Has MathJax --> 表示接收的量不能超過 Target 能容納的, 也表示 Target 不必都要接收, 也可以不用接收滿指定的上限, i.e. 當 <span>$\sum_{i}P_{ij} &lt; b_j$</span><!-- Has MathJax --> 時表示 <span>$b_i$</span><!-- Has MathJax --> 沒有被填滿.<br>Partial OT 主要有兩種解法: 1. 虛擬點法 (Dummy Points) 和 2. 熵正則化迭代法 (Entropic Partial OT)<br>這邊很簡略的描述一下這兩種做法</p>
+<h3 id="虛擬點法-Dummy-Points-Augmented-Matrix"><a href="#虛擬點法-Dummy-Points-Augmented-Matrix" class="headerlink" title="虛擬點法 (Dummy Points / Augmented Matrix)"></a>虛擬點法 (Dummy Points / Augmented Matrix)</h3><p>觀察 partial OT 數學問題 (15)~(19) 其實與標準的 OT 問題 (1)~(4) 非常接近<br>如果能將不等式的條件變成等式, 應該就能視為標準 OT 問題了吧<br>基於這樣的想法, 如果我們在 Source 和 Target 各增加一個 “垃圾桶 (Dummy Node)”, 用來接收那些不被傳輸的質量, 這樣就能寫成等式條件了, 因此:</p>
+<ol>
+<li><strong>擴充 Source <span>$a&apos;$</span><!-- Has MathJax -->:</strong> 在 <span>$a$</span><!-- Has MathJax --> 後面加一個虛擬點, 質量為 <span>$\sum b - m$</span><!-- Has MathJax -->. 其意義為 Target 沒收到的質量, 都由這個虛擬點給</li>
+<li><strong>擴充 Target <span>$b&apos;$</span><!-- Has MathJax -->:</strong> 在 <span>$b$</span><!-- Has MathJax --> 後面加一個虛擬點, 質量為 <span>$\sum a - m$</span><!-- Has MathJax -->, 其意義為 Source 沒送出去的質量, 都丟到這個虛擬點</li>
+<li><strong>擴充代價矩陣 <span>$C&apos;$</span><!-- Has MathJax --> 為:</strong>     <span>$$\begin{aligned}
+    C&apos; = \begin{bmatrix} 
+    C &amp; 0 \\ 
+    0 &amp; 0 
+    \end{bmatrix} \quad \text{(擴充後的代價矩陣)}
+    \end{aligned}$$</span><!-- Has MathJax -->
+<ul>
+<li>原本的 <span>$N \times M$</span><!-- Has MathJax --> 區域維持 <span>$C_{ij}$</span><!-- Has MathJax --></li>
+<li>新增的虛擬區域 (垃圾桶), 其搬運成本設為 <strong>0 (</strong>或者某個閾值, 視需求而定)</li>
+<li>虛擬點對虛擬點 (右下角) 成本設為 0</li>
+</ul>
+</li>
+</ol>
+<p>構造好 <span>$a&apos;, b&apos;, C&apos;$</span><!-- Has MathJax --> 後, 直接跑標準的 <strong>Sinkhorn Algorithm.</strong> 解出來的 <span>$P&apos;$</span><!-- Has MathJax --> 取左上角 <span>$N \times M$</span><!-- Has MathJax --> 的部分, 就是 Partial OT 的解<br>嚴謹的數學推導請參考論文 Partial Optimal Transport with Applications on Positive-Unlabeled Learning [<a href="https://arxiv.org/abs/2002.08276" target="_blank" rel="external">arxiv</a>] 的 Appendix A.<br><a href="https://pythonot.github.io/index.html" target="_blank" rel="external">POT</a> 庫提供的函數為 <code>ot.partial.partial_wasserstein</code> [<a href="https://pythonot.github.io/gen_modules/ot.partial.html#ot.partial.partial_wasserstein" target="_blank" rel="external">doc</a>]</p>
+<h3 id="Entropic-Partial-OT"><a href="#Entropic-Partial-OT" class="headerlink" title="Entropic Partial OT"></a>Entropic Partial OT</h3><p>如果不使用虛擬點 (例如矩陣太大不想擴充), 可以修改 Sinkhorn 的迭代公式來適應不等式約束<br>這是基於 Benamou et al. (2015) 的論文: Iterative Bregman Projections for Regularized Transportation Problems [<a href="https://arxiv.org/abs/1412.5154" target="_blank" rel="external">arxiv</a>], 參閱 Chapter 5.1 段落和 Proposition 5 的算法.<br>目標函數 (Entropic Partial OT) 為:<br><span>$$\begin{aligned}
+\min_{P \ge 0} \langle P, C \rangle - \epsilon H(P) \quad \text{s.t. } P\mathbf{1} \le a, P^T\mathbf{1} \le b, \sum P_{ij} = m
+\end{aligned}$$</span><!-- Has MathJax --> 原先的標準 Sinkhorn 是 <span>$u = a / (Kv)$</span><!-- Has MathJax -->, 其中 <strong>Gibbs Kernel</strong>: <span>$K = e^{-C/\epsilon}$</span><!-- Has MathJax -->.<br>在 Partial OT 中, 因為是<strong>不等式 (<span>$\le$</span><!-- Has MathJax -->),</strong> 更新公式會變成:</p>
+<ol>
+<li>更新 <span>$v$</span><!-- Has MathJax --> (列): 如果需求超過了 <span>$b$</span><!-- Has MathJax --> 就 clipping, 這裡的 1 是指乘法因子的上限, 具體推導與對偶變數有關     <span>$v \leftarrow \min \left( \frac{b}{K^T u}, \ 1 \right)$</span><!-- Has MathJax --></li>
+<li>更新 <span>$u$</span><!-- Has MathJax --> (行): <span>$u \leftarrow \min \left( \frac{a}{K v}, \ 1 \right)$</span><!-- Has MathJax --></li>
+<li>總質量重整 (Rescaling): 上面的更新不能保證總質量為 <span>$m$</span><!-- Has MathJax -->, 需重新對 <span>$P$</span><!-- Has MathJax --> 做 scaling 縮放</li>
+</ol>
+<p>這裡仍列一下<a href="https://arxiv.org/abs/1412.5154" target="_blank" rel="external">論文</a>的 Proposition 5. 算法更新步驟:<br><img src="/2026/03/03/EMD-2/image.png" width="80%" height="80%"><br>以及 <a href="https://pythonot.github.io/index.html" target="_blank" rel="external">POT</a> 庫提供的函數為 <code>ot.partial.entropic_partial_wasserstein</code> [<a href="https://pythonot.github.io/gen_modules/ot.partial.html#ot.partial.entropic_partial_wasserstein" target="_blank" rel="external">doc</a>], [<a href="https://pythonot.github.io/_modules/ot/partial/partial_solvers.html#entropic_partial_wasserstein" target="_blank" rel="external">codes</a>]</p>
+<blockquote>
+<p>這段我就沒去看論文, 和研究 codes 了. 畢竟是 “初探” 😅</p>
+</blockquote>
+<hr>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li><a href="https://pythonot.github.io/index.html" target="_blank" rel="external">POT (Python Optimal Transport)</a> package: <a href="https://pythonot.github.io/user_guide.html" target="_blank" rel="external">User guide</a> (非常完整)</li>
+<li>Sinkhorn Distances: Lightspeed Computation of Optimal Transport [<a href="https://papers.nips.cc/paper/2013/file/af21d0c97db2e27e13572cbf59eb343d-Paper.pdf" target="_blank" rel="external">paper</a>]</li>
+<li>Primal and Dual problems: <a href="https://www.stat.cmu.edu/~ryantibs/convexopt-F15/scribes/11-dual-gen-scribed.pdf" target="_blank" rel="external">CMU lecture</a>, 講義 pdf: <a href="11-dual-gen-scribed.pdf">11-dual-gen-scribed.pdf</a></li>
+<li>Learning Generative Models with Sinkhorn Divergences [<a href="https://arxiv.org/abs/1706.00292" target="_blank" rel="external">arxiv</a>]</li>
+<li>POT 的 partial OT problem [<a href="https://pythonot.github.io/user_guide.html#partial-optimal-transport" target="_blank" rel="external">link</a>]</li>
+<li>Partial Optimal Transport with Applications on Positive-Unlabeled Learning [<a href="https://arxiv.org/abs/2002.08276" target="_blank" rel="external">arxiv</a>]</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2026/03/03/EMD-2/" title="初探推土機距離和 Entropic 最優傳輸 (EOT): 數學理論篇 (2/3)">https://bobondemon.github.io/2026/03/03/EMD-2/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Earth-Mover’s-Distance-EMD/" rel="tag"># Earth Mover’s Distance (EMD)</a>
+          
+            <a href="/tags/Optimal-Transport/" rel="tag"># Optimal Transport</a>
+          
+            <a href="/tags/Wasserstein-distance/" rel="tag"># Wasserstein distance</a>
+          
+            <a href="/tags/Sinkhorn-Knopp-Algorithm/" rel="tag"># Sinkhorn Knopp Algorithm</a>
+          
+            <a href="/tags/Lagrangian-function/" rel="tag"># Lagrangian function</a>
+          
+            <a href="/tags/KKT/" rel="tag"># KKT</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2026/03/03/EMD-1/" rel="next" title="初探推土機距離和 Entropic 最優傳輸 (EOT): 前言和動機篇 (1/3)">
+                <i class="fa fa-chevron-left"></i> 初探推土機距離和 Entropic 最優傳輸 (EOT): 前言和動機篇 (1/3)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">117</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">246</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景：傳統最優傳輸的困境"><span class="nav-number">1.</span> <span class="nav-text">背景：傳統最優傳輸的困境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#熵正則化最優傳輸-Entropic-Optimal-Transport-EOT"><span class="nav-number">2.</span> <span class="nav-text">熵正則化最優傳輸 (Entropic Optimal Transport, EOT)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#解法：引入熵正則化"><span class="nav-number">2.1.</span> <span class="nav-text">解法：引入熵正則化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#求解：寫出-Lagrangian-求解最佳化問題"><span class="nav-number">2.2.</span> <span class="nav-text">求解：寫出 Lagrangian 求解最佳化問題</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sinkhorn-演算法和收斂討論"><span class="nav-number">2.3.</span> <span class="nav-text">Sinkhorn 演算法和收斂討論</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#用-Sinkhorn-Divergence-修正偏差"><span class="nav-number">2.4.</span> <span class="nav-text">用 Sinkhorn Divergence 修正偏差</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Partial-Optimal-Transport-部分最優傳輸"><span class="nav-number">3.</span> <span class="nav-text">Partial Optimal Transport (部分最優傳輸)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#虛擬點法-Dummy-Points-Augmented-Matrix"><span class="nav-number">3.1.</span> <span class="nav-text">虛擬點法 (Dummy Points / Augmented Matrix)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Entropic-Partial-OT"><span class="nav-number">3.2.</span> <span class="nav-text">Entropic Partial OT</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">4.</span> <span class="nav-text">References</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+
+<span id="busuanzi_container_site_pv">
+  本站總瀏覽 <span id="busuanzi_value_site_pv"></span> 次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站訪客 <span id="busuanzi_value_site_uv"></span> 人
+</span>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
