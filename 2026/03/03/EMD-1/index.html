@@ -1,0 +1,833 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Earth Mover’s Distance (EMD),Optimal Transport,Wasserstein distance," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="這是初探最優傳輸 OT (Optimal Transport) 的第一篇, 聊一下這是什麼問題以及傳統利用 Linear Programming 的解法
+[備註 1]：圖片改自此 jupyter notebook: wasserstein-notebook/Wasserstein_Kantorovich.ipynb[備註 2]：在離散情況下 Earth Mover’s Distance (">
+<meta property="og:type" content="article">
+<meta property="og:title" content="初探推土機距離和 Entropic 最優傳輸 (EOT): 前言和動機篇 (1/3)">
+<meta property="og:url" content="https://bobondemon.github.io/2026/03/03/EMD-1/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="這是初探最優傳輸 OT (Optimal Transport) 的第一篇, 聊一下這是什麼問題以及傳統利用 Linear Programming 的解法
+[備註 1]：圖片改自此 jupyter notebook: wasserstein-notebook/Wasserstein_Kantorovich.ipynb[備註 2]：在離散情況下 Earth Mover’s Distance (">
+<meta property="og:image" content="https://bobondemon.github.io/2026/03/03/EMD-1/image.png">
+<meta property="og:image" content="https://bobondemon.github.io/2026/03/03/EMD-1/image 1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2026/03/03/EMD-1/image 2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2026/03/03/EMD-1/image 3.png">
+<meta property="og:updated_time" content="2026-03-03T12:39:02.209Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="初探推土機距離和 Entropic 最優傳輸 (EOT): 前言和動機篇 (1/3)">
+<meta name="twitter:description" content="這是初探最優傳輸 OT (Optimal Transport) 的第一篇, 聊一下這是什麼問題以及傳統利用 Linear Programming 的解法
+[備註 1]：圖片改自此 jupyter notebook: wasserstein-notebook/Wasserstein_Kantorovich.ipynb[備註 2]：在離散情況下 Earth Mover’s Distance (">
+<meta name="twitter:image" content="https://bobondemon.github.io/2026/03/03/EMD-1/image.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2026/03/03/EMD-1/"/>
+
+
+
+
+
+  <title> 初探推土機距離和 Entropic 最優傳輸 (EOT): 前言和動機篇 (1/3) | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2026/03/03/EMD-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                初探推土機距離和 Entropic 最優傳輸 (EOT): 前言和動機篇 (1/3)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2026-03-03T20:22:26+08:00">
+                2026-03-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>這是初探最優傳輸 OT (Optimal Transport) 的第一篇, 聊一下這是什麼問題以及傳統利用 Linear Programming 的解法</p>
+<p>[備註 1]：圖片改自此 jupyter notebook: <a href="https://github.com/vincentherrmann/wasserstein-notebook/tree/master" target="_blank" rel="external"><strong>wasserstein-notebook</strong></a>/<a href="https://github.com/vincentherrmann/wasserstein-notebook/blob/master/Wasserstein_Kantorovich.ipynb" target="_blank" rel="external"><strong>Wasserstein_Kantorovich.ipynb</strong></a><br>[備註 2]：在離散情況下 Earth Mover’s Distance (EMD) / Optimal Transport / Wasserstein distance 指同一件事情, 文章在不混淆情況下有時會混用</p>
+<hr>
+<h2 id="什麼是-Earth-Mover’s-Distance-EMD-推土機距離"><a href="#什麼是-Earth-Mover’s-Distance-EMD-推土機距離" class="headerlink" title="什麼是 Earth Mover’s Distance (EMD) 推土機距離?"></a>什麼是 Earth Mover’s Distance (EMD) 推土機距離?</h2><p>Earth Mover’s Distance (EMD) 有一個很形象的描述叫做推土機距離.<br>想像兩個機率分布 (<span>$P_s$</span><!-- Has MathJax -->, <span>$P_t$</span><!-- Has MathJax -->) 是形狀不同的兩個土堆. 將源分布 <span>$P_s$</span><!-- Has MathJax --> 改造成目標分布 <span>$P_t$</span><!-- Has MathJax --> 所需的最小搬運代價即為 EMD.<br><img src="/2026/03/03/EMD-1/image.png" width="80%" height="80%"></p>
+<a id="more"></a>
+<p>搬運代價直覺上這麼定義: 代價 = 搬運質量 <span>$\times$</span><!-- Has MathJax --> 搬運距離. 所以單位質量的代價就是搬運距離, <strong>代價矩陣</strong>畫出來如下圖左:<br><img src="/2026/03/03/EMD-1/image 1.png" width="60%" height="60%"> 而上圖右則顯示最佳搬運計畫, 以<strong>傳輸矩陣</strong>的方式表達, 其中矩陣的 <span>$(i,j)$</span><!-- Has MathJax --> 的值表示要把 <span>$P_s$</span><!-- Has MathJax --> 在 index <span>$i$</span><!-- Has MathJax --> 搬運多少土到 index <span>$j$</span><!-- Has MathJax --> 的位置. 整個搬運完後就變成目標分布 <span>$P_t$</span><!-- Has MathJax -->.<br>下圖展示根據最佳搬運計畫從源分布到目標分布的土堆搬運情況:<br><img src="/2026/03/03/EMD-1/image 2.png" width="80%" height="80%"> </p>
+<hr>
+<h2 id="我們為什麼需要-EMD-距離"><a href="#我們為什麼需要-EMD-距離" class="headerlink" title="我們為什麼需要 EMD 距離?"></a>我們為什麼需要 EMD 距離?</h2><p>我想藉由兩方面來說明什麼情況下需要 EMD 距離, 或是 Optimal Transport (OT) 距離<br>&emsp;$\circ$ “<strong>幾何感知</strong>“ 的需求 (Geometry Awareness)<br>&emsp;$\circ$ 兩個分佈的 <strong>Support (支撐集) 不重疊</strong></p>
+<h3 id="“幾何感知”-的需求-Geometry-Awareness"><a href="#“幾何感知”-的需求-Geometry-Awareness" class="headerlink" title="“幾何感知” 的需求 (Geometry Awareness)"></a>“幾何感知” 的需求 (Geometry Awareness)</h3><p>一般來說我們最常用 KL-divergence 來計算兩個分布的距離<br>如果我們的問題是分類任務, 假設是一隻 ”狗” 的圖片好了, 此時模型預測成 “貓” 跟預測成 “飛機”<br>這兩種錯誤在分類任務中沒有區別, 因此當標籤之間沒有幾何關係, KL 就足夠好了<br>再看另一個情況, 假設我們要生成人臉, 正確答案的眼睛在座標 (10, 10), 而模型生成兩種眼睛位置分別是 (11, 11) 和 (100, 100).<br>此時兩種錯誤就有好壞之分了. 使用 EMD 知道從 (11, 11) 搬運到 (10, 10) 的代價比起從 (100, 100) 要小的多, 因此 (11, 11) 會是比較好的預測.</p>
+<h3 id="兩個分佈的-Support-支撐集-不重疊"><a href="#兩個分佈的-Support-支撐集-不重疊" class="headerlink" title="兩個分佈的 Support (支撐集) 不重疊"></a>兩個分佈的 <strong>Support (支撐集) 不重疊</strong></h3><p>我們考慮兩個常見的 distribution distance, KL divergence 和 JSD (Jensen-Shannon Divergence).<br>先看 KL divergence:<br><span>$$\begin{align*}
+D_{KL}(P \parallel Q) = \int_{x \in \text{supp}(P)} p(x) \log \frac{p(x)}{q(x)} dx 
+\end{align*}$$</span><!-- Has MathJax --> 當兩個分布 <span>$P,Q$</span><!-- Has MathJax --> 的 support sets 不重疊, 意思是對一個 <span>$x$</span><!-- Has MathJax --> 來說, 如果一個分布的 density <span>$&gt;0$</span><!-- Has MathJax --> 則另一個分布的 density 一定 <span>$=0$</span><!-- Has MathJax -->.<br>此時很容易看到 <span>$D_{KL}=\infty$</span><!-- Has MathJax -->, loss 失去作用了.</p>
+<blockquote>
+<p>這種 support 不重疊的情況可能比我們想得更容易發生, 尤其在高維度的分布情況下.</p>
+</blockquote>
+<p>換一個 distance, JSD (Jensen-Shannon Divergence) 來觀察<br>JSD 的定義是基於 KL 散度的對稱化版本:<br><span>$$\begin{align*}
+JSD(P \parallel Q) = \frac{1}{2} D_{KL}(P \parallel M) + \frac{1}{2} D_{KL}(Q \parallel M)
+\end{align*}$$</span><!-- Has MathJax --> 其中 <span>$M = \frac{1}{2}(P+Q)$</span><!-- Has MathJax -->.<br>當兩個分布 <span>$P,Q$</span><!-- Has MathJax --> 的 support sets 不重疊時, <span>$JSD=\log(2)$</span><!-- Has MathJax -->, 是個 constant, loss 也失去作用了.<br>而 EMD 或 OT 根據他們的定義, 先天上就不會有這種限制.</p>
+<h2 id="EMD-的數學描述和線性規劃求解"><a href="#EMD-的數學描述和線性規劃求解" class="headerlink" title="EMD 的數學描述和線性規劃求解"></a>EMD 的數學描述和線性規劃求解</h2><p>用數學正式描述一下 EMD 問題, 首先定義變量:<br>&emsp;$\circ$ <strong>來源分佈</strong>：向量 <span>$a \in \mathbb{R}^n_+$</span><!-- Has MathJax -->, 且 <span>$\sum_{i=1}^n a_i = 1$</span><!-- Has MathJax -->.<br>&emsp;$\circ$ <strong>目標分佈</strong>：向量 <span>$b \in \mathbb{R}^m_+$</span><!-- Has MathJax -->, 且 <span>$\sum_{j=1}^m b_j = 1$</span><!-- Has MathJax -->.<br>&emsp;$\circ$ <strong>代價矩陣</strong>： <span>$C \in \mathbb{R}^{n \times m}$</span><!-- Has MathJax -->, 其中 <span>$C_{ij}$</span><!-- Has MathJax --> 為從 <span>$i$</span><!-- Has MathJax --> 搬到 <span>$j$</span><!-- Has MathJax --> 的單位成本.<br>&emsp;$\circ$ <strong>傳輸矩陣（決策變量）</strong>： <span>$P \in \mathbb{R}^{n \times m}$</span><!-- Has MathJax -->, <span>$P_{ij}$</span><!-- Has MathJax --> 表示來源第 <span>$i$</span><!-- Has MathJax --> 個土堆 (<span>$a_i$</span><!-- Has MathJax -->) 要搬運多少量到目標第 <span>$j$</span><!-- Has MathJax --> 個土堆 (<span>$b_j$</span><!-- Has MathJax -->).<br>目標是最小化總傳輸成本：<br><span>$$\begin{align}
+
+\min_{P \in \mathbb{R}^{n \times m}} \langle P, C \rangle =\min_{P \in \mathbb{R}^{n \times m}} \quad &amp; \sum_{i=1}^n \sum_{j=1}^m P_{ij} C_{ij} \quad (\text{目標函數}) \\
+\end{align}$$</span><!-- Has MathJax --> 並滿足邊緣分佈約束：<br><span>$$\begin{align}
+\begin{aligned}
+\text{s.t.} \quad &amp; \sum_{j=1}^m P_{ij} = a_i, \quad \forall i \in \{1, \dots, n\} \quad (\text{行約束}) \\
+&amp; \sum_{i=1}^n P_{ij} = b_j, \quad \forall j \in \{1, \dots, m\} \quad (\text{列約束}) \\
+&amp; P_{ij} \ge 0, \quad \forall i, j \quad (\text{非負約束})
+\end{aligned}
+\end{align}$$</span><!-- Has MathJax --> 很明顯地這是一個標準的 <strong><a href="https://zh.wikipedia.org/zh-tw/%E7%BA%BF%E6%80%A7%E8%A7%84%E5%88%92" target="_blank" rel="external">線性規劃</a> LP (Linear Programming)</strong> 問題. (目標函數、約束都是線性方程式)<br>可使用 <code>scipy.optimize.linprog</code> 來求解, 範例請參考 <strong><a href="https://github.com/vincentherrmann/wasserstein-notebook/blob/master/Wasserstein_Kantorovich.ipynb" target="_blank" rel="external">Wasserstein_Kantorovich.ipynb</a></strong><br>求解 LP 有一個經典有名的 Simplex mehod 方法<br>由於 LP 的目標函式為線性, 對應到<a href="https://en.wikipedia.org/wiki/Linear_programming" target="_blank" rel="external">下圖左</a>的等高線 (紅色直線), 箭頭方向表示 loss 往下降的方向<br>且 LP 約束都是線性約束, 對應到<a href="https://en.wikipedia.org/wiki/Linear_programming" target="_blank" rel="external">下圖左</a>橘色區塊反應了線性約束形成的 feasible space.<br>因此 LP 問題的最佳解就一定在端點 vertex 的位置. (只給結論)<br>Simplex method 就提出從 vertex 出發沿著 edge 往 loss 低的方向走到下一個 vertex, 重複直到最佳解出現. 見<a href="https://en.wikipedia.org/wiki/Simplex_algorithm" target="_blank" rel="external">下圖右</a>.<br><img src="/2026/03/03/EMD-1/image 3.png" width="80%" height="80%"><br>LP 和 Simplex method 雖然很優美, 不過仍有兩個比較大的缺點:</p>
+<ol>
+<li><strong>計算昂貴</strong>：Simplex method 雖然在平均情況是多項式時間, 但在訓練資料很大的情況下, 算一次 loss 就要跑一次 simplex method, cost 還是太大 (相比於神經網路常用的 KL-divergence).</li>
+<li><strong>不可微分與不穩定</strong>：最優解通常位於多胞形的頂點 (稀疏解). 當輸入數據微小變動時, 解可能會從一個頂點跳到另一個頂點, 導致梯度不連續, 無法應用於神經網路的反向傳播.</li>
+</ol>
+<p>下一篇介紹的 Entropic Optimal Transport (EOT) 將作出改善<br>雖然 EOT 求解出來不會是最優傳輸解, 它會是一個模糊化的逼近結果. 但擁有計算便宜 (相較 Simplex method) 和可微分的優點, 在 OT 問題上會是很重要的做法.</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2026/03/03/EMD-1/" title="初探推土機距離和 Entropic 最優傳輸 (EOT): 前言和動機篇 (1/3)">https://bobondemon.github.io/2026/03/03/EMD-1/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Earth-Mover’s-Distance-EMD/" rel="tag"># Earth Mover’s Distance (EMD)</a>
+          
+            <a href="/tags/Optimal-Transport/" rel="tag"># Optimal Transport</a>
+          
+            <a href="/tags/Wasserstein-distance/" rel="tag"># Wasserstein distance</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2026/01/07/dpo/" rel="next" title="告別 Reward Model: DPO 如何讓 LLM 偏好對齊變得穩定且高效">
+                <i class="fa fa-chevron-left"></i> 告別 Reward Model: DPO 如何讓 LLM 偏好對齊變得穩定且高效
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">116</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">244</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什麼是-Earth-Mover’s-Distance-EMD-推土機距離"><span class="nav-number">1.</span> <span class="nav-text">什麼是 Earth Mover’s Distance (EMD) 推土機距離?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#我們為什麼需要-EMD-距離"><span class="nav-number">2.</span> <span class="nav-text">我們為什麼需要 EMD 距離?</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#“幾何感知”-的需求-Geometry-Awareness"><span class="nav-number">2.1.</span> <span class="nav-text">“幾何感知” 的需求 (Geometry Awareness)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#兩個分佈的-Support-支撐集-不重疊"><span class="nav-number">2.2.</span> <span class="nav-text">兩個分佈的 Support (支撐集) 不重疊</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#EMD-的數學描述和線性規劃求解"><span class="nav-number">3.</span> <span class="nav-text">EMD 的數學描述和線性規劃求解</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+
+<span id="busuanzi_container_site_pv">
+  本站總瀏覽 <span id="busuanzi_value_site_pv"></span> 次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站訪客 <span id="busuanzi_value_site_uv"></span> 人
+</span>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
