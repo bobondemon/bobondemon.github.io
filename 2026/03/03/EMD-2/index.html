@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Earth Mover’s Distance (EMD),Optimal Transport,Wasserstein distance,Sinkhorn Knopp Algorithm,Lagrangian function,KKT," />
+  <meta name="keywords" content="Earth Mover’s Distance (EMD),Optimal Transport,Wasserstein distance,Entropic Optimal Transport (EOT),Sinkhorn Knopp Algorithm,Lagrangian function,KKT," />
 
 
 
@@ -96,7 +96,7 @@
 <meta property="og:description" content="這是初探最優傳輸 OT (Optimal Transport) 的第二篇, 聊一下背後的數學理論接續上一篇引導出 EMD 是什麼以及什麼情況下我們需要 EMD 而非 KL or JSD 距離後, 我們最後說到 EMD 的兩個缺點: 不夠有效率以及無法微分
 本篇我們介紹 EOT (Entorpic Optimal Transport)EOT 將 EMD 問題 relax 後, 雖然只能找到逼">
 <meta property="og:image" content="https://bobondemon.github.io/2026/03/03/EMD-2/image.png">
-<meta property="og:updated_time" content="2026-03-03T13:10:13.811Z">
+<meta property="og:updated_time" content="2026-03-04T12:55:02.522Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="初探推土機距離和 Entropic 最優傳輸 (EOT): 數學理論篇 (2/3)">
 <meta name="twitter:description" content="這是初探最優傳輸 OT (Optimal Transport) 的第二篇, 聊一下背後的數學理論接續上一篇引導出 EMD 是什麼以及什麼情況下我們需要 EMD 而非 KL or JSD 距離後, 我們最後說到 EMD 的兩個缺點: 不夠有效率以及無法微分
@@ -524,6 +524,8 @@ S_\epsilon(a, b) = OT_\epsilon(a, b) - \frac{1}{2} OT_\epsilon(a, a) - \frac{1}{
           
             <a href="/tags/Wasserstein-distance/" rel="tag"># Wasserstein distance</a>
           
+            <a href="/tags/Entropic-Optimal-Transport-EOT/" rel="tag"># Entropic Optimal Transport (EOT)</a>
+          
             <a href="/tags/Sinkhorn-Knopp-Algorithm/" rel="tag"># Sinkhorn Knopp Algorithm</a>
           
             <a href="/tags/Lagrangian-function/" rel="tag"># Lagrangian function</a>
@@ -550,6 +552,10 @@ S_\epsilon(a, b) = OT_\epsilon(a, b) - \frac{1}{2} OT_\epsilon(a, a) - \frac{1}{
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2026/03/04/EMD-3/" rel="prev" title="初探推土機距離和 Entropic 最優傳輸 (EOT): 應用和 Toy Example 篇 (3/3)">
+                初探推土機距離和 Entropic 最優傳輸 (EOT): 應用和 Toy Example 篇 (3/3) <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -621,7 +627,7 @@ S_\epsilon(a, b) = OT_\epsilon(a, b) - \frac{1}{2} OT_\epsilon(a, a) - \frac{1}{
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">117</span>
+                <span class="site-state-item-count">118</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -643,7 +649,7 @@ S_\epsilon(a, b) = OT_\epsilon(a, b) - \frac{1}{2} OT_\epsilon(a, a) - \frac{1}{
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">246</span>
+                <span class="site-state-item-count">249</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>

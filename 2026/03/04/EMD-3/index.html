@@ -1,0 +1,851 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Earth Mover’s Distance (EMD),Optimal Transport,Wasserstein distance,Entropic Optimal Transport (EOT),Sinkhorn Knopp Algorithm,mHC,Doubly Stochastic Matrix," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="這是初探最優傳輸 OT (Optimal Transport) 的第三篇, 聊一下應用和 toy exampleOT 在 Machine learning 已有許多重要的應用, 例如大名鼎鼎的 “WGAN“ 就使用 EMD (Earth Mover’s Distance) 當 loss 來衡量 generator 產生的分布與目標資料分布兩者間的距離 (JSD 會有 support set">
+<meta property="og:type" content="article">
+<meta property="og:title" content="初探推土機距離和 Entropic 最優傳輸 (EOT): 應用和 Toy Example 篇 (3/3)">
+<meta property="og:url" content="https://bobondemon.github.io/2026/03/04/EMD-3/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="這是初探最優傳輸 OT (Optimal Transport) 的第三篇, 聊一下應用和 toy exampleOT 在 Machine learning 已有許多重要的應用, 例如大名鼎鼎的 “WGAN“ 就使用 EMD (Earth Mover’s Distance) 當 loss 來衡量 generator 產生的分布與目標資料分布兩者間的距離 (JSD 會有 support set">
+<meta property="og:image" content="https://bobondemon.github.io/2026/03/04/EMD-3/sinkhorn_swiss_roll_3d.gif">
+<meta property="og:image" content="https://bobondemon.github.io/2026/03/04/EMD-3/3D_EOT_loss_Sinkhorn_eps0p01_POT_lib.png">
+<meta property="og:image" content="https://bobondemon.github.io/2026/03/04/EMD-3/EOT_loss_Sinkhorn_eps0p01_POT_lib.png">
+<meta property="og:updated_time" content="2026-03-04T12:55:03.226Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="初探推土機距離和 Entropic 最優傳輸 (EOT): 應用和 Toy Example 篇 (3/3)">
+<meta name="twitter:description" content="這是初探最優傳輸 OT (Optimal Transport) 的第三篇, 聊一下應用和 toy exampleOT 在 Machine learning 已有許多重要的應用, 例如大名鼎鼎的 “WGAN“ 就使用 EMD (Earth Mover’s Distance) 當 loss 來衡量 generator 產生的分布與目標資料分布兩者間的距離 (JSD 會有 support set">
+<meta name="twitter:image" content="https://bobondemon.github.io/2026/03/04/EMD-3/sinkhorn_swiss_roll_3d.gif">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2026/03/04/EMD-3/"/>
+
+
+
+
+
+  <title> 初探推土機距離和 Entropic 最優傳輸 (EOT): 應用和 Toy Example 篇 (3/3) | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2026/03/04/EMD-3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                初探推土機距離和 Entropic 最優傳輸 (EOT): 應用和 Toy Example 篇 (3/3)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2026-03-04T20:27:41+08:00">
+                2026-03-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>[object Object]
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>這是初探最優傳輸 OT (Optimal Transport) 的第三篇, 聊一下應用和 toy example<br>OT 在 Machine learning 已有許多重要的應用, 例如大名鼎鼎的 “<a href="https://bobondemon.github.io/2017/03/17/WGAN-Part-2/#Wasserstein-Earth-Mover-distance">WGAN</a>“ 就使用 EMD (Earth Mover’s Distance) 當 loss 來衡量 generator 產生的分布與目標資料分布兩者間的距離 (JSD 會有 support sets 無交集時的問題, 參考 “<a href="https://bobondemon.github.io/2017/03/17/WGAN-Part-2/">WGAN Part 2: 主角 W 登場</a>“ 一文的說明)<br>還有 flow matching 裡針對一個 batch 可用 OT 找出訓練 conditional probability path 的配對, 這使得訓練更穩定. [<a href="https://bobondemon.github.io/2024/11/06/%E5%98%97%E8%A9%A6%E7%90%86%E8%A7%A3-Flow-Matching/#OT-CFM-Optimal-transport">筆記連結</a>]<br>當然在 CV 領域, 已有許多成功的應用, 包含 point cloud mapping, graph 同構/對應, 等等.</p>
+<blockquote>
+<p>更多範例可參考 <a href="https://pythonot.github.io/index.html" target="_blank" rel="external">POT</a> 庫的 <a href="https://pythonot.github.io/auto_examples/index.html" target="_blank" rel="external">Examples gallery</a> 頁面</p>
+</blockquote>
+<p>不過文章前半段想先用另一個例子來說明 OT 的應用: 有關 <a href="https://en.wikipedia.org/wiki/Doubly_stochastic_matrix" target="_blank" rel="external">doubly stochastic matrix</a> (<a href="https://zh.wikipedia.org/wiki/%E8%BD%89%E7%A7%BB%E7%9F%A9%E9%99%A3" target="_blank" rel="external">雙隨機矩陣</a>)<br>再來簡單解釋一下, 求解 EOT 問題用的 Sinkhorn 迭代算法該怎麼計算微分. 如果是可微的 loss, 那自然就能結合到神經網路模型訓練中, 大大提高了可能性.<br>最後本文會用一個 toy example 展示如何使用 EOT 當 loss, 讓 NN 模型學習從一個初始分布對應到目標分布. 並且也會說明使用 Sinkhorn 演算法的 EOT loss 為什麼可以微分.</p>
+<a id="more"></a>
+<hr>
+<h2 id="DeepSeek-嘗試翻新-Residual-Connections-的架構-mHC"><a href="#DeepSeek-嘗試翻新-Residual-Connections-的架構-mHC" class="headerlink" title="DeepSeek 嘗試翻新 Residual Connections 的架構: mHC"></a>DeepSeek 嘗試翻新 Residual Connections 的架構: mHC</h2><p>26 年 1 月初看到消息說 DeepSeek 發表了一篇文章 “mHC: Manifold-Constrained Hyper-Connections [<a href="https://arxiv.org/abs/2512.24880" target="_blank" rel="external">arxiv</a>]”. 他們挑戰了多年來已成標準的 residual connection 架構, 並且在 DeepSeek-V3 架構中驗證.</p>
+<blockquote>
+<p>請參考這部精彩的解說影片: <a href="https://youtu.be/jYn_1PpRzxI?si=oVjwPFUffHQA0D2x" target="_blank" rel="external">How Residual Connections Are Getting an Upgrade [mHC]</a></p>
+</blockquote>
+<p>其中 mHC 的一項關鍵技術是讓 weight matrix 滿足 <a href="https://en.wikipedia.org/wiki/Doubly_stochastic_matrix" target="_blank" rel="external">doubly stochastic</a> (<a href="https://zh.wikipedia.org/wiki/%E8%BD%89%E7%A7%BB%E7%9F%A9%E9%99%A3" target="_blank" rel="external">雙隨機矩陣</a>, 其每個行和列求和均為1) 的限制, 這使得訓練變得相當穩定<br>可能讀者會問 residual connection 訓練已經很穩定了, 說更穩定指的是什麼?<br>這就要說到之前有研究者想提升 residual connection 的能力而提出了 Hyper-connections [<a href="https://arxiv.org/abs/2409.19606" target="_blank" rel="external">arxiv</a>]<br>雖然能得到更好的模型表現, 但帶來的是訓練穩定性代價. 穩定性不好的原因仍然又回到的 residual connection 原本想改進的缺點, i.e. 由於 chain rule 造成的梯度消失或爆炸<br>因此這裡說的 mHC 穩定性提升是相對於 Hyper-connections 來說的 (這段我沒深入了解, 如有錯誤還請指正)<br>所以說了這麼多, mHC 到底與 OT (或 EOT) 的關聯是什麼?<br>答案是 ”將一個正矩陣轉成雙隨機矩陣” 這個問題恰恰就是 EOT 問題的一個特例<br>沒想到 OT 這種經典問題, 在最新 residual connection 架構的改進上發揮作用, 還真是有趣</p>
+<hr>
+<h2 id="什麼是雙隨機矩陣-與-EOT-的對應關係"><a href="#什麼是雙隨機矩陣-與-EOT-的對應關係" class="headerlink" title="什麼是雙隨機矩陣? 與 EOT 的對應關係?"></a>什麼是雙隨機矩陣? 與 EOT 的對應關係?</h2><p>我們把 “將一個正矩陣 <span>$A$</span><!-- Has MathJax --> 轉成雙隨機矩陣” 這句話用數學語言描述如下:<br>給定一個正矩陣 <span>$A$</span><!-- Has MathJax -->, 我們想找到對角矩陣 <span>$D_1, D_2$</span><!-- Has MathJax -->, 使得 <span>$P = D_1 A D_2$</span><!-- Has MathJax --> 是一個雙隨機矩陣 (即行和、列和均為 1)<br>現在回顧一下 OT 問題:<br><span>$$\begin{aligned}
+\min_{P \in \mathbb{R}^{n \times m}} \langle P, C \rangle \quad &amp; = \min_{P \in \mathbb{R}^{n \times m}} \quad  \sum_{i=1}^n \sum_{j=1}^m P_{ij} C_{ij} \quad (\text{目標函數}) \\
+\text{s.t.} \quad &amp; \sum_{j=1}^m P_{ij} = a_i, \quad \forall i \in \{1, \dots, n\} \quad (\text{行約束}) \\
+&amp; \sum_{i=1}^n P_{ij} = b_j, \quad \forall j \in \{1, \dots, m\} \quad (\text{列約束}) \\
+&amp; P_{ij} \ge 0, \quad \forall i, j \quad (\text{非負約束})
+\end{aligned}$$</span><!-- Has MathJax --> Relax 成 EOT 問題後, 最佳解為:<br><span>$$\begin{align}
+P^* = \text{diag}(u) \, K \, \text{diag}(v)
+\end{align}$$</span><!-- Has MathJax --> 稱 <span>$K_{ij} = e^{-C_{ij}/\epsilon}$</span><!-- Has MathJax --> 為 <strong>Gibbs Kernel</strong>, 且 <span>$u,v$</span><!-- Has MathJax --> 通過以下 <strong>Sinkhorn 演算法</strong>求得:<br><span>$$\begin{align}
+u \leftarrow \frac{a}{Kv}, \quad v \leftarrow \frac{b}{K^T u}
+\end{align}$$</span><!-- Has MathJax --> 如果將來源分佈 <span>$a$</span><!-- Has MathJax --> 和目標分佈 <span>$b$</span><!-- Has MathJax --> 都定義為<strong>均勻分佈 (</strong><span>$a = b = \mathbf{1}/n$</span><!-- Has MathJax -->)<br>把正矩陣 <span>$A$</span><!-- Has MathJax --> 定義成 Gibbs Kernel <span>$K$</span><!-- Has MathJax -->, i.e. <span>$A\doteq K$</span><!-- Has MathJax -->.<br>式 (1) 解出來的 <span>$P^*$</span><!-- Has MathJax --> 正好就是雙隨機矩陣, 其中 <span>$\text{diag}(u)\doteq D_1$</span><!-- Has MathJax -->, <span>$\text{diag}(v)\doteq D_2$</span><!-- Has MathJax -->.<br>因此 ”將一個正矩陣轉成雙隨機矩陣” 這個問題確實就是 EOT 的一個特例</p>
+<hr>
+<h2 id="Sinkhorn-是一個迭代演算法-怎麼做-Backpropagation"><a href="#Sinkhorn-是一個迭代演算法-怎麼做-Backpropagation" class="headerlink" title="Sinkhorn 是一個迭代演算法, 怎麼做 Backpropagation?"></a>Sinkhorn 是一個迭代演算法, 怎麼做 Backpropagation?</h2><p>解 EOT 使用 Sinkhorn 式 (2) 迭代求解, 但如果要當成 NN 的 loss 必須要能微分<br>這就要回答一個問題: 在 PyTorch 或 TensorFlow 中, 計算圖（Computation Graph）是怎麼穿過 <code>for</code> 迴圈的?<br>最常用的方法為<strong>展開迴圈 (Unrolling the Iterations)</strong><br>基本上把 Sinkhorn 的每一步迭代看作是神經網絡的一層, 如果迭代 <span>$K$</span><!-- Has MathJax --> 次就相當於一個 <span>$K$</span><!-- Has MathJax --> 層深的 Recurrent Neural Network (RNN), 這就是當年 Backpropagation Through Time (BPTT) 的做法.<br>這樣做的優點是實作簡單, 只要寫個 <code>for</code> loop, AutoGrad 就可以處理.<br>但缺點是記憶體消耗, 必須儲存 <span>$K$</span><!-- Has MathJax --> 次迭代的所有中間變量. 如同 RNN 一樣, 如果迭代太多次可能會有梯度消失或爆炸的問題<br>因此通常實務上我們只迭代較少的次數 (例如 10 或 20 次), 只要能得到一個不錯的梯度就好</p>
+<blockquote>
+<p>mHC 才發布沒多久, 1~2周後馬上就有一篇論文針對迭代次數來改進, mHC-lite: You Don’t Need 20 Sinkhorn-Knopp Iterations [<a href="https://arxiv.org/abs/2601.05732" target="_blank" rel="external">arxiv</a>]. 這究竟是什麼瘋狂的速度阿…</p>
+</blockquote>
+<hr>
+<h2 id="Toy-Example"><a href="#Toy-Example" class="headerlink" title="Toy Example"></a>Toy Example</h2><p>最後用 toy example 來感受一下 EMD 或是 EOT 這種 loss 的作用<br>使用開源庫 <code>POT</code> (Python Optimal Transport) [<a href="https://pythonot.github.io/#" target="_blank" rel="external">website</a>], 或 <code>GeomLoss</code> [<a href="https://www.kernel-operations.io/geomloss/" target="_blank" rel="external">website</a>].<br>我們模擬從一個初始高斯分布 <span>$x\in\mathbb{R}^3, x \sim \mathcal{N}(0,I)$</span><!-- Has MathJax -->.<br>用 NN <span>$f_\theta:x\mapsto y_{pred}\in\mathbb{R}^3$</span><!-- Has MathJax --> 學習如何轉變成一個 Swiss Roll 的分布<br>而 loss 就使用 EOT, 即 <span>$\mathcal{L}=\text{EOT}(y_{pred},y_{gt})$</span><!-- Has MathJax --> 其中 ground truth <span>$y_{gt}$</span><!-- Has MathJax --> 的點是從 Swiss Roll 分布採樣.<br>從下面動圖可以看到前面 iteration 的分布比較差, 因此 EOT loss 比較大<br>漸漸地訓練下去隨著 EOT loss 降低, NN 最後已經能 mapping 到 Swiss Roll 分布了<br><img src="/2026/03/04/EMD-3/sinkhorn_swiss_roll_3d.gif" width="100%" height="100%"><br><img src="/2026/03/04/EMD-3/3D_EOT_loss_Sinkhorn_eps0p01_POT_lib.png" width="100%" height="100%"><br>另一個 2D 範例圖結果如下<br><img src="/2026/03/04/EMD-3/EOT_loss_Sinkhorn_eps0p01_POT_lib.png" width="100%" height="100%"><br>現在的 AI 能輕易產上面例子的 codes, 列出重點的 EOT loss, 完整 <a href="EOT_toy_example.py">toy example codes</a>:</p>
+<details><br>   <summary>▶️(點擊展開) EOT loss 程式碼片段</summary><br>   <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 引入 POT 庫</span></div><div class="line"><span class="keyword">import</span> ot</div><div class="line"><span class="comment"># --- 定義 Sinkhorn Loss (保持使用 POT 的 No-Loop 版本) ---</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">SinkhornLossPOT</span><span class="params">(nn.Module)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, reg=<span class="number">0.05</span>, max_iter=<span class="number">100</span>, method=<span class="string">'sinkhorn_log'</span>)</span>:</span></div><div class="line">        super().__init__()</div><div class="line">        self.reg = reg</div><div class="line">        self.max_iter = max_iter</div><div class="line">        self.method = method</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span><span class="params">(self, x, y)</span>:</span></div><div class="line">        <span class="string">"""</span></div><div class="line">        x: (N, D) - Generated points</div><div class="line">        y: (M, D) - Target points</div><div class="line">        D 可以是 2, 3, 甚至 100，邏輯完全不用變。</div><div class="line">        """</div><div class="line">        <span class="comment"># 1. 計算代價矩陣 (Squared Euclidean Distance)</span></div><div class="line">        <span class="comment"># x, y 形狀為 (Batch, 3)</span></div><div class="line">        M_dist = torch.cdist(x, y, p=<span class="number">2</span>) ** <span class="number">2</span></div><div class="line">        <span class="comment"># 2. 準備權重</span></div><div class="line">        n = x.shape[<span class="number">0</span>]</div><div class="line">        m = y.shape[<span class="number">0</span>]</div><div class="line">        a = torch.ones(n, device=x.device) / n</div><div class="line">        b = torch.ones(m, device=y.device) / m</div><div class="line">        <span class="comment"># 3. 計算 Loss</span></div><div class="line">        loss = ot.sinkhorn2(a, b, M_dist, self.reg, numItermax=self.max_iter, method=self.method)</div><div class="line">        <span class="keyword">return</span> loss</div></pre></td></tr></table></figure><br><br></details>
+
+<p>非常建議直接使用 <code>ot.sinkhorn2</code> 計算 EOT, 因為這些成熟的庫已經針對數值穩定性做了很多優化, 譬如會使用 log-domain、Sinkhorn Divergence 等技巧, 並且也優化了速度和對 CPU/GPU 的適配性.<br><code>ot.sinkhorn2</code> 的一個參數 <code>reg</code> 對應的是<a href="https://bobondemon.github.io/2026/03/03/EMD-2/#%E8%A7%A3%E6%B3%95%EF%BC%9A%E5%BC%95%E5%85%A5%E7%86%B5%E6%AD%A3%E5%89%87%E5%8C%96">上一篇式 (5)</a> 的 <span>$\epsilon$</span><!-- Has MathJax -->, 如果愈小會愈接近原來的 OT sparse 解, 但也愈容易有數值不穩定狀況 (POT package 已經可以處理得很好), 所以通常需要將來源和目標分布做適當的歸一化會比較穩定, 或是將 <span>$\epsilon$</span><!-- Has MathJax --> 先從較大的值訓練起之後漸漸變小.<br>另外有關 Partial Optimal Transport (部分最優傳輸) 的實作函數, 再上一篇文章裡提到:</p>
+<ul>
+<li><code>ot.partial.partial_wasserstein</code></li>
+<li>或是 <code>ot.partial.entropic_partial_wasserstein</code> 這種使用Entropic 的 Sinkhorn 算法的</li>
+</ul>
+<p>讀者可以自己跑跑看 POT 提供的範例, <a href="https://pythonot.github.io/auto_examples/index.html" target="_blank" rel="external">Examples gallery</a>.</p>
+<hr>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li>mHC: Manifold-Constrained Hyper-Connections [<a href="https://arxiv.org/abs/2512.24880" target="_blank" rel="external">arxiv</a>]</li>
+<li><a href="https://youtu.be/jYn_1PpRzxI?si=oVjwPFUffHQA0D2x" target="_blank" rel="external">How Residual Connections Are Getting an Upgrade [mHC]</a></li>
+<li>mHC-lite: You Don’t Need 20 Sinkhorn-Knopp Iterations [<a href="https://arxiv.org/abs/2601.05732" target="_blank" rel="external">arxiv</a>]</li>
+<li><a href="https://pythonot.github.io/index.html" target="_blank" rel="external">POT (Python Optimal Transport)</a> package: <a href="https://pythonot.github.io/user_guide.html" target="_blank" rel="external">User guide</a> (非常完整)</li>
+<li><code>GeomLoss</code> [<a href="https://www.kernel-operations.io/geomloss/" target="_blank" rel="external">website</a>]</li>
+<li><a href="EOT_toy_example.py">toy example codes</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2026/03/04/EMD-3/" title="初探推土機距離和 Entropic 最優傳輸 (EOT): 應用和 Toy Example 篇 (3/3)">https://bobondemon.github.io/2026/03/04/EMD-3/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Earth-Mover’s-Distance-EMD/" rel="tag"># Earth Mover’s Distance (EMD)</a>
+          
+            <a href="/tags/Optimal-Transport/" rel="tag"># Optimal Transport</a>
+          
+            <a href="/tags/Wasserstein-distance/" rel="tag"># Wasserstein distance</a>
+          
+            <a href="/tags/Entropic-Optimal-Transport-EOT/" rel="tag"># Entropic Optimal Transport (EOT)</a>
+          
+            <a href="/tags/Sinkhorn-Knopp-Algorithm/" rel="tag"># Sinkhorn Knopp Algorithm</a>
+          
+            <a href="/tags/mHC/" rel="tag"># mHC</a>
+          
+            <a href="/tags/Doubly-Stochastic-Matrix/" rel="tag"># Doubly Stochastic Matrix</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2026/03/03/EMD-2/" rel="next" title="初探推土機距離和 Entropic 最優傳輸 (EOT): 數學理論篇 (2/3)">
+                <i class="fa fa-chevron-left"></i> 初探推土機距離和 Entropic 最優傳輸 (EOT): 數學理論篇 (2/3)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">118</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">249</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#DeepSeek-嘗試翻新-Residual-Connections-的架構-mHC"><span class="nav-number">1.</span> <span class="nav-text">DeepSeek 嘗試翻新 Residual Connections 的架構: mHC</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#什麼是雙隨機矩陣-與-EOT-的對應關係"><span class="nav-number">2.</span> <span class="nav-text">什麼是雙隨機矩陣? 與 EOT 的對應關係?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Sinkhorn-是一個迭代演算法-怎麼做-Backpropagation"><span class="nav-number">3.</span> <span class="nav-text">Sinkhorn 是一個迭代演算法, 怎麼做 Backpropagation?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Toy-Example"><span class="nav-number">4.</span> <span class="nav-text">Toy Example</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">5.</span> <span class="nav-text">References</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+
+<span id="busuanzi_container_site_pv">
+  本站總瀏覽 <span id="busuanzi_value_site_pv"></span> 次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站訪客 <span id="busuanzi_value_site_uv"></span> 人
+</span>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      [object Object]
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      [object Object]
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
