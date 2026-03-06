@@ -374,7 +374,7 @@
 <blockquote>
 <p>更多範例可參考 <a href="https://pythonot.github.io/index.html">POT</a> 庫的 <a href="https://pythonot.github.io/auto_examples/index.html">Examples gallery</a> 頁面</p>
 </blockquote>
-<p>不過文章前半段想先用另一個例子來說明 OT 的應用: 有關 <a href="https://en.wikipedia.org/wiki/Doubly_stochastic_matrix">doubly stochastic matrix</a> (<a href="https://zh.wikipedia.org/wiki/%E8%BD%89%E7%A7%BB%E7%9F%A9%E9%99%A3">雙隨機矩陣</a>)<br>再來簡單解釋一下, 求解 EOT 問題用的 Sinkhorn 迭代算法該怎麼計算微分. 如果是可微的 loss, 那自然就能結合到神經網路模型訓練中, 大大提高了可能性.<br>最後本文會用一個 toy example 展示如何使用 EOT 當 loss, 讓 NN 模型學習從一個初始分布對應到目標分布. 並且也會說明使用 Sinkhorn 演算法的 EOT loss 為什麼可以微分.</p>
+<p>不過文章前半段想先用另一個例子來說明 OT 的應用: 有關 <a href="https://en.wikipedia.org/wiki/Doubly_stochastic_matrix">doubly stochastic matrix</a> (<a href="https://zh.wikipedia.org/wiki/%E8%BD%89%E7%A7%BB%E7%9F%A9%E9%99%A3">雙隨機矩陣</a>)<br>再來簡單解釋一下, 求解 EOT 問題用的 Sinkhorn 迭代算法該怎麼微分. 如果是可微的 loss, 那就能結合到神經網路訓練中, 自然就打開了許多應用的可能.<br>最後本文會用一個 toy example 展示如何使用 EOT 當 loss, 讓 NN 模型學習從一個初始分布對應到目標分布.</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2026/03/04/EMD-3/#more" rel="contents">

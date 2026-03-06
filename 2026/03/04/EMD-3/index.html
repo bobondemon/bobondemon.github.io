@@ -96,7 +96,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2026/03/04/EMD-3/sinkhorn_swiss_roll_3d.gif">
 <meta property="og:image" content="https://bobondemon.github.io/2026/03/04/EMD-3/3D_EOT_loss_Sinkhorn_eps0p01_POT_lib.png">
 <meta property="og:image" content="https://bobondemon.github.io/2026/03/04/EMD-3/EOT_loss_Sinkhorn_eps0p01_POT_lib.png">
-<meta property="og:updated_time" content="2026-03-04T12:55:03.226Z">
+<meta property="og:updated_time" content="2026-03-06T12:27:08.626Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="初探推土機距離和 Entropic 最優傳輸 (EOT): 應用和 Toy Example 篇 (3/3)">
 <meta name="twitter:description" content="這是初探最優傳輸 OT (Optimal Transport) 的第三篇, 聊一下應用和 toy exampleOT 在 Machine learning 已有許多重要的應用, 例如大名鼎鼎的 “WGAN“ 就使用 EMD (Earth Mover’s Distance) 當 loss 來衡量 generator 產生的分布與目標資料分布兩者間的距離 (JSD 會有 support set">
@@ -381,7 +381,7 @@
 <blockquote>
 <p>更多範例可參考 <a href="https://pythonot.github.io/index.html" target="_blank" rel="external">POT</a> 庫的 <a href="https://pythonot.github.io/auto_examples/index.html" target="_blank" rel="external">Examples gallery</a> 頁面</p>
 </blockquote>
-<p>不過文章前半段想先用另一個例子來說明 OT 的應用: 有關 <a href="https://en.wikipedia.org/wiki/Doubly_stochastic_matrix" target="_blank" rel="external">doubly stochastic matrix</a> (<a href="https://zh.wikipedia.org/wiki/%E8%BD%89%E7%A7%BB%E7%9F%A9%E9%99%A3" target="_blank" rel="external">雙隨機矩陣</a>)<br>再來簡單解釋一下, 求解 EOT 問題用的 Sinkhorn 迭代算法該怎麼計算微分. 如果是可微的 loss, 那自然就能結合到神經網路模型訓練中, 大大提高了可能性.<br>最後本文會用一個 toy example 展示如何使用 EOT 當 loss, 讓 NN 模型學習從一個初始分布對應到目標分布. 並且也會說明使用 Sinkhorn 演算法的 EOT loss 為什麼可以微分.</p>
+<p>不過文章前半段想先用另一個例子來說明 OT 的應用: 有關 <a href="https://en.wikipedia.org/wiki/Doubly_stochastic_matrix" target="_blank" rel="external">doubly stochastic matrix</a> (<a href="https://zh.wikipedia.org/wiki/%E8%BD%89%E7%A7%BB%E7%9F%A9%E9%99%A3" target="_blank" rel="external">雙隨機矩陣</a>)<br>再來簡單解釋一下, 求解 EOT 問題用的 Sinkhorn 迭代算法該怎麼微分. 如果是可微的 loss, 那就能結合到神經網路訓練中, 自然就打開了許多應用的可能.<br>最後本文會用一個 toy example 展示如何使用 EOT 當 loss, 讓 NN 模型學習從一個初始分布對應到目標分布.</p>
 <a id="more"></a>
 <hr>
 <h2 id="DeepSeek-嘗試翻新-Residual-Connections-的架構-mHC"><a href="#DeepSeek-嘗試翻新-Residual-Connections-的架構-mHC" class="headerlink" title="DeepSeek 嘗試翻新 Residual Connections 的架構: mHC"></a>DeepSeek 嘗試翻新 Residual Connections 的架構: mHC</h2><p>26 年 1 月初看到消息說 DeepSeek 發表了一篇文章 “mHC: Manifold-Constrained Hyper-Connections [<a href="https://arxiv.org/abs/2512.24880" target="_blank" rel="external">arxiv</a>]”. 他們挑戰了多年來已成標準的 residual connection 架構, 並且在 DeepSeek-V3 架構中驗證.</p>
