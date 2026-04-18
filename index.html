@@ -267,6 +267,180 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2026/04/18/MatrixNorm/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2026/04/18/MatrixNorm/" itemprop="url">
+                  量量矩陣的大小: Frobenius 和 Spectral Norm
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2026-04-18T08:27:11+08:00">
+                2026-04-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<hr>
+<p>向量的 norm 我們很熟悉了, 但對於一個矩陣的 norm 又該怎麼定義呢?<br>最直覺的想法就是把矩陣 flatten 成一個向量, 套用向量的 norm 即可. 這引導出了 Frobenius norm.<br>但是矩陣還包含了將向量做線性轉換的作用, 所以向量經過矩陣轉換後的 <em>norm 變化</em>是不是可以用來當作矩陣 norm 的度量方式呢? 這樣的想法引導出了 operator norm 或 spectral norm.<br>先給出 take away 總結:</p>
+<ul>
+<li><p>Frobenius norm: 開根號的 “singular value 平方和”</p>
+  <span>$$\begin{aligned}
+\|A\|_F := \sqrt{\sum_{i,j}|a_{ij}|^2} =\mathrm{Tr}(A^HA)=\sqrt{\sum_i^{\min\{m,n\}}\sigma_i^2(A)}
+\end{aligned}$$</span><!-- Has MathJax -->
+</li>
+<li><p>Spectral norm: 最大的 singular value</p>
+  <span>$$\begin{aligned}
+\|A\|_2 :=\sup_{\|x\|_2\leq1}\{\|Ax\|_2\}=\sqrt{\lambda_{\max}(A^HA)}=\sigma_{\max}(A)
+\end{aligned}$$</span><!-- Has MathJax -->
+</li>
+</ul>
+<blockquote>
+<p>💡 為什麼 spectral norm 這麼定義?<br>推薦閱讀周老師的文章, <a href="https://ccjou.wordpress.com/2010/05/10/%E7%9F%A9%E9%99%A3%E6%A8%A1/">矩陣範數</a>, 非常具有啟發性！更多延伸：<a href="https://ccjou.wordpress.com/2012/07/03/%E8%AD%9C%E5%8D%8A%E5%BE%91%E8%88%87%E7%9F%A9%E9%99%A3%E7%AF%84%E6%95%B8/">譜半徑與矩陣範數</a></p>
+</blockquote>
+<ul>
+<li>兩者的關係:      <span>$$\begin{aligned}
+\|A\|_2 \leq \|A\|_F
+\end{aligned}$$</span><!-- Has MathJax -->
+</li>
+</ul>
+<p>接著詳細記錄定義和推導證明 (參考自黃子嘉線性代數講義)</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2026/04/18/MatrixNorm/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2026/03/04/EMD-3/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1659,158 +1833,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2025/07/09/不要逼-Attention-選擇-留個出口吧/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chih-Sheng Chen">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="棒棒生">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2025/07/09/不要逼-Attention-選擇-留個出口吧/" itemprop="url">
-                  不要逼 Attention 選擇, 留個出口吧
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2025-07-09T20:07:28+08:00">
-                2025-07-09
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分類於</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ML/" itemprop="url" rel="index">
-                    <span itemprop="name">ML</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-<hr>
-<p>我們在看一些 attention 有時會看到會將 key 和 value ($K,V$) 各自 padding 一個 zero vector 的 token embedding. 如下圖所示 <img src="/2025/07/09/不要逼-Attention-選擇-留個出口吧/image.png" width="100%" height="100%"> 初次看到可能會很疑惑, 為啥要多 padding zero vectors? 本文就來解釋一下原因.<br>但首先故事要先回到 Transformer 本身<br>以下一些投影片內容取自 <a href="https://hanlab.mit.edu/">Song Han</a> 課程<a href="https://www.dropbox.com/scl/fi/aorbruqhmbu3cpqtnbuyo/Lec15-Long-Context-LLM.pdf?rlkey=i7d5urg0m4mm96wc82nx76lgs&amp;e=1&amp;st=nssefmxf&amp;dl=0">投影片</a></p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2025/07/09/不要逼-Attention-選擇-留個出口吧/#more" rel="contents">
-              閱讀全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1860,7 +1882,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">118</span>
+                <span class="site-state-item-count">119</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -1882,7 +1904,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">249</span>
+                <span class="site-state-item-count">251</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>
