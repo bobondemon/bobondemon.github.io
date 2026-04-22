@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Langevin Dynamics,Denoising Diffusion Probabilistic Models,Diffusion Model,Continuity Equation,Fokker-Planck Equation," />
+  <meta name="keywords" content="Langevin Dynamics,Denoising Diffusion Probabilistic Models,Diffusion Model,Neumann Series,Continuity Equation,Fokker-Planck Equation," />
 
 
 
@@ -99,7 +99,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/12/筆記-Langevin-Dynamics-和-Fokker-Planck-Equation-推導/FP_simulation_stat.gif">
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/12/筆記-Langevin-Dynamics-和-Fokker-Planck-Equation-推導/Untitled.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/11/12/筆記-Langevin-Dynamics-和-Fokker-Planck-Equation-推導/image.png">
-<meta property="og:updated_time" content="2025-08-21T11:27:23.412Z">
+<meta property="og:updated_time" content="2026-04-22T12:30:32.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="筆記 Langevin Dynamics 和 Fokker-Planck Equation 推導">
 <meta name="twitter:description" content="筆記來源 [DeepBayes2019]: Day 5, Lecture 3. Langevin dynamics for sampling and global optimization 前半小時. 非常精彩!
@@ -422,7 +422,7 @@ q(x|x&apos;)=\frac{1}{(2\pi\sigma^2 dt)^{n/2}}\exp\left(\frac
 p_t(x)=\int p_{t-dt}({\color{blue}{x&apos;(y)}})\mathcal{N}(y|0,\sigma^2dt\cdot I)
 {\color{blue}{\left|\frac{\partial x&apos;}{\partial y}\right|}}
 dy
-\end{align}$$</span><!-- Has MathJax --> 就算簡化了 $q(x|x’)$ 成上式, 藍色的部分 <span>${\color{blue}{x&apos;(y)}}$</span><!-- Has MathJax -->, <span>${\color{blue}{|\partial x&apos;/\partial y|}}$</span><!-- Has MathJax --> 我們仍不知道, 必須想辦法從 $y$ (8) 的定義反寫.<br>先處理比較好做的 <span>${\color{blue}{|\partial x&apos;/\partial y|}}$</span><!-- Has MathJax --> (<strong>謝謝某位讀者來信討論, 幫助推導</strong>)<br>根據定義 <span>$y=x&apos;-x-\nabla U(x&apos;)dt$</span><!-- Has MathJax --> 且我們有 <span>$(I-A)^{-1}=I+A+A^2+A^3+...$</span><!-- Has MathJax --> 的公式 [<a href="https://math.stackexchange.com/questions/298616/what-is-inverse-of-ia" target="_blank" rel="external">ref</a>], 先計算 <span>$\partial y/\partial x&apos;$</span><!-- Has MathJax --> 得到:<br><span>$$\frac{\partial y}{\partial x&apos;}=I-H(x&apos;)dt$$</span><!-- Has MathJax --> 其中 $H(x’)$ 為 $U$ 的 Hessian matrix, 其第 $(i,j)$ element 為:<br><span>$$H_{ij}=\frac{\partial^2 U}{\partial x_i\partial x_j}$$</span><!-- Has MathJax --> 再計算 inverse:<br><span>$$\frac{\partial x&apos;}{\partial y}=\left(\frac{\partial y}{\partial x&apos;}\right)^{-1}=\left(I-H(x&apos;)dt\right)^{-1} \\
+\end{align}$$</span><!-- Has MathJax --> 就算簡化了 $q(x|x’)$ 成上式, 藍色的部分 <span>${\color{blue}{x&apos;(y)}}$</span><!-- Has MathJax -->, <span>${\color{blue}{|\partial x&apos;/\partial y|}}$</span><!-- Has MathJax --> 我們仍不知道, 必須想辦法從 $y$ (8) 的定義反寫.<br>先處理比較好做的 <span>${\color{blue}{|\partial x&apos;/\partial y|}}$</span><!-- Has MathJax --> (<strong>謝謝某位讀者來信討論, 幫助推導</strong>)<br>根據定義 <span>$y=x&apos;-x-\nabla U(x&apos;)dt$</span><!-- Has MathJax --> 且我們有 <span>$(I-A)^{-1}=I+A+A^2+A^3+...$</span><!-- Has MathJax --> 的公式 [<a href="https://math.stackexchange.com/questions/298616/what-is-inverse-of-ia" target="_blank" rel="external">ref</a>] [<a href="https://www.wikiwand.com/en/Neumann_series" target="_blank" rel="external">Neumann series</a>], 先計算 <span>$\partial y/\partial x&apos;$</span><!-- Has MathJax --> 得到:<br><span>$$\frac{\partial y}{\partial x&apos;}=I-H(x&apos;)dt$$</span><!-- Has MathJax --> 其中 $H(x’)$ 為 $U$ 的 Hessian matrix, 其第 $(i,j)$ element 為:<br><span>$$H_{ij}=\frac{\partial^2 U}{\partial x_i\partial x_j}$$</span><!-- Has MathJax --> 再計算 inverse:<br><span>$$\frac{\partial x&apos;}{\partial y}=\left(\frac{\partial y}{\partial x&apos;}\right)^{-1}=\left(I-H(x&apos;)dt\right)^{-1} \\
 =I+H(x&apos;)dt+o(dt)$$</span><!-- Has MathJax --> 觀察 $I+H(x’)dt$ 的 determinant, 簡單用 $2\times 2$ 矩陣來看 (很容易拓展到 $n\times n$):<br><span>$$|I+H(x&apos;)dt|=\left|
 \begin{array}{cc}
 1+\frac{\partial^2 U}{\partial x_1^2}dt &amp; \frac{\partial^2 U}{\partial x_1\partial x_2}dt \\
@@ -522,6 +522,8 @@ p_t(x)+\nabla p_t(x)^T\nabla U(x)dt-\frac{\partial }{\partial t}p_t(x)dt+\frac{1
             <a href="/tags/Denoising-Diffusion-Probabilistic-Models/" rel="tag"># Denoising Diffusion Probabilistic Models</a>
           
             <a href="/tags/Diffusion-Model/" rel="tag"># Diffusion Model</a>
+          
+            <a href="/tags/Neumann-Series/" rel="tag"># Neumann Series</a>
           
             <a href="/tags/Continuity-Equation/" rel="tag"># Continuity Equation</a>
           
@@ -644,7 +646,7 @@ p_t(x)+\nabla p_t(x)^T\nabla U(x)dt-\frac{\partial }{\partial t}p_t(x)dt+\frac{1
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">251</span>
+                <span class="site-state-item-count">252</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>
