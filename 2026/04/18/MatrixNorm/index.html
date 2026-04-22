@@ -93,7 +93,7 @@
 <meta property="og:url" content="https://bobondemon.github.io/2026/04/18/MatrixNorm/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="向量的 norm 我們很熟悉了, 但對於一個矩陣的 norm 又該怎麼定義呢?最直覺的想法就是把矩陣 flatten 成一個向量, 套用向量的 norm 即可. 這引導出了 Frobenius norm.但是矩陣還包含了將向量做線性轉換的作用, 所以向量經過矩陣轉換後的 norm 變化是不是可以用來當作矩陣 norm 的度量方式呢? 這樣的想法引導出了 operator norm 或 sp">
-<meta property="og:updated_time" content="2026-04-22T12:30:53.968Z">
+<meta property="og:updated_time" content="2026-04-22T14:40:37.265Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="量量矩陣的大小: Frobenius 和 Spectral Norm">
 <meta name="twitter:description" content="向量的 norm 我們很熟悉了, 但對於一個矩陣的 norm 又該怎麼定義呢?最直覺的想法就是把矩陣 flatten 成一個向量, 套用向量的 norm 即可. 這引導出了 Frobenius norm.但是矩陣還包含了將向量做線性轉換的作用, 所以向量經過矩陣轉換後的 norm 變化是不是可以用來當作矩陣 norm 的度量方式呢? 這樣的想法引導出了 operator norm 或 sp">
@@ -455,21 +455,21 @@
 \|A\|_F=\sqrt{\mathrm{Tr}(A^HA)}=\sqrt{\mathrm{Tr}(I)}=\sqrt{n}
 \end{aligned}$$</span><!-- Has MathJax --> 這樣的結果符合物理直覺, unitary matrix or orthogonal matrix 在做的事情只是座標旋轉.</p>
 <hr>
-<h2 id="Neumann-無窮級數"><a href="#Neumann-無窮級數" class="headerlink" title="Neumann 無窮級數"></a>Neumann 無窮級數</h2><p>摘錄自周老師文章: <a href="https://ccjou.wordpress.com/2010/06/25/neumann-%e7%84%a1%e7%aa%ae%e7%b4%9a%e6%95%b8/" target="_blank" rel="external">Neumann 無窮級數</a><br>設 <span>$A\in\mathbb{R}^{n\times n}$</span><!-- Has MathJax -->, 若 $|A|<1$, 則="" $(i-a)$="" 可逆且="" <span="">$$\begin{align}
+<h2 id="應用-Neumann-無窮級數"><a href="#應用-Neumann-無窮級數" class="headerlink" title="應用: Neumann 無窮級數"></a>應用: Neumann 無窮級數</h2><p>摘錄自周老師文章: <a href="https://ccjou.wordpress.com/2010/06/25/neumann-%e7%84%a1%e7%aa%ae%e7%b4%9a%e6%95%b8/" target="_blank" rel="external">Neumann 無窮級數</a><br>設 <span>$A\in\mathbb{R}^{n\times n}$</span><!-- Has MathJax -->, 若 <span>$\|A\|&lt;1$</span><!-- Has MathJax -->, 則 <span>$(I-A)$</span><!-- Has MathJax --> 可逆且<br><span>$$\begin{align}
 (I-A)^{-1}=\sum_{k=0}^\infty A^k
-\end{align}$$<!-- Has MathJax --> 上式稱為 <strong>Neumann 無窮級數</strong><br>注意到這裡的 norm 可以是 Frobenius norm, 或是 operator norm (當然包含了 $p=2$ 的 spectral norm)</1$,></p>
+\end{align}$$</span><!-- Has MathJax --> 上式稱為 <strong>Neumann 無窮級數</strong><br>注意到這裡的 norm 可以是 Frobenius norm, 或是 operator norm (當然包含了 $p=2$ 的 spectral norm)</p>
 <blockquote>
 <p>在筆者過往的經驗中, 遇過幾次需要用上 Neumann 無窮級數 (9) 來逼近或求解, 例如我們在這篇文章中 “<a href="https://bobondemon.github.io/2024/11/12/%E7%AD%86%E8%A8%98-Langevin-Dynamics-%E5%92%8C-Fokker-Planck-Equation-%E6%8E%A8%E5%B0%8E/">筆記 Langevin Dynamics 和 Fokker-Planck Equation 推導</a>” 式 (9) 下面描述的推導就有用到.</p>
 </blockquote>
-<p>首先先證明 $(I-A)$ 可逆, 令 $x\neq0$, 考慮 $(I-A)x=0$:<br><span>$$\begin{aligned}
+<p>首先先證明 <span>$(I-A)$</span><!-- Has MathJax --> 可逆, 令 <span>$x\neq0$</span><!-- Has MathJax -->, 考慮 <span>$(I-A)x=0$</span><!-- Has MathJax -->:<br><span>$$\begin{aligned}
 x=Ax &amp;\Longrightarrow \|x\|=\|Ax\|\leq\|A\|\cdot\|x\|\\
 &amp;\Longrightarrow \|A\|\geq 1
-\end{aligned}$$</span><!-- Has MathJax --> 與已知條件 $|A|<1$ 矛盾,="" 因此="" $(i-a)x="0$" 只有="" $x="0$" 解,="" 所以="" $(i-a)$="" 可逆="" 接著證明="" neumann="" 無窮級數的形式,="" 令="" <span="">$S_{\color{orange}{n}}=\sum_{k=0}^{\color{orange}{n}} A^k$<!-- Has MathJax --> 先證明 $S_n$ 為收斂數列, 即證明其為<a href="https://www.notion.so/Cauchy-Sequence-b623a219a0a443df8aeb4b1774ec3da1?pvs=21" target="_blank" rel="external">歌西列</a>, 設 $p&gt;q$<br><span>$$\begin{aligned}
+\end{aligned}$$</span><!-- Has MathJax --> 與已知條件 <span>$\|A\|&lt;1$</span><!-- Has MathJax --> 矛盾, 因此 <span>$(I-A)x=0$</span><!-- Has MathJax --> 只有 <span>$x=0$</span><!-- Has MathJax --> 解, 所以 <span>$(I-A)$</span><!-- Has MathJax --> 可逆<br>接著證明 Neumann 無窮級數的形式, 令<br><span>$S_{\color{orange}{n}}=\sum_{k=0}^{\color{orange}{n}} A^k$</span><!-- Has MathJax --> 先證明 $S_n$ 為收斂數列, 即證明其為<a href="https://www.notion.so/Cauchy-Sequence-b623a219a0a443df8aeb4b1774ec3da1?pvs=21" target="_blank" rel="external">歌西列</a>, 設 $p&gt;q$<br><span>$$\begin{aligned}
 \|S_q-S_q\|=\left\|\sum_{k=q+1}^p A^k\right\| \leq \sum_{k=q+1}^p \|A\|^k
-\end{aligned}$$</span><!-- Has MathJax --> 因為 $|A|<1$, 所以="" <span="">$\|S_p-S_q\|\rightarrow0$<!-- Has MathJax -->, as <span>$p,q\longrightarrow\infty$</span><!-- Has MathJax -->. $S_n$ 為收斂數列<br>觀察 $(I-A)S_n$:<br><span>$$\begin{aligned}
+\end{aligned}$$</span><!-- Has MathJax --> 因為 <span>$\|A\|&lt;1$</span><!-- Has MathJax -->, 所以 <span>$\|S_p-S_q\|\rightarrow0$</span><!-- Has MathJax -->, as <span>$p,q\longrightarrow\infty$</span><!-- Has MathJax -->. $S_n$ 為收斂數列<br>觀察 <span>$(I-A)S_n$</span><!-- Has MathJax -->:<br><span>$$\begin{aligned}
 (I-A)S_n=(I-A)\sum_{k=0}^n A^k=I-A^{n+1} \\
 \Longrightarrow S_n=(I-A)^{-1}(I-A^{n+1})
-\end{aligned}$$</span><!-- Has MathJax --> 由 $S_n$ 為收斂數列知 $I-A^{n+1}$ 也必收斂, 同樣加上 $|A|&lt;1$ 的條件則很容易得到收斂結果為 $I$.<br>因此 $S_n=(I-A)^{-1}$.</1$,></1$></p>
+\end{aligned}$$</span><!-- Has MathJax --> 由 $S_n$ 為收斂數列知 <span>$I-A^{n+1}$</span><!-- Has MathJax --> 也必收斂, 同樣加上 <span>$\|A\|&lt;1$</span><!-- Has MathJax --> 的條件則很容易得到收斂結果為 $I$.<br>因此 <span>$S_n=(I-A)^{-1}$</span><!-- Has MathJax -->.</p>
 
       
     </div>
@@ -668,7 +668,7 @@ x=Ax &amp;\Longrightarrow \|x\|=\|Ax\|\leq\|A\|\cdot\|x\|\\
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Operator-Spectral-與-Frobenius-Norm-的定義"><span class="nav-number">1.</span> <span class="nav-text">Operator, Spectral 與 Frobenius Norm 的定義</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#證明-Spectral-Norm-是最大的-Singular-Value"><span class="nav-number">2.</span> <span class="nav-text">證明 Spectral Norm 是最大的 Singular Value</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Rayleigh-Quotient-Principle"><span class="nav-number">2.1.</span> <span class="nav-text">Rayleigh Quotient Principle</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spectral-Norm-對應最大的-eigenvalue-singular-value"><span class="nav-number">2.2.</span> <span class="nav-text">Spectral Norm 對應最大的 eigenvalue/singular value</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#證明-Frobenius-Norm-是-Singular-Value-平方和的開根號"><span class="nav-number">3.</span> <span class="nav-text">證明 Frobenius Norm 是 Singular Value 平方和的開根號</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#範例-Unitary-Matrix-的-Spectral-與-Frobenius-Norm"><span class="nav-number">4.</span> <span class="nav-text">範例: Unitary Matrix 的 Spectral 與 Frobenius Norm</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Neumann-無窮級數"><span class="nav-number">5.</span> <span class="nav-text">Neumann 無窮級數</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Operator-Spectral-與-Frobenius-Norm-的定義"><span class="nav-number">1.</span> <span class="nav-text">Operator, Spectral 與 Frobenius Norm 的定義</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#證明-Spectral-Norm-是最大的-Singular-Value"><span class="nav-number">2.</span> <span class="nav-text">證明 Spectral Norm 是最大的 Singular Value</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Rayleigh-Quotient-Principle"><span class="nav-number">2.1.</span> <span class="nav-text">Rayleigh Quotient Principle</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spectral-Norm-對應最大的-eigenvalue-singular-value"><span class="nav-number">2.2.</span> <span class="nav-text">Spectral Norm 對應最大的 eigenvalue/singular value</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#證明-Frobenius-Norm-是-Singular-Value-平方和的開根號"><span class="nav-number">3.</span> <span class="nav-text">證明 Frobenius Norm 是 Singular Value 平方和的開根號</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#範例-Unitary-Matrix-的-Spectral-與-Frobenius-Norm"><span class="nav-number">4.</span> <span class="nav-text">範例: Unitary Matrix 的 Spectral 與 Frobenius Norm</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#應用-Neumann-無窮級數"><span class="nav-number">5.</span> <span class="nav-text">應用: Neumann 無窮級數</span></a></li></ol></div>
             
 
           </div>
