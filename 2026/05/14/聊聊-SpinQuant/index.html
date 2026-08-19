@@ -1,0 +1,799 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Cayley SGD,SpinQuant,QuIP,QuIP#,PrefixQuant,TurboQuant," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="不打算長篇大論, 精簡聊一下 SpinQuant 這篇論文, 來杯咖啡 ☕ 開始吧.
+從前面一篇 blog “隨機旋轉的量化魔法: 去去極值走” 我們知道隨機旋轉可以把 outlier 去除, 或甚至旋轉矩陣直接針對 loss 用學的 (本篇 SpinQuant 的作法, 使用 Cayley SGD 去學)針對一個簡單的線性層 $Y=XW$ (這裡使用右乘), 我們使用一個正交矩陣 $R$ 同時">
+<meta property="og:type" content="article">
+<meta property="og:title" content="聊聊 SpinQuant">
+<meta property="og:url" content="https://bobondemon.github.io/2026/05/14/聊聊-SpinQuant/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="不打算長篇大論, 精簡聊一下 SpinQuant 這篇論文, 來杯咖啡 ☕ 開始吧.
+從前面一篇 blog “隨機旋轉的量化魔法: 去去極值走” 我們知道隨機旋轉可以把 outlier 去除, 或甚至旋轉矩陣直接針對 loss 用學的 (本篇 SpinQuant 的作法, 使用 Cayley SGD 去學)針對一個簡單的線性層 $Y=XW$ (這裡使用右乘), 我們使用一個正交矩陣 $R$ 同時">
+<meta property="og:image" content="https://bobondemon.github.io/2026/05/14/聊聊-SpinQuant/image.png">
+<meta property="og:image" content="https://bobondemon.github.io/2026/05/14/聊聊-SpinQuant/image 1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2026/05/14/聊聊-SpinQuant/image 2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2026/05/14/聊聊-SpinQuant/SpinQuant_robustness.png">
+<meta property="og:updated_time" content="2026-08-19T13:01:09.838Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="聊聊 SpinQuant">
+<meta name="twitter:description" content="不打算長篇大論, 精簡聊一下 SpinQuant 這篇論文, 來杯咖啡 ☕ 開始吧.
+從前面一篇 blog “隨機旋轉的量化魔法: 去去極值走” 我們知道隨機旋轉可以把 outlier 去除, 或甚至旋轉矩陣直接針對 loss 用學的 (本篇 SpinQuant 的作法, 使用 Cayley SGD 去學)針對一個簡單的線性層 $Y=XW$ (這裡使用右乘), 我們使用一個正交矩陣 $R$ 同時">
+<meta name="twitter:image" content="https://bobondemon.github.io/2026/05/14/聊聊-SpinQuant/image.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2026/05/14/聊聊-SpinQuant/"/>
+
+
+
+
+
+  <title> 聊聊 SpinQuant | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2026/05/14/聊聊-SpinQuant/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                聊聊 SpinQuant
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2026-05-14T20:25:32+08:00">
+                2026-05-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<p>不打算長篇大論, 精簡聊一下 SpinQuant 這篇論文, 來杯咖啡 ☕ 開始吧.</p>
+<p>從前面一篇 blog “<a href="https://bobondemon.github.io/2026/04/29/%E9%9A%A8%E6%A9%9F%E6%97%8B%E8%BD%89%E7%9A%84%E9%87%8F%E5%8C%96%E9%AD%94%E6%B3%95/">隨機旋轉的量化魔法: 去去極值走</a>” 我們知道隨機旋轉可以把 outlier 去除, 或甚至旋轉矩陣直接針對 loss 用學的 (本篇 <a href="https://arxiv.org/abs/2405.16406" target="_blank" rel="external">SpinQuant</a> 的作法, 使用 <a href="https://bobondemon.github.io/2026/04/27/%E6%AD%A3%E4%BA%A4-%E6%97%8B%E8%BD%89-%E7%9F%A9%E9%99%A3%E7%9A%84%E6%A2%AF%E5%BA%A6-%E4%BB%A5%E5%8F%8A-Cayley-SGD-%E7%B6%AD%E6%8C%81%E6%AD%A3%E4%BA%A4%E6%80%A7%E7%9A%84%E6%A2%AF%E5%BA%A6%E6%9B%B4%E6%96%B0%E7%AE%97%E6%B3%95/">Cayley SGD</a> 去學)<br>針對一個簡單的線性層 <span>$Y=XW$</span><!-- Has MathJax --> (這裡使用右乘), 我們使用一個正交矩陣 <span>$R$</span><!-- Has MathJax --> 同時對 input activation <span>$X$</span><!-- Has MathJax --> 和 weight <span>$W$</span><!-- Has MathJax --> 旋轉, 讓他們同時好量化:<br><span>$$\begin{align}
+Y &amp;=XW=(XR)(R^TW) \\
+&amp;\approx Q(XR)Q(R^TW)
+\end{align}$$</span><!-- Has MathJax --> 其中 <span>$Q(\cdot)$</span><!-- Has MathJax --> 表示量化 op. 對照參考下圖應該不難理解</p>
+<p><img src="/2026/05/14/聊聊-SpinQuant/image.png" width="100%" height="100%"> 那麼接著來看看 SpinQuant 全架構的旋轉量化圖</p>
+<a id="more"></a>
+<p><img src="/2026/05/14/聊聊-SpinQuant/image 1.png" width="100%" height="100%"> 共有 4 種旋轉矩陣 <span>$\{R_1,R_2\}$</span><!-- Has MathJax --> 是事先用 Cayley SGD 透過 calibration data 學出來的, 而 <span>$\{R_3,R_4\}$</span><!-- Has MathJax --> 則是隨機選擇一個 Random hadamard Transform 矩陣 (選好後固定下來):</p>
+<ul>
+<li>注意到 <span>$R_1$</span><!-- Has MathJax --> 是所有 attention layers 共同 share 的, 而 <span>$R_2$</span><!-- Has MathJax --> 則是每層 layers 都有自己的參數. (參考官方 <a href="https://github.com/facebookresearch/SpinQuant/blob/main/optimize_rotation.py" target="_blank" rel="external">codes</a>: line 69~79)<br>  <img src="/2026/05/14/聊聊-SpinQuant/image 2.png" width="100%" height="100%"></li>
+<li>只有頭尾需要做一次 <span>$R_1$</span><!-- Has MathJax --> 和 <span>$R_1^{T}$</span><!-- Has MathJax --> 的矩陣乘法就好, 中間的空間都已經是經過 <span>$R_1$</span><!-- Has MathJax --> 旋轉後的空間</li>
+<li><span>$R_3$</span><!-- Has MathJax --> 同時作用在 query <span>$q$</span><!-- Has MathJax --> 和 key <span>$k$</span><!-- Has MathJax -->, 這是因為正交矩陣 “保內積”, i.e. <span>$\langle q,k \rangle = \langle Rq,Rk \rangle$</span><!-- Has MathJax -->.</li>
+</ul>
+<p>雖然我們之前已經探討過隨機旋轉就夠好了, 數學保證了有很大的機率不會有 outliers (QuIP 論文)<br>但 SpinQuant 論文提到 <span>$\{R_1,R_2\}$</span><!-- Has MathJax --> 直接用學的更穩定:<br><img src="/2026/05/14/聊聊-SpinQuant/SpinQuant_robustness.png" width="50%" height="50%"><br>另外還記得 26 年 4 月 Google 發表 <a href="https://research.google/blog/turboquant-redefining-ai-efficiency-with-extreme-compression/" target="_blank" rel="external">TurboQuant</a>, 壓縮推論需要的記憶體需求, 直接讓記憶體類股的股價下跌這件事嗎?<br>這也跟旋轉量化有關, 其中有一步也是利用隨機旋轉矩陣 (論文裡稱 PolarQuant)<br>有趣的是, 可以證明隨機旋轉後, 投影到的每個維度互相<strong>獨立且必為 Beta 分佈</strong>.<br>既然已知必定為 Beta 分布, 那就可以事先決定好最佳的量化參數了.<br>利用這種做法 (加其他步驟) Google 對 KV cache 做到極大的量化!</p>
+<p>最後再補充另一種量化技術稱 <a href="https://arxiv.org/abs/2410.05265" target="_blank" rel="external">PrefixQuant</a>, 也是針對 KV-cache 壓縮.<br>他們觀察到如同 <a href="https://bobondemon.github.io/2025/07/09/%E4%B8%8D%E8%A6%81%E9%80%BC-Attention-%E9%81%B8%E6%93%87-%E7%95%99%E5%80%8B%E5%87%BA%E5%8F%A3%E5%90%A7/#The-%E2%80%9CAttention-Sink%E2%80%9D-Phenomenon">attention sink</a> 的現象, outliers 都集中在某些無意義的 tokens, 那麼將這些 token 的 kv cache 獨立出來當成 prefix tokens 並保留全精度. 其他所有 tokens 都可以很好的量化了.<br>從這也可以看到 PrefixQuant 是 token-wise level, 而非 SpinQuant/QuIP/AWQ 的 channel-wise level 的量化方法.</p>
+<p>LLM PTQ 真的愈來愈神了, 原本我認為 PTQ 無法做到多好的刻板印象看來要更新更新<br>真的太神了, 不禁想再感嘆一次~</p>
+<ul>
+<li>投影片檔案 [<a href="聊聊SpinQuant.pptx">pptx</a>], [<a href="聊聊SpinQuant.pdf">pdf</a>]</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2026/05/14/聊聊-SpinQuant/" title="聊聊 SpinQuant">https://bobondemon.github.io/2026/05/14/聊聊-SpinQuant/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Cayley-SGD/" rel="tag"># Cayley SGD</a>
+          
+            <a href="/tags/SpinQuant/" rel="tag"># SpinQuant</a>
+          
+            <a href="/tags/QuIP/" rel="tag"># QuIP</a>
+          
+            <a href="/tags/QuIP/" rel="tag"># QuIP#</a>
+          
+            <a href="/tags/PrefixQuant/" rel="tag"># PrefixQuant</a>
+          
+            <a href="/tags/TurboQuant/" rel="tag"># TurboQuant</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2026/04/29/隨機旋轉的量化魔法/" rel="next" title="隨機旋轉的量化魔法: 去去極值走">
+                <i class="fa fa-chevron-left"></i> 隨機旋轉的量化魔法: 去去極值走
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2026/08/16/Schur-互補和-Cholesky-分解/" rel="prev" title="Schur 互補和 Cholesky 分解">
+                Schur 互補和 Cholesky 分解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">123</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">262</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+<span id="busuanzi_container_site_pv">
+  本站總瀏覽 <span id="busuanzi_value_site_pv"></span> 次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站訪客 <span id="busuanzi_value_site_uv"></span> 人
+</span>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

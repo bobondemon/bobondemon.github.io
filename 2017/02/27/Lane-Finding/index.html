@@ -1,0 +1,939 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Udacity,CV," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="以下是 github 上的 README, 全英文. 此 Project 主要都是在做 Computer Vision 相關的東西. 學到了許多使用 Python and CV 相關的技巧. 整理來說是個滿有趣的 project!">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Lane-Finding">
+<meta property="og:url" content="https://bobondemon.github.io/2017/02/27/Lane-Finding/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="以下是 github 上的 README, 全英文. 此 Project 主要都是在做 Computer Vision 相關的東西. 學到了許多使用 Python and CV 相關的技巧. 整理來說是個滿有趣的 project!">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/27/Lane-Finding/video.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/27/Lane-Finding/1_calibration_camera_chessboard.jpg">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/27/Lane-Finding/2_undist.jpg">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/27/Lane-Finding/3_masking.jpg">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/27/Lane-Finding/widgets.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/27/Lane-Finding/4_warp.jpg">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/27/Lane-Finding/lane_pixel_windows.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/27/Lane-Finding/5_lane_pixel_fit.jpg">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/27/Lane-Finding/shared_poly_fit.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/27/Lane-Finding/example_with_shared_poly_fit.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/27/Lane-Finding/dynamic_src_pts.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/27/Lane-Finding/perspective_formula.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/27/Lane-Finding/dynamic_perspective_src.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/27/Lane-Finding/6_curvature.jpg">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/27/Lane-Finding/7_warp_back.jpg">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/27/Lane-Finding/video.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/27/Lane-Finding/challenge-russian.gif">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/27/Lane-Finding/mega-challenge.gif">
+<meta property="og:updated_time" content="2017-03-15T01:00:30.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Lane-Finding">
+<meta name="twitter:description" content="以下是 github 上的 README, 全英文. 此 Project 主要都是在做 Computer Vision 相關的東西. 學到了許多使用 Python and CV 相關的技巧. 整理來說是個滿有趣的 project!">
+<meta name="twitter:image" content="https://bobondemon.github.io/2017/02/27/Lane-Finding/video.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2017/02/27/Lane-Finding/"/>
+
+
+
+
+
+  <title> Lane-Finding | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2017/02/27/Lane-Finding/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Lane-Finding
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2017-02-27T10:12:28+08:00">
+                2017-02-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CV/" itemprop="url" rel="index">
+                    <span itemprop="name">CV</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="/2017/02/27/Lane-Finding/video.png" alt="title image" height="60%" width="60%"><br>以下是 github 上的 README, 全英文. 此 Project 主要都是在做 Computer Vision 相關的東西. 學到了許多使用 Python and CV 相關的技巧. 整理來說是個滿有趣的 project!</p>
+<a id="more"></a>
+<p>The goals / steps of this project are the following:</p>
+<ol>
+<li>Compute the camera calibration matrix and distortion coefficients given a set of chessboard images.</li>
+<li>Apply a distortion correction to raw images.</li>
+<li>Use color transforms, gradients, etc., to create a thresholded binary image.</li>
+<li>Apply a perspective transform to rectify binary image (“birds-eye view”).</li>
+<li>Detect lane pixels and fit to find the lane boundary.</li>
+<li>Determine the curvature of the lane and vehicle position with respect to center.</li>
+<li>Warp the detected lane boundaries back onto the original image.</li>
+<li>Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.</li>
+</ol>
+<hr>
+<h3 id="Rubric-Points"><a href="#Rubric-Points" class="headerlink" title="Rubric Points"></a><a href="https://review.udacity.com/#!/rubrics/571/view" target="_blank" rel="external">Rubric</a> Points</h3><h4 id="1-Camera-calibration"><a href="#1-Camera-calibration" class="headerlink" title="1. Camera calibration"></a>1. Camera calibration</h4><p>The images for calculating the distortion and 3-D to 2-D mapping matrix are stored in <code>./camera_cal/calibration*.jpg</code>.<br>Firstly, I used <code>cv2.findChessboardCorners</code> to find out all those corner points (<code>corners</code>) in the images.<br>Then I used <code>cv2.calibrateCamera</code> to calculate the distortion (<code>dist</code>) and mapping matrix (<code>mtx</code>) given the <code>corners</code> pts and their corresponding predifined 3-D pts <code>objp</code></p>
+<p><img src="/2017/02/27/Lane-Finding/1_calibration_camera_chessboard.jpg" alt="chessboard" height="100%" width="100%"></p>
+<h4 id="2-Provide-an-example-of-a-distortion-corrected-image"><a href="#2-Provide-an-example-of-a-distortion-corrected-image" class="headerlink" title="2. Provide an example of a distortion-corrected image"></a>2. Provide an example of a distortion-corrected image</h4><p>Here is an example of distortion-corrected image:</p>
+<p><img src="/2017/02/27/Lane-Finding/2_undist.jpg" alt="camera calibration" height="100%" width="100%"></p>
+<h4 id="3-Create-a-thresholded-binary-image-and-provide-example"><a href="#3-Create-a-thresholded-binary-image-and-provide-example" class="headerlink" title="3. Create a thresholded binary image and provide example"></a>3. Create a thresholded binary image and provide example</h4><p>I used magnitude of gradients, direction of gradients, and L and S in HLS color space.<br>A combined rule is used:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">combined[((mag_binary == <span class="number">1</span>) &amp; (dir_binary == <span class="number">1</span>)) |\</div><div class="line">         ((hls_binary == <span class="number">1</span>) &amp; (dir_binary == <span class="number">1</span>) &amp; (bright_binary == <span class="number">1</span>))] = <span class="number">1</span></div></pre></td></tr></table></figure>
+<p>Example masking image is showed:</p>
+<p><img src="/2017/02/27/Lane-Finding/3_masking.jpg" alt="binary masking" height="100%" width="100%"></p>
+<p>Moreover, I used widgets to help tunning the parameters of those masking functions. It can provide instantaneous binary result that really help for accelarating this step. The widgets codes are list here:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">interactive_mask</span><span class="params">(ksize, mag_low, mag_high, dir_low, dir_high, hls_low, hls_high, bright_low, bright_high)</span>:</span></div><div class="line">    combined = combined_binary_mask(image,ksize, mag_low, mag_high, dir_low, dir_high,\</div><div class="line">                                    hls_low, hls_high, bright_low, bright_high)</div><div class="line">    plt.figure(figsize=(<span class="number">10</span>,<span class="number">10</span>))</div><div class="line">    plt.imshow(combined,cmap=<span class="string">'gray'</span>)</div><div class="line">    </div><div class="line">interact(interactive_mask, ksize=(<span class="number">1</span>,<span class="number">31</span>,<span class="number">2</span>), mag_low=(<span class="number">0</span>,<span class="number">255</span>), mag_high=(<span class="number">0</span>,<span class="number">255</span>),\</div><div class="line">         dir_low=(<span class="number">0</span>, np.pi/<span class="number">2</span>), dir_high=(<span class="number">0</span>, np.pi/<span class="number">2</span>), hls_low=(<span class="number">0</span>,<span class="number">255</span>),\</div><div class="line">         hls_high=(<span class="number">0</span>,<span class="number">255</span>), bright_low=(<span class="number">0</span>,<span class="number">255</span>), bright_high=(<span class="number">0</span>,<span class="number">255</span>))</div></pre></td></tr></table></figure>
+<p><img src="/2017/02/27/Lane-Finding/widgets.png" alt="widgets" height="50%" width="50%"></p>
+<h4 id="4-Perspective-transform"><a href="#4-Perspective-transform" class="headerlink" title="4. Perspective transform"></a>4. Perspective transform</h4><p>First, I defined the source and destination of perspective points as follows:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Source</th>
+<th style="text-align:center">Destination</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">585, 460</td>
+<td style="text-align:center">320, 0</td>
+</tr>
+<tr>
+<td style="text-align:center">203, 720</td>
+<td style="text-align:center">320, 720</td>
+</tr>
+<tr>
+<td style="text-align:center">1127, 720</td>
+<td style="text-align:center">960, 720</td>
+</tr>
+<tr>
+<td style="text-align:center">695, 460</td>
+<td style="text-align:center">960, 0</td>
+</tr>
+</tbody>
+</table>
+<p>Then the <code>perspective_warper</code> function is defined which returns perspective image and the matrix <code>warpM</code> as well.<br><code>warM</code> is needed for the later step which does the <em>inverse perspective</em> back to the original image.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">perspective_img, warpM = perspective_warper(undist,src,dst)</div></pre></td></tr></table></figure>
+<p>An example is showed here:</p>
+<p><img src="/2017/02/27/Lane-Finding/4_warp.jpg" alt="perspective" height="100%" width="100%"></p>
+<h4 id="5-Lane-line-pixel-and-polynomial-fitting"><a href="#5-Lane-line-pixel-and-polynomial-fitting" class="headerlink" title="5. Lane line pixel and polynomial fitting"></a>5. Lane line pixel and polynomial fitting</h4><p>I applied a windowing approach to identify the lane pixels</p>
+<p><img src="/2017/02/27/Lane-Finding/lane_pixel_windows.png" alt="camera calibration" height="100%" width="100%"></p>
+<p>In this example, I used 9 windows for both lane lines. The window is processed in an order from the buttom to the top.</p>
+<p>Pixels are detected by the following function</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">identify_lane_pixel</span><span class="params">(img, lcenter_in, rcenter_in, win_num=<span class="number">9</span>, win_half_width=<span class="number">150</span>, start_from_button=False)</span>:</span></div></pre></td></tr></table></figure>
+<ul>
+<li><p><code>lcenter_in</code> and <code>rcenter_in</code>are the centers (in horizontal coordinate) of windows.</p>
+</li>
+<li><p><code>win_num</code> defines how many windows are used. In this example, 9.</p>
+</li>
+<li><p><code>win_half_width</code> refers to the half length of window width</p>
+</li>
+<li><p><code>start_from_button</code> indicates how the initial centers of windows are set. Specifically, Let the current window as j and current frame index as i. If <code>start_from_button=True</code>, the center of window j will be initally set as window <strong>j-1</strong>. Otherwise, it will be initally set as window <strong>j</strong> in frame <strong>i-1</strong>. Then, by using the initial position just set, the lane pixels are identified if the histogram of that window is high enough. Finally, based on those identified pixels, update the center position of current widnow j.</p>
+</li>
+</ul>
+<p>Next, a simple second order polynomial fitting is applied to both identified pixels</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Fit a second order polynomial to each</span></div><div class="line">left_fit = np.polyfit(lpixely, lpixelx, <span class="number">2</span>)</div><div class="line">right_fit = np.polyfit(rpixely, rpixelx, <span class="number">2</span>)</div></pre></td></tr></table></figure>
+<p><img src="/2017/02/27/Lane-Finding/5_lane_pixel_fit.jpg" alt="lane pixel and fit" height="100%" width="100%"></p>
+<p>But wait! Since we are assuming “birds-eye view”, both lanes should be parallel!</p>
+<p>So I first tried a method that <strong>ties the polynomial coefficients except the shifting ones!</strong></p>
+<p><img src="/2017/02/27/Lane-Finding/shared_poly_fit.png" alt="method of shared polyfit" height="80%" width="80%"></p>
+<p>this method results in the following example</p>
+<p><img src="/2017/02/27/Lane-Finding/example_with_shared_poly_fit.png" alt="example of shared polyfit" height="60%" width="60%"></p>
+<p>As can be seen in the figure, curves are indeed parallel. However, when I applied this method to the final video, I found that it <strong>wobbling</strong> a lot! (see “8. Video” below)</p>
+<p>After some investigation, I wonder that this problem is caused by the fixed source points of perspective.</p>
+<p>Since the pre-defined source points are always at the center of the camera while the lane curves are usually not, the result perspective curves is <strong>intrinsically not parellel!</strong></p>
+<p>Hence, I applied a dynamic source point correction. Idea of method is showed in the follows:</p>
+<p><img src="/2017/02/27/Lane-Finding/dynamic_src_pts.png" alt="dynamic_src_pts" height="80%" width="80%"></p>
+<p>mapping inversely from coordinates in perspective images to original images can use the following formula:</p>
+<p><img src="/2017/02/27/Lane-Finding/perspective_formula.png" alt="dynamic_src_pts" height="50%" width="50%"></p>
+<p>and results in the following example</p>
+<p><img src="/2017/02/27/Lane-Finding/dynamic_perspective_src.png" alt="example of dynamic src pts" height="60%" width="60%"></p>
+<p>It works great! Unfortunately, <strong>if the lane curves are not stable, the resulting new source points may fail</strong>. This is the major difficulty of this method! (see “8. Video” below)</p>
+<h4 id="6-Radius-of-curvature-of-the-lane-and-the-position-of-the-vehicle"><a href="#6-Radius-of-curvature-of-the-lane-and-the-position-of-the-vehicle" class="headerlink" title="6. Radius of curvature of the lane and the position of the vehicle"></a>6. Radius of curvature of the lane and the position of the vehicle</h4><p>The curvature is calculated based on the following formula. Udacity provides a very good tutorial <a href="http://www.intmath.com/applications-differentiation/8-radius-curvature.php" target="_blank" rel="external">here</a> !</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">a1, b1, c1 = left_fit_coefficients</div><div class="line">a2, b2, c2 = right_fit_coefficients</div><div class="line">r1 = ((<span class="number">1</span>+(<span class="number">2</span>*a1*height*ym_per_pix+b1)**<span class="number">2</span>)**<span class="number">1.5</span>)/(<span class="number">2</span>*np.abs(a1))</div><div class="line">r2 = ((<span class="number">1</span>+(<span class="number">2</span>*a2*height*ym_per_pix+b2)**<span class="number">2</span>)**<span class="number">1.5</span>)/(<span class="number">2</span>*np.abs(a2))</div></pre></td></tr></table></figure>
+<blockquote>
+<p>There’s no need to worry about absolute accuracy in this case, but your results should be “order of magnitude” correct.</p>
+</blockquote>
+<p>So I divide my result by 10 to make it seems more reasonable. And of course, the “order of magnitude” remains intact.</p>
+<p><img src="/2017/02/27/Lane-Finding/6_curvature.jpg" alt="curvature_position" height="60%" width="60%"></p>
+<h4 id="7-Warp-the-detected-lane-boundaries-back-onto-the-original-image"><a href="#7-Warp-the-detected-lane-boundaries-back-onto-the-original-image" class="headerlink" title="7. Warp the detected lane boundaries back onto the original image"></a>7. Warp the detected lane boundaries back onto the original image</h4><p>In order to warp back onto the original image, we need to calculate the inverse of perspective transform matrix <code>warpM</code><br>just apply <code>Minv = inv(warpM)</code> which is <code>from numpy.linalg import inv</code></p>
+<p>Then, simply apply <code>cv2.warpPerspective</code> with <code>Minv</code> as input.</p>
+<p>Note: use <code>cv2.putText</code> to print the curvature and position onto images</p>
+<p><img src="/2017/02/27/Lane-Finding/7_warp_back.jpg" alt="warp_back" height="60%" width="60%"></p>
+<h4 id="8-Video"><a href="#8-Video" class="headerlink" title="8. Video"></a>8. Video</h4><p><img src="/2017/02/27/Lane-Finding/video.png" alt="video"></p>
+<ul>
+<li><p><a href="https://youtu.be/KSX17t5EfAY" target="_blank" rel="external">Simple poly-fit</a> (<strong>Most stable!</strong> Simple is better ?!)</p>
+</li>
+<li><p><a href="https://youtu.be/lz70ohOOut8" target="_blank" rel="external">Shared coefficients of poly-fit</a> (<strong>Wobbling problem</strong>)</p>
+</li>
+<li><p><a href="https://youtu.be/6WchWl8Ah5U" target="_blank" rel="external">Dynamic source points of perspective</a> (<strong>Unstable, crash sometimes.</strong> If the lane curves are not stable, the resulting new source points may fail)</p>
+</li>
+</ul>
+<hr>
+<h3 id="Discussion"><a href="#Discussion" class="headerlink" title="Discussion"></a>Discussion</h3><p>Basically, I applied those techniques suggested by Udacity.</p>
+<p>I did some efforts trying to parallize both curves in the perspective “bird eye view”. Two methods are applied</p>
+<ol>
+<li>Shared coefficients of polynomial fitting</li>
+<li>Dynamic source points of perspetive</li>
+</ol>
+<p>Each has its own issue. For (1.), wobbling, and for (2.) unstable.</p>
+<p>Future works will focus on solving the (2.) unstable issue. Maybe a smoothing method is a good idea.</p>
+<p>Moreover, for more difficult videos, pixels may not be detected which makes the pipeline crash.</p>
+<p>One way to overcome this problem is when this issue happens, the lane curve is set to be the same as previous frame.</p>
+<p>Generelizing this idea, a confidence measure of lane pixels is worth to apply. If the confidence is low, then set the lane curve as the same as previous frame might be a good way to better estimate result.</p>
+<p>Finally, finding a robust combination of masking rule and tweaking those parameters precisely might help too.</p>
+<p>附上中文其他討論:</p>
+<blockquote>
+<p>Reviewer 給了很多有用的 article links! 這邊附上做未來參考</p>
+<ul>
+<li>Perspective bird eye view:<br><a href="http://www.ijser.org/researchpaper%5CA-Simple-Birds-Eye-View-Transformation-Technique.pdf" target="_blank" rel="external">http://www.ijser.org/researchpaper%5CA-Simple-Birds-Eye-View-Transformation-Technique.pdf</a><br><a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3355419/" target="_blank" rel="external">https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3355419/</a><br><a href="https://pdfs.semanticscholar.org/4964/9006f2d643c0fb613db4167f9e49462546dc.pdf" target="_blank" rel="external">https://pdfs.semanticscholar.org/4964/9006f2d643c0fb613db4167f9e49462546dc.pdf</a><br><a href="https://pdfs.semanticscholar.org/4074/183ce3b303ac4bb879af8d400a71e27e4f0b.pdf" target="_blank" rel="external">https://pdfs.semanticscholar.org/4074/183ce3b303ac4bb879af8d400a71e27e4f0b.pdf</a></li>
+<li>Lane line pixel identification:<br><a href="https://www.researchgate.net/publication/257291768_A_Much_Advanced_and_Efficient_Lane_Detection_Algorithm_for_Intelligent_Highway_Safety" target="_blank" rel="external">https://www.researchgate.net/publication/257291768_A_Much_Advanced_and_Efficient_Lane_Detection_Algorithm_for_Intelligent_Highway_Safety</a><br><a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5017478/" target="_blank" rel="external">https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5017478/</a><br><a href="https://chatbotslife.com/robust-lane-finding-using-advanced-computer-vision-techniques-46875bb3c8aa#.l2uxq26sn" target="_blank" rel="external">https://chatbotslife.com/robust-lane-finding-using-advanced-computer-vision-techniques-46875bb3c8aa#.l2uxq26sn</a></li>
+<li>lane detection with deep learning:<br><a href="http://www.cv-foundation.org/openaccess/content_cvpr_2016_workshops/w3/papers/Gurghian_DeepLanes_End-To-End_Lane_CVPR_2016_paper.pdf" target="_blank" rel="external">http://www.cv-foundation.org/openaccess/content_cvpr_2016_workshops/w3/papers/Gurghian_DeepLanes_End-To-End_Lane_CVPR_2016_paper.pdf</a><br><a href="http://lmb.informatik.uni-freiburg.de/Publications/2016/OB16b/oliveira16iros.pdf" target="_blank" rel="external">http://lmb.informatik.uni-freiburg.de/Publications/2016/OB16b/oliveira16iros.pdf</a><br><a href="http://link.springer.com/chapter/10.1007/978-3-319-12637-1_57" target="_blank" rel="external">http://link.springer.com/chapter/10.1007/978-3-319-12637-1_57</a> (chapter in the book Neural Information Processing)<br><a href="http://ocean.kisti.re.kr/downfile/volume/ieek1/OBDDBE/2016/v11n3/OBDDBE_2016_v11n3_163.pdf" target="_blank" rel="external">http://ocean.kisti.re.kr/downfile/volume/ieek1/OBDDBE/2016/v11n3/OBDDBE_2016_v11n3_163.pdf</a> (in Korean, but some interesting insights can be found from illustrations)<br><a href="https://github.com/kjw0612/awesome-deep-vision" target="_blank" rel="external">https://github.com/kjw0612/awesome-deep-vision</a> (can be useful in project 5 - vehicle detection)<br>噁心到吐血的真實挑戰:<br><img src="/2017/02/27/Lane-Finding/challenge-russian.gif" alt="challenge-russian"><br><img src="/2017/02/27/Lane-Finding/mega-challenge.gif" alt="mega-challenge"></li>
+</ul>
+</blockquote>
+<p>還是老話一句, 真的要成為可用的產品, 難道超級無敵高阿!!</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2017/02/27/Lane-Finding/" title="Lane-Finding">https://bobondemon.github.io/2017/02/27/Lane-Finding/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Udacity/" rel="tag"># Udacity</a>
+          
+            <a href="/tags/CV/" rel="tag"># CV</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/13/Neural-Art/" rel="next" title="Neural Art">
+                <i class="fa fa-chevron-left"></i> Neural Art
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/03/12/Vehicle-Tracking/" rel="prev" title="Vehicle-Tracking">
+                Vehicle-Tracking <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">123</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">262</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Rubric-Points"><span class="nav-number">1.</span> <span class="nav-text">Rubric Points</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-Camera-calibration"><span class="nav-number">1.1.</span> <span class="nav-text">1. Camera calibration</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Provide-an-example-of-a-distortion-corrected-image"><span class="nav-number">1.2.</span> <span class="nav-text">2. Provide an example of a distortion-corrected image</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Create-a-thresholded-binary-image-and-provide-example"><span class="nav-number">1.3.</span> <span class="nav-text">3. Create a thresholded binary image and provide example</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-Perspective-transform"><span class="nav-number">1.4.</span> <span class="nav-text">4. Perspective transform</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-Lane-line-pixel-and-polynomial-fitting"><span class="nav-number">1.5.</span> <span class="nav-text">5. Lane line pixel and polynomial fitting</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-Radius-of-curvature-of-the-lane-and-the-position-of-the-vehicle"><span class="nav-number">1.6.</span> <span class="nav-text">6. Radius of curvature of the lane and the position of the vehicle</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-Warp-the-detected-lane-boundaries-back-onto-the-original-image"><span class="nav-number">1.7.</span> <span class="nav-text">7. Warp the detected lane boundaries back onto the original image</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8-Video"><span class="nav-number">1.8.</span> <span class="nav-text">8. Video</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Discussion"><span class="nav-number">2.</span> <span class="nav-text">Discussion</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+<span id="busuanzi_container_site_pv">
+  本站總瀏覽 <span id="busuanzi_value_site_pv"></span> 次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站訪客 <span id="busuanzi_value_site_uv"></span> 人
+</span>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

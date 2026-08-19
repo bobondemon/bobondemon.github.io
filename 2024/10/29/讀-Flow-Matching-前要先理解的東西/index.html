@@ -1,0 +1,911 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Flow Matching,Continuity Equation,Divergence,Gauss Divergence Theorem," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="下一篇: 嘗試理解 Flow Matching
+如果你跟我一樣看 flow matching 論文時, 在還在說明預備知識的地方就陣亡了, 別擔心你不孤單! 我也死在那裡.論文裡很多地方用到了 Continuity Equation 來推導. 這個定理也相當於是一個核心概念.抱持一定要了解清楚的想法, 結果是學習到了美妙的 Gauss’s Divergence Theorem 和 Continu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="讀 Flow Matching 前要先理解的東西">
+<meta property="og:url" content="https://bobondemon.github.io/2024/10/29/讀-Flow-Matching-前要先理解的東西/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="下一篇: 嘗試理解 Flow Matching
+如果你跟我一樣看 flow matching 論文時, 在還在說明預備知識的地方就陣亡了, 別擔心你不孤單! 我也死在那裡.論文裡很多地方用到了 Continuity Equation 來推導. 這個定理也相當於是一個核心概念.抱持一定要了解清楚的想法, 結果是學習到了美妙的 Gauss’s Divergence Theorem 和 Continu">
+<meta property="og:image" content="https://bobondemon.github.io/2024/10/29/讀-Flow-Matching-前要先理解的東西/image.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/10/29/讀-Flow-Matching-前要先理解的東西/image 1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/10/29/讀-Flow-Matching-前要先理解的東西/image 2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/10/29/讀-Flow-Matching-前要先理解的東西/image 34.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/10/29/讀-Flow-Matching-前要先理解的東西/image 5.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/10/29/讀-Flow-Matching-前要先理解的東西/image 6.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/10/29/讀-Flow-Matching-前要先理解的東西/image 7.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/10/29/讀-Flow-Matching-前要先理解的東西/image 8.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/10/29/讀-Flow-Matching-前要先理解的東西/image 9.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/10/29/讀-Flow-Matching-前要先理解的東西/image 10.png">
+<meta property="og:updated_time" content="2026-08-19T13:01:09.838Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="讀 Flow Matching 前要先理解的東西">
+<meta name="twitter:description" content="下一篇: 嘗試理解 Flow Matching
+如果你跟我一樣看 flow matching 論文時, 在還在說明預備知識的地方就陣亡了, 別擔心你不孤單! 我也死在那裡.論文裡很多地方用到了 Continuity Equation 來推導. 這個定理也相當於是一個核心概念.抱持一定要了解清楚的想法, 結果是學習到了美妙的 Gauss’s Divergence Theorem 和 Continu">
+<meta name="twitter:image" content="https://bobondemon.github.io/2024/10/29/讀-Flow-Matching-前要先理解的東西/image.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2024/10/29/讀-Flow-Matching-前要先理解的東西/"/>
+
+
+
+
+
+  <title> 讀 Flow Matching 前要先理解的東西 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/10/29/讀-Flow-Matching-前要先理解的東西/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                讀 Flow Matching 前要先理解的東西
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2024-10-29T21:17:24+08:00">
+                2024-10-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<p>下一篇: <a href="https://bobondemon.github.io/2024/11/06/%E5%98%97%E8%A9%A6%E7%90%86%E8%A7%A3-Flow-Matching/">嘗試理解 Flow Matching</a></p>
+<p>如果你跟我一樣看 <a href="https://arxiv.org/abs/2210.02747" target="_blank" rel="external">flow matching 論文</a>時, 在還在說明預備知識的地方就陣亡了, 別擔心你不孤單! 我也死在那裡.<br>論文裡很多地方用到了 <a href="https://www.wikiwand.com/en/articles/Continuity_equation" target="_blank" rel="external">Continuity Equation</a> 來推導. 這個定理也相當於是一個核心概念.<br>抱持一定要了解清楚的想法, 結果是學習到了美妙的 <strong>Gauss’s Divergence Theorem</strong> 和 <strong>Continuity Equation</strong>!<br>通了! 通暢了! …. 我指任督二脈<br>🎉 也剛好這是本部落格第 100 篇的文章, 就決定用這個主題了! 🎉<br>讓我們進入這美妙的 <strong>“物理 feat 機器學習 (Physics x ML)”</strong> 的世界吧!<br>(本文用的圖檔: <a href="div_fig.drawio">div_fig.drawio</a>)</p>
+<p>我們分成幾大段落來說明:<br>&emsp;A. Vector Field<br>&emsp;B. Divergence (散度)<br>&emsp;C. Gauss’s Divergence Theorem<br>&emsp;D. Mass Conservation or Continuity Equation<br>&emsp;E. 跟 Flow Matching 有啥關聯?</p>
+<a id="more"></a>
+<hr>
+<h2 id="A-Vector-Field"><a href="#A-Vector-Field" class="headerlink" title="A. Vector Field"></a>A. Vector Field</h2><p>這是從<a href="https://wifi.cwa.gov.tw/v2/" target="_blank" rel="external">中央氣象局的風場圖</a>擷取的<br><img src="/2024/10/29/讀-Flow-Matching-前要先理解的東西/image.png" width="80%" height="80%"> 類似的圖想我大家應該不陌生, 顯示了每個位置 $(x,y)$ 對應的風速”向量” <span>$\vec{F}\in\mathbb{R}^2$</span><!-- Has MathJax -->, i.e. <span>$\vec{F}:\mathbb{R}^2\rightarrow\mathbb{R}^2$</span><!-- Has MathJax -->:<br><span>$$\vec{F}(x,y)=F_1(x,y)\vec{i}+F_2(x,y)\vec{j}$$</span><!-- Has MathJax --> 其中 $\vec{i},\vec{j}$ 分別是 $x,y$ 軸的單位向量. 顏色代表該向量個強度.<br>再舉個例子 (<a href="https://youtu.be/0QTDisIl9bo?si=ZiZcMIIrPSfW9ArX&amp;t=494" target="_blank" rel="external">來源</a>)<br><img src="/2024/10/29/讀-Flow-Matching-前要先理解的東西/image 1.png" width="60%" height="60%"> 箭號長度表示向量強度<br>所以 $n$ 維的 vector field 為 <span>$\vec{F}:\mathbb{R}^n\rightarrow\mathbb{R}^n$</span><!-- Has MathJax --></p>
+<hr>
+<h2 id="B-Divergence-散度"><a href="#B-Divergence-散度" class="headerlink" title="B. Divergence (散度)"></a>B. Divergence (散度)</h2><p>還記得最開始學積分的時候嗎?<br><img src="/2024/10/29/讀-Flow-Matching-前要先理解的東西/image 2.png" width="50%" height="50%"> 我們對 domain 切成等均的段落, 並且函數值取每個段落”左邊的值”, 然後乘上段落長度 $\Delta x$.<br>例如上圖 domain 為 $[a,b]$ 切成 $7$ 段, i.e. $[a=x_0,x_1,…,x_7=b]$. 第 $i$ 段 <span>$[x_{i-1},x_i]$</span><!-- Has MathJax --> 我們取左邊的函數值 <span>$f(x_{i-1})$</span><!-- Has MathJax -->.<br>大家應該都不陌生, 不過這裡要說的是把問題拆分的兩點技巧等等會用到:<br>&emsp;1. 切等均段落<br>&emsp;2. 取左邊函數值<br>想像 2 維空間, 我們有一個 vector field <span>$\vec{F}:\mathbb{R}^2\rightarrow \mathbb{R}^2$</span><!-- Has MathJax -->, i.e.<br><span>$$\vec{F}(x,y)=F_1(x,y)\vec{i}+F_2(x,y)\vec{j}$$</span><!-- Has MathJax --> 如同上述積分一樣, 先將空間切成等均方形的面積, 令左下角座標為 $(x_0,y_0)$, 右上角座標為 <span>$(x_0+\Delta x,y_0+\Delta y)$</span><!-- Has MathJax -->, 觀察其中一塊方形 $A$ 和其對應的 vector field $\vec{F}$:<br><img src="/2024/10/29/讀-Flow-Matching-前要先理解的東西/image 34.png" width="100%" height="100%"> 我們希望計算 $\vec{F}$ 對這塊面積 $A$ 的淨流出 (流入) 量<br>注意到<strong>只需考慮邊界</strong>, 因為面積內的流入/出不影響總體面積的淨流入/出量<br>首先看左邊界, 並且如同做積分時選取左區段的函數值一樣, 我們選擇左下角這點的 vector field 值 $\vec{F}(x_0,y_0)$.</p>
+<h3 id="左邊界淨流出量"><a href="#左邊界淨流出量" class="headerlink" title="左邊界淨流出量"></a>左邊界淨流出量</h3><p>$\vec{F}(x_0,y_0)$ 要能對左邊界產生影響, 只能是 $x$ 方向, 也就是與 $\vec{i}$ 內積後的向量<br><span>$$&lt;\vec{F}(x_0,y_0),\vec{i}&gt;\vec{i}$$</span><!-- Has MathJax --> <img src="/2024/10/29/讀-Flow-Matching-前要先理解的東西/image 5.png" width="50%" height="50%"> 為什麼呢? 因為與 $y$ 方向 $\vec{j}$ 內積產生的向量, 只會在 $y$ 軸上流動 (左邊界上移動), 不會對方型 $A$ 有流入流出的影響.<br>因此左邊界淨流出量為:<br><span>$$\begin{align}
+&lt;\vec{F}(x_0,y_0),\vec{i}&gt;\Delta y=F_1(x_0,y_0) \Delta y
+\end{align}$$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>如同在積分用的技巧一樣, 我們對線段 $\Delta y$ 只取了一點函數值代表, 並與線段長度 $\Delta y$ 乘起來</p>
+</blockquote>
+<h3 id="右邊界淨流出量"><a href="#右邊界淨流出量" class="headerlink" title="右邊界淨流出量"></a>右邊界淨流出量</h3><p>同理考慮右邊界<br><img src="/2024/10/29/讀-Flow-Matching-前要先理解的東西/image 6.png" width="50%" height="50%"> 右邊界淨流出量為:<br><span>$$\begin{align}
+&lt;\vec{F}(x_0+\Delta x,y_0),\vec{i}&gt;\Delta y=F_1(x_0+\Delta x,y_0) \Delta y
+\end{align}$$</span><!-- Has MathJax --></p>
+<h3 id="X-軸方向淨流出量"><a href="#X-軸方向淨流出量" class="headerlink" title="X 軸方向淨流出量"></a>X 軸方向淨流出量</h3><p>注意到我們定義的是<strong>流出</strong>量, 不是流入量<br>因此如果左邊界乘起來的的結果 (1) 是正的代表是流入, 不是流出, 所以若我們定義的是”流出”量, 則 (1) 的結果要多乘一個負號<br>而右邊界的結果 (2) 是正的就是代表流出<br>所以 $x$ 軸方向的淨流出量應該為 (2) 加上乘負號的 (1):<br><span>$$\begin{align}
+[F_1(x_0+\Delta x,y_0) - F_1(x_0,y_0)] \Delta y
+\end{align}$$</span><!-- Has MathJax --></p>
+<h3 id="Y-軸方向淨流出量"><a href="#Y-軸方向淨流出量" class="headerlink" title="Y 軸方向淨流出量"></a>Y 軸方向淨流出量</h3><p>同理我們可得 $y$ 軸方向的淨流出量:<br><span>$$\begin{align}
+[F_2(x_0,y_0+\Delta y) - F_2(x_0,y_0)] \Delta x
+\end{align}$$</span><!-- Has MathJax --></p>
+<h3 id="單位面積淨流出量"><a href="#單位面積淨流出量" class="headerlink" title="單位面積淨流出量"></a>單位面積淨流出量</h3><p>方形面積 $A$ 的總淨流出量為 (3)+(4):<br><span>$$[F_1(x_0+\Delta x,y_0) - F_1(x_0,y_0)] \Delta y + [F_2(x_0,y_0+\Delta y) - F_2(x_0,y_0)] \Delta x$$</span><!-- Has MathJax --> 換算 ”單位面積” 的淨流出量為 (除以面積 $\Delta A = \Delta x\Delta y$):<br><span>$$\begin{align}
+\frac{F_1(x_0+\Delta x,y_0) - F_1(x_0,y_0)}{\Delta x} + \frac{F_2(x_0,y_0+\Delta y) - F_2(x_0,y_0)}{\Delta y}
+\end{align}$$</span><!-- Has MathJax --> 對面積 $\Delta A\rightarrow 0$ 取極限後, 代表的是該 “點 $(x_0,y_0)$” 的單位面積淨流出量!</p>
+<p><span>$$\lim_{\Delta A\rightarrow0} \frac{F_1(x_0+\Delta x,y_0) - F_1(x_0,y_0)}{\Delta x} + \lim_{\Delta A\rightarrow0}\frac{F_2(x_0,y_0+\Delta y) - F_2(x_0,y_0)}{\Delta y} \\
+\Longrightarrow \frac{\partial F_1}{\partial x}(x_0,y_0) + \frac{\partial F_2}{\partial y}(x_0,y_0) \\
+
+= {\color{orange}{\left&lt;\left[
+\begin{array}{c}
+\partial/\partial x \\ \partial/\partial y
+\end{array}
+\right],
+\left[\begin{array}{c}
+F_1 \\ F_2
+\end{array}\right]\right&gt;}}(x_0,y_0) \\
+={\color{orange}{\nabla\cdot\vec{F}}}(x_0,y_0)$$</span><!-- Has MathJax --> (注): 內積用 $&lt;\vec{a},\vec{b}&gt;$ 或 $\vec{a}\cdot\vec{b}$ 表示都可以</p>
+<h3 id="Divergence-散度物理意義"><a href="#Divergence-散度物理意義" class="headerlink" title="Divergence 散度物理意義"></a>Divergence 散度物理意義</h3><p>考慮 $n$ 維的 vector field:<br><span>$$\vec{F}(x_1,x_2,...,x_n)=(F_1,F_2,...,F_n)$$</span><!-- Has MathJax --> 定義散度算子為 $\nabla\cdot$ 或 $\text{div}$:<br><span>$$\begin{align}
+{\color{red}{\text{div}\vec{F}=\nabla\cdot\vec{F} = \sum_{i=1}^n\frac{\partial F_i}{\partial x_i}}}
+\end{align}$$</span><!-- Has MathJax --> 重要的是記住其物理意義:<br>&emsp;💡 <span>$\text{div}\vec{F}(\vec{x})$</span><!-- Has MathJax --> 表示, 點 $\vec{x}$ 的”單位體積”向量場的淨流出量<br>&emsp;💡 <span>$\text{div}\vec{F}(\vec{x})$</span><!-- Has MathJax --> 表示, 點 $\vec{x}$ 的”單位體積”向量場的淨流出量<br>&emsp;💡 <span>$\text{div}\vec{F}(\vec{x})$</span><!-- Has MathJax --> 表示, 點 $\vec{x}$ 的”單位體積”向量場的淨流出量</p>
+<hr>
+<h2 id="C-Gauss’s-Divergence-Theorem"><a href="#C-Gauss’s-Divergence-Theorem" class="headerlink" title="C. Gauss’s Divergence Theorem"></a>C. Gauss’s Divergence Theorem</h2><p>考慮空間中有一個體積 $V$, 有封閉的表面 $\partial V$. 如下圖 (擷取 wiki: <a href="https://en.wikipedia.org/wiki/Divergence_theorem" target="_blank" rel="external">Divergence theorem</a>):<br><img src="/2024/10/29/讀-Flow-Matching-前要先理解的東西/image 7.png" width="60%" height="60%"> 同樣的手法, 我們將 $V$ 用很多很小的 cubes, $dV$, 組合起來<br>接著請想像有一個向量場 <span>$\vec{F}:\mathbb{R}^3\rightarrow \mathbb{R}^3$</span><!-- Has MathJax --> 穿過這個 $V$.</p>
+<p>❓我們要探討的問題是: <strong>向量場 $\vec{F}$ 作用於 $V$ 產生的”總”淨流出量為何?</strong></p>
+<h3 id="用體積分"><a href="#用體積分" class="headerlink" title="用體積分"></a>用體積分</h3><p>阿! 要算 “總”淨流出量, 而我們知道散度定義是每個”點”的單位淨流出量, 那把每個點的散度加總起來不就好了嗎? i.e. 用體積分.<br><span>$$\begin{align}
+\iiint_V\nabla\cdot\vec{F}dV
+\end{align}$$</span><!-- Has MathJax --> 👏🏻 答對了!<br>不知道各位有沒有聽過一句話:</p>
+<blockquote>
+<p>看山是山; 看山不是山; 看山還是山</p>
+</blockquote>
+<p>向量場 $\vec{F}$ 作用於 $V$ 產生的”總”淨流出量真的是 (7) 嗎?<br>我們剛剛的直覺想法在現階段認為是對的, 這是思考的第一步: 看山是山<br>接著想想…</p>
+<h3 id="看山不是山"><a href="#看山不是山" class="headerlink" title="看山不是山"></a>看山不是山</h3><p>思考一下相鄰的兩個 cubes<br><img src="/2024/10/29/讀-Flow-Matching-前要先理解的東西/image 8.png" width="35%" height="35%"> 我們剛剛的想法是把 $V_1$ 和 $V_2$ 的 divergence 相加起來<br>考慮在相接的面上的一個點 <span>$\vec{x}_0=(x_0,y_0,z_0)$</span><!-- Has MathJax -->, <span>$\vec{x}_0$</span><!-- Has MathJax --> 在 $V_1$ 被算了一次, 然後在 $V_2$ 又被算了一次, 這樣不就<strong>重複計算</strong>了嗎?? 所以剛剛的直覺做法錯了嗎?</p>
+<p>hmm…看山不是山<br>繼續思考看看…</p>
+<h3 id="看山還是山"><a href="#看山還是山" class="headerlink" title="看山還是山"></a>看山還是山</h3><p>考慮 vector field $\vec{F}$ 是 <strong>continuous</strong> 的, 則<br><span>$$\begin{align}
+\lim_{
+\vec{x}\rightarrow\vec{x}_0, \vec{x}\in {\color{orange}{S_1}}
+}
+\vec{F}(\vec{x}) = \lim_{
+\vec{x}\rightarrow\vec{x}_0, \vec{x}\in {\color{orange}{S_2}}
+}\vec{F}(\vec{x})
+\end{align}$$</span><!-- Has MathJax --> <img src="/2024/10/29/讀-Flow-Matching-前要先理解的東西/image 9.png" width="60%" height="60%"> 則對 $V_1$ 來說 $\vec{F}(\vec{x}_0)$ 是<strong>流出</strong>的向量場, $V_2$ 則是<strong>流入</strong>的向量場, 兩邊自己算 divergence 相加的話剛好一正一負, <strong>互相抵銷</strong>!<br>所以是用體積分對的<br>向量場 $\vec{F}$ 作用於 $V$ 產生的”總”淨流出量為:<br><span>$$\begin{align}
+\iiint_V\nabla\cdot\vec{F}dV
+\end{align}$$</span><!-- Has MathJax --> 山還是那個山</p>
+<h3 id="用表面積分"><a href="#用表面積分" class="headerlink" title="用表面積分"></a>用表面積分</h3><p>其實要回答這個問題: “向量場 $\vec{F}$ 作用於 $V$ 產生的”總”淨流出量為何?” 還可以從<strong>表面積分</strong>出發!<br>一樣借用 wiki 的圖 [<a href="https://www.wikiwand.com/en/articles/Flux" target="_blank" rel="external">Flux</a>]<br><img src="/2024/10/29/讀-Flow-Matching-前要先理解的東西/image 10.png" width="60%" height="60%"> $\vec{F}$ 穿過 surface $S$ 的大小, 只能看 $\vec{F}$ 與 surface 的 normal vector $\vec{n}$ 平行的向量分量<br>這是因為如果看與 $\vec{n}$ 垂直的分量的話, 只會流通於 surface $S$, 不會有流入流出 (穿過) $S$ 的作用.<br>所以我們只需要看 $\vec{F}\cdot\vec{n}$ 這個分量的結果.</p>
+<blockquote>
+<p>注意因為 normal vector $\vec{n}$ 是朝外指出表面的, 所以 $\vec{F}\cdot\vec{n}$ 已經是流出量的意思了</p>
+</blockquote>
+<p>然後對表面的每個點上述分量都加起來 (表面積分), 我們不就也同樣得到了 “向量場 $\vec{F}$ 作用於 $V$ 產生的總淨流出量” 了嗎?<br>寫成數學式子為:<br><span>$$\begin{align}
+\iint_S \vec{F}\cdot\vec{n}dS
+\end{align}$$</span><!-- Has MathJax --> 有時候會看到 <span>$\oiint_S$</span><!-- Has MathJax --> 的寫法, 其實中間那個圈只是用來表明 $S$ 是封閉的 surface 而已.</p>
+<h3 id="散度的體積分等於表面積分"><a href="#散度的體積分等於表面積分" class="headerlink" title="散度的體積分等於表面積分"></a>散度的體積分等於表面積分</h3><p>物理意義上 (9) 等於 (10)! 而這就是大名鼎鼎的<strong>高斯散度定理 Gauss’s Divergence Theorem</strong>:<br><span>$$\begin{align}
+{\color{red}{\iiint_V\nabla\cdot\vec{F}dV = \iint_S \vec{F}\cdot\vec{n}dS}}
+\end{align}$$</span><!-- Has MathJax --> 有時候表面積分不好算, 可藉由散度定理轉換成體積分會變得好算很多.</p>
+<hr>
+<h2 id="D-Mass-Conservation-or-Continuity-Equation"><a href="#D-Mass-Conservation-or-Continuity-Equation" class="headerlink" title="D. Mass Conservation or Continuity Equation"></a>D. Mass Conservation or Continuity Equation</h2><p>Gauss’s Divergence Theorem 的一個重要應用是可以推導出 Mass conservation!</p>
+<blockquote>
+<p>這一段可能複雜一些, 快結束了! 快碰到核心了!</p>
+</blockquote>
+<p>定義 total mass in $V$ 為: <span>$$\text{Total Mass}:=\iiint_V\rho dV$$</span><!-- Has MathJax --> 其中 $\rho$ 為密度: $\rho(x,y,z,t)$, 或寫 $\rho(\vec{x},t)$, 注意到密度也跟時間有關, 如噴射機的空氣密度會變化<br>所以 total mass 對時間的變化為: <span>$$\begin{align}
+\frac{d}{d t}\iiint_V\rho dV
+\end{align}$$</span><!-- Has MathJax --> (12) 如果是正的表示 mass 增加, 負的表示 mass 減少</p>
+<blockquote>
+<p>注意到 (12) 這裡不寫 $\partial/\partial t$ 的原因是對體積分完後, 空間的 $\vec{x}$ 變量已經不見了, 只剩時間 $t$, 因此寫 total derivative</p>
+</blockquote>
+<p>考慮向量場 $\vec{F}_t$ 定義為粒子的移動速度, 注意到我們有下標 $t$ 表示向量場可隨時間變化<br>💡 因此對於 <span>$\nabla\cdot\vec{F}_t(\vec{x}_0)$</span><!-- Has MathJax --> 物理意義就是: 在時間 $t$ 時, 位置 $\vec{x}_0$ 的”單位體積”粒子的淨流出量<br>💡 如果考慮密度再計算散度的話, i.e. <span>$\nabla\cdot(\rho(\vec{x}_0)\vec{F}_t(\vec{x}_0))$</span><!-- Has MathJax -->, 就變成: 在時間 $t$ 時, 位置 $\vec{x}_0$ 的質量淨流出量!<br>如同文章之前描述的觀念 volume $V$ 的質量變化只會發生在表面的質量變化 (因為內部的質量變化不影響 total mass)! 如同我們上一段說明表面積分的概念, 用數學表示為:<br><span>$$\begin{align}
+\iint_S\rho\vec{F}_t\cdot\vec{n}dS
+\end{align}$$</span><!-- Has MathJax --> (13) 如果是正的表示 mass 減少, 負的表示 mass 增加 (因為 normal vector $\vec{n}$ 指向表面外)<br>同樣的, 物理上 (12) 跟 (13) 對質量的描述是相同的, 所以:<br><span>$$\begin{align}
+\frac{\partial}{\partial t}\iiint_V\rho dV = -\iint_S\rho\vec{F}_t\cdot\vec{n}dS
+\end{align}$$</span><!-- Has MathJax --> 根據 Gauss’s Divergence Theorem (11) 可以改寫 (14) 的 RHS:<br><span>$$\begin{align}
+\frac{\partial}{\partial t}\iiint_V\rho dV = -\iiint_V\nabla\cdot(\rho\vec{F}_t)dV \\
+\Longrightarrow \iiint_V\left(
+\frac{\partial\rho}{\partial t}+\nabla\cdot(\rho\vec{F}_t)
+\right)dV=0
+\end{align}$$</span><!-- Has MathJax --> 因為 (16) 對任何 closed volume $V$ 都成立, 所以得到如下的 <strong>Mass Continuity Equation</strong>:<br><span>$$\begin{align}
+{\color{orange}{\frac{\partial\rho}{\partial t}}}
++
+{\color{green}{\nabla\cdot(\rho\vec{F}_t)=0}}
+\end{align}$$</span><!-- Has MathJax --> 叫 continuity equation 是因為不要忘記我們有個條件就是 $\rho\vec{F}_t$ 必須是連續的, equation (8), 否則 Gauss Divergence Theorem 就不成立<br>這就是<strong>質量守恆的 Partial Differential Equation (PDE)</strong><br>&emsp;- <span>${\color{orange}{\partial \rho(\vec{x}_0,t)/\partial t}}$</span><!-- Has MathJax --> 表示位置 $\vec{x}_0$ 隨時間變化的密度變化, <strong>正的表示質量會增加</strong><br>&emsp;- <span>${\color{green}{\nabla\cdot(\rho(\vec{x}_0,t)\vec{F}_t(\vec{x}_0))}}$</span><!-- Has MathJax --> 表示在時間 $t$ 時, 位置 $\vec{x}_0$ 的質量淨流出量! <strong>正的表示質量會減少</strong><br>而 <span>${\color{orange}{\partial \rho(\vec{x}_0,t)/\partial t}}$</span><!-- Has MathJax --> 造成的質量增加要等於 <span>${\color{green}{\nabla\cdot(\rho(\vec{x}_0,t)\vec{F}_t(\vec{x}_0))}}$</span><!-- Has MathJax --> 造成的質量減少, 此為 (17) 代表的物理意義.</p>
+<p>👏🏻 質量守恆!</p>
+<hr>
+<h2 id="E-跟-Flow-Matching-有啥關聯"><a href="#E-跟-Flow-Matching-有啥關聯" class="headerlink" title="E. 跟 Flow Matching 有啥關聯?"></a>E. 跟 Flow Matching 有啥關聯?</h2><p>把機率密度函數想成一個真實的物體, 物體密度 $\rho(x)$ 就是我們的機率密度 $p(x)$.<br>只是該物體是總質量為 $1$ 而已 (因為機率總和為 $1$)<br>我們從一個常態分佈出發… 中間不管經過怎樣的分佈變化, 最終假設我們能變化成目標機率分佈 $q(x)$.</p>
+<p>整個過程 Continuity Equation, 或說 Mass Convervation (17) 都是一直要滿足的!</p>
+<p>因為不管怎麼變都還是機率分佈, 總質量都維持不變 $1$.<br>這個核心觀念會貫穿整個 Flow matching 論文裡. 至此終於可以開始啃 flow matching 了!</p>
+<p>下回真正開始講解 flow matching 論文: <a href="https://bobondemon.github.io/2024/11/06/%E5%98%97%E8%A9%A6%E7%90%86%E8%A7%A3-Flow-Matching/">嘗試理解 Flow Matching</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2024/10/29/讀-Flow-Matching-前要先理解的東西/" title="讀 Flow Matching 前要先理解的東西">https://bobondemon.github.io/2024/10/29/讀-Flow-Matching-前要先理解的東西/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Flow-Matching/" rel="tag"># Flow Matching</a>
+          
+            <a href="/tags/Continuity-Equation/" rel="tag"># Continuity Equation</a>
+          
+            <a href="/tags/Divergence/" rel="tag"># Divergence</a>
+          
+            <a href="/tags/Gauss-Divergence-Theorem/" rel="tag"># Gauss Divergence Theorem</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/10/18/高維度的常態分佈長得像-蛋殼/" rel="next" title="高維度的常態分佈長得像...蛋殼?">
+                <i class="fa fa-chevron-left"></i> 高維度的常態分佈長得像...蛋殼?
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2024/11/03/剖析生成模型的-Maximum-Likelihood-Estimation-MLE/" rel="prev" title="剖析生成模型的 Maximum Likelihood Estimation (MLE)">
+                剖析生成模型的 Maximum Likelihood Estimation (MLE) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">123</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">262</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#A-Vector-Field"><span class="nav-number">1.</span> <span class="nav-text">A. Vector Field</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#B-Divergence-散度"><span class="nav-number">2.</span> <span class="nav-text">B. Divergence (散度)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#左邊界淨流出量"><span class="nav-number">2.1.</span> <span class="nav-text">左邊界淨流出量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#右邊界淨流出量"><span class="nav-number">2.2.</span> <span class="nav-text">右邊界淨流出量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#X-軸方向淨流出量"><span class="nav-number">2.3.</span> <span class="nav-text">X 軸方向淨流出量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Y-軸方向淨流出量"><span class="nav-number">2.4.</span> <span class="nav-text">Y 軸方向淨流出量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#單位面積淨流出量"><span class="nav-number">2.5.</span> <span class="nav-text">單位面積淨流出量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Divergence-散度物理意義"><span class="nav-number">2.6.</span> <span class="nav-text">Divergence 散度物理意義</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#C-Gauss’s-Divergence-Theorem"><span class="nav-number">3.</span> <span class="nav-text">C. Gauss’s Divergence Theorem</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#用體積分"><span class="nav-number">3.1.</span> <span class="nav-text">用體積分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#看山不是山"><span class="nav-number">3.2.</span> <span class="nav-text">看山不是山</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#看山還是山"><span class="nav-number">3.3.</span> <span class="nav-text">看山還是山</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#用表面積分"><span class="nav-number">3.4.</span> <span class="nav-text">用表面積分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#散度的體積分等於表面積分"><span class="nav-number">3.5.</span> <span class="nav-text">散度的體積分等於表面積分</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#D-Mass-Conservation-or-Continuity-Equation"><span class="nav-number">4.</span> <span class="nav-text">D. Mass Conservation or Continuity Equation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#E-跟-Flow-Matching-有啥關聯"><span class="nav-number">5.</span> <span class="nav-text">E. 跟 Flow Matching 有啥關聯?</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+<span id="busuanzi_container_site_pv">
+  本站總瀏覽 <span id="busuanzi_value_site_pv"></span> 次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站訪客 <span id="busuanzi_value_site_uv"></span> 人
+</span>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

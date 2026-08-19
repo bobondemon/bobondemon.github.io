@@ -1,0 +1,904 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Cayley Transform,Stiefel Manifold,Cayley SGD," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="⚠️ 這部份屬於我的知識盲區, 如有不嚴謹/錯誤之處還請見諒/指正又再一次體會到數學的美正交矩陣 $X\in\mathbb{R}^{n\times p}$ 形成的集合稱為 Stiefel manifold$$\begin{align}
+\mathcal{M}=\{X\in\mathbb{R}^{n\times p}:X^TX=I\}
+\end{align}$$ 以下用方陣方便解釋, i.e. $">
+<meta property="og:type" content="article">
+<meta property="og:title" content="正交(旋轉)矩陣的切空間, 以及 Cayley SGD 維持正交性的梯度更新算法">
+<meta property="og:url" content="https://bobondemon.github.io/2026/04/27/正交-旋轉-矩陣的梯度-以及-Cayley-SGD-維持正交性的梯度更新算法/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="⚠️ 這部份屬於我的知識盲區, 如有不嚴謹/錯誤之處還請見諒/指正又再一次體會到數學的美正交矩陣 $X\in\mathbb{R}^{n\times p}$ 形成的集合稱為 Stiefel manifold$$\begin{align}
+\mathcal{M}=\{X\in\mathbb{R}^{n\times p}:X^TX=I\}
+\end{align}$$ 以下用方陣方便解釋, i.e. $">
+<meta property="og:updated_time" content="2026-08-19T13:01:09.836Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="正交(旋轉)矩陣的切空間, 以及 Cayley SGD 維持正交性的梯度更新算法">
+<meta name="twitter:description" content="⚠️ 這部份屬於我的知識盲區, 如有不嚴謹/錯誤之處還請見諒/指正又再一次體會到數學的美正交矩陣 $X\in\mathbb{R}^{n\times p}$ 形成的集合稱為 Stiefel manifold$$\begin{align}
+\mathcal{M}=\{X\in\mathbb{R}^{n\times p}:X^TX=I\}
+\end{align}$$ 以下用方陣方便解釋, i.e. $">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2026/04/27/正交-旋轉-矩陣的梯度-以及-Cayley-SGD-維持正交性的梯度更新算法/"/>
+
+
+
+
+
+  <title> 正交(旋轉)矩陣的切空間, 以及 Cayley SGD 維持正交性的梯度更新算法 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2026/04/27/正交-旋轉-矩陣的梯度-以及-Cayley-SGD-維持正交性的梯度更新算法/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                正交(旋轉)矩陣的切空間, 以及 Cayley SGD 維持正交性的梯度更新算法
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2026-04-27T19:37:20+08:00">
+                2026-04-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Optimization/" itemprop="url" rel="index">
+                    <span itemprop="name">Optimization</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<p>⚠️ 這部份屬於我的知識盲區, 如有不嚴謹/錯誤之處還請見諒/指正<br>又再一次體會到數學的美<br>正交矩陣 <span>$X\in\mathbb{R}^{n\times p}$</span><!-- Has MathJax --> 形成的集合稱為 Stiefel manifold<br><span>$$\begin{align}
+\mathcal{M}=\{X\in\mathbb{R}^{n\times p}:X^TX=I\}
+\end{align}$$</span><!-- Has MathJax --> 以下用方陣方便解釋, i.e. <span>$X\in\mathbb{R}^{n\times n}$</span><!-- Has MathJax -->.<br>讓我們發揮點想像力, 把 Stiefel manifold 想像成在 <span>$n^2$</span><!-- Has MathJax --> 維度歐式空間中的一個集合形成的 “流形”.<br>閱讀本文你將了解到:</p>
+<ol>
+<li><strong>正交矩陣的幾何結構:</strong> 了解 Stiefel Manifold 的定義, 以及為什麼我們將正交矩陣視為高維空間中一塊「彎曲」的流形</li>
+<li><strong>瞬時旋轉的本質:</strong> 透過泰勒展開式推導出切空間 (Tangent Space) 的約束條件, 並揭示為什麼 <strong>反對稱矩陣 (Skew-symmetric matrix)</strong> 本質上就是單位矩陣 <span>$I$</span><!-- Has MathJax --> 處的「瞬時旋轉方向」</li>
+<li><strong>Cayley 轉換的橋樑作用:</strong> 掌握如何利用 Cayley Transform 在反對稱矩陣與正交矩陣之間進行無損轉換, 並理解其作為「微小步長旋轉」的物理意義</li>
+<li><strong>Cayley SGD 的運作邏輯:</strong> 學習如何將普通的歐幾里得梯度投影至流形切空間, 並透過迭代式更新 (Iterative Update) 在不計算矩陣 inverse 的情況下, 維持矩陣的正交性</li>
+</ol>
+<a id="more"></a>
+<hr>
+<h2 id="Stiefel-Manifold-正交矩陣-的-Tangent-Space-切空間"><a href="#Stiefel-Manifold-正交矩陣-的-Tangent-Space-切空間" class="headerlink" title="Stiefel Manifold (正交矩陣) 的 Tangent Space (切空間)"></a><strong>Stiefel Manifold (正交矩陣) 的 Tangent Space (切空間)</strong></h2><p>在這“流形”上面我們隨便抓出一條連續平滑曲線, 並用 <span>$t$</span><!-- Has MathJax --> 參數化表示: <span>$X(t)\in\mathcal{M},\forall t\in\mathbb{R}$</span><!-- Has MathJax -->.<br>因為正交矩陣物理意義等同於旋轉矩陣, 所以我們把 <span>$X(t)$</span><!-- Has MathJax --> 想像成隨著時間變化的旋轉矩陣, 其中時間 <span>$t=0$</span><!-- Has MathJax --> 時定義 <span>$X(0):=X$</span><!-- Has MathJax -->.<br>我們令 Stiefel manifold 上的 <span>$X$</span><!-- Has MathJax --> 這點, 其 tangent (切線, 即一階導數) 為 <span>$Z$</span><!-- Has MathJax -->.<br>對 <span>$X(t)$</span><!-- Has MathJax --> 寫出泰勒展開式, 在 <span>$t=0$</span><!-- Has MathJax --> 點展開:<br><span>$$\begin{aligned}
+X(dt)=X(0)+X&apos;(0)dt+\mathcal{O}(dt^2) \\
+\Longrightarrow X(dt)=X+Zdt+\mathcal{O}(dt^2)
+\end{aligned}$$</span><!-- Has MathJax --> 當 <span>$dt$</span><!-- Has MathJax --> 極小時 <span>$X(dt)$</span><!-- Has MathJax --> 仍要待在”流形”中, 即 <span>$X(dt)\in\mathcal{M}$</span><!-- Has MathJax -->, 因此 <span>$dt\rightarrow0$</span><!-- Has MathJax --> 時需滿足<br><span>$$\begin{aligned}
+I &amp;= X(dt)^TX(dt) \\
+&amp;= (X+Zdt+\mathcal{O}(dt^2))^T(X+Zdt+\mathcal{O}(dt^2)) \\
+&amp;=X^TX + (X^TZ+Z^TX)dt+\mathcal{O}(dt^2) \\
+&amp;= I + (X^TZ+Z^TX)dt+\mathcal{O}(dt^2) \\
+&amp;\Longrightarrow (X^TZ+Z^TX)dt+\mathcal{O}(dt^2) = 0 \\
+&amp;\Longrightarrow X^TZ+Z^TX=\frac{\mathcal{O}(dt^2)}{dt}\rightarrow0,\quad\text{as }dt\rightarrow0
+\end{aligned}$$</span><!-- Has MathJax --> 因此 Stiefel manifold 上, <span>$X$</span><!-- Has MathJax --> 這點其 tangent 矩陣 <span>$Z$</span><!-- Has MathJax --> 必須滿足條件 <span>$X^TZ+Z^TX=0$</span><!-- Has MathJax -->.<br>上面我們只是利用通過 <span>$X$</span><!-- Has MathJax --> 這點的一條曲線, 可以想像不同曲線的 tangent 矩陣都不同, 但不管如何也都必須滿足條件.<br>因此定義 <span>$T_X\mathcal{M}$</span><!-- Has MathJax --> 表示通過 <span>$X$</span><!-- Has MathJax --> 這點的 tangent 矩陣 (如同論文 [<a href="https://arxiv.org/abs/2002.01113" target="_blank" rel="external">arxiv</a>] 的定義)<br><span>$$\begin{align}
+T_X\mathcal{M}=\{Z:X^TZ+Z^TX=0\}
+\end{align}$$</span><!-- Has MathJax --> 用更具體化的描述, <span>$T_X\mathcal{M}$</span><!-- Has MathJax --> 表示在 <span>$X$</span><!-- Has MathJax --> 這點合法的 “<strong>瞬時旋轉矩陣</strong>”<br>考慮特殊情況, 當 <span>$X=I$</span><!-- Has MathJax --> 時, tangent <span>$Z$</span><!-- Has MathJax --> 條件蛻化為 <span>$Z=-Z^T$</span><!-- Has MathJax --><br>說明在 <span>$I$</span><!-- Has MathJax --> 處的瞬時旋轉(正交)矩陣必定為反對稱矩陣 (Skew-symmetric matrix).<br>反之<span>$Z$</span><!-- Has MathJax -->是反對稱矩陣, 則 <span>$Z\in T_I\mathcal{M}$</span><!-- Has MathJax -->.<br>因此我們對反對稱矩陣有了更深一層的理解, 他們就是 <strong>Stielfel manifold 位於 <span>$I$</span><!-- Has MathJax --> 點的 “瞬時旋轉矩陣”</strong>!<br>有意思的是, 某一特殊情況的正交矩陣會與反對稱矩陣一對一對應.<br>Cayley 轉換描述了這樣的關係</p>
+<hr>
+<h2 id="Cayley-Transform"><a href="#Cayley-Transform" class="headerlink" title="Cayley Transform"></a>Cayley Transform</h2><p>任何一個不含特徵值 <span>$-1$</span><!-- Has MathJax --> 的正交矩陣 <span>$Q$</span><!-- Has MathJax --> 與反對稱矩陣 <span>$A$</span><!-- Has MathJax --> 有 1 對 1 的對應關係<br>首先 <span>$A,B\in\mathbb{R}^{n\times n}$</span><!-- Has MathJax --> 且都可逆, 如果滿足 <span>$AB=BA$</span><!-- Has MathJax --> 的話, 則</p>
+<ul>
+<li><span>$A^{-1}B=BA^{-1}$</span><!-- Has MathJax -->, 即 <span>$A^{-1}$</span><!-- Has MathJax --> 與 <span>$B$</span><!-- Has MathJax --> 矩陣乘法可交換</li>
+<li><span>$A^{-1}B^{-1}=B^{-1}A^{-1}$</span><!-- Has MathJax -->, 即 <span>$A^{-1}$</span><!-- Has MathJax --> 與 <span>$B^{-1}$</span><!-- Has MathJax --> 矩陣乘法可交換</li>
+</ul>
+<p>很容易證明:<br><span>$$\begin{aligned}
+AB=BA\Longrightarrow B^{-1}AB=A\Longrightarrow B^{-1}A=AB^{-1} \\
+\Longrightarrow B^{-1}=AB^{-1}A^{-1}\Longrightarrow A^{-1}B^{-1}=B^{-1}A^{-1}
+\end{aligned}$$</span><!-- Has MathJax --> 因為 <span>$(I-A)(I+A)=(I+A)(I-A)$</span><!-- Has MathJax --> (都乘開來驗證即可)<br>所以 <span>$(I+A)^{-1}(I-A)=(I-A)(I+A)^{-1}$</span><!-- Has MathJax -->.<br>定義 Cayley transform <span>$T(X)$</span><!-- Has MathJax --> 為:<br><span>$$\begin{align}
+T(X)=(I-X)^{-1}(I+X)=(I+X)(I-X)^{-1}
+\end{align}$$</span><!-- Has MathJax --> &emsp;$\circ$ 當 <span>$A$</span><!-- Has MathJax --> 為反對稱矩陣時, Cayley transform <span>$T(A)$</span><!-- Has MathJax --> 為正交矩陣<br>&emsp;$\circ$ 當 <span>$Q$</span><!-- Has MathJax --> 為正交矩陣時, Cayley transform <span>$T(Q)$</span><!-- Has MathJax --> 為反對稱矩陣<br>證明請參考周老師的文章: <a href="https://ccjou.wordpress.com/2014/04/16/cayley-%e8%ae%8a%e6%8f%9b/" target="_blank" rel="external"><strong>Cayley 變換</strong></a></p>
+<p>設定 <span>$A$</span><!-- Has MathJax --> 為反對稱矩陣 我們來觀察一下 Cayley transform, 先定義 <span>$Q(\alpha,A)$</span><!-- Has MathJax -->:<br><span>$$\begin{align}
+Q(\alpha,A):=T\left(\frac{\alpha}{2} A\right)=\left(I-\frac{\alpha}{2}A\right)^{-1}\left(I+\frac{\alpha}{2}A\right)
+\end{align}$$</span><!-- Has MathJax --> 利用 Neumann series <span>$(I-A)^{-1}=\sum_{k=0}^\infty A^k$</span><!-- Has MathJax -->, 分析一下 <span>$Q(\alpha,A)$</span><!-- Has MathJax --> 這個正交旋轉矩陣的長相:<br><span>$$\begin{aligned}
+Q(\alpha,A) &amp;=T\left(\frac{\alpha}{2} A\right)=\left(I-\frac{\alpha}{2}A\right)^{-1}\left(I+\frac{\alpha}{2}A\right) \\
+&amp;=\left(I+\frac{\alpha}{2}A+\left(\frac{\alpha}{2}A\right)^2+\cdots\right)\left(I+\frac{\alpha}{2}A\right) \\
+&amp;= I + \alpha A + \mathcal{O}(\alpha^2) \\
+&amp;\approx I + \alpha A
+\end{aligned}$$</span><!-- Has MathJax --> 得到這樣的結果 <span>$Q(\alpha,A)\approx I+\alpha A$</span><!-- Has MathJax -->.<br>結合之前對反對稱矩陣 <span>$A$</span><!-- Has MathJax --> 的理解: 在位置 <span>$I$</span><!-- Has MathJax --> 的順時旋轉方向<br>則 Cayley transform <span>$Q(\alpha,A)$</span><!-- Has MathJax --> 物理意義就相當清晰了, 本質上就是「從 <span>$I$</span><!-- Has MathJax --> 出發, 沿著 <span>$A$</span><!-- Has MathJax --> 方向前進步長 <span>$\alpha$</span><!-- Has MathJax --> 的微小旋轉矩陣」<br>如果想要套用在已經有的舊旋轉矩陣 <span>$R_{\text{old}}$</span><!-- Has MathJax --> 後, 再旋轉的話, 則可以這麼用<br><span>$$\begin{align}
+R_{\text{new}}=Q(\alpha,A)R_{\text{old}}
+\end{align}$$</span><!-- Has MathJax --> 其中 <span>$A$</span><!-- Has MathJax --> 為反對稱矩陣, 表示在位置 <span>$I$</span><!-- Has MathJax --> 的順時旋轉方向; <span>$\alpha$</span><!-- Has MathJax --> 則理解為一個微小的步長<br>根據 Cayley transform, <span>$Q(\alpha,A)$</span><!-- Has MathJax --> 本身是正交矩陣, 所以 <span>$R_{\text{new}}$</span><!-- Has MathJax --> 仍是正交矩陣 (仍在 Stiefel manifold 上)</p>
+<hr>
+<h2 id="延伸思考-線性變換都是”拉伸”和”旋轉”的組合"><a href="#延伸思考-線性變換都是”拉伸”和”旋轉”的組合" class="headerlink" title="延伸思考: 線性變換都是”拉伸”和”旋轉”的組合"></a>延伸思考: 線性變換都是”拉伸”和”旋轉”的組合</h2><p>任何矩陣都 <span>$M$</span><!-- Has MathJax --> 可拆成對稱和反對稱矩陣的組合:<br><span>$$\begin{align}
+M= \underbrace{\frac{1}{2}\left(M+M^T\right)}_{\text{symmetric}} + \underbrace{\frac{1}{2}\left(M-M^T\right)}_{\text{skew symmetric}}
+\end{align}$$</span><!-- Has MathJax --> &emsp;$\circ$ <strong>反對稱矩陣</strong>我們已經知道其意義為瞬時旋轉矩陣, 即 ”<strong>旋轉</strong>” 的成分<br>&emsp;$\circ$ 而<strong>對稱矩陣</strong>則代表著線性轉換中 “<strong>拉伸</strong>” 的成分<br>這是由於對稱矩陣必定可對角化, 將 eigenvectors 設定為 basis 座標來看的話, eigenvalues 表示對應方向的 scaling, 即拉伸</p>
+<blockquote>
+<p>關於對稱和反對稱戶為補空間, 更多可以參考周老師的文章, <a href="https://ccjou.wordpress.com/2010/08/27/%e7%89%b9%e6%ae%8a%e7%9f%a9%e9%99%a313%ef%bc%9a%e5%8f%8d%e5%b0%8d%e7%a8%b1%e7%9f%a9%e9%99%a3/" target="_blank" rel="external"><strong>特殊矩陣 (13)：反對稱矩陣</strong></a></p>
+</blockquote>
+<h3 id="投影到-的切空間"><a href="#投影到-的切空間" class="headerlink" title="投影到  的切空間 "></a>投影到 <span>$I$</span><!-- Has MathJax --> 的切空間 <span>$T_{I}\mathcal{M}$</span><!-- Has MathJax --></h3><p>對於任意一個線性變換如果我們只想保留其旋轉部分, 則取其反對稱成分即可<br>換句話說, 對任意矩陣 <span>$A$</span><!-- Has MathJax --> 投影到 <span>$T_{\color{orange}{I}}\mathcal{M}$</span><!-- Has MathJax --> 空間的結果就是 <span>$(A-A^T)/2$</span><!-- Has MathJax --> 這個反對稱矩陣.<br><span>$$\begin{align}
+A\xrightarrow[]{P}(A-A^T)/2\in T_{\color{orange}{I}}\mathcal{M}
+\end{align}$$</span><!-- Has MathJax --> 很容易可以驗證 <span>$P$</span><!-- Has MathJax --> 為投影算子, i.e. 驗證 <span>$P^2=P$</span><!-- Has MathJax -->, 因為如果 <span>$A$</span><!-- Has MathJax --> 已經是反對稱矩陣了, 投影的計算結果仍是自己 <span>$A$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>💡 不厭其煩多解釋一下, 注意到是 <span>$T_{\color{orange}{I}}\mathcal{M}$</span><!-- Has MathJax --> 而非 <span>$T_{\color{orange}{X}}\mathcal{M}$</span><!-- Has MathJax -->. 本文上面已經做過許多解釋, 這是因為在 Stiefel manifold 的 <span>$I$</span><!-- Has MathJax --> 點的切空間, <span>$T_{\color{orange}{I}}\mathcal{M}$</span><!-- Has MathJax -->, 等同於反對稱矩陣.</p>
+</blockquote>
+<h3 id="投影到-屬於正交矩陣-的切空間"><a href="#投影到-屬於正交矩陣-的切空間" class="headerlink" title="投影到  (屬於正交矩陣) 的切空間 "></a>投影到 <span>$X$</span><!-- Has MathJax --> (屬於正交矩陣) 的切空間 <span>$T_{X}\mathcal{M}$</span><!-- Has MathJax --></h3><p>對任意矩陣 <span>$A$</span><!-- Has MathJax --> 投影到 <span>$I$</span><!-- Has MathJax --> 的切空間, <span>$T_{\color{orange}{I}}\mathcal{M}$</span><!-- Has MathJax -->, 結果是 <span>$(A-A^T)/2$</span><!-- Has MathJax -->.<br>如果要投影到任意 Stiefel manifold 位置 <span>$X$</span><!-- Has MathJax --> 的切空間呢?<br>此問題等價於尋找一個切線向量 <span>$V^\ast \in T_X \mathcal{M}$</span><!-- Has MathJax -->, 使得它與 <span>$A$</span><!-- Has MathJax --> 的距離最短, 即 Frobenius norm 最小.<br><span>$$\begin{aligned}
+V^\ast=\arg\min_{V\in T_X \mathcal{M}}\|V - A\|_F^2
+\end{aligned}$$</span><!-- Has MathJax --> 由於正交(旋轉)矩陣 “保長” 特性, 左乘一個正交矩陣不會改變 norm, 因此我們是不是可以先 “旋轉” 回去 <span>$I$</span><!-- Has MathJax --> 位置, 然後套用 <span>$I$</span><!-- Has MathJax --> 的切空間投影公式, 最後再 “旋轉” 回去?<br>讓我們抱著這個想法推導看看<br>對任意矩陣 <span>$A$</span><!-- Has MathJax -->, 我們求其投影到 Stiefel manifold 位置 <span>$X$</span><!-- Has MathJax --> 的切空間, i.e. 投影到 <span>$T_X{\mathcal{X}}$</span><!-- Has MathJax -->.</p>
+<p><strong>[步驟一]</strong> 拉回原點 <span>$I$</span><!-- Has MathJax -->:<br>讓我們把整個空間作旋轉, 把 <span>$X$</span><!-- Has MathJax --> 轉到 <span>$I$</span><!-- Has MathJax -->, 所以所有矩陣都要左乘 <span>$X^T$</span><!-- Has MathJax --><br>這意味著我們要投影的矩陣 <span>$A$</span><!-- Has MathJax --> 現在應該當作 <span>${\color{orange}{X^T}}A$</span><!-- Has MathJax --> 來看待, 然後變成投影到 <span>$I$</span><!-- Has MathJax --> 的切空間</p>
+<p><strong>[步驟二]</strong> <span>$I$</span><!-- Has MathJax --> 的切空間投影:<br>套用公式 (7) 對矩陣 <span>$X^TA$</span><!-- Has MathJax --> 投影到 <span>$T_I{\mathcal{X}}$</span><!-- Has MathJax --> 得到<br><span>$$\begin{aligned}
+X^TA\xrightarrow[]{P}(X^TA-A^TX)/2\in T_I\mathcal{M}
+\end{aligned}$$</span><!-- Has MathJax --> <strong>[步驟三]</strong> 回復原來的位置到 <span>$X$</span><!-- Has MathJax -->:<br>對投影結果左乘 <span>$X$</span><!-- Has MathJax --> 回復得到目標 <span>$V^\ast$</span><!-- Has MathJax --><br><span>$$\begin{aligned}
+V^\ast &amp;= \frac{1}{2}{\color{orange}{X}}\left(X^TA-A^TX\right) \\
+ &amp;= \frac{1}{2}\left(A-XA^TX\right)
+\end{aligned}$$</span><!-- Has MathJax --> <strong>[結論]</strong> 對任意矩陣 <span>$A$</span><!-- Has MathJax --> 投影到 <span>$T_{\color{orange}{X}}\mathcal{M}$</span><!-- Has MathJax --> 空間的結果 (<span>$X$</span><!-- Has MathJax --> 為正交矩陣):<br><span>$$\begin{align}
+A\xrightarrow[]{P}(A-XA^TX)/2\in T_{\color{orange}{X}}\mathcal{M}
+\end{align}$$</span><!-- Has MathJax --> 注意到, 將論文 [<a href="https://arxiv.org/abs/2002.01113" target="_blank" rel="external">arxiv</a>] 裡的式 (2) 化簡之後跟上式 (8) 是一樣的結果</p>
+<hr>
+<h2 id="Cayley-SGD"><a href="#Cayley-SGD" class="headerlink" title="Cayley SGD"></a>Cayley SGD</h2><p>試想我們從一個正交矩陣 <span>$R_{\text{old}}$</span><!-- Has MathJax --> 出發, 透過計算 loss 得到一個梯度方向 <span>$G$</span><!-- Has MathJax -->, 如果做 SGD 更新, 則得到的 <span>$R_{\text{old}}+\alpha G$</span><!-- Has MathJax --> 無法保證仍屬於 Stiefel manifold, 即無法保持正交性.<br>Cayley SGD 就是為了解決這個問題而誕生的流形優化器 (Manifold Optimizer)<br>設 <span>$R_{\text{old}}$</span><!-- Has MathJax --> 為正交矩陣, 梯度方向 <span>$G$</span><!-- Has MathJax --> 為任意矩陣 (不必是反對稱或正交)</p>
+<p><strong>Cayley SGD 更新公式為:</strong><br><span>$$\begin{align}
+R_{new} = \underbrace{\left[ (I - \frac{\alpha}{2}Y)^{-1}(I + \frac{\alpha}{2}Y) \right]}_{Q(\alpha,Y)} R_{old} \\
+Y=GR_{\text{old}}^T-R_{\text{old}}G^T
+\end{align}$$</span><!-- Has MathJax --> 注意到 <span>$Y$</span><!-- Has MathJax --> (10) 的計算是在把矩陣 <span>$GR_{\text{old}}^T$</span><!-- Has MathJax --> 投影到 <span>$T_{\color{orange}{I}}\mathcal{M}$</span><!-- Has MathJax --> 空間上, 即取出反對稱矩陣成分 (見式 (7)), 因此 <span>$Y$</span><!-- Has MathJax --> 必定為反對稱矩陣, 物理意義為要旋轉的方向<br>接著把 <span>$Y$</span><!-- Has MathJax --> 透過 Cayley transform <span>$Q(\alpha,Y)$</span><!-- Has MathJax --> (式 (4)) 得到對應的旋轉矩陣後, 套在 (5) 的結果最終就得到 Cayley SGD 的公式 (9) 了</p>
+<h3 id="Cayley-SGD-公式原理解釋"><a href="#Cayley-SGD-公式原理解釋" class="headerlink" title="Cayley SGD 公式原理解釋"></a>Cayley SGD 公式原理解釋</h3><p>這裡要特別解釋為什麼 <span>$Y$</span><!-- Has MathJax --> 的計算是使用 <span>$GR_{\text{old}}^T$</span><!-- Has MathJax --> 做投影, 而不是直接把梯度方向 <span>$G$</span><!-- Has MathJax --> 做投影就好, i.e. <span>$G-G^T$</span><!-- Has MathJax -->? 還有, 為什麼不是用 <span>$R_{\text{old}}^TG$</span><!-- Has MathJax --> 做投影? 🤔<br>先解釋為什麼不是用 <span>$G$</span><!-- Has MathJax --> 做投影<br>從幾何上來說, 梯度 <span>$G$</span><!-- Has MathJax --> 是在位置 <span>$R_\text{old}$</span><!-- Has MathJax --> 上計算的, 因此應該要投影到的是 <span>$T_{\color{orange}{R_\text{old}}}\mathcal{M}$</span><!-- Has MathJax --> 這個切空間, 式 (8)<br>但我們遇到一個困難, 我們無法算出對應的旋轉矩陣<br>這是因為 Cayley transform (4) 只能作用在 <span>$T_{\color{orange}{I}}\mathcal{M}$</span><!-- Has MathJax --> 這個切空間上!<br>所以如同之前找非 <span>$I$</span><!-- Has MathJax --> 的切空間投影想法, 先將位置 <span>$R_\text{old}$</span><!-- Has MathJax --> 校正回 <span>$I$</span><!-- Has MathJax --> 位置 (先乘上 <span>$R_\text{old}^T$</span><!-- Has MathJax --> 做反向旋轉), 接著再對 <span>$G$</span><!-- Has MathJax --> 套用投影公式 (7), 這樣才能用 Cayley transform 找對應的旋轉矩陣<br>那麼該怎麼解釋為什麼不是用 <span>$R_{\text{old}}^TG$</span><!-- Has MathJax --> 做投影, 而是用 <span>$GR_{\text{old}}^T$</span><!-- Has MathJax -->?<br>意思是, 反向旋轉 <span>$R_\text{old}^T$</span><!-- Has MathJax --> 為什麼是乘在 <span>$G$</span><!-- Has MathJax --> 的右邊而非左邊?</p>
+<blockquote>
+<p>這個問題困擾我許久, 特別感謝偉大的 Gemini 😆<br>沒有現在的 AI 我真不知道何年何月才能理解通, 分析思路好精彩!</p>
+</blockquote>
+<p>設 <span>$Y$</span><!-- Has MathJax --> 表示位於 <span>$I$</span><!-- Has MathJax --> 點的 “瞬時旋轉矩陣” 所以是反對稱矩陣, 其對應的旋轉矩陣透過 Cayley transform 得到為 <span>$Q$</span><!-- Has MathJax --><br>之前我們分析過 <span>$Q\approx I+\alpha Y$</span><!-- Has MathJax -->, 所以<br><span>$$\begin{aligned}
+R_\text{new}=QR\approx(I+\alpha Y)R=R+\alpha YR
+\end{aligned}$$</span><!-- Has MathJax --> 對照 SGD 更新公式我們知道更新的方向為 <span>$YR$</span><!-- Has MathJax -->.<br>由於 <span>$G$</span><!-- Has MathJax --> 是梯度, 其必定是對損失函數來說最陡峭的方向<br>那如果朝著 <span>$YR$</span><!-- Has MathJax --> 這個方向移動的話, 損失函數仍然夠陡峭媽? 下降了多少?<br>在數學上, 這就是 “原始歐幾里得梯度 <span>$G$</span><!-- Has MathJax -->” 與 “實際移動方向 <span>$YR$</span><!-- Has MathJax -->” 的內積 (參考 <a href="https://bobondemon.github.io/2026/04/18/MatrixNorm/">Frobenius norm</a>)<br><span>$$\begin{aligned}
+\text{變化量} = \langle G, YR \rangle=\mathrm{Tr}(G^TYR)
+\end{aligned}$$</span><!-- Has MathJax --> 藉由 trace 內的矩陣乘法可循環, 我們繼續推導<br><span>$$\begin{aligned}
+\text{變化量} = \mathrm{Tr}(RG^TY) = \langle GR^T,Y\rangle
+\end{aligned}$$</span><!-- Has MathJax --> 看出來了嗎?<br>原本我們是在位置 <span>$R$</span><!-- Has MathJax --> 計算 <span>$G$</span><!-- Has MathJax --> 和 <span>$YR$</span><!-- Has MathJax --> 的內積 <span>$\langle G, YR \rangle$</span><!-- Has MathJax -->.<br>經過 Trace 轉換後, 它在數學上<strong>完全等價於</strong>在單位矩陣 <span>$I$</span><!-- Has MathJax --> 的位置, 計算 <span>$GR^T$</span><!-- Has MathJax --> 和 <span>$Y$</span><!-- Has MathJax --> 的內積: <span>$\langle GR^T, Y \rangle$</span><!-- Has MathJax -->.<br>為了讓 <span>$Y$</span><!-- Has MathJax --> (定義在 <span>$I$</span><!-- Has MathJax --> 處的反對稱矩陣) 能直接和某個東西做內積運算, 我們 “被迫” 提煉出了 <span>$GR^T$</span><!-- Has MathJax -->.<br>這就是為什麼代表拉回原點的梯度是 <span>$GR^T$</span><!-- Has MathJax -->!</p>
+<h3 id="Iterative-Cayley-SGD"><a href="#Iterative-Cayley-SGD" class="headerlink" title="Iterative Cayley SGD"></a>Iterative Cayley SGD</h3><p>原來的 Cayley SGD 必須依賴 inverse 矩陣運算, 高維度將會是個災難:<br>重新對公式做個整理:<br><span>$$\begin{aligned}
+R&apos; = (I - \frac{\alpha}{2}Y)^{-1}(I + \frac{\alpha}{2}Y)  R \\
+\Longrightarrow (I - \frac{\alpha}{2}Y)R&apos;=(I + \frac{\alpha}{2}Y)  R \\
+\Longrightarrow R&apos;=R+\frac{\alpha}{2}Y(R+R&apos;)
+\end{aligned}$$</span><!-- Has MathJax --> 定義 <span>$F(R&apos;)=R+\frac{\alpha}{2}Y(R+R&apos;)$</span><!-- Has MathJax -->, 如果 <span>$F$</span><!-- Has MathJax --> 是 <a href="https://www.notion.so/Contraction-Mapping-Principle-1afedc3d531d80d58122dfff5f716fec?pvs=21" target="_blank" rel="external">contraction mapping function</a>, 則存在收斂點 fixed point <span>$R^\ast$</span><!-- Has MathJax --> 滿足 <span>$R^\ast=F(R^\ast)$</span><!-- Has MathJax -->.<br>因此 iterative Cayley SGD 更新公式為:<br><span>$$\begin{align}
+R^{t+1}=R^{t}+\frac{\alpha}{2}Y(R^t+R^{t+1})
+\end{align}$$</span><!-- Has MathJax --> 論文 [<a href="https://arxiv.org/abs/2002.01113" target="_blank" rel="external">arxiv</a>] 的 Theorem 1&amp;2 即在證明, 當 step size <span>$\alpha$</span><!-- Has MathJax --> 滿足某個條件夠小, 則 <span>$F$</span><!-- Has MathJax --> 是 contraction mapping, (11) 收斂且實務上迭代個 2, 3 次就足夠. (論文 [<a href="https://arxiv.org/abs/2002.01113" target="_blank" rel="external">arxiv</a>] Table 5)<br>同時該論文還有一個重要貢獻是結合 Momentum 的 iterative Cayley SGD<br>核心想法就是 momentum 更新在 Stiefel manifold 原點 <span>$I$</span><!-- Has MathJax --> 的切空間上, i.e. <span>$T_{\color{orange}{I}}\mathcal{M}$</span><!-- Has MathJax -->, 而不是在原來的歐式空間上. 詳細請參考論文.</p>
+<hr>
+<h2 id="總結-Takeaway-Messages"><a href="#總結-Takeaway-Messages" class="headerlink" title="總結 Takeaway Messages"></a>總結 Takeaway Messages</h2><ul>
+<li><strong>「旋轉」位於反對稱性中:</strong> 正交矩陣在單位元素 <span>$I$</span><!-- Has MathJax --> 處的切向量必定是反對稱矩陣 (<span>$A = -A^T$</span><!-- Has MathJax -->), 這意味著在進行流形優化時, 我們處理的不是權重的「增量」, 而是權重的「旋轉」</li>
+<li><strong>投影路徑是「旋轉 -&gt; 投影 -&gt; 轉回」:</strong> 由於我們只擅長在 <span>$I$</span><!-- Has MathJax --> 點處理反對稱矩陣, 因此對於任何位置 <span>$X$</span><!-- Has MathJax --> 的梯度, 標準做法是先左乘 <span>$X^T$</span><!-- Has MathJax --> 將其拉回原點, 投影成反對稱矩陣後, 再映射回流形</li>
+<li><strong>Cayley SGD 是一種「乘法更新」:</strong> 不同於傳統 SGD 的 <span>$W_{new} = W + \Delta W$</span><!-- Has MathJax --> (會破壞正交性), Cayley SGD 採用 <span>$R_{new} = Q R_{old}$</span><!-- Has MathJax -->.  透過 Cayley 轉換生成的 <span>$Q$</span><!-- Has MathJax --> 本身就是正交矩陣, 因此更新過程會像是在流形表面「滾動」, 自然地維持了正交約束</li>
+</ul>
+<hr>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li>Efficient Riemannian Optimization on the Stiefel Manifold via the Cayley Transform [<a href="https://arxiv.org/abs/2002.01113" target="_blank" rel="external">arxiv</a>]</li>
+<li><a href="https://ccjou.wordpress.com/2014/04/16/cayley-%e8%ae%8a%e6%8f%9b/" target="_blank" rel="external"><strong>Cayley 變換</strong></a></li>
+<li><a href="https://ccjou.wordpress.com/2010/08/27/%e7%89%b9%e6%ae%8a%e7%9f%a9%e9%99%a313%ef%bc%9a%e5%8f%8d%e5%b0%8d%e7%a8%b1%e7%9f%a9%e9%99%a3/" target="_blank" rel="external"><strong>特殊矩陣 (13)：反對稱矩陣</strong></a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2026/04/27/正交-旋轉-矩陣的梯度-以及-Cayley-SGD-維持正交性的梯度更新算法/" title="正交(旋轉)矩陣的切空間, 以及 Cayley SGD 維持正交性的梯度更新算法">https://bobondemon.github.io/2026/04/27/正交-旋轉-矩陣的梯度-以及-Cayley-SGD-維持正交性的梯度更新算法/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Cayley-Transform/" rel="tag"># Cayley Transform</a>
+          
+            <a href="/tags/Stiefel-Manifold/" rel="tag"># Stiefel Manifold</a>
+          
+            <a href="/tags/Cayley-SGD/" rel="tag"># Cayley SGD</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2026/04/18/MatrixNorm/" rel="next" title="量量矩陣的大小: Frobenius 和 Spectral Norm">
+                <i class="fa fa-chevron-left"></i> 量量矩陣的大小: Frobenius 和 Spectral Norm
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2026/04/29/隨機旋轉的量化魔法/" rel="prev" title="隨機旋轉的量化魔法: 去去極值走">
+                隨機旋轉的量化魔法: 去去極值走 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">123</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">262</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Stiefel-Manifold-正交矩陣-的-Tangent-Space-切空間"><span class="nav-number">1.</span> <span class="nav-text">Stiefel Manifold (正交矩陣) 的 Tangent Space (切空間)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cayley-Transform"><span class="nav-number">2.</span> <span class="nav-text">Cayley Transform</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#延伸思考-線性變換都是”拉伸”和”旋轉”的組合"><span class="nav-number">3.</span> <span class="nav-text">延伸思考: 線性變換都是”拉伸”和”旋轉”的組合</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#投影到-的切空間"><span class="nav-number">3.1.</span> <span class="nav-text">投影到 $I$ 的切空間 $T_{I}\mathcal{M}$</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#投影到-屬於正交矩陣-的切空間"><span class="nav-number">3.2.</span> <span class="nav-text">投影到 $X$ (屬於正交矩陣) 的切空間 $T_{X}\mathcal{M}$</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cayley-SGD"><span class="nav-number">4.</span> <span class="nav-text">Cayley SGD</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Cayley-SGD-公式原理解釋"><span class="nav-number">4.1.</span> <span class="nav-text">Cayley SGD 公式原理解釋</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Iterative-Cayley-SGD"><span class="nav-number">4.2.</span> <span class="nav-text">Iterative Cayley SGD</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#總結-Takeaway-Messages"><span class="nav-number">5.</span> <span class="nav-text">總結 Takeaway Messages</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">6.</span> <span class="nav-text">References</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+<span id="busuanzi_container_site_pv">
+  本站總瀏覽 <span id="busuanzi_value_site_pv"></span> 次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站訪客 <span id="busuanzi_value_site_uv"></span> 人
+</span>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

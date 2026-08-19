@@ -1,0 +1,777 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="故事的開始從想看懂生成式模型的 flow matching 方法.搜尋一下需要的數學知識, 大概還需要補 ordinary/partial differential equations, vector calculus (Gauss divergence theorem, Continuity equation), numerical methods for solving PDEs.這些知識正">
+<meta property="og:type" content="article">
+<meta property="og:title" content="愉快充實的學習旅程 (Prof. Jeffrey R. Chasnov 的課程)">
+<meta property="og:url" content="https://bobondemon.github.io/2025/03/13/愉快充實的學習旅程/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="故事的開始從想看懂生成式模型的 flow matching 方法.搜尋一下需要的數學知識, 大概還需要補 ordinary/partial differential equations, vector calculus (Gauss divergence theorem, Continuity equation), numerical methods for solving PDEs.這些知識正">
+<meta property="og:image" content="https://bobondemon.github.io/2025/03/13/愉快充實的學習旅程/image.png">
+<meta property="og:updated_time" content="2026-08-19T13:01:09.835Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="愉快充實的學習旅程 (Prof. Jeffrey R. Chasnov 的課程)">
+<meta name="twitter:description" content="故事的開始從想看懂生成式模型的 flow matching 方法.搜尋一下需要的數學知識, 大概還需要補 ordinary/partial differential equations, vector calculus (Gauss divergence theorem, Continuity equation), numerical methods for solving PDEs.這些知識正">
+<meta name="twitter:image" content="https://bobondemon.github.io/2025/03/13/愉快充實的學習旅程/image.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2025/03/13/愉快充實的學習旅程/"/>
+
+
+
+
+
+  <title> 愉快充實的學習旅程 (Prof. Jeffrey R. Chasnov 的課程) | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2025/03/13/愉快充實的學習旅程/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                愉快充實的學習旅程 (Prof. Jeffrey R. Chasnov 的課程)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2025-03-13T19:46:17+08:00">
+                2025-03-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/雜/" itemprop="url" rel="index">
+                    <span itemprop="name">雜</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<p>故事的開始從想看懂生成式模型的 <a href="https://bobondemon.github.io/2024/10/29/%E8%AE%80-Flow-Matching-%E5%89%8D%E8%A6%81%E5%85%88%E7%90%86%E8%A7%A3%E7%9A%84%E6%9D%B1%E8%A5%BF/">flow matching</a> 方法.<br>搜尋一下需要的數學知識, 大概還需要補 ordinary/partial differential equations, vector calculus (Gauss divergence theorem, Continuity equation), numerical methods for solving PDEs.<br>這些知識正好就是 Coursera 這門專項課的內容: <strong><a href="https://www.coursera.org/specializations/mathematics-engineers" target="_blank" rel="external">Mathematics for Engineers Specialization</a> by Prof. <a href="https://www.coursera.org/instructor/jeffchasnov" target="_blank" rel="external">Jeffrey R. Chasnov</a></strong><br>用了四個月的時間很充實又愉快的學習了四門課程</p>
+<blockquote>
+<p>好啦我承認也花了點上班時間來學習 😆, 主要假日盡量投入, 確實有點辛苦</p>
+</blockquote>
+<p>說一下四門課的心得內容:</p>
+<a id="more"></a>
+<ol>
+<li><p><strong><a href="https://www.coursera.org/learn/matrix-algebra-engineers?specialization=mathematics-engineers" target="_blank" rel="external">Matrix Algebra for Engineers</a> [<a href="https://www.notion.so/Matrix-Algebra-for-Engineers-13fedc3d531d807093dae4b8c5dfb37d?pvs=21" target="_blank" rel="external">筆記</a>]</strong><br> 輕鬆愉快的線性代數複習體驗, 雖然沒有涵蓋以前學到的所有內容, 但重要的基礎內容都有包含<br> 這邊特別推薦一下周老師的網頁: <a href="https://ccjou.wordpress.com/" target="_blank" rel="external">https://ccjou.wordpress.com/</a>, 搭配一起學習會更扎實!</p>
+</li>
+<li><p><strong><a href="https://www.coursera.org/learn/differential-equations-engineers?specialization=mathematics-engineers" target="_blank" rel="external">Differential Equations for Engineers</a> [<a href="https://www.notion.so/Differential-Equations-for-Engineers-117edc3d531d802aa3b5d089e827f7e6?pvs=21" target="_blank" rel="external">筆記</a>]</strong><br> 我以前從來沒學過 differential equations, 因此這門課對我來說大部分是全新的知識, 算是圓了以前就想接觸看看微分方程的願望吧!<br> 整體感覺就是 <strong>Ansatz, Ansatz and Ansatz…</strong><br> <img src="/2025/03/13/愉快充實的學習旅程/image.png" width="65%" height="65%"> 過程大概是這種感覺, 首先讓我們猜猜這個 ODE 的解長什麼樣<br> 假設長這樣, 我們代入 boundary conditions 和使用 superposition 就能得到一般解的結果… done<br> (學了整個課程感覺針對不同類別的 ODE 猜不同的長相, 但解的流程大部分如上述. 好奇這樣能把所有可能的解的長相都找到嗎?)</p>
+</li>
+<li><p><strong><a href="https://www.coursera.org/learn/vector-calculus-engineers?specialization=mathematics-engineers" target="_blank" rel="external">Vector Calculus for Engineers</a> [<a href="https://www.notion.so/Vector-Calculus-for-Engineers-13fedc3d531d80a1aeb0d5bb10c48d30?pvs=21" target="_blank" rel="external">筆記</a>]</strong><br> 我太喜歡這部分了! Divergence, Curl, Laplace operators. Line and surface integral. Gauss divergence theorem, Continuity equation, Stokes’ theorem. 每樣都給讓我感受到數學很美. 看透了這部分再去讀 <a href="https://bobondemon.github.io/2024/10/29/%E8%AE%80-Flow-Matching-%E5%89%8D%E8%A6%81%E5%85%88%E7%90%86%E8%A7%A3%E7%9A%84%E6%9D%B1%E8%A5%BF/">flow matching</a> 感覺視野都打開了.</p>
+</li>
+<li><p><strong><a href="https://www.coursera.org/learn/numerical-methods-engineers?specialization=mathematics-engineers" target="_blank" rel="external">Numerical Methods for Engineers</a> [<a href="https://www.notion.so/Numerical-Methods-for-Engineers-192edc3d531d80af95d8ed00c2a5dd57?pvs=21" target="_blank" rel="external">筆記</a>]</strong><br> 這門課相當於總結了之前那三門課的實務層面, 不過我一開始在猶豫要不要花時間學<br> 原因是這門課使用 Matlab. 以前確實用比較熟練, 但現在都是 Python, 可能 Matlab 都忘了差不多了, 譬如很基本的一件事是 Matlab indexing 從 $1$ 開始…<br> 後來想說反正讓 AI 去幫忙我這邊的 Matlab coding, 正好也體驗一下用 AI 輔助學習效果如何.<br> 結論是好棒棒! 方便👍🏻!<br> 回到這門課, 對於理解真的實作會遇到什麼問題, 這門課給出實際的解法. 譬如, 如果矩陣比較大的時候 Gauss elimination 容易數值不穩定, 所以需要 partial pivoting. 怎麼做 root finding? 積分到底要怎麼做? 還有最重要的 ODE/PDE 怎麼數值模擬 (well known Runge Kutta Methods)?<br> 對於想了解背後實作秘密的人, 且喜歡追根究底的人, 應該會學得挺開心的. 😃 至少我是拉!</p>
+</li>
+</ol>
+<p>最後真的很感謝 Prof. <a href="https://www.coursera.org/instructor/jeffchasnov" target="_blank" rel="external">Jeffrey R. Chasnov</a> 提供這麼精彩的課程, 不僅課程內容在 Youtube 能免費全部看到, 使用的課本教材也都免費</p>
+<p>🎉一路上收穫滿滿, 受用無窮🎉</p>
+<p>2025/03/13</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2025/03/13/愉快充實的學習旅程/" title="愉快充實的學習旅程 (Prof. Jeffrey R. Chasnov 的課程)">https://bobondemon.github.io/2025/03/13/愉快充實的學習旅程/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/11/12/筆記-Langevin-Dynamics-和-Fokker-Planck-Equation-推導/" rel="next" title="筆記 Langevin Dynamics 和 Fokker-Planck Equation 推導">
+                <i class="fa fa-chevron-left"></i> 筆記 Langevin Dynamics 和 Fokker-Planck Equation 推導
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2025/05/02/RM-algo/" rel="prev" title="Robbins-Monro Algorithm 和 Dvoretzky's Convergence Theorem 筆記">
+                Robbins-Monro Algorithm 和 Dvoretzky's Convergence Theorem 筆記 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">123</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">262</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+<span id="busuanzi_container_site_pv">
+  本站總瀏覽 <span id="busuanzi_value_site_pv"></span> 次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站訪客 <span id="busuanzi_value_site_uv"></span> 人
+</span>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

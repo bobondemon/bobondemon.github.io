@@ -1,0 +1,854 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Score Matching,Langevin Dynamics,Generative Model," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="主要內容為這篇文章 “Generative Modeling by Estimating Gradients of the Data Distribution“
+背景知識
+Score-based generative modeling 的兩個核心概念:
+
+Score matching (SM): 使用 score matching loss 讓 NN 直接學 score function: $\">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Score Matching 系列 (五) SM 加上 Langevin Dynamics 變成生成模型">
+<meta property="og:url" content="https://bobondemon.github.io/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="主要內容為這篇文章 “Generative Modeling by Estimating Gradients of the Data Distribution“
+背景知識
+Score-based generative modeling 的兩個核心概念:
+
+Score matching (SM): 使用 score matching loss 讓 NN 直接學 score function: $\">
+<meta property="og:image" content="https://bobondemon.github.io/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/Untitled.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/Untitled 1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/Untitled 2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/Untitled 3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/Untitled 4.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/Untitled 5.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/Untitled 6.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/Untitled 7.png">
+<meta property="og:updated_time" content="2026-08-19T13:01:09.817Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Score Matching 系列 (五) SM 加上 Langevin Dynamics 變成生成模型">
+<meta name="twitter:description" content="主要內容為這篇文章 “Generative Modeling by Estimating Gradients of the Data Distribution“
+背景知識
+Score-based generative modeling 的兩個核心概念:
+
+Score matching (SM): 使用 score matching loss 讓 NN 直接學 score function: $\">
+<meta name="twitter:image" content="https://bobondemon.github.io/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/Untitled.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/"/>
+
+
+
+
+
+  <title> Score Matching 系列 (五) SM 加上 Langevin Dynamics 變成生成模型 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Score Matching 系列 (五) SM 加上 Langevin Dynamics 變成生成模型
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2022-03-26T17:31:38+08:00">
+                2022-03-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<p>主要內容為這篇文章 “<a href="https://arxiv.org/abs/1907.05600" target="_blank" rel="external">Generative Modeling by Estimating Gradients of the Data Distribution</a>“</p>
+<h2 id="背景知識"><a href="#背景知識" class="headerlink" title="背景知識"></a>背景知識</h2><hr>
+<p>Score-based generative modeling 的兩個核心概念:</p>
+<ol>
+<li>Score matching (SM):<br> 使用 score matching loss 讓 NN 直接學 score function: <span>$\nabla_x\log p_{data}(x)$</span><!-- Has MathJax -->, 其中 <span>$p_{data}(x)$</span><!-- Has MathJax --> 為 data p.d.f.<br> 因此我們有一個 NN: <span>$s_\theta(x)\approx \nabla_x\log p_{data}(x)$</span><!-- Has MathJax --><br> Score matching 在做什麼, 請參考系列文章:<ul>
+<li><strong><a href="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/">Score Matching 系列 (一) Non-normalized 模型估計</a></strong></li>
+<li><strong><a href="https://bobondemon.github.io/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/">Score Matching 系列 (二) Denoising Score Matching (DSM) 改善效率並可 Scalable</a></strong></li>
+<li><strong><a href="https://bobondemon.github.io/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/">Score Matching 系列 (三) Sliced Score Matching (SSM) 同時保持效率和效果</a></strong></li>
+<li><strong><a href="https://bobondemon.github.io/2022/03/26/score-matching-toy-example-in-pytorch/">Score Matching 系列 (四) SM 的 Toy Example in PyTorch</a></strong></li>
+</ul>
+</li>
+<li><p>Langevin dynamics:<br> Langevin dynamics 可以使用 score function, i.e. <span>$\nabla_x\log p_{data}(x)$</span><!-- Has MathJax -->, 來取 sample, 取出來的 sample 具有 <span>$p_{data}(x)$</span><!-- Has MathJax --> 的分佈<br> 而我們已經用一個 NN <span>$s_\theta(x)$</span><!-- Has MathJax --> 來逼近 score function 了, 因此可以用 <span>$s_\theta(x)$</span><!-- Has MathJax --> 來取 sample, 步驟如下:<br> 給定一個固定的 step size <span>$\epsilon&gt;0$</span><!-- Has MathJax -->, initial value <span>$z=\tilde{x}_0\sim\pi(x)$</span><!-- Has MathJax -->, 其中 <span>$\pi(x)$</span><!-- Has MathJax --> 是固定的 prior distribution, and <span>$z_t\sim\mathcal{N}(0,I)$</span><!-- Has MathJax --></p>
+<p> <span>$$\tilde{x}_t = \tilde{x}_{t-1}+\frac{\epsilon}{2}\nabla_x\log p_{data}(\tilde{x}_{t-1})+\sqrt{\epsilon}z_t \\
+\approx \tilde{x}_{t-1}+\frac{\epsilon}{2}s_\theta(\tilde{x}_{t-1})+\sqrt{\epsilon}z_t$$</span><!-- Has MathJax --> 當 <span>$\epsilon\rightarrow 0$</span><!-- Has MathJax -->, <span>$T\rightarrow\infty$</span><!-- Has MathJax --> 則 <span>$\tilde{x}_T$</span><!-- Has MathJax --> 等同於從 <span>$p_{data}(x)$</span><!-- Has MathJax --> 取樣!<br> 我們在這篇文章 <strong><a href="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/">忘記物理也要搞懂的 Hamiltonian Monte Carlo (HMC) 筆記</a></strong><br> 非常仔細得解釋了為什麼可以這麼做, 注意到其實這裡涉及了很多知識, 依序包含 MCMC, Metropolis Hastings, Hamiltonian Dynamic, 最後才關聯到 Langevin Dynamics. 不過只想單純使用的話, 上面的描述就足夠.</p>
+</li>
+</ol>
+<p>藉由 Score Matching + Langevin Dynamics (SMLD), 我們發現如果成功學到 score function, 則可以從 random noise $z$ 產生符合 data distribution 的 sample.<br>而這正是 generative model 在做的事情, 此種方法論文稱為 SMLD<br>但是直接訓練出來的 SMLD 在真實資料上會有兩個問題導致做不好, 接著<a href="https://arxiv.org/abs/1907.05600" target="_blank" rel="external">論文</a>裡說明是什麼原因以及解決方法</p>
+<a id="more"></a>
+<h2 id="兩個主要問題"><a href="#兩個主要問題" class="headerlink" title="兩個主要問題"></a>兩個主要問題</h2><hr>
+<ol>
+<li><strong>The manifold hypothesis</strong>:<br> Score matching (SM) 要做得好是基於資料分布是布滿整個 space 的 (意思是 data pdf 的 rank 沒有降低), 然而真實資料都是在低維度的 manifold. 這會讓 SM 做不好 (even using Sliced SM). 例如3維空間中, 資料分佈的 manifold 只有 rank 2 (平面), 或是只剩下 rank 1 (線)</li>
+<li><strong>Low data density regions</strong>:<br> 在 density 密度低的地方, 由於 training data 也很少, 導致這些地方 SM 根本估不準. (見下圖)<br> 另一方面, 這個問題也會影響 Langevin dynamics 的採樣:<br> 舉例來說, 如果資料分布是由兩個 disjoint 的 mode density 構成 (e.g. GMM with 2 mixtures), 則一開始的 initial 在哪個資料分布就完全決定了會收斂在哪邊. 這種現象稱為 multi-modal 的 mixing problem. 同時不好的 score 估計也會導致 Langevin dynamics 無法有效跑到對的方向, 因而收斂很慢</li>
+</ol>
+<p><img src="/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/Untitled.png" width="100%" height="100%"></p>
+<h2 id="解決辦法"><a href="#解決辦法" class="headerlink" title="解決辦法"></a>解決辦法</h2><hr>
+<p>要解決第一個問題 (manifold hypothesis) 可以透過加入 Gaussian noise 緩解, 因為會使得分布充滿整個空間, 不再只存在低維度的 mainfold.<br><img src="/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/Untitled 1.png" width="60%" height="60%"><br>上圖左是使用了 SSM 但沒加噪, 可以看到訓練不起來. 上圖右則加了非常小的噪聲 (人眼無法分辨), loss 就能穩定下降!<br>既然加了一點 noise 就可以 train 起來了, 那就用此學出來的 “接近真實 clean 的 noisy 分布” 去用 Langevin dynamics 採樣看看<br>結果發現還是沒法採樣出有效的影像:<br><img src="/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/Untitled 2.png" width="100%" height="100%"><br>上圖 (a), (b) and (c) 的每一個 row 左到右表示 Langevin dynamics 的演化過程. 發現採樣不出有效 samples. 不同 rows 表示不同的 random noise $z$ 的結果.<br>我們學到了接近 clean 的 score function 分佈了, 為何無法用 Langevin dynamics 採樣出來呢?<br>原因是上面說的第二個問題: multi-modal 的 mixing problem. 而要解決, 可以將加入的 Gaussian noise level 加大 (更廣), 這樣可以讓低密度的地方變少, 因此 scores 就都準了.<br><img src="/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/Untitled 3.png" width="100%" height="100%"><br>但也只能學到 noisy 的分布 (跟 DSM 缺點一樣)!<br>因此, 論文的作法就是學一個 <strong>Noise Conditional Score Networks (NCSN)</strong>: 也就是原來的不同 noise level 都會訓練出對應的 score networks, 現在直接用一個 nework 吃 noise level 當 condition 來訓練就好. 藉由這樣的做法, 可以將 noise 從很大漸漸變小, 從而還原到真實的資料分布<br>也因為我們有不同 noise 程度的 data 分布 (NCSN approximates 的分佈), 原來的 Langevin dynamics 需要改成 <em>annealed</em> 版本, 這樣也能解決 multi-modal problem.</p>
+<blockquote>
+<p>因為最開始的 noisy 分布是 noise 最大的情況, 此時不同 modes 之間區別不大, 且 low density 區域也很少</p>
+</blockquote>
+<p>Annealed Langevin dynamics 算法如下:<br><img src="/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/Untitled 4.png" width="50%" height="50%"><br><span>$\{\sigma_i\}_{i=1}^L$</span><!-- Has MathJax --> 是一個正的等比數列, 表示每不同的 noise level 程度, 我們讓 <span>$\sigma_1$</span><!-- Has MathJax -->表示最大噪聲等級, <span>$\sigma_L$</span><!-- Has MathJax --> 為最小噪聲等級且接近 $0$, 表示滿足:</p>
+<span>$$\frac{\sigma_1}{\sigma_2}=\dots=\frac{\sigma_{L-1}}{\sigma_L}&gt;1$$</span><!-- Has MathJax -->
+<p>核心概念就是用 Langevin dynamics 從 <span>$q_{\sigma_{i-1}}(x)$</span><!-- Has MathJax --> (較大噪聲的估計分佈) 採樣, 然後該 sample 當成初始 sample 再從 <span>$q_{\sigma_i}(x)$</span><!-- Has MathJax --> (較小噪聲的估計分佈) 中繼續用 Langevin dynamics 採樣.<br>藉由從大噪聲一路採樣到小噪聲的分佈, 我們就能接近原始情況下的採樣<br>step size <span>$\alpha_i$</span><!-- Has MathJax --> 會漸漸變小, 如演算法的第3列<br>這個 step size <span>$\alpha_i$</span><!-- Has MathJax --> 的選擇是為了讓 Langevin dynamics 的 “signal-to-noise” ratio:<br><span>$$\frac{\alpha_i s_\theta(x,\sigma_i)} {2\sqrt{\alpha_i}z}$$</span><!-- Has MathJax --></p>
+<p>與加的 noise level <span>$\sigma_i$</span><!-- Has MathJax --> 無關 (作者在經驗上發現 <span>$\|s_\theta(x,\sigma)\|_2\propto 1/\sigma$</span><!-- Has MathJax -->, 代入上面的 SNR ratio 會發現與 <span>$\sigma_i$</span><!-- Has MathJax --> 無關)</p>
+<h2 id="結果"><a href="#結果" class="headerlink" title="結果"></a>結果</h2><hr>
+<p>藉由 NCSN 和 annealed Langevin dynamics 方法, 論文可以很好的產生影像<br><img src="/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/Untitled 5.png" width="70%" height="70%"><br>For image Inpainting, sampling 算法如下<br><img src="/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/Untitled 6.png" width="100%" height="100%"><br>沒有被遮擋的地方就是原本的 image + noise <span>$\tilde{z}$</span><!-- Has MathJax -->, 遮擋的地方是從 annealed Langevin dynamics 產生的<br>結果如下:<br><img src="/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/Untitled 7.png" width="100%" height="100%"></p>
+<h2 id="討論"><a href="#討論" class="headerlink" title="討論"></a>討論</h2><hr>
+<p>使用 NCSN 的 network 架構學習 score function. 一但有了 score function, 就可以使用 annealed Langevin dynamics 採樣. 因此生成模型就完成了</p>
+<blockquote>
+<p>💡 SMLD = NCSN + annealed Langevin dynamics</p>
+</blockquote>
+<p>但這樣的做法還有一些問題, 雖然 NCSN 使用不同尺度的 noise 訓練, 但 noise 的尺度怎麼選? Langevin dynamics 的 step size 參數 $\epsilon$, 以及次數 $T$ 怎麼定?<br>這些都必須仔細調整, 才會有比較好的效果. 也因此到這篇文章為止 (2019) 只能產生較小的圖 (32x32 以下)<br>所以在接下來的一篇文章 “<a href="https://arxiv.org/abs/2006.09011" target="_blank" rel="external">Improved Techniques for Training Score-Based Generative Models</a>”, 2020, Yang Song 從理論上探討了這些建議的設定, 結果能讓 SMLD 的生成模型穩定產生 64x64, 256x256 的結果.<br>更進一步, Yang Song 在 ICLR 2021 的論文 “<a href="https://arxiv.org/abs/2011.13456" target="_blank" rel="external">Score-Based Generative Modeling through Stochastic Differential Equations</a>” 將 SMLD 與 <a href="https://arxiv.org/abs/1503.03585" target="_blank" rel="external">Diffusion Probabilistic Modeling</a> (DPM) 的生成模型透過 SDE 的 framework 統一起來.<br>在這架構下, SMLD 與 DPM 其實是一體兩面, 不同的解讀而已! 太讓人讚嘆了! 在該篇結果已經能做到 1024x1024 的高解析度圖片, 這讓人非常期待 score-based generative modeling 接下來的發展!</p>
+<p>精彩精彩!</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/" title="Score Matching 系列 (五) SM 加上 Langevin Dynamics 變成生成模型">https://bobondemon.github.io/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Score-Matching/" rel="tag"># Score Matching</a>
+          
+            <a href="/tags/Langevin-Dynamics/" rel="tag"># Langevin Dynamics</a>
+          
+            <a href="/tags/Generative-Model/" rel="tag"># Generative Model</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/03/26/score-matching-toy-example-in-pytorch/" rel="next" title="Score Matching 系列 (四) SM 的 Toy Example in PyTorch">
+                <i class="fa fa-chevron-left"></i> Score Matching 系列 (四) SM 的 Toy Example in PyTorch
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/05/07/Hamiltonian-Monte-Carlo/" rel="prev" title="忘記物理也要搞懂的 Hamiltonian Monte Carlo (HMC) 筆記">
+                忘記物理也要搞懂的 Hamiltonian Monte Carlo (HMC) 筆記 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">123</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">262</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景知識"><span class="nav-number">1.</span> <span class="nav-text">背景知識</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#兩個主要問題"><span class="nav-number">2.</span> <span class="nav-text">兩個主要問題</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解決辦法"><span class="nav-number">3.</span> <span class="nav-text">解決辦法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#結果"><span class="nav-number">4.</span> <span class="nav-text">結果</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#討論"><span class="nav-number">5.</span> <span class="nav-text">討論</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+<span id="busuanzi_container_site_pv">
+  本站總瀏覽 <span id="busuanzi_value_site_pv"></span> 次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站訪客 <span id="busuanzi_value_site_uv"></span> 人
+</span>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,883 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="MVDR,MWF,MSNR," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="這是 far field 筆記系列第三篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 Microphone Array Signal Processing Ch6 和 Speech Processing in Modern Communication: Challenges and Perspectives Ch9.3.4
+在 narrow-band 的情形下, Multi-channe">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Far Field Notes (3) Equivalence of MWF, MaxSNR, and MVDR Filters">
+<meta property="og:url" content="https://bobondemon.github.io/2019/03/18/Far-Field-Notes-3-MWF-MaxSNR-MVDR-Filters/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="這是 far field 筆記系列第三篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 Microphone Array Signal Processing Ch6 和 Speech Processing in Modern Communication: Challenges and Perspectives Ch9.3.4
+在 narrow-band 的情形下, Multi-channe">
+<meta property="og:updated_time" content="2026-08-19T13:01:09.817Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Far Field Notes (3) Equivalence of MWF, MaxSNR, and MVDR Filters">
+<meta name="twitter:description" content="這是 far field 筆記系列第三篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 Microphone Array Signal Processing Ch6 和 Speech Processing in Modern Communication: Challenges and Perspectives Ch9.3.4
+在 narrow-band 的情形下, Multi-channe">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2019/03/18/Far-Field-Notes-3-MWF-MaxSNR-MVDR-Filters/"/>
+
+
+
+
+
+  <title> Far Field Notes (3) Equivalence of MWF, MaxSNR, and MVDR Filters | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2019/03/18/Far-Field-Notes-3-MWF-MaxSNR-MVDR-Filters/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Far Field Notes (3) Equivalence of MWF, MaxSNR, and MVDR Filters
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2019-03-18T20:33:46+08:00">
+                2019-03-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SP/" itemprop="url" rel="index">
+                    <span itemprop="name">SP</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<p>這是 far field 筆記系列第三篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 <a href="https://www.springer.com/in/book/9783540786115" target="_blank" rel="external">Microphone Array Signal Processing</a> Ch6 和 <a href="https://www.springer.com/la/book/9783642111297" target="_blank" rel="external">Speech Processing in Modern Communication: Challenges and Perspectives</a> Ch9.3.4</p>
+<p>在 narrow-band 的情形下, Multi-channel Wiener Filter (MWF), maximum SNR (MSNR) 和 Minimum Variance Distortionless Response (MVDR) 三者求出來的 filter 解只差在 norm 大小不同. 但反應在最後的 full-bank 行為仍然不同. 這部分可看書. 本篇主要紀錄 narrow-bank 下三者為何 equivalent. 算是書本的摘要筆記吧.</p>
+<a id="more"></a>
+<hr>
+<h3 id="Signal-Model"><a href="#Signal-Model" class="headerlink" title="Signal Model"></a>Signal Model</h3><p>在 frequency doamin 下, 我們有如下的關係</p>
+<span>$$\begin{align}
+Y_n(j\omega)=G_n(j\omega)S(j\omega)+V_n(j\omega) \\
+=X_n(j\omega)+V_n(j\omega)\mbox{,   }n=1,2,...,N \\
+\end{align}$$</span><!-- Has MathJax --> $N$ 是麥克風數量, $S(j\omega)$ 是原始訊號, $G_n(j\omega)$ 是聲源到 mic $n$ 的 impluse response, $V_n(j\omega)$ 是 noise, 而 $X_n(j\omega)$ 是 mic $n$ 的訊號. <strong>我們希望還原的是 $X_1(j\omega)$ 而不是 $S(j\omega)$.</strong><br>排成 vector 形式如下<br><br><span>$$\begin{align}
+Z(j\omega)=\mathbf{h}^H(j\omega)\mathbf{y}(j\omega) \\
+=\mathbf{h}^H(j\omega)[\mathbf{x}(j\omega)+\mathbf{v}(j\omega)] \\
+\end{align}$$</span><!-- Has MathJax --> 其中<br><br><span>$$\begin{align}
+\mathbf{y}(j\omega)=[Y_1(j\omega),Y_2(j\omega),...,Y_N(j\omega)]^T \\
+\mathbf{x}(j\omega)=S(j\omega)[G_1(j\omega),G_2(j\omega),...,G_N(j\omega)]^T=S(j\omega)\mathbf{g}(j\omega) \\
+\mathbf{v}(j\omega)=[V_1(j\omega),V_2(j\omega),...,V_N(j\omega)]^T \\
+\mathbf{h}(j\omega)=[H_1(j\omega),H_2(j\omega),...,H_N(j\omega)]^T \\
+\end{align}$$</span><!-- Has MathJax --> 注意到<br><br><span>$$\begin{align}
+\Phi_{xx}(j\omega)=\mathbb{E}\left[\mathbf{x}(j\omega)\mathbf{x}^H(j\omega)\right]=\phi_{ss}(j\omega)\mathbf{g}(j\omega)\mathbf{g}^H(j\omega)
+\end{align}$$</span><!-- Has MathJax -->
+<hr>
+<h3 id="MWF"><a href="#MWF" class="headerlink" title="MWF"></a>MWF</h3><p>將 error term 寫出來</p>
+<span>$$\begin{align}
+\mathcal{E}(j\omega)=Z(j\omega)-X_1(j\omega) \\
+=\mathbf{h}^H(j\omega)\mathbf{v}(j\omega)+[\mathbf{h}(j\omega)-\mathbf{u}]^H\mathbf{x}(j\omega)\\
+=\color{orange}{\mathcal{E}_v(j\omega)}+\color{blue}{\mathcal{E}_x(j\omega)} \\
+\end{align}$$</span><!-- Has MathJax --> 其中 $\mathbf{u}$ 是一個 $N\times 1$ 的 vector, 只有第一個是1, 其他是0. Error term 可以拆成兩項, 分別對應了 noise reduction 程度和 speech distortion 程度<br>MWF 的目標函式如下:<br><span>$$\begin{align}
+J_{MWF}[\mathbf{h}(j\omega)]=\mathbb{E}\left[| \mathcal{E}(j\omega) |^2\right]\\
+=
+\color{orange}{
+\mathbb{E}\left[| \mathcal{E}_v(j\omega) |^2\right]
+}
++
+\color{blue}{
+\mathbb{E}\left[| \mathcal{E}_x(j\omega) |^2\right]
+}
+\end{align}$$</span><!-- Has MathJax -->
+<p>可以看成 noise reduction 和 speech distortion 同等重要情況下去求解最好的 $\mathbf{h}$<br>微分等於零求解得到如下:<br><span>$$\begin{align}
+\Phi_{yy}(j\omega)\mathbf{h}_W(j\omega)=\Phi_{yx}(j\omega)\mathbf{u}=\Phi_{xx}(j\omega)\mathbf{u}
+\end{align}$$</span><!-- Has MathJax --><br>上式最後推導是由於 $x$ and $v$ 是 independent. 因此最後的 MWF 解為:<br><span>$$\begin{align}
+\mathbf{h}_W(j\omega)=\Phi_{yy}^{-1}(j\omega)\Phi_{xx}(j\omega)\mathbf{u} \\
+=\left[ \mathbf{I}_{N\times N} - \Phi_{yy}^{-1}(j\omega)\Phi_{vv}(j\omega) \right]\mathbf{u}
+\end{align}$$</span><!-- Has MathJax --></p>
+<hr>
+<h3 id="MVDR"><a href="#MVDR" class="headerlink" title="MVDR"></a>MVDR</h3><p>MVDR 要解的問題如下:<br><span>$$\min \color{orange}{ \mathbb{E}\left[| \mathcal{E}_v(j\omega) |^2\right] }\\
+\mbox{subject to } \color{blue}{\mathbb{E}\left[| \mathcal{E}_x(j\omega) |^2\right]}=0$$</span><!-- Has MathJax --> 這也可以看出 MVDR 為什麼叫 MVDR.<br>首先先將 constraint 改寫成 (改寫 speech distortion error term, 定義在 (11), (12)):<br><span>$\left[\mathbf{u}-\mathbf{h}(j\omega)\right]^H\mathbf{x}(j\omega)=0 \\$</span><!-- Has MathJax --> 並利用 $\mathbf{x}(j\omega)=S(j\omega)\mathbf{g}(j\omega)$ 可得到<br><span>$\mathbf{h}^H(j\omega)\mathbf{g}(j\omega)=G_1(j\omega)$</span><!-- Has MathJax --><br>因此 MVDR 問題的通常如下表達:<br><span>$$\min \mathbf{h}^H(j\omega) \Phi_{vv}(j\omega) \mathbf{h}(j\omega) \\
+\mbox{subject to } \mathbf{h}^H(j\omega)\mathbf{g}(j\omega)=G_1(j\omega) \\$$</span><!-- Has MathJax --> 這個最佳化問題正好就是上一篇的 LCMV, 所以說 MVDR 是 LCMV 的一種 case.<br>用 Lagrange multipliers 求解得到<br><span>$$\begin{align}
+\mathbf{h}_{MVDR}(j\omega)=G_1^{\ast}(j\omega)\frac{\Phi_{vv}^{-1}(j\omega)\mathbf{g}(j\omega)}{\mathbf{g}^H(j\omega)\Phi_{vv}^{-1}(j\omega)\mathbf{g}(j\omega)}
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>對 (18) 進一步推導, 為了精簡以下 ${j\omega}$ 省略不寫<br><span>$$\begin{align}
+\mathbf{h}_{MVDR}=\frac{\Phi_{vv}^{-1}\phi_{ss}\mathbf{g}G_1^{\ast}}{tr\left[\Phi_{vv}^{-1}\phi_{ss}\mathbf{g}\mathbf{g}^H\right]}=\frac{\Phi_{vv}^{-1}\phi_{ss}\mathbf{g}\mathbf{g}^H\mathbf{u}}{tr\left[\Phi_{vv}^{-1}\phi_{ss}\mathbf{g}\mathbf{g}^H\right]} \\
+=\frac{ \Phi_{vv}^{-1}\Phi_{xx}\mathbf{u} }{ tr\left[\Phi_{vv}^{-1}\Phi_{xx}\right] } \\
+=\frac{ \Phi_{vv}^{-1}(\Phi_{yy}-\Phi_{vv})\mathbf{u} }{ tr\left[ \Phi_{vv}^{-1}(\Phi_{yy}-\Phi_{vv}) \right] } \\
+=\frac{ (\Phi_{vv}^{-1}\Phi_{yy}-\mathbf{I})\mathbf{u} }{ tr\left[\Phi_{vv}^{-1}\Phi_{yy}\right]-N }
+\end{align}$$</span><!-- Has MathJax --> (19) 到 (20) 使用了 (9).<br>(22) 的形式書本說很重要, 因為避免了很難估計的 $\mathbf{g}$, 取而代之的是我們要估計出 $\Phi_{vv}$</p>
+<hr>
+<h3 id="MWF-與-MVDR-等價情形"><a href="#MWF-與-MVDR-等價情形" class="headerlink" title="MWF 與 MVDR 等價情形"></a>MWF 與 MVDR 等價情形</h3><p>同樣為了精簡以下 ${j\omega}$ 省略不寫, 首先我們知道<br><span>$$\begin{align}
+\Phi_{yy}=\Phi_{vv} + \phi_{ss}\mathbf{g}\mathbf{g}^H
+\end{align}$$</span><!-- Has MathJax --> 使用 Woodbury’s identity 可得:<br><span>$$\begin{align}
+\Phi_{yy}^{-1}=\Phi_{vv}^{-1}-\frac{ \Phi_{vv}^{-1}\Phi_{xx}\Phi_{vv}^{-1} }{ 1+tr\left[\Phi_{vv}^{-1}\Phi_{xx}\right] }
+\end{align}$$</span><!-- Has MathJax --> 將 (24) 帶入到 (17) 並經過一些代數替換我們得到<br><span>$$\begin{align}
+\mathbf{h}_{W}=\frac{ \Phi_{vv}^{-1}\Phi_{xx} }{ 1+tr\left[\Phi_{vv}^{-1}\Phi_{xx}\right] }\mathbf{u}
+\end{align}$$</span><!-- Has MathJax --> 這個式子與 MVDR 的 (20) 比較一下我們發現<br><span>$$\begin{align}
+\mathbf{h}_{W}(j\omega)=c(\omega)\mathbf{h}_{MVDR}(j\omega)
+\end{align}$$</span><!-- Has MathJax --> 其中 $c(\omega)$ 是與 $\omega$ 相關的一個 scalar. 因此 MWF 與 MVDR 解只差在一個 $\omega$ 相關的常數項</p>
+<hr>
+<h3 id="Maximum-SNR-MSNR"><a href="#Maximum-SNR-MSNR" class="headerlink" title="Maximum SNR (MSNR)"></a>Maximum SNR (MSNR)</h3><p>同樣為了精簡以下 ${j\omega}$ 省略不寫, output SNR 定義為:<br><span>$$\begin{align}
+\mbox{oSNR}\left[\mathbf{h}\right]=\frac{ \mathbf{h}^H \Phi_{xx} \mathbf{h} }{ \mathbf{h}^H \Phi_{vv} \mathbf{h} }
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>這個等同於 generalized eigenvalue problem.<br><span>$$\begin{align}
+\Phi_{xx}\mathbf{h}=\lambda\Phi_{vv}\mathbf{h}
+\end{align}$$</span><!-- Has MathJax --> 所以<br><span>$\mathbf{h}_{MSNR}\mbox{ is eigenvector w.r.t max eigenvalue of matrix  } \Phi_{vv}^{-1}\Phi_{xx}$</span><!-- Has MathJax --><br>eigenvector 乘上一個 scalar 仍然是 eigenvector, 因此通常都會將 $\mathbf{h}_{MSNR}$ 的 norm 定為 1</p>
+<p>接著我們說明 $\mathbf{h}$ 的解具有以下形式:<br><span>$$\begin{align}
+\mathbf{h}\propto\Phi_{vv}^{-1}\mathbf{g}
+\end{align}$$</span><!-- Has MathJax --> 先假定 (29) 為等式:<br><span>$$\begin{align}
+\mathbf{h}=\Phi_{vv}^{-1}\mathbf{g}
+\end{align}$$</span><!-- Has MathJax --> 利用 (9) 和 (30) 得到以下的推導<br><span>$$\begin{align}
+\Phi_{vv}^{-1}\Phi_{xx}\mathbf{h}=\Phi_{vv}^{-1} \phi_{ss}\mathbf{g}\mathbf{g}^H \mathbf{h}=\left(\Phi_{vv}^{-1}\mathbf{g}\right)\left(\phi_{ss}\mathbf{g}^H\mathbf{h}\right)=\mathbf{h}\lambda
+\end{align}$$</span><!-- Has MathJax --> 我們發現 $\mathbf{h}$ 如有 (30) 的形式, 則為 maximum SNR (27) 的解. 當然 eigenvector 乘上 scalar 仍然是 eigenvector, 所以 (29) 為 maximum SNR 的解.<br>最後由於 $\Phi_{xx}$ 為 rank 1 所以只會有一個 nonzero eigenvalue, 因此 maximum SNR 所有解的形式必然為 (29) 的形式.</p>
+<hr>
+<h3 id="MVDR-與-MSNR-等價情形"><a href="#MVDR-與-MSNR-等價情形" class="headerlink" title="MVDR 與 MSNR 等價情形"></a>MVDR 與 MSNR 等價情形</h3><p>檢查下 (18) 的 MVDR 解, 很快就發現滿足 (29) MSNR 的解的形式, 因此<br><span>$$\begin{align}
+\mathbf{h}_{MVDR}(j\omega)=d(\omega)\mathbf{h}_{MSNR}(j\omega)
+\end{align}$$</span><!-- Has MathJax --></p>
+<hr>
+<h4 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h4><p>MWF, MVDR, MSNR 三個問題的解在 narrowband 上只差在 scalar. 但以 fullband 來說, 表現還是不同的.</p>
+<hr>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
+<li><a href="https://www.springer.com/in/book/9783540786115" target="_blank" rel="external">Microphone Array Signal Processing</a> by Jocab Benesty</li>
+<li><a href="https://www.springer.com/la/book/9783642111297" target="_blank" rel="external">Speech Processing in Modern Communication: Challenges and Perspectives</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2019/03/18/Far-Field-Notes-3-MWF-MaxSNR-MVDR-Filters/" title="Far Field Notes (3) Equivalence of MWF, MaxSNR, and MVDR Filters">https://bobondemon.github.io/2019/03/18/Far-Field-Notes-3-MWF-MaxSNR-MVDR-Filters/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MVDR/" rel="tag"># MVDR</a>
+          
+            <a href="/tags/MWF/" rel="tag"># MWF</a>
+          
+            <a href="/tags/MSNR/" rel="tag"># MSNR</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/" rel="next" title="Far Field Notes (2) LCMV filter and Frost's algorithm">
+                <i class="fa fa-chevron-left"></i> Far Field Notes (2) LCMV filter and Frost's algorithm
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/03/20/MMSE-STSA-and-LSA/" rel="prev" title="懷舊篇, 單通道降噪, MMSE-STSA, MMSE-LSA 方法">
+                懷舊篇, 單通道降噪, MMSE-STSA, MMSE-LSA 方法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">123</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">262</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Signal-Model"><span class="nav-number">1.</span> <span class="nav-text">Signal Model</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MWF"><span class="nav-number">2.</span> <span class="nav-text">MWF</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MVDR"><span class="nav-number">3.</span> <span class="nav-text">MVDR</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MWF-與-MVDR-等價情形"><span class="nav-number">4.</span> <span class="nav-text">MWF 與 MVDR 等價情形</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Maximum-SNR-MSNR"><span class="nav-number">5.</span> <span class="nav-text">Maximum SNR (MSNR)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MVDR-與-MSNR-等價情形"><span class="nav-number">6.</span> <span class="nav-text">MVDR 與 MSNR 等價情形</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#結論"><span class="nav-number">6.1.</span> <span class="nav-text">結論</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">7.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+<span id="busuanzi_container_site_pv">
+  本站總瀏覽 <span id="busuanzi_value_site_pv"></span> 次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站訪客 <span id="busuanzi_value_site_uv"></span> 人
+</span>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

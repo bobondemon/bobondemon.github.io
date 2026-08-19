@@ -1,0 +1,883 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="ML,Deep Learning,Generative Model," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Open.ai 這張表達 generative modeling 的意思很清楚，忍不住就借用了。
+筆者才疏學淺，如有錯誤，還請指正
+Generative Adversarial Nets 提出了一個 NN 的 generative modeling 方法，在這之前，NN 要成為 p.d.f. 必須依賴於 sigmoid activation 的 Restricted Boltzmann Machi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WGAN Part 1: 先用 GAN 鋪梗">
+<meta property="og:url" content="https://bobondemon.github.io/2017/03/16/WGAN-Part-1/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="Open.ai 這張表達 generative modeling 的意思很清楚，忍不住就借用了。
+筆者才疏學淺，如有錯誤，還請指正
+Generative Adversarial Nets 提出了一個 NN 的 generative modeling 方法，在這之前，NN 要成為 p.d.f. 必須依賴於 sigmoid activation 的 Restricted Boltzmann Machi">
+<meta property="og:image" content="https://bobondemon.github.io/2017/03/16/WGAN-Part-1/cover.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/03/16/WGAN-Part-1/GAN_algo.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/03/16/WGAN-Part-1/swissroll.jpg">
+<meta property="og:image" content="https://bobondemon.github.io/2017/03/16/WGAN-Part-1/JSD.png">
+<meta property="og:updated_time" content="2026-08-19T13:01:09.832Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="WGAN Part 1: 先用 GAN 鋪梗">
+<meta name="twitter:description" content="Open.ai 這張表達 generative modeling 的意思很清楚，忍不住就借用了。
+筆者才疏學淺，如有錯誤，還請指正
+Generative Adversarial Nets 提出了一個 NN 的 generative modeling 方法，在這之前，NN 要成為 p.d.f. 必須依賴於 sigmoid activation 的 Restricted Boltzmann Machi">
+<meta name="twitter:image" content="https://bobondemon.github.io/2017/03/16/WGAN-Part-1/cover.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2017/03/16/WGAN-Part-1/"/>
+
+
+
+
+
+  <title> WGAN Part 1: 先用 GAN 鋪梗 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2017/03/16/WGAN-Part-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                WGAN Part 1: 先用 GAN 鋪梗
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2017-03-16T21:25:12+08:00">
+                2017-03-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><a href="https://openai.com/blog/generative-models/" target="_blank" rel="external">Open.ai</a> 這張表達 generative modeling 的意思很清楚，忍不住就借用了。<br><img src="/2017/03/16/WGAN-Part-1/cover.png" width="50%" height="50%"></p>
+<p><strong>筆者才疏學淺，如有錯誤，還請指正</strong></p>
+<p>Generative Adversarial Nets 提出了一個 NN 的 generative modeling 方法，在這之前，NN 要成為 p.d.f. 必須依賴於 sigmoid activation 的 Restricted Boltzmann Machines (RBM) 結構。例如 Deep Belief Net，整個 network 才會是一個 p.d.f.。然而學習這樣的一個 p.d.f. 必須使用 Contrastive Divergence 的 MCMC 方法， model 訓練完後要產生 sample 時也還是必須依賴 MCMC。加上在實用上，偏偏 sigmoid 很多時候效果不如 ReLu, maxout 等，例如 sigmoid 有嚴重的 gradient vanish problem。這使得 NN 在 generative modeling 又或是 unsupervised learning 上一直困難重重。</p>
+<p>GAN 一出立即打破這個難堪的限制 ! 怎麼說呢? GAN 捨棄能夠明確表達出 p.d.f.的作法，寫不出明確的 p.d.f. 一點也沒關係，只要能生成 <strong>夠真的sample點</strong>，並且<strong>sample的機率跟training data一樣</strong>就好</p>
+<a id="more"></a>
+<p>然而 GAN 在實作上卻會遇上一些困難，例如生成的 samples <strong>多樣性不足</strong>，<strong>訓練流程/架構 和 hyper-parameters 需要小心選擇</strong>，<strong>無法明確知道訓練的收斂狀況</strong>，這些問題等下會說明。</p>
+<p>本篇的主角 (事實上下一篇才會登場) <strong>Wasserstein GAN (WGAN)</strong>，從本質上探討 GAN 目標函式中使用的 distance measure，進而根本地解決上述三個問題，這大大降低了 generative modeling 訓練難度 !</p>
+<p>我們還是來談談 GAN 怎麼一回事先吧。</p>
+<hr>
+<h3 id="Generative-Adversarial-Nets"><a href="#Generative-Adversarial-Nets" class="headerlink" title="Generative Adversarial Nets"></a>Generative Adversarial Nets</h3><p>GAN 使用一個 two-player minimax gaming 策略。先用直觀說，我們有一個 <strong>生成器</strong> \(G\)，用來生成夠真的 sample，另外還有一個 <strong>鑑別器</strong> \(D\)，用來分辨 sample 究竟是真實資料 (training data) 來的呢，還是假的 (\(G\)產生的)。<br>當這兩個模型互相競爭到一個平衡點的時候，也就是 \(G\) 能夠產生到 \(D\) 分辨不出真假的 sample，我們的生成器 \(G\) 就鍊成了。<br>而 GAN 作者厲害的地方就在於</p>
+<p>一: 將這兩個model的競爭規則轉換成一個最佳化問題<br>二: 並且證明，當達到賽局的平衡點時(達到最佳解)，生成器就鍊成 (可以完美表示 training data 的 pdf，並且可sampling)</p>
+<p>我們還是必須把上述策略嚴謹的表達出來 (寫成最佳化問題)，並證明當達到最佳化問題的最佳解時，就剛好完成生成器的鍊成。</p>
+<hr>
+<h3 id="Two-player-Minimax-Game"><a href="#Two-player-Minimax-Game" class="headerlink" title="Two-player Minimax Game"></a>Two-player Minimax Game</h3><p>原則上我們希望鑑別器 \(D\) 能分辨出真假 sample，因此 \(D(x)\) 很自然地可以表示為 sample \(x\) 為真的機率<br>另外生成器 \(G\) 則是負責產生假 sample，也可以很自然地表達為 \(G(z)\)，其中 \(z\) 為 latent variables，且我們可以假設該 latent variables \(z\) follow 一個 prior distribution \(p_z(z)\)。</p>
+<p>我們希望 \(D(x)\) 對來自於真實資料的 samples 能夠盡量大，而對來自於 \(G\) 產生的要盡量小，因此對於鑑別器來說，它的目標函式可定義為如下:</p>
+<span>$$\begin{align} 
+Maximize: E_{x \sim p_{data}(x)} [\log D(x)]  + E_{z \sim p_z(z)}[\log (1-D(G(z)))]
+\end{align}$$</span><!-- Has MathJax -->
+<p>另一方面，我們希望 \(G\) 能夠強到讓 \(D\) 無法分辨真偽，因此生成器的目標函式為:</p>
+<span>$$\begin{align} 
+Minimize: E_{z \sim p_z(z)}[\log (1-D(G(z)))]
+\end{align}$$</span><!-- Has MathJax -->
+<p>結合上述兩個目標函式就是如下的 minmax problem了</p>
+<span>$$\begin{align}
+\min_G{ \max_D{V(D,G)} } = E_{x \sim p_{data}(x)} [\log D(x)] + E_{z \sim p_z(z)}[\log (1-D(G(z)))]
+\end{align}$$</span><!-- Has MathJax -->
+<p>這邊作者很漂亮地給出了上述問題的理論證明。證明了兩件事情:</p>
+<blockquote>
+<ol>
+<li>上述最佳化問題 (式(3)) 達到 global optimum 時, \( p_g = p_d \)。 (生成器產生出來的 pdf 會等於真實資料的 pdf，因此生成器鍊成!)</li>
+</ol>
+</blockquote>
+<blockquote>
+<ol start="2">
+<li>使用如下的演算法可以找到 global optimum</li>
+</ol>
+</blockquote>
+<blockquote>
+<p><img src="/2017/03/16/WGAN-Part-1/GAN_algo.png" width="70%" height="70%"></p>
+</blockquote>
+<p>接下來我們只討論第一個事情的證明，因為這關係到 GAN 的弱點，也就是 WGAN 要解決的問題根源!</p>
+<hr>
+<h3 id="證明-Global-optimum-發生時，鍊成生成器"><a href="#證明-Global-optimum-發生時，鍊成生成器" class="headerlink" title="證明 Global optimum 發生時，鍊成生成器"></a>證明 Global optimum 發生時，鍊成生成器</h3><p>大方向是這樣的</p>
+<p>A. 假如給定 \(G\)，我們都可以找到一個相對應的 \(D_G^*\) 最佳化鑑別器的目標函式 (1)。<br>B. 改寫原來的目標函式 \(V(G,D)\)，改寫後只跟 \(G\) 有關，我們定義為 <strong>\(C(G)\)</strong>，這是因為對於每一個 \(G\) 我們已經配給它相對應的 \(D_G^*\) 了，接著證明最佳解只發生在 \( p_g = p_d \) 的情況。</p>
+<blockquote>
+<ul>
+<li><p><em>步驟 A:</em></p>
+<span>$$V(G,D)=\int_{x}{p_d(x)\log(D(x))dx}+\int_{z}{p_z(z)\log(1-D(g(z)))dz} \\
+=\int_x[p_d(x)\log(D(x))+p_g(x)\log(1-D(x))]dx$$</span><!-- Has MathJax -->
+<p>而一個 function \(f(x)=a\log (y)+b\log (1-y)\) 的最佳解為 \(y=\frac{a}{a+b}\)<br>因此我們得到 \( D_G^*(x) = \frac{p_d(x)}{p_d(x)+p_g(x)} \)</p>
+</li>
+<li><p><em>步驟 B:</em></p>
+<span>$$\begin{align*}
+&amp; C(G)=\max_{D}V(G,D) \\
+&amp; =E_{x \sim p_d}[\log D_G^*(x)]+E_{z \sim p_z}[\log(1-D_G^*(G(z)))] \\
+&amp; =E_{x \sim p_d}[\log D_G^*(x)]+E_{x \sim p_g}[\log(1-D_G^*(x))] \\
+&amp; =E_{x \sim p_d}[\log{\frac{p_d(x)}{p_d(x)+p_g(x)}}]+E_{x \sim p_g}[\log{\frac{p_g(x)}{p_d(x)+p_g(x)}}]
+\end{align*}$$</span><!-- Has MathJax -->
+<p>然後我們特別觀察如果 \(p_g = p_d\)，上式會</p>
+<span>$$\begin{align} 
+=E_{x \sim p_d}[-\log 2]+E_{x \sim p_g}[-\log 2]=-\log4
+\end{align}$$</span><!-- Has MathJax -->
+<p>重新改寫一下 \(C(G)\) 如下</p>
+<span>$$\begin{align} 
+C(G)=-\log4+KL(p_d\vert\frac{p_d+p_g}{2})+KL(p_g\vert\frac{p_d+p_g}{2}) \\
+=-\log4+2JSD(p_d \vert p_g)
+\end{align}$$</span><!-- Has MathJax -->
+<p>馬上觀察到 \(JSD\geq0\) 和 \(JSD=0 \Leftrightarrow p_g = p_d \)<br>這表示 \(C(G)\) 最佳值為 \(-\log4\)，且我們已知當 \(p_g = p_d\) 時達到最佳值 (式(4))，因此為最佳解</p>
+</li>
+</ul>
+</blockquote>
+<p>結論整個 GAN 的流程:<br>我們基於一個生成器 \(G\) 去最佳化 \(D\) 得到 \(D_G^*\)，接著要繼續最佳化生成器的時候，問題從目標函式 (3) 變成<strong>等價於要最佳化一個 JSD 的問題</strong> (式(5))。<br>藉由最佳化 JSD 問題，得到新的 \(G\)，然後重複上面步驟，最後達到式(3)的最佳解，而我們可以保證此時生成器鍊成， \(p_g = p_d\)。</p>
+<p>問題出在哪? 問題就出在<strong>最佳化一個 JSD 的問題</strong>上面 !</p>
+<hr>
+<h3 id="JSD-有什麼問題"><a href="#JSD-有什麼問題" class="headerlink" title="JSD 有什麼問題?"></a>JSD 有什麼問題?</h3><p>我們通過最佳化 JSD，而將 \(p_g\) 逐漸拉向 \(p_d\)。但是 JSD 有兩個主要的問題:</p>
+<p>A. 在 <em>實際狀況</em> 下，無法給初連續的距離值，導致 gradient 大部分都是 0，因而非常難以訓練<br>B. 產生的樣本多樣性不足，collapse mode。</p>
+<p>這邊要解釋一下 <em>實際狀況</em> 是什麼意思。一般來說，真實資料我們都會用非常高的維度去表示，然而資料的變化通常只被少數幾種變因所控制，也就是只存在高維空間中的 local manifold。<br>例如一個 swiss roll 雖然是在 3 維空間中，但它是在一個 2 維的 manifold 空間裡。<br><img src="/2017/03/16/WGAN-Part-1/swissroll.jpg" width="25%" height="25%"></p>
+<p>這樣會造成一個問題就是， \(p_d\) 和 \(p_g\)，不會有交集，又或者交集處的集合測度為0!<br>這樣的情況在JSD衡量兩個機率分布的時候會悲劇。作者給出了下面一個簡單易懂的例子:</p>
+<p><img src="/2017/03/16/WGAN-Part-1/JSD.png" width="50%" height="50%"></p>
+<p>兩個機率分布都是在一個 1 維的 manifold 直線上，x 軸的距離維 \(\theta\)，此時的 JSD 值為右圖所示，全部都是 \(\log2\)，除了在 \(\theta\) 那點的值是 0 (pdf完全重疊)。<br>這樣計算出的 Gradients 幾乎都是 0，這也就是為什麼 GAN 很難訓練的原因。</p>
+<p>這問題在 WGAN 之前還是有人提出解決的方法，不過就很偏工程思考: 加入 noise 使得兩個機率分部有不可忽略的重疊。因此讓 GAN 先動起來，動起來之後，再慢慢地把 noise 程度下降。<br>這是聰明工程師的厲害辦法! 但終歸來說還是治標。真正的治本方法，必須要替換掉 JSD 這樣的量測函式才可以。</p>
+<p>本篇鋪梗結束 (這梗也太長了)。下篇終於輪到主角登場， <strong>WGAN 的 W !</strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2017/03/16/WGAN-Part-1/" title="WGAN Part 1: 先用 GAN 鋪梗">https://bobondemon.github.io/2017/03/16/WGAN-Part-1/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/ML/" rel="tag"># ML</a>
+          
+            <a href="/tags/Deep-Learning/" rel="tag"># Deep Learning</a>
+          
+            <a href="/tags/Generative-Model/" rel="tag"># Generative Model</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/03/13/Why-Aggregation-Work/" rel="next" title="Why-Aggregation-Work">
+                <i class="fa fa-chevron-left"></i> Why-Aggregation-Work
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/03/17/WGAN-Part-2/" rel="prev" title="WGAN Part 2: 主角 W 登場">
+                WGAN Part 2: 主角 W 登場 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">123</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">262</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Generative-Adversarial-Nets"><span class="nav-number">1.</span> <span class="nav-text">Generative Adversarial Nets</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Two-player-Minimax-Game"><span class="nav-number">2.</span> <span class="nav-text">Two-player Minimax Game</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#證明-Global-optimum-發生時，鍊成生成器"><span class="nav-number">3.</span> <span class="nav-text">證明 Global optimum 發生時，鍊成生成器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JSD-有什麼問題"><span class="nav-number">4.</span> <span class="nav-text">JSD 有什麼問題?</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+<span id="busuanzi_container_site_pv">
+  本站總瀏覽 <span id="busuanzi_value_site_pv"></span> 次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站訪客 <span id="busuanzi_value_site_uv"></span> 人
+</span>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

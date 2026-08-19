@@ -1,0 +1,867 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Udacity,CV," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="這個 Porject 目的是要偵測畫面中所有的車子, 大致上的流程是先訓練好 car/non-car 的 classifer, 然後用 sliding window 搭配不同的 window size 去偵測, 最後再把 bounding boxes 做一些後處理, 例如 merge boxes, 和對時間序列的處理以下為 git hub 的 REAMDE.md">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vehicle-Tracking">
+<meta property="og:url" content="https://bobondemon.github.io/2017/03/12/Vehicle-Tracking/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="這個 Porject 目的是要偵測畫面中所有的車子, 大致上的流程是先訓練好 car/non-car 的 classifer, 然後用 sliding window 搭配不同的 window size 去偵測, 最後再把 bounding boxes 做一些後處理, 例如 merge boxes, 和對時間序列的處理以下為 git hub 的 REAMDE.md">
+<meta property="og:image" content="https://bobondemon.github.io/2017/03/12/Vehicle-Tracking/cover.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/03/12/Vehicle-Tracking/HOG_with_YCrCb.jpg">
+<meta property="og:image" content="https://bobondemon.github.io/2017/03/12/Vehicle-Tracking/grid_search.jpg">
+<meta property="og:image" content="https://bobondemon.github.io/2017/03/12/Vehicle-Tracking/example_before_post_processing.jpg">
+<meta property="og:image" content="https://bobondemon.github.io/2017/03/12/Vehicle-Tracking/video-pic.png">
+<meta property="og:updated_time" content="2017-03-15T01:01:04.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Vehicle-Tracking">
+<meta name="twitter:description" content="這個 Porject 目的是要偵測畫面中所有的車子, 大致上的流程是先訓練好 car/non-car 的 classifer, 然後用 sliding window 搭配不同的 window size 去偵測, 最後再把 bounding boxes 做一些後處理, 例如 merge boxes, 和對時間序列的處理以下為 git hub 的 REAMDE.md">
+<meta name="twitter:image" content="https://bobondemon.github.io/2017/03/12/Vehicle-Tracking/cover.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2017/03/12/Vehicle-Tracking/"/>
+
+
+
+
+
+  <title> Vehicle-Tracking | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2017/03/12/Vehicle-Tracking/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Vehicle-Tracking
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2017-03-12T22:27:13+08:00">
+                2017-03-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CV/" itemprop="url" rel="index">
+                    <span itemprop="name">CV</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <div align="center"><img src="/2017/03/12/Vehicle-Tracking/cover.png" alt="cover" height="50%" width="50%"></div>
+
+<p>這個 Porject 目的是要偵測畫面中所有的車子, 大致上的流程是先訓練好 car/non-car 的 classifer, 然後用 sliding window 搭配不同的 window size 去偵測, 最後再把 bounding boxes 做一些後處理, 例如 merge boxes, 和對時間序列的處理<br>以下為 git hub 的 REAMDE.md</p>
+<a id="more"></a>
+<p>The goals / steps of this project are the following:</p>
+<ol>
+<li>Perform a Histogram of Oriented Gradients (HOG) feature extraction<br> I implement HOG feature extraction and using a subset of training data to search a good settings of parameters. Images are stored in <code>output_images/HOG_with_YCrCb.jpg</code> and <code>output_images/grid_search.jpg</code></li>
+<li>Train Classifier<br> I trained a Linear SVM classifier with HOG + color_hist + bin_spatial which achieved 98% accuracy on test set.</li>
+<li>Sliding Window Search<br> I implemented a sliding window search method with two scales of window. HOG features are extracted once for an given image.</li>
+<li>Showing Examples so far<br> I showed 4 examples with the pipeline so far. Image is stored in <code>output_images/example_before_post_processing.jpg</code></li>
+<li>Video Implementation<br> I showed the results with a short video clip (test_video.mp4) as well as the <a href="https://youtu.be/f4AJoeI5_3c" target="_blank" rel="external">final result</a> that adopted post-processing below.</li>
+<li>Further Post-processing<br> A buffer for heat-maps is used for keeping a 6 consecutive heat-maps in frames. This will filtered out some false accepts.</li>
+<li>Discussion<br> A short discussion is made.</li>
+</ol>
+<p>–</p>
+<h2 id="Rubric-Points"><a href="#Rubric-Points" class="headerlink" title="Rubric Points"></a><a href="https://review.udacity.com/#!/rubrics/513/view" target="_blank" rel="external">Rubric</a> Points</h2><hr>
+<h3 id="1-Histogram-of-Oriented-Gradients-HOG"><a href="#1-Histogram-of-Oriented-Gradients-HOG" class="headerlink" title="1. Histogram of Oriented Gradients (HOG)"></a>1. Histogram of Oriented Gradients (HOG)</h3><blockquote>
+<p>Explain how (and identify where in your code) you extracted HOG features from the training images. Explain how you settled on your final choice of HOG parameters.</p>
+</blockquote>
+<p>I randomly selected examples of <code>car</code> and <code>notcar</code> and showed their HOG results in each channel of HLS space:</p>
+<div align="center"><img src="/2017/03/12/Vehicle-Tracking/HOG_with_YCrCb.jpg" alt="HOG_with_YCrCb" height="70%" width="70%"></div>
+
+<p>In order to get a good enough setting for those parameters (<code>orientations</code>, <code>pixels_per_cell</code> and <code>cells_per_block</code>), I applied a <strong>grid searching method</strong> with a linear SVM on a <strong>small subset</strong> of training data. Grid searching space is defined as follows (24 combinations):</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">orient_set = range(<span class="number">9</span>,<span class="number">19</span>,<span class="number">3</span>)</div><div class="line">pix_per_cell_set = [<span class="number">4</span>,<span class="number">8</span>,<span class="number">16</span>]</div><div class="line">cell_per_block_set = [<span class="number">1</span>,<span class="number">2</span>]</div></pre></td></tr></table></figure>
+<div align="center"><img src="/2017/03/12/Vehicle-Tracking/grid_search.jpg" alt="grid_search" height="70%" width="70%"></div>
+
+<p>The purpose of this stage is not finding the optimal, but rather, a good enough setting. So I choose <strong><code>orient=15, pix_per_cell=8, cell_per_block=2, cspace=&#39;RGB2YCrCb&#39;</code></strong></p>
+<hr>
+<h3 id="2-Train-Classifier"><a href="#2-Train-Classifier" class="headerlink" title="2. Train Classifier"></a>2. Train Classifier</h3><blockquote>
+<p>Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).</p>
+</blockquote>
+<p>Before training the classifier, dataset should be processed first.<br>Since the <code>vehicles/GTI*/*.png</code>  contains <strong>time-series data</strong>, I <strong>manually selected</strong> images to avoid train and test sets having identical images. In addition, <strong>20%</strong> images in each training folder are treated as test images. The same partition method applied to non-vehicles images too.</p>
+<p>Then I trianed a Linear SVM model with HOG + color_hist + bin_spatial features which has performance:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">inside-acc=<span class="number">1.0</span>, outside-acc=<span class="number">0.9802036199095022</span></div></pre></td></tr></table></figure>
+<hr>
+<h3 id="3-Sliding-Window-Search"><a href="#3-Sliding-Window-Search" class="headerlink" title="3. Sliding Window Search"></a>3. Sliding Window Search</h3><blockquote>
+<p>Describe how (and identify where in your code) you implemented a sliding window search. How did you decide what scales to search and how much to overlap windows?</p>
+</blockquote>
+<p>The course provided a very useful code snippet that can extract HOG features once no matter how much windows are. So I reuse it as the feature extraction function!<br>I used two types of scales, 1.5 and 1.2, which deal with large and small window respectively (car with near and far positions from camera). Also, I found that the overlaping of cells_per_step = 1 (more dense windows) has better results in my implementation.</p>
+<p>Before going through, it is worth checking the image values. Since feature extraction pipeline processed <code>.png</code> files with <code>mpimg.imread</code>, it reads images with values [0,1].</p>
+<p>However, mpimg.imread reads the .jpg file with values within [0,255]. So it is necessary to divide 255 before calling the feature extraction pipeline while reading .jpg images with mpimg.imread.</p>
+<blockquote>
+<p><strong>Make sure your images are scaled correctly</strong></p>
+</blockquote>
+<blockquote>
+<p>The training dataset provided for this project ( vehicle and non-vehicle images) are in the .png format. Somewhat confusingly, matplotlib image will read these in on a scale of 0 to 1, but cv2.imread() will scale them from 0 to 255. Be sure if you are switching between cv2.imread() and matplotlib image for reading images that you scale them appropriately! Otherwise your feature vectors can get screwed up.</p>
+</blockquote>
+<blockquote>
+<p>To add to the confusion, matplotlib image will read .jpg images in on a scale of 0 to 255 so if you are testing your pipeline on .jpg images remember to scale them accordingly. And if you take an image that is scaled from 0 to 1 and change color spaces using cv2.cvtColor() you’ll get back an image scaled from 0 to 255. So just be sure to be consistent between your training data features and inference features!</p>
+</blockquote>
+<hr>
+<h3 id="4-Showing-Examples"><a href="#4-Showing-Examples" class="headerlink" title="4. Showing Examples"></a>4. Showing Examples</h3><blockquote>
+<p>Show some examples of test images to demonstrate how your pipeline is working. How did you optimize the performance of your classifier?</p>
+</blockquote>
+<p>The followings are some examples. As you can see in the example 2, there exists a <strong>false accept</strong>. This will be filtered out in the <strong>post-processing</strong> part.</p>
+<div align="center"><img src="/2017/03/12/Vehicle-Tracking/example_before_post_processing.jpg" alt="example_before_post_processing" height="70%" width="70%"></div>
+
+<hr>
+<h3 id="5-Video-Implementation"><a href="#5-Video-Implementation" class="headerlink" title="5. Video Implementation"></a>5. Video Implementation</h3><blockquote>
+<p>Provide a link to your final video output. Your pipeline should perform reasonably well on the entire project video (somewhat wobbly or unstable bounding boxes are ok as long as you are identifying the vehicles most of the time with minimal false positives.)</p>
+</blockquote>
+<p>Following is the final result (combined with post-processing as described below)<br><a href="https://youtu.be/f4AJoeI5_3c" target="_blank" rel="external"><img src="/2017/03/12/Vehicle-Tracking/video-pic.png" alt="link"></a></p>
+<hr>
+<h3 id="6-Further-Post-processing"><a href="#6-Further-Post-processing" class="headerlink" title="6. Further Post-processing"></a>6. Further Post-processing</h3><blockquote>
+<p>Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.</p>
+</blockquote>
+<p>A heat-map to further filtered out some false positives. Moreover, I used a buffer to keep the 6 consecutive frames of heat-maps, and then accumulated those heat-maps in buffer. The accumulated heat-map then thresholded and produced the final results.</p>
+<hr>
+<h3 id="7-Discussion"><a href="#7-Discussion" class="headerlink" title="7. Discussion"></a>7. Discussion</h3><blockquote>
+<p>Briefly discuss any problems / issues you faced in your implementation of this project. Where will your pipeline likely fail? What could you do to make it more robust?</p>
+</blockquote>
+<p>There still have too much parameters that effect the robustness, like <code>ystart</code>, <code>ystop</code>, <code>scale factors</code>, <code>thresholds</code> for heat-maps, and etc. Moreover, with more challanging conditions, those settings might work in one condition but fail in others.</p>
+<p>I think the most important part in those pipelines is the classifier itself. The linear SVM I used in this project is not good enough as you can see in the video that still has few false accepts. So a deep-learning based classifier might achieve better results and actually helpful to the following pipelines. This would be my future work.</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2017/03/12/Vehicle-Tracking/" title="Vehicle-Tracking">https://bobondemon.github.io/2017/03/12/Vehicle-Tracking/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Udacity/" rel="tag"># Udacity</a>
+          
+            <a href="/tags/CV/" rel="tag"># CV</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/27/Lane-Finding/" rel="next" title="Lane-Finding">
+                <i class="fa fa-chevron-left"></i> Lane-Finding
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/03/13/Why-Aggregation-Work/" rel="prev" title="Why-Aggregation-Work">
+                Why-Aggregation-Work <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">123</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">262</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Rubric-Points"><span class="nav-number">1.</span> <span class="nav-text">Rubric Points</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Histogram-of-Oriented-Gradients-HOG"><span class="nav-number">1.1.</span> <span class="nav-text">1. Histogram of Oriented Gradients (HOG)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Train-Classifier"><span class="nav-number">1.2.</span> <span class="nav-text">2. Train Classifier</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Sliding-Window-Search"><span class="nav-number">1.3.</span> <span class="nav-text">3. Sliding Window Search</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-Showing-Examples"><span class="nav-number">1.4.</span> <span class="nav-text">4. Showing Examples</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-Video-Implementation"><span class="nav-number">1.5.</span> <span class="nav-text">5. Video Implementation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-Further-Post-processing"><span class="nav-number">1.6.</span> <span class="nav-text">6. Further Post-processing</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-Discussion"><span class="nav-number">1.7.</span> <span class="nav-text">7. Discussion</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+<span id="busuanzi_container_site_pv">
+  本站總瀏覽 <span id="busuanzi_value_site_pv"></span> 次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站訪客 <span id="busuanzi_value_site_uv"></span> 人
+</span>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

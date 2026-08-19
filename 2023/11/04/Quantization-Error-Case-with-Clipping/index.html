@@ -1,0 +1,879 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Quantization Error,Linear Quantization,Nonlinear Quantization,OCTAV," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="上一篇文章我們提到, uniformly constrained quantizer 有這樣的 quantization error:$$\begin{align}
+J=s_{\text max}^2{4^{-B}\over 3}
+\end{align}$$ 其中 $s_{\text {max}}$ 表示 input $x$ 在 $[-s_{\text {max}}, s_{\text {max">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Quantization Error (Case with Clipping)">
+<meta property="og:url" content="https://bobondemon.github.io/2023/11/04/Quantization-Error-Case-with-Clipping/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="上一篇文章我們提到, uniformly constrained quantizer 有這樣的 quantization error:$$\begin{align}
+J=s_{\text max}^2{4^{-B}\over 3}
+\end{align}$$ 其中 $s_{\text {max}}$ 表示 input $x$ 在 $[-s_{\text {max}}, s_{\text {max">
+<meta property="og:image" content="https://bobondemon.github.io/2023/11/04/Quantization-Error-Case-with-Clipping/qerror_example.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/11/04/Quantization-Error-Case-with-Clipping/weights_hist.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/11/04/Quantization-Error-Case-with-Clipping/J_em.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/11/04/Quantization-Error-Case-with-Clipping/J_em_th.png">
+<meta property="og:image" content="https://bobondemon.github.io/2023/11/04/Quantization-Error-Case-with-Clipping/J_em_th_opt.png">
+<meta property="og:updated_time" content="2026-08-19T13:01:09.824Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Quantization Error (Case with Clipping)">
+<meta name="twitter:description" content="上一篇文章我們提到, uniformly constrained quantizer 有這樣的 quantization error:$$\begin{align}
+J=s_{\text max}^2{4^{-B}\over 3}
+\end{align}$$ 其中 $s_{\text {max}}$ 表示 input $x$ 在 $[-s_{\text {max}}, s_{\text {max">
+<meta name="twitter:image" content="https://bobondemon.github.io/2023/11/04/Quantization-Error-Case-with-Clipping/qerror_example.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2023/11/04/Quantization-Error-Case-with-Clipping/"/>
+
+
+
+
+
+  <title> Quantization Error (Case with Clipping) | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2023/11/04/Quantization-Error-Case-with-Clipping/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Quantization Error (Case with Clipping)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2023-11-04T10:57:38+08:00">
+                2023-11-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SP/" itemprop="url" rel="index">
+                    <span itemprop="name">SP</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<p><a href="https://bobondemon.github.io/2023/10/28/Quantization-Error-Case-without-Clipping/">上一篇文章</a>我們提到, uniformly constrained quantizer 有這樣的 quantization error:<br><span>$$\begin{align}
+J=s_{\text max}^2{4^{-B}\over 3}
+\end{align}$$</span><!-- Has MathJax --> 其中 <span>$s_{\text {max}}$</span><!-- Has MathJax --> 表示 input $x$ 在 <span>$[-s_{\text {max}}, s_{\text {max}}]$</span><!-- Has MathJax -->之間.<br>這麼做雖然能確保所有 $x$ 都不會發生 clipping error, 但如果有一些 outlier 則會使得 quantization step 變很大 (quantization resolution 變低), 因此 quantization 的離散化誤差 (discretization error) 變大.</p>
+<blockquote>
+<p>Quantization error = (<strong>Discretization</strong> error) + (<strong>Clipping</strong> error)</p>
+</blockquote>
+<p>舉例來說, 考慮下圖 (ref. from SongHan course <a href="https://youtu.be/n72ndSimkB8?si=HQORMN5Ve9ny7h3P&amp;t=1959" target="_blank" rel="external">EfficientML.ai Lecture 6</a>):<br><img src="/2023/11/04/Quantization-Error-Case-with-Clipping/qerror_example.png" width="100%" height="100%"><br>上圖左是 clipping scalar 設定很大, 上圖右則是設定很小. 可以看見 discretization error 跟 clipping error 互為 trade-off.</p>
+<p>那麼問題來了, 怎麼設定 clipping scalar, 才會使得整體的 quantization error 最小?<br>這篇文章 “Optimal Clipping and Magnitude-aware Differentiation for Improved Quantization-aware Training” [<a href="https://arxiv.org/abs/2206.06501" target="_blank" rel="external">arxiv</a>] 給出了理論值, 並使用 Newton’s method 幫助我們很快找到最佳解.</p>
+<a id="more"></a>
+<h2 id="Empirical-Quantization-Error"><a href="#Empirical-Quantization-Error" class="headerlink" title="Empirical Quantization Error"></a>Empirical Quantization Error</h2><hr>
+<p>Fake quantization 的過程為:<br><span>$$\begin{align}
+\mathcal{Q}(x; s) = \text{clip}\left( s\cdot 2^{1-B}\cdot \text{round}\left(x\cdot 2^{B-1}/s\right), -s, s \right)
+\end{align}$$</span><!-- Has MathJax --> 其中 $B$ 表示我們使用的 quantization bit 數, $s$ 為 clipping scalar. 這裡假設使用 symmetric quantization, i.e. zero point = 0.<br>因此 empirical 的 error 可以直接計算如下:<br><span>$$\begin{align}
+J_{em}(s)=\mathbb{E}\left[(\mathcal{Q}(X; s)-X)^2\right]
+\end{align}$$</span><!-- Has MathJax --> 我們對 resnet-50 的 layer #17, #45 的 weights 計算 empirical quantization error. (為了驗證<a href="https://arxiv.org/abs/2206.06501" target="_blank" rel="external">論文</a>裡的 Figure 1 (a))<br>先看一下 layers #17, #45 的 weight 分佈:<br><img src="/2023/11/04/Quantization-Error-Case-with-Clipping/weights_hist.png" width="100%" height="100%"><br>計算 <span>$J_{em}(s)$</span><!-- Has MathJax --> 使用 $B=4$-bits 得到如下結果:<br><img src="/2023/11/04/Quantization-Error-Case-with-Clipping/J_em.png" width="100%" height="100%"><br>這個 error 曲線看起來很棒啊, 如果是 convex function 則可以很有效率地找到 clipping scalar 的最佳解.<br>理解一下這個曲線不難發現當 clipping scalar 很小, error 會上升是因為主要來源來自於 clipping error.<br>但當 clipping scalar 變大, 則 clipping error 會變小但是 discretization error 變大, 因此才會有一個甜蜜點是最小值.<br>計算 empirical error 主要函式如下:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">cal_qerror</span><span class="params">(w, qstepsize, zero, bit_num)</span>:</span></div><div class="line">    quant_min, quant_max = -(<span class="number">2</span> ** (bit_num - <span class="number">1</span>)), <span class="number">2</span> ** (bit_num - <span class="number">1</span>) - <span class="number">1</span></div><div class="line">    w_q = torch.fake_quantize_per_tensor_affine(torch.as_tensor(w), qstepsize, zero, quant_min, quant_max).numpy()</div><div class="line">    <span class="keyword">return</span> w - w_q</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">do_empirical_qerror_scanning</span><span class="params">(w, qstepsize, zero, bit_num=<span class="number">4</span>, scalar_num=<span class="number">200</span>, plot_ratio=<span class="number">7.0</span>)</span>:</span></div><div class="line">    <span class="comment"># `qstepsize` stands for quantization step size</span></div><div class="line">    qerrors = []</div><div class="line">    clipping_scalars = np.linspace(<span class="number">1e-2</span>, qstepsize * plot_ratio, scalar_num)</div><div class="line">    <span class="comment"># for loop for each clipping scalar</span></div><div class="line">    <span class="keyword">for</span> cs <span class="keyword">in</span> clipping_scalars:</div><div class="line">        qerror = cal_qerror(w, <span class="number">2</span> * cs / <span class="number">2</span>**bit_num, zero, bit_num)</div><div class="line">        qerrors.append(np.mean(qerror**<span class="number">2</span>))</div><div class="line"></div><div class="line">    <span class="keyword">return</span> qerrors, clipping_scalars</div></pre></td></tr></table></figure>
+<h2 id="Theoretical-Quantization-Error"><a href="#Theoretical-Quantization-Error" class="headerlink" title="Theoretical Quantization Error"></a>Theoretical Quantization Error</h2><hr>
+<p>Quantization 的 MSE 我們可以拆成兩部分:<br><span>$$\begin{align}
+J_{th}(s)={4^{-B}\over 3}s^2\int_0^s f_{|X|}(x)dx + \int_s^\infty (s-x)^2 f_{|X|}(x)dx
+\end{align}$$</span><!-- Has MathJax --> 其中 <span>$f_{|X|}(\cdot)$</span><!-- Has MathJax --> 表示 <span>$|X|$</span><!-- Has MathJax --> 的 distribution 分佈.<br>R.H.S. 的第一、二項分別是 discretization 和 clipping error, 應該算好理解.<br>只是特別說明一下之前推導的 discretization error 是基於 error <span>$(\mathcal{Q}(x; s)-x)$</span><!-- Has MathJax --> 為 uniformly distributed. (請參考<a href="https://bobondemon.github.io/2023/10/28/Quantization-Error-Case-without-Clipping/">上一篇文章</a>). 如果不同的 <span>$f_{|X|}(\cdot)$</span><!-- Has MathJax -->, 是否對於 “<span>$(\mathcal{Q}(x; s)-x)$</span><!-- Has MathJax -->為 uniformly distributed” 這個假設就不成立呢?<br>我認為如果 quantization resolution 夠高 (切得夠密), 則 error 的數值其分佈應該會接近 uniformly distributed.</p>
+<blockquote>
+<p>論文裡有這麼一段話: For discretization noise, the term ${s^24^{-B}}/3$ does not require a priori knowledge of data distribution. It is obtained through sampling theory where quantization noise arises via approximating the neighborhood of a quantization level of any distribution as a local rectangle (Widrow &amp; Kollar´ , 2008, book: Quantization noise)</p>
+</blockquote>
+<p>Anyway, 我們可以對上式改寫如下:<br><span>$$\begin{align}
+J_{th}(s)=
+{4^{-B}\over3}s^2\mathbb{E}\left[\mathbf{1}_{\{|X|\leq s\}}\right]
++
+\mathbb{E}\left[(s-|X|)^2\mathbf{1}_{\{|X|&gt;s\}}\right] \\
+= J_1(s) + J_2(s)\\
+\end{align}$$</span><!-- Has MathJax --> 其中 <span>$\mathbf{1}$</span><!-- Has MathJax --> 是 indicator function, 注意到 <span>$\mathbf{1}_{\{|X|\leq s\}}$</span><!-- Has MathJax --> 的變數是 $s$, 對於固定的 $X$, <span>$\mathbf{1}_{\{|X|\leq s\}}$</span><!-- Has MathJax --> 是個 step function, 只有當 <span>$s\geq|X|$</span><!-- Has MathJax --> 的時候 function 值才會是 $1$, 其他情況是 $0$. 此 step function 的微分為 0 <strong>almost everwhere</strong>. (數學語言是 “微分不為 0 的集合, 該集合的測度為 $0$”)<br>我們使用 <code>np.histogram</code> 來畫出 theoretical quantization error, 來跟 empirical 比較:<br><img src="/2023/11/04/Quantization-Error-Case-with-Clipping/J_em_th.png" width="100%" height="100%"><br>可以發現 theoretical and empirical error curves 很接近! 👏 數學真漂亮!<br>計算 theoretical error 主要函式如下:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">theoretical_mse_qerror</span><span class="params">(w, clipping_scalar, bit_num, bins=<span class="number">500</span>)</span>:</span></div><div class="line">    hist, bin_edges = np.histogram(np.abs(w), bins=bins, density=<span class="keyword">False</span>)</div><div class="line">    hist = hist / np.sum(hist)  <span class="comment"># turn into probability mass (note that it is different with density)</span></div><div class="line"></div><div class="line">    clip_start_idx = np.where(np.diff(bin_edges &gt; clipping_scalar))[<span class="number">0</span>]</div><div class="line">    clip_start_idx = <span class="number">0</span> <span class="keyword">if</span> len(clip_start_idx) == <span class="number">0</span> <span class="keyword">else</span> clip_start_idx[<span class="number">0</span>]</div><div class="line"></div><div class="line">    J1 = np.sum(hist[:clip_start_idx]) * (clipping_scalar**<span class="number">2</span> / (<span class="number">3</span> * <span class="number">4</span>**bit_num))</div><div class="line">    J2 = <span class="number">0.0</span></div><div class="line">    <span class="keyword">for</span> idx <span class="keyword">in</span> range(clip_start_idx, len(hist)):</div><div class="line">        prob_x_mass = hist[idx]</div><div class="line">        x = (bin_edges[idx + <span class="number">1</span>] + bin_edges[idx]) / <span class="number">2</span></div><div class="line">        J2 += (clipping_scalar - x) ** <span class="number">2</span> * prob_x_mass</div><div class="line"></div><div class="line">    <span class="keyword">return</span> J1 + J2</div></pre></td></tr></table></figure>
+<h2 id="找出最佳-Clipping-Scalar"><a href="#找出最佳-Clipping-Scalar" class="headerlink" title="找出最佳 Clipping Scalar"></a>找出最佳 Clipping Scalar</h2><hr>
+<p>我們計算一下 $J_1$ 的 gradient:<br><span>$$\begin{align}
+J_1&apos;(s)={4^{-B}\over3}\cdot2 s\cdot\mathbb{E}\left[\mathbf{1}_{\{|X|\leq s\}}\right] + {4^{-B}\over3}s^2\frac{\partial}{\partial s}\mathbb{E}\left[\mathbf{1}_{\{|X|\leq s\}}\right] \\
+= {4^{-B}\over3}\cdot2 s\cdot\mathbb{E}\left[\mathbf{1}_{\{|X|\leq s\}}\right] + {4^{-B}\over3}s^2\mathbb{E}\left[\frac{\partial}{\partial s}\mathbf{1}_{\{|X|\leq s\}}\right] \\
+={4^{-B}\over3}\cdot2 s\cdot\mathbb{E}\left[\mathbf{1}_{\{|X|\leq s\}}\right] + 0
+\end{align}$$</span><!-- Has MathJax --> (7) 到 (8) 是因為 expectation 的變數為 $X$ 跟 $s$ 無關, 所以微分跟 expectation 可以互換.<br>(9) 是因為之前說過, 因為 <span>$\mathbf{1}_{\{|X|\leq s\}}$</span><!-- Has MathJax --> 是 step function, 所以其 gradient 為 $0$ <strong>almost everwhere</strong>.<br>同理 $J_2$ 的 gradient:<br><span>$$\begin{align}
+J_2&apos;(s) = \frac{\partial}{\partial s}\mathbb{E}\left[ (s-|X|)^2\mathbf{1}_{\{|X|&gt;s\}}
+\right]
+= \mathbb{E}\left[
+\frac{\partial}{\partial s} \left(
+(s-|X|)^2\mathbf{1}_{\{|X|&gt;s\}} \right)
+\right] \\
+=\mathbb{E}\left[
+2(s-|X|)\mathbf{1}_{\{|X|&gt;s\}} + (s-|X|)^2\frac{\partial}{\partial s}\mathbf{1}_{\{|X|&gt;s\}}
+\right] \\
+= \mathbb{E}\left[
+2(s-|X|)\mathbf{1}_{\{|X|&gt;s\}} + 0
+\right]
+\end{align}$$</span><!-- Has MathJax --> (12) 是因為之前說過, 因為 <span>$\mathbf{1}_{\{|X|&gt; s\}}$</span><!-- Has MathJax --> 是 step function, 所以其 gradient 為 $0$ <strong>almost everwhere</strong>.<br>所以 <span>$J_{th}$</span><!-- Has MathJax --> 的 gradient:<br><span>$$\begin{align}
+J_{th}&apos;(s)= {4^{-B}\over3}\cdot2 s\cdot\mathbb{E}\left[\mathbf{1}_{\{|X|\leq s\}}\right] + \mathbb{E}\left[
+2(s-|X|)\mathbf{1}_{\{|X|&gt;s\}}
+\right]
+\end{align}$$</span><!-- Has MathJax --> 同樣的推導 <span>$J_{th}&apos;&apos;$</span><!-- Has MathJax --> 為:<br><span>$$\begin{align}
+J_{th}&apos;&apos;(s) = {4^{-B}\over3}\cdot2 \cdot\mathbb{E}\left[\mathbf{1}_{\{|X|\leq s\}}\right] + 2\mathbb{E}\left[\mathbf{1}_{\{|X|&gt;s\}}\right]
+\end{align}$$</span><!-- Has MathJax --></p>
+<p>因此根據 Newton’s method, <span>$s_{n+1}=s_n-J_{th}&apos;(s)/J_{th}&apos;&apos;(s)$</span><!-- Has MathJax -->, 得到:<br><span>$$\begin{align}
+s_{n+1}=\frac{\mathbb{E}\left[|X|\cdot\mathbf{1}_{\{|X|&gt;s_n\}}\right]}
+{ {4^{-B}\over3}\mathbb{E}\left[\mathbf{1}_{\{|X|\leq s_n\}}\right] + \mathbb{E}\left[\mathbf{1}_{\{|X|&gt;s_n\}}\right] }
+\end{align}$$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>實務上 Newton’s method 很 robust, initial $s_1$ 選擇 <span>$\{0,s_{max},3\sigma,4\sigma,5\sigma\}$</span><!-- Has MathJax --> 都可以有效收斂. 論文裡直接選擇 <span>$s_1=({\sum_x|x|})/(\sum_x\mathbf{1}_{|x|&gt;0})$</span><!-- Has MathJax -->, 相當於 <span>$s_1=s_{max}$</span><!-- Has MathJax --> iterates 到 $s_3$ 的情況.</p>
+</blockquote>
+<p>我們實際用 Newton’s method 設定 <code>s_init=0.0</code> 和 10 次 iteration 的結果如下:<br><img src="/2023/11/04/Quantization-Error-Case-with-Clipping/J_em_th_opt.png" width="100%" height="100%"><br>確實能找出最佳的 clipping scalar. 到這裡算是複現了論文裡的 Figure 1 (a) 了.<br>計算 optimal clipping scalar 主要函式如下:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">find_opt_by_Newton_method</span><span class="params">(weights, bit_num, cs_init=<span class="number">0.0</span>, iter_num=<span class="number">10</span>)</span>:</span></div><div class="line">    <span class="comment"># `cs` stands for `clipping scalar`</span></div><div class="line">    weights_abs = np.abs(weights)</div><div class="line">    cs_cur = cs_init</div><div class="line">    <span class="keyword">for</span> itr <span class="keyword">in</span> range(iter_num):</div><div class="line">        indicator_larger = weights_abs &gt; cs_cur</div><div class="line">        indicator_smaller = weights_abs &lt;= cs_cur  <span class="comment"># should we ignore case with `==0`?</span></div><div class="line">        numerator = np.sum(weights_abs[indicator_larger])</div><div class="line">        denominator = np.sum(indicator_smaller) / (<span class="number">3</span> * <span class="number">4</span>**bit_num) + np.sum(indicator_larger)</div><div class="line">        cs_cur = numerator / denominator</div><div class="line">    <span class="keyword">return</span> cs_cur</div></pre></td></tr></table></figure>
+<h2 id="Short-Summary"><a href="#Short-Summary" class="headerlink" title="Short Summary"></a>Short Summary</h2><hr>
+<p>常用的 uniform quantization 包含兩個參數 <code>scale</code> and <code>zero_point</code>, 一般可以使用 <code>observer</code> 來統計出數值分佈的最大最小值進而得到 clipping scalar (通常會搭配 moving averaging 來減緩 outlier 的影響).<br>但這樣得到的 quantization error 沒有辦法保證是最小的.<br>本文介紹的這篇論文把 quantization error 的理論值找出來, 並使用 Newton’s method 非常有效率的找出最佳 clipping scalar. 甚至可以鑲嵌在 QAT iteration 中.<br>另一方面, 這篇論文找的最佳解跟任務的 loss function $\mathcal{L}$ <strong>無關</strong>. 如果希望跟 loss function 有關, 可以考慮使用 <a href="https://bobondemon.github.io/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/">LSQ+</a> 或 <a href="https://arxiv.org/abs/1805.06085" target="_blank" rel="external">PACT</a> 的方式來學習出 <code>scale</code> and <code>zero_point</code>.<br>總之這篇論文讓我們對 uniform quantization 的 error 有了更深入的理解, 也很漂亮得提供了高效求解方法.</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><hr>
+<ol>
+<li>Optimal Clipping and Magnitude-aware Differentiation for Improved Quantization-aware Training, [<a href="https://arxiv.org/abs/2206.06501" target="_blank" rel="external">arxiv</a>]</li>
+<li>SongHan course <a href="https://youtu.be/n72ndSimkB8?si=HQORMN5Ve9ny7h3P&amp;t=1959" target="_blank" rel="external">EfficientML.ai Lecture 6</a></li>
+<li>複現論文 Figure 1 (a) 的 [<a href="https://github.com/bobondemon/OCTAV_toy_example" target="_blank" rel="external">Github</a>]</li>
+<li>Learning Zero Point and Scale in Quantization Parameters [<a href="https://bobondemon.github.io/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/">link</a>]</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2023/11/04/Quantization-Error-Case-with-Clipping/" title="Quantization Error (Case with Clipping)">https://bobondemon.github.io/2023/11/04/Quantization-Error-Case-with-Clipping/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Quantization-Error/" rel="tag"># Quantization Error</a>
+          
+            <a href="/tags/Linear-Quantization/" rel="tag"># Linear Quantization</a>
+          
+            <a href="/tags/Nonlinear-Quantization/" rel="tag"># Nonlinear Quantization</a>
+          
+            <a href="/tags/OCTAV/" rel="tag"># OCTAV</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/10/28/Quantization-Error-Case-without-Clipping/" rel="next" title="Quantization Error (Case without Clipping)">
+                <i class="fa fa-chevron-left"></i> Quantization Error (Case without Clipping)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/11/24/Qualcomm-Data-Free-Quantization-詳讀/" rel="prev" title="Qualcomm Data-Free Quantization 詳讀">
+                Qualcomm Data-Free Quantization 詳讀 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">123</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">262</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Empirical-Quantization-Error"><span class="nav-number">1.</span> <span class="nav-text">Empirical Quantization Error</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Theoretical-Quantization-Error"><span class="nav-number">2.</span> <span class="nav-text">Theoretical Quantization Error</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#找出最佳-Clipping-Scalar"><span class="nav-number">3.</span> <span class="nav-text">找出最佳 Clipping Scalar</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Short-Summary"><span class="nav-number">4.</span> <span class="nav-text">Short Summary</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">5.</span> <span class="nav-text">References</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+<span id="busuanzi_container_site_pv">
+  本站總瀏覽 <span id="busuanzi_value_site_pv"></span> 次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站訪客 <span id="busuanzi_value_site_uv"></span> 人
+</span>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

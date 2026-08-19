@@ -1,0 +1,1065 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Reinforcement Learning,TD Learning,Q Learning,DQN,Actor Critic," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="📔 筆記內容: 赵世钰老師 “强化学习的数学原理” 課程 (也推薦用 Notion版本 來閱讀)很高興我初次學習 RL 就是透過這門課, 讓我扎實理解其背後的數學和邏輯老實說 RL 方法很多很雜, 套句趙老師的話, RL 數學很深, 結構性又很強, 一環扣一環如果沒有這堂課這樣循序剖析和從數學出發解釋的話, 我自己應該很難入門, 謝謝這門課的赵世钰老師! 🙏🏻
+本篇筆記方式盡量濃縮, 而每">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RL的數學原理: 趙世鈺課程濃縮筆記">
+<meta property="og:url" content="https://bobondemon.github.io/2025/12/25/RL的數學原理/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="📔 筆記內容: 赵世钰老師 “强化学习的数学原理” 課程 (也推薦用 Notion版本 來閱讀)很高興我初次學習 RL 就是透過這門課, 讓我扎實理解其背後的數學和邏輯老實說 RL 方法很多很雜, 套句趙老師的話, RL 數學很深, 結構性又很強, 一環扣一環如果沒有這堂課這樣循序剖析和從數學出發解釋的話, 我自己應該很難入門, 謝謝這門課的赵世钰老師! 🙏🏻
+本篇筆記方式盡量濃縮, 而每">
+<meta property="og:image" content="https://bobondemon.github.io/2025/12/25/RL的數學原理/image.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/12/25/RL的數學原理/Bellman_equations.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/12/25/RL的數學原理/value_and_policy_iteration_algo.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/12/25/RL的數學原理/image 3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/12/25/RL的數學原理/unifiy_view_of_TD_algo.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/12/25/RL的數學原理/image 6.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/12/25/RL的數學原理/image 7.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/12/25/RL的數學原理/image 9.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/12/25/RL的數學原理/image 10.png">
+<meta property="og:image" content="https://bobondemon.github.io/2025/12/25/RL的數學原理/image 11.png">
+<meta property="og:updated_time" content="2026-08-19T13:01:09.825Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="RL的數學原理: 趙世鈺課程濃縮筆記">
+<meta name="twitter:description" content="📔 筆記內容: 赵世钰老師 “强化学习的数学原理” 課程 (也推薦用 Notion版本 來閱讀)很高興我初次學習 RL 就是透過這門課, 讓我扎實理解其背後的數學和邏輯老實說 RL 方法很多很雜, 套句趙老師的話, RL 數學很深, 結構性又很強, 一環扣一環如果沒有這堂課這樣循序剖析和從數學出發解釋的話, 我自己應該很難入門, 謝謝這門課的赵世钰老師! 🙏🏻
+本篇筆記方式盡量濃縮, 而每">
+<meta name="twitter:image" content="https://bobondemon.github.io/2025/12/25/RL的數學原理/image.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2025/12/25/RL的數學原理/"/>
+
+
+
+
+
+  <title> RL的數學原理: 趙世鈺課程濃縮筆記 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2025/12/25/RL的數學原理/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                RL的數學原理: 趙世鈺課程濃縮筆記
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2025-12-25T10:37:34+08:00">
+                2025-12-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<p>📔 筆記內容: <strong>赵世钰老師 “<a href="https://github.com/MathFoundationRL/Book-Mathematical-Foundation-of-Reinforcement-Learning" target="_blank" rel="external">强化学习的数学原理</a>”</strong> 課程 (也推薦用 <a href="https://bobondemon.notion.site/notes-mathematical-foundation-of-reinforcement-learning" target="_blank" rel="external">Notion版本</a> 來閱讀)<br>很高興我初次學習 RL 就是透過這門課, 讓我扎實理解其背後的數學和邏輯<br>老實說 RL 方法很多很雜, 套句趙老師的話, RL 數學很深, 結構性又很強, 一環扣一環<br>如果沒有這堂課這樣<em>循序剖析</em>和從<em>數學出發</em>解釋的話, 我自己應該很難入門, 謝謝這門課的赵世钰老師! 🙏🏻</p>
+<p>本篇筆記方式盡量濃縮, 而每個章節更詳細的筆記參考:<br>&emsp;$\circ$ <a href="https://bobondemon.notion.site/RL-1-Fundamentals-of-Reinforcement-Learning-196edc3d531d801d8c73d0d771abb3f9?source=copy_link" target="_blank" rel="external">RL(1): Fundamentals of Reinforcement Learning</a><br>&emsp;$\circ$ <a href="https://bobondemon.notion.site/RL-2-Sample-based-Learning-Methods-1c7edc3d531d80ecaaa5cd6e4a8b55f7?source=copy_link" target="_blank" rel="external">RL(2): Sample-based Learning Methods</a><br>&emsp;$\circ$ <a href="https://bobondemon.notion.site/RL-3-Prediction-and-Control-with-Function-Approximation-1efedc3d531d80d395f4d1edc6f4523c?source=copy_link" target="_blank" rel="external">RL(3): Prediction and Control with Function Approximation</a></p>
+<a id="more"></a>
+<p><img src="/2025/12/25/RL的數學原理/image.png" width="70%" height="70%"></p>
+<blockquote>
+<p>挖坑給自己: 下一次讀 Kevin Murphy 的 reinforcement learning [<a href="https://arxiv.org/abs/2412.05265" target="_blank" rel="external">arxiv</a>]</p>
+</blockquote>
+<hr>
+<h2 id="Ch1-Basic-Concepts"><a href="#Ch1-Basic-Concepts" class="headerlink" title="[Ch1]: Basic Concepts"></a>[Ch1]: Basic Concepts</h2><p>RL 的環境設定 reward <span>$r$</span><!-- Has MathJax -->, action <span>$a$</span><!-- Has MathJax -->, state <span>$s$</span><!-- Has MathJax -->, policy <span>$\pi(a|s)$</span><!-- Has MathJax --> 等的初步介紹自行查資料即可<br>重點是套用 Markov Decision Process (MDP) 的框架.<br>Markov Decision Process (MDP) 給定前一次 state <span>$s$</span><!-- Has MathJax --> 和前一次 action <span>$a$</span><!-- Has MathJax -->, 我們可以定義 state 和 reward 的 distribution:<br><span>$p(s&apos;,r|s,a)\triangleq Pr\{S_t=s&apos;,R_t=r|S_{t-1}=s,A_{t-1}=a\}$</span><!-- Has MathJax --> For all <span>$s&apos;,s\in\mathcal{S}$</span><!-- Has MathJax -->, <span>$r\in\mathcal{R}$</span><!-- Has MathJax --> , and <span>$a\in\mathcal{A}(s)$</span><!-- Has MathJax -->. Action space 是從 state 定義出來的.<br>所以 <span>$p:\mathcal{S}\times\mathcal{R}\times\mathcal{S}\times\mathcal{A}\rightarrow[0,1]$</span><!-- Has MathJax -->. (<span>$p$</span><!-- Has MathJax --> 稱 <strong>dynamics function of MDP</strong>)</p>
+<blockquote>
+<p>知道這個四元 <span>$p(s&apos;,r|s,a)$</span><!-- Has MathJax --> 的機率就稱 with model 的 RL 方法, 反之就是 without model 的方法</p>
+</blockquote>
+<p>Return <span>$G_t$</span><!-- Has MathJax --> 定義為 (有些人稱 total rewards)<br><span>$$\begin{align*}
+G_t\triangleq R_{t+1}+\gamma R_{t+2}+\gamma^2R_{t+3}+\cdots \\
+=\sum_{k=0}^\infty\gamma^kR_{t+k+1}=R_{t+1}+\gamma G_{t+1}
+\end{align*}$$</span><!-- Has MathJax --> Return 取期望值的話 (expected return) 就稱 Value (價值) ← <strong>RL 目標就是找到能最大化 value 的 policy <span>$\pi(a|s)$</span><!-- Has MathJax -->.</strong></p>
+<hr>
+<h2 id="Ch2-Bellman-Equation"><a href="#Ch2-Bellman-Equation" class="headerlink" title="[Ch2]: Bellman Equation"></a>[Ch2]: Bellman Equation</h2><p><img src="/2025/12/25/RL的數學原理/Bellman_equations.png" width="100%" height="100%"> State value and action value 不同形式的 Bellman equations 推導來源:</p>
+<ul>
+<li>State Value <span>$v_\pi(s)$</span><!-- Has MathJax --> Elementwised form [<a href="https://bobondemon.notion.site/Week-3-Value-Functions-Bellman-Equations-1adedc3d531d80e9ade3cb1f22f6472e#1adedc3d531d8034ad30d001ac869113" target="_blank" rel="external">ref</a>]</li>
+<li>State Value <span>$v_\pi(s)$</span><!-- Has MathJax --> Expectation form [<a href="https://www.notion.so/bobondemon/Ch-7-Temporal-Difference-Learning-Methods-for-Prediction-Control-1c7edc3d531d802aa64cf9e5c8f81ca0?source=copy_link#1dcedc3d531d80beb45efe4d4b6f2a3d" target="_blank" rel="external">ref</a>]</li>
+<li>State Value <span>$v_\pi(s)$</span><!-- Has MathJax --> Matrix Vector form [<a href="https://www.notion.so/bobondemon/Week-3-Value-Functions-Bellman-Equations-1adedc3d531d80e9ade3cb1f22f6472e?source=copy_link#1aeedc3d531d8025b48be6a4d70b8749" target="_blank" rel="external">ref</a>]</li>
+<li>Action Value <span>$q_\pi(s,a)$</span><!-- Has MathJax --> Elementwised form [<a href="https://www.notion.so/bobondemon/Week-3-Value-Functions-Bellman-Equations-1adedc3d531d80e9ade3cb1f22f6472e?source=copy_link#1aeedc3d531d809fbb20c1089ea3f8e7" target="_blank" rel="external">ref</a>]</li>
+<li>Action Value <span>$q_\pi(s,a)$</span><!-- Has MathJax --> Expectation form [<a href="https://www.notion.so/bobondemon/Ch-7-Temporal-Difference-Learning-Methods-for-Prediction-Control-1c7edc3d531d802aa64cf9e5c8f81ca0?source=copy_link#1e1edc3d531d80fa825adcf1c5f686c3" target="_blank" rel="external">ref</a>]</li>
+</ul>
+<p>Bellman equation 就是在做 <strong>PE (Policy Evaluation)</strong>, 即給定一個 policy <span>$\pi$</span><!-- Has MathJax --> 評估每個 state <span>$s$</span><!-- Has MathJax --> 的 expected return (value)<br>可以用 iterative 方法求解: <span>$v_{k+1}=r_\pi+\gamma P_\pi v_k,\quad k=0,1,2,...$</span><!-- Has MathJax --> [<a href="https://bobondemon.notion.site/Week-3-Value-Functions-Bellman-Equations-1adedc3d531d80e9ade3cb1f22f6472e#1afedc3d531d806abdf3f03c08257ce2" target="_blank" rel="external">ref</a>]</p>
+<hr>
+<h2 id="Ch3-Bellman-Optimality-Equation"><a href="#Ch3-Bellman-Optimality-Equation" class="headerlink" title="[Ch3]: Bellman Optimality Equation"></a>[Ch3]: Bellman Optimality Equation</h2><p>原先的 Bellman equation 都是給定一個 policy <span>$\pi$</span><!-- Has MathJax --> 情況下求解的 state value or action value. 但 RL 目的是要找出什麼樣的 policy 能得到最大的 value (optimal policy), 光評估給定的一個 policy 的 value 是不夠的.<br>BOE 現在將 <span>$\pi$</span><!-- Has MathJax --> 也當成要求解的參數, 直接對 Bellman equation 做最佳化 (多了 <span>$\max_\pi$</span><!-- Has MathJax -->), 因此 BOE:<br><span>$$\begin{align*}
+{\color{orange}{v(s)}}={\color{red}{\max_{\pi}}}\left[\sum_a {\color{orange}{\pi(a|s)}}\left(\sum_{r}p(r|s,a)r + \gamma\sum_{s&apos;}p(s&apos;|s,a){\color{orange}{v(s&apos;)}}\right)\right],\quad\forall s\in\mathcal{S} \\
+=\max_{\pi}
+\sum_a\pi(a|s)q_\pi(s,a)
+,\quad\forall s\in\mathcal{S}\\
+\text{Matrix Vector form}\quad\Longrightarrow v=f(v)\triangleq \max_\pi(r_\pi+\gamma P_\pi v)
+\end{align*}$$</span><!-- Has MathJax --> 要求解的 variables 為 <span>${\color{orange}{v(s)}}$</span><!-- Has MathJax --> 和 <span>${\color{orange}{\pi(a|s)}}$</span><!-- Has MathJax -->.<br>可以證明 <span>$f$</span><!-- Has MathJax --> 是 contraction mapping, 則 <span>$\exists!$</span><!-- Has MathJax --> fixed point <span>$v_\ast$</span><!-- Has MathJax -->: <span>$v_\ast=f(v_\ast)=\max_\pi(r_\pi+\gamma P_\pi v_\ast)$</span><!-- Has MathJax --> 因此 <span>$v_\ast$</span><!-- Has MathJax --> 可透過 <a href="https://www.notion.so/Contraction-Mapping-Principle-1afedc3d531d80d58122dfff5f716fec?pvs=21" target="_blank" rel="external">contraction mapping theorem</a> 的疊代方法找到: <span>$v_{k+1}=f(v_k)=\max_\pi(r_\pi+\gamma P_\pi v_k),\quad k=0,1,2,...$</span><!-- Has MathJax --> (其中 initial 可以是任意)<br>找到 <span>$v_\ast$</span><!-- Has MathJax --> 後, 令 <span>$\pi_\ast\triangleq\arg\max_\pi(r_\pi+\gamma P_\pi v_\ast)$</span><!-- Has MathJax --> 即為 optimal policy 了<br>在疊代過程中求解這個 <span>$\max_\pi(r_\pi+\gamma P_\pi v_k)$</span><!-- Has MathJax --> 的最佳的 <span>$\pi_{k+1}$</span><!-- Has MathJax --> 使用 <a href="https://bobondemon.notion.site/Week-3-Value-Functions-Bellman-Equations-1adedc3d531d80e9ade3cb1f22f6472e#1afedc3d531d80ad9606ed7c8f7e24be" target="_blank" rel="external">Greedy Optimal Policy</a>:<br><span>$$\pi_{k+1}(a|s)=\left\{
+\begin{array}{cl}
+1, &amp;a=a_k^\ast(s) \\
+0, &amp;a\neq a_k^\ast(s)
+\end{array}
+\right. \\
+,\text{where }a_k^\ast(s)=\arg\max_a q_k(s,a)$$</span><!-- Has MathJax --> <span>$\pi_{k+1}$</span><!-- Has MathJax --> 是 deterministic 的 (one-hot vector distribution)<br>注意到 BOE 是 Bellman equation 的其中一種情況而已, 滿足 BOE 的 policy 為 optimal policy<br>如果看 action value 的話, 其 <strong>**</strong>BOE 為:<br><span>$$\begin{align*}
+{\color{orange}{q(s,a)=\mathbb{E}\left[\left.
+R_{t+1}+\gamma\max_{a&apos;}q(S_{t+1},a&apos;)\right|S_t=s,A_t=a
+\right]}}
+\end{align*}$$</span><!-- Has MathJax --></p>
+<details><br>   <summary>▶️(點擊展開) Action Value BOE 推導 [<a href="https://www.notion.so/bobondemon/Ch-7-Temporal-Difference-Learning-Methods-for-Prediction-Control-1c7edc3d531d802aa64cf9e5c8f81ca0#1ebedc3d531d80189647f3c2b4f566f1" target="_blank" rel="external">ref</a>]</summary><br>    <span>$$\begin{align*}
+    q(s,a)=\mathbb{E}\left[\left.
+    R_{t+1}+\gamma\max_{a&apos;}q(S_{t+1},a&apos;)\right|S_t=s,A_t=a
+    \right] \\
+    =\sum_r p(r|s,a)r + \gamma\sum_{s&apos;}p(s&apos;|s,a)\max_{a&apos;\in\mathcal{A}(s&apos;)}q(s&apos;,a&apos;) \\
+    \end{align*}$$</span><!-- Has MathJax --> 對兩邊對 action <span>$a$</span><!-- Has MathJax --> 取 <span>$\max$</span><!-- Has MathJax --> 變成<br>    <span>$$\begin{align*}
+    \max_{a\in\mathcal{A}(s)}q(s,a) = \max_{a\in\mathcal{A}(s)}\left[
+    \sum_r p(r|s,a)r + \gamma\sum_{s&apos;}p(s&apos;|s,a)\max_{a&apos;\in\mathcal{A}(s&apos;)}q(s&apos;,a&apos;)
+    \right]
+    \end{align*}$$</span><!-- Has MathJax --> 定義 <span>$v(s)\doteq\max_{a\in\mathcal{A}(s)}q(s,a)$</span><!-- Has MathJax -->, 改寫上式<br>    <span>$$\begin{align*}
+    v(s)=\max_{a\in\mathcal{A}(s)}\left[
+    \sum_r p(r|s,a)r + \gamma\sum_{s&apos;}p(s&apos;|s,a)v(s&apos;)
+    \right] \\
+    =\max_\pi\sum_{a\in\mathcal{A}(s)}\pi(a|s)\left[
+    \sum_r p(r|s,a)r + \gamma\sum_{s&apos;}p(s&apos;|s,a)v(s&apos;)
+    \right]
+    \end{align*}$$</span><!-- Has MathJax --> 這正好就是 State Value 的 BOE<br></details>
+
+<hr>
+<h2 id="Ch4-Value-Iteration-amp-Policy-Iteration"><a href="#Ch4-Value-Iteration-amp-Policy-Iteration" class="headerlink" title="[Ch4]: Value Iteration &amp; Policy Iteration"></a>[Ch4]: Value Iteration &amp; Policy Iteration</h2><p>求解 BOE 可以直接幫我們找出 optimal state value 是多少, 以及對應的 optimal policy 是什麼<br>根據 <a href="https://www.notion.so/Contraction-Mapping-Principle-1afedc3d531d80d58122dfff5f716fec?pvs=21" target="_blank" rel="external">contraction mapping theorem</a> 可以從任意的 initial value <span>$v_0$</span><!-- Has MathJax --> 出發, 只要一直疊代: <span>$v_{k+1}=f(v_k)=\max_\pi(r_\pi+\gamma P_\pi v_k) ,$</span><!-- Has MathJax --> <span>$k=0,1,2,...$</span><!-- Has MathJax -->, 就能解<br>因此有了 Value Iteration 算法, 其中 policy update 用 <a href="https://bobondemon.notion.site/Week-3-Value-Functions-Bellman-Equations-1adedc3d531d80e9ade3cb1f22f6472e#1afedc3d531d80ad9606ed7c8f7e24be" target="_blank" rel="external">Greedy Optimal Policy</a>.<br>順序反過來的話, Policy iteration 先從一個任意的 policy <span>$\pi_0$</span><!-- Has MathJax --> 出發, 利用上面 Ch2 的 <a href="https://www.notion.so/bobondemon/RL-2cdedc3d531d80deb68de5606084a717?source=copy_link#2cdedc3d531d8078be22ea78df87d9bf" target="_blank" rel="external">PE (Policy Evaluation)</a> 我們可以評估在該 policy 下的 state value <span>$v_{\pi_0}$</span><!-- Has MathJax -->.<br>(注意到這是合法的 state value, 跟 value iteration 的 <span>$v_0$</span><!-- Has MathJax --> 不一樣)<br>有了對應的 state value <span>$v_{\pi_0}$</span><!-- Has MathJax --> 一樣利用 <a href="https://bobondemon.notion.site/Week-3-Value-Functions-Bellman-Equations-1adedc3d531d80e9ade3cb1f22f6472e#1afedc3d531d80ad9606ed7c8f7e24be" target="_blank" rel="external">Greedy Optimal Policy</a> 更新 policy, 即 policy improvement (PI) 找到更優的 policy. 重複 iteration 就是策略迭代算法.<br>下圖左和右分別是 Value &amp; Policy iteration 算法<br><img src="/2025/12/25/RL的數學原理/value_and_policy_iteration_algo.png" width="100%" height="100%"> Policy iteration 的收斂性證明需要用到 Value iteration 收斂的性質. 其他證明如能確保找到的 policy or value 是 optimal 的請參考 <a href="https://www.notion.so/Week-4-Dynamic-Programming-Value-and-Policy-Iteration-1b0edc3d531d80f8aea4e720938ea1e0?pvs=21" target="_blank" rel="external">Week4 筆記</a>.<br>最後它們都是 truncated policy iteration 的特例<br>注意到, Policy iteration 的 PE 理論上要收斂到無窮多步才能求出正確的 value 值 <span>$v_{\pi_k}$</span><!-- Has MathJax -->, 但如果只做一步 update 其實就是 value iteration 的做法, 更多請參考 <a href="https://www.notion.so/Week-4-Dynamic-Programming-Value-and-Policy-Iteration-1b0edc3d531d80f8aea4e720938ea1e0?pvs=21" target="_blank" rel="external">Week4 筆記</a>.<br>在做 policy or value iteration 的時候, 都會對所有 state 做 for loop<br>事實上可以很彈性, 可以 random 對 state 做, 也可以馬上 inplace 更新 state value, 也可以每次變動 truncated <span>$j$</span><!-- Has MathJax --> 步. 這樣做的好處是當 states 數量很多的時候 (甚至連掃過一次所有 states 都很難) 還是能做 RL.<br>這種更 general 的方法 Sutton and Barto 課本稱 Generalized Policy Iteration (GPI).</p>
+<hr>
+<h2 id="Ch5-Monte-Carlo-Methods-for-Prediction-amp-Control"><a href="#Ch5-Monte-Carlo-Methods-for-Prediction-amp-Control" class="headerlink" title="[Ch5]: Monte Carlo Methods for Prediction &amp; Control"></a>[Ch5]: Monte Carlo Methods for Prediction &amp; Control</h2><p>在 Policy iteration 算法中的 PI step 觀察其 Elementwised form 發現就是根據現在估計的 action value <span>$q_k(s,a)$</span><!-- Has MathJax --> 來找最佳的policy<br><img src="/2025/12/25/RL的數學原理/image 3.png" width="70%" height="70%"> 那麼這個 action value <span>$q_k(s,a)$</span><!-- Has MathJax --> 在沒有模型 (<a href="https://www.notion.so/bobondemon/RL-2cdedc3d531d80deb68de5606084a717#2cdedc3d531d801e83fdfc5b9304b88d" target="_blank" rel="external">dynamic function</a>) 的情況下就無法用 Bellman equation 來計算<br>因此改採最原始的定義, 那就可以透過採樣來估計: <span>$q_{\pi_k}(s,a)=\mathbb{E}\left[G_t|S_t=s,A_t=a\right]\approx\frac{1}{N}\sum_{i=1}^Ng^{(i)}(s,a)$</span><!-- Has MathJax -->.<br>簡單講, 對每一個 <span>$s\in S,a\in A$</span><!-- Has MathJax --> 來說要找出 <span>$N$</span><!-- Has MathJax --> 條從 <span>$(s,a)$</span><!-- Has MathJax --> 出發的 trajectory (episode), 每一條都算出 return, 然後平均 return 後就當作是期望值.<br>但這樣對每一個 episode 的數據沒有很好利用, 很沒效率.<br>例如對某一個 state-action pair <span>$(s_i,a_i)$</span><!-- Has MathJax --> 開始的長度 <span>$T$</span><!-- Has MathJax --> 的 episode 只拿來估計 <span>$q_{\pi_k}(s_i,a_i)$</span><!-- Has MathJax -->.<br>因此有一些很明顯的改進方法, first visit, every visit, 倒過來算 return, 在 PI 階段改成用 <span>$\varepsilon$</span><!-- Has MathJax -->-greedy 方法解除 exploring starts 限制等等, 詳細看 <a href="https://www.notion.so/Ch-5-Monte-Carlo-Methods-for-Prediction-Control-1c7edc3d531d800e923dea3217327660?pvs=21" target="_blank" rel="external">Week 5 筆記</a>.<br>反正一樣是 PE &amp; PI 兩階段 (跟 Policy Iteration 算法一樣), 只是 PE 採用有效率的 MC 方法估計</p>
+<hr>
+<h2 id="Ch6-Robbins-Monro-Algorithm-和-Dvoretzky’s-Convergence-Theorem-筆記"><a href="#Ch6-Robbins-Monro-Algorithm-和-Dvoretzky’s-Convergence-Theorem-筆記" class="headerlink" title="[Ch6]: Robbins-Monro Algorithm 和 Dvoretzky’s Convergence Theorem 筆記"></a>[Ch6]: <a href="https://bobondemon.github.io/2025/05/02/RM-algo/">Robbins-Monro Algorithm 和 Dvoretzky’s Convergence Theorem 筆記</a></h2><p>直接參考 <a href="https://bobondemon.github.io/2025/05/02/RM-algo/">blog</a></p>
+<hr>
+<h2 id="Ch7-Temporal-Difference-Learning-Methods-for-Prediction-Control"><a href="#Ch7-Temporal-Difference-Learning-Methods-for-Prediction-Control" class="headerlink" title="[Ch7]: Temporal Difference Learning Methods for Prediction/Control"></a>[Ch7]: Temporal Difference Learning Methods for Prediction/Control</h2><p>[State Value 的 TD algorithm 一句話]: <strong>Model-free 的 incremental Policy Evaluation</strong><br>這句話長一點是這樣: 在沒有 dynamic (model) function 情況下給定一個 policy <span>$\pi$</span><!-- Has MathJax --> 用 incremental 的方式 (不用等到 episode 結束) 求 state value (解 Bellman equation).</p>
+<blockquote>
+<p>所以還是在做 policy evaluation (如何 incremental 估計 state/action value), 可以想成 <a href="https://www.notion.so/bobondemon/RL-2cdedc3d531d80deb68de5606084a717#2cdedc3d531d8098b896f0135674964f" target="_blank" rel="external">Policy iteration 算法</a>的 PE 階段換成 TD method.</p>
+</blockquote>
+<p><details><br>   <summary>▶️(點擊展開) D 算法邏輯推導解釋 (RM 解 root, 該 root 為 Bellman equation 解)</summary><br>   回顧 <a href="https://www.notion.so/bobondemon/RL-2cdedc3d531d80deb68de5606084a717#2cdedc3d531d80dfbf51e84f94d0643a" target="_blank" rel="external">Bellman Expectation equation</a>: <span>$v_\pi(s)=\mathbb{E}[R_{t+1}+\gamma v_\pi(S_{t+1})|S_t=s],\quad s\in\mathcal{S}$</span><!-- Has MathJax --> <strong>對某個特定的 state <span>$s$</span><!-- Has MathJax -->, 令我們要求解的 <span>$v_\pi(s)$</span><!-- Has MathJax --> 為變數 <span>$w$</span><!-- Has MathJax --></strong>, 我們定義 function <span>$$\begin{align*}
+    g({\color{orange}{w}})\doteq {\color{orange}{w}} - \mathbb{E}[R_{t+1}+\gamma v_{\color{red}{\pi}}(S_{t+1})|S_t=s]
+    \end{align*}$$</span><!-- Has MathJax --> 則對 <span>$g$</span><!-- Has MathJax --> 求解 root 等價於解出 Bellman Expectation equation.<br>    套用 RM 算法 (參考 <a href="https://bobondemon.github.io/2025/05/02/RM-algo/">Robbins-Monro algorithm</a>), 定義觀測函數 <span>$\tilde{g}$</span><!-- Has MathJax --> 為一次的觀測 sample: <span>$\tilde{g}(w,\eta_t)\doteq w-\left[r+\gamma v_\pi(s&apos;)\right]$</span><!-- Has MathJax --> 其中 <span>$R_{t+1}=r$</span><!-- Has MathJax --> 和 <span>$S_{t+1}=s&apos;$</span><!-- Has MathJax -->. 這是因為在 model-free 的設定下, 我們可以很容易拿到 <span>$(S_t,R_{t+1},S_{t+1})$</span><!-- Has MathJax --> 的很多觀測值 <span>$\{(s,r,s&apos;)\}$</span><!-- Has MathJax -->, 這叫 experience sample.<br>    則 RM 算法為: <span>$$\begin{align*}
+    w_{k+1}=w_{k}-a_k\tilde{g}(w_{k},\eta_k),\quad k=1,2,3,... \\
+    \Longrightarrow w_{k+1}=w_{k}-a_k\left(w_{k}-\left[r+\gamma v_{\color{red}{\pi}}(s&apos;)\right]\right),\quad k=1,2,3,...
+    \end{align*}$$</span><!-- Has MathJax --> 滿足 RM 算法的收斂條件下, 最後 <span>$w_\infty$</span><!-- Has MathJax --> 為 root, 即 <span>$g(w_\infty)=0$</span><!-- Has MathJax -->: <span>$w_\infty=\mathbb{E}[R_{t+1}+\gamma v_{\color{red}{\pi}}(S_{t+1})|S_t=s]$</span><!-- Has MathJax -->. 這樣就把 Bellman equation 解出來了.<br>    注意到上述的解 <span>$w_\infty$</span><!-- Has MathJax --> 的過程需要用到 ground truth state value <span>$v_{\color{red}{\pi}}$</span><!-- Has MathJax -->, 實務上使用目前正在估計的 <span>$w_k$</span><!-- Has MathJax --> 替代, 因此收斂過程還需嚴格證明, 這裡略過<br></details><br>因此 TD 算法:<br><span>$$\begin{align*}
+{\color{orange}{
+\underbrace{v_{t+1}(s)}_{\text{new est.}} = \underbrace{v_{t}(s)}_{\text{current est.}} -\alpha_t(s)
+[
+\overbrace{ v_t(s)-(
+\underbrace{r+\gamma v_t(s&apos;)}_{\text{TD target }\bar{v}_t}) }^{\text{TD error }\delta_t}
+]
+}} ,\\
+v_{t+1}(s)=v_t(s),\quad\forall s\neq s_t,
+\end{align*}$$</span><!-- Has MathJax --> 兩個重要的 terms, <strong>TD target <span>$\bar{v}_t$</span><!-- Has MathJax --></strong> 和 T<strong>D error <span>$\delta_t$</span><!-- Has MathJax --></strong> 需要記住.<br>每次 iteration 都會縮短與 TD target <span>$\bar{v}_t$</span><!-- Has MathJax --> 的距離, 而 TD error 反應了目前 state value 的估計 <span>$v_t$</span><!-- Has MathJax --> 與真實 state value <span>$v_\pi$</span><!-- Has MathJax --> 的 ”期望” 差異. 更多<a href="https://bobondemon.notion.site/Ch-7-Temporal-Difference-Learning-Methods-for-Prediction-Control-1c7edc3d531d802aa64cf9e5c8f81ca0#1dcedc3d531d805bbd4cdb5771aaa711" target="_blank" rel="external">參閱它們的特性</a>.<br>如果 TD 方法改為估計 action value, 一個經典的方法稱為 Sarsa<br>給定 experience samples <span>$\{(s_t,a_t,r_{t+1},s_{t+1},a_{t+1})\}_t$</span><!-- Has MathJax --> (所以 s a r s a 名字就這麼來)<br>則 <strong>Sarsa algorithm</strong> 為 :<br><span>$$\begin{align*}
+{\color{orange}{q_{t+1}(s_t,a_t)=q_t(s_t,a_t)-\alpha_t(s_t,a_t)\left[q_t(s_t,a_t)-(r_{t+1}+\gamma q_t(s_{t+1},a_{t+1}))\right]}}, \\
+q_{t+1}(s,a)
+=q_t(s,a),\quad \forall (s,a)\neq(s_t,a_t)
+\end{align*}$$</span><!-- Has MathJax --> 可以看到跟 state value 的 TD algorithm 幾乎一樣, 把 <span>$(s,a)$</span><!-- Has MathJax --> 當成是新的 state 這樣看就一樣了, 所以收斂性質一樣.<br>還有 expected Sarsa, n-step Sarsa 的變形. 也一樣參考 <a href="https://bobondemon.notion.site/Ch-7-Temporal-Difference-Learning-Methods-for-Prediction-Control-1c7edc3d531d802aa64cf9e5c8f81ca0?pvs=25" target="_blank" rel="external">Week 7 的筆記</a>.</p>
+<p>最後一個鼎鼎大名的方法, Q-learning<br>[<strong>Q-learning</strong> 一句話]: <strong>Model-free 的 incremental 解 BOE (Bellman Optimality Equation) 方法</strong><br>先直接給出 Q-learning 算法<br><span>$$\begin{align*}
+q_{t+1}(s_t,a_t)=q_t(s_t,a_t)-\alpha_t(s_t,a_t)\left[q_t(s_t,a_t)-\left[  {\color{orange}{r_{t+1}+\gamma \max_{a\in\mathcal{A}}{q_t(s_{t+1},a)} }}  \right]\right], \\
+q_{t+1}(s,a)
+=q_t(s,a),\quad \forall (s,a)\neq(s_t,a_t)
+\end{align*}$$</span><!-- Has MathJax --> 可以發現同樣只有 TD target 不同, 所以等同於在解決如下的數學問題 (這剛好是 <a href="https://bobondemon.notion.site/notes-mathematical-foundation-of-reinforcement-learning#2cdedc3d531d80a1b893ff4ae9c6b18f" target="_blank" rel="external">action value 的 BOE</a>):<br><span>$$\begin{align*}
+
+{\color{orange}{q(s,a)=\mathbb{E}\left[\left.
+R_{t+1}+\gamma\max_{a&apos;}q(S_{t+1},a&apos;)\right|S_t=s,A_t=a
+\right]}}
+
+\end{align*}$$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>使用 <a href="https://bobondemon.github.io/2025/05/02/RM-algo/">RM 算法去解 root</a> 就得到上述的 Q-learning 演算法</p>
+</blockquote>
+<p>最後有個統一的視角<br><img src="/2025/12/25/RL的數學原理/unifiy_view_of_TD_algo.png" width="100%" height="100%"> 算法角度上, 只是 TD target 的不同<br>因此數學上對應求解的目標函式也就跟著不同</p>
+<hr>
+<h2 id="Ch8-Value-Function-with-Function-Approximation-Methods"><a href="#Ch8-Value-Function-with-Function-Approximation-Methods" class="headerlink" title="[Ch8]: Value Function with Function Approximation Methods"></a>[Ch8]: Value Function with Function Approximation Methods</h2><p>之前的方法只能處理 state/action value 和 policy 都是 tabular 的形式 (只能是 finite discrete function)</p>
+<ul>
+<li>Ch8 將 state/action value 推廣成 continuous 形式</li>
+<li>Ch9 將 policy 推廣成 continuous 形式</li>
+<li>Ch10 結合 Ch8&amp;9 總結出 Actor-Critic 算法<br>本章節介紹的方法都是在做 PE (Policy Evaluation), 也就是還要結合 Policy Improvement (除了 Q-learning&amp;DQN) 才是完整的 <a href="https://bobondemon.notion.site/notes-mathematical-foundation-of-reinforcement-learning#2cdedc3d531d8098b896f0135674964f" target="_blank" rel="external">policy iteration</a> 算法 (PE+PI).</li>
+</ul>
+<h3 id="State-value-with-function-approximation"><a href="#State-value-with-function-approximation" class="headerlink" title="State value with function approximation"></a>State value with function approximation</h3><p>先推廣看看 state value, 我們用 continuous function 來代表, <span>$\hat{v}(s,w)$</span><!-- Has MathJax -->, 其中 <span>$w$</span><!-- Has MathJax --> 表示該 function 的參數<br>一般來說我們會有這樣的(優化)目標函數, 希望的估計 function <span>$\hat{v}$</span><!-- Has MathJax --> 跟目標 <span>$v_\pi$</span><!-- Has MathJax --> 在 MSE 視角下 “期望值” 愈小愈好<br><span>$$\begin{align*}
+J(w)=\frac{1}{2}\mathbb{E}_{s\sim {\color{orange}{d_\pi}}}[(v_\pi(S)-\hat{v}(S,w))^2]
+\end{align*}$$</span><!-- Has MathJax --> 期望值的計算採用 steady state <span>$d_\pi$</span><!-- Has MathJax --> 的分布, 這是因為 MDP 給定 policy <span>$\pi$</span><!-- Has MathJax --> 的情況下會 reduce 成 MC (Markov Process)<br>MC 在滿足一些條件下會存在 steady state 分布, <span>$d_\pi$</span><!-- Has MathJax -->, [<a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/#Week-3-6-7-Ergodic-chains-Ergodic-theorem">Ergodic Theorem</a>]</p>
+<blockquote>
+<p>我們說 <span>$J(w)$</span><!-- Has MathJax --> 這個目標函式, 其實等價於在解 state value 的 Bellman equation 的 expectation form. 因為 <span>$=0$</span><!-- Has MathJax --> 的情況就是滿足平方向裡面為 <span>$0$</span><!-- Has MathJax -->.</p>
+</blockquote>
+<p>而用 policy <span>$\pi$</span><!-- Has MathJax --> 直接採樣 trajectories 後, 搜集到的 <span>$\{s_t\}_t$</span><!-- Has MathJax --> 服從 <span>$d_\pi$</span><!-- Has MathJax --> 的分佈, 因此套 SGD 就很容易了</p>
+<span>$$\begin{align*}
+w_{t+1}=w_t+\alpha_t( {\color{red}{v_\pi(s_t)}} -\hat{v}(s_t,w_t))\nabla_{w}\hat{v}(s_t,w_t)
+\end{align*}$$</span><!-- Has MathJax -->
+<p>ground truth 的 <span>$v_\pi$</span><!-- Has MathJax --> 我們不知道, 因此有兩種替代方式:</p>
+<ol>
+<li>Monte Carlo learning with function approximation<br> 設定 <span>$v_\pi(s_t)$</span><!-- Has MathJax --> 為 <span>$g_t$</span><!-- Has MathJax -->, 其中 <span>$g_t$</span><!-- Has MathJax --> 是從 <span>$s_t$</span><!-- Has MathJax --> 出發 (採樣) 直到完成一個 episode 的 return. 則變成 <span>$$\begin{align*}
+    w_{t+1}=w_t+\alpha_t( {\color{red}{g_t}} -\hat{v}(s_t,w_t))\nabla_{w}\hat{v}(s_t,w_t)
+    \end{align*}$$</span><!-- Has MathJax -->    </li>
+<li>TD learning with function approximation<br> 設定 <span>$v_\pi(s_t)$</span><!-- Has MathJax --> 為 TD target <span>$r_{t+1}+\gamma\hat{v}(s_{t+1},w_t)$</span><!-- Has MathJax -->. 則變成 <span>$$\begin{align*}
+    w_{t+1}=w_t+\alpha_t( {\color{red}{r_{t+1}+\gamma\hat{v}(s_{t+1},w_t)}} -\hat{v}(s_t,w_t))\nabla_{w}\hat{v}(s_t,w_t)
+    \end{align*}$$</span><!-- Has MathJax --> 其實就變成中間是 TD-error 了 (參考 <a href="https://bobondemon.notion.site/Ch-7-Temporal-Difference-Learning-Methods-for-Prediction-Control-1c7edc3d531d802aa64cf9e5c8f81ca0#1dcedc3d531d8063bda9f1b943cc0441" target="_blank" rel="external">TD-learning 的公式 (7)</a>)<br> 進一步的如果使用 linear function <span>$\hat{v}(s,w)=\phi(s)^Tw$</span><!-- Has MathJax --> 來近似, 其中 gradient 為 <span>$\nabla_w\hat{v}(s,w)=\phi(s)$</span><!-- Has MathJax -->, 則變成<br> <span>$$\begin{align*}
+    w_{t+1}=w_t+\alpha_t({\color{red}{r_{t+1}+\gamma\phi^T(s_{t+1})w_t}}-\phi^T(s_t)w_t)\phi(s_t)
+    \end{align*}$$</span><!-- Has MathJax --> 稱為 TD-linear 算法, 我們可以證明 Ch7 學的 tabular TD 算法是這個 TD-linear 的一個特例 [<a href="https://bobondemon.notion.site/Ch8-Value-Function-with-Function-Approximation-Methods-1efedc3d531d8069a1bae8a51aee01d1#1f2edc3d531d80239f4cefcba3a1c0d7" target="_blank" rel="external">ref</a>]</li>
+</ol>
+<blockquote>
+<p>TD learning with function approximation 的算法更新究竟在優化什麼目標函式, 粗暴點理解是一樣在解 Bellman equation, 詳細見<a href="https://bobondemon.notion.site/Ch8-Value-Function-with-Function-Approximation-Methods-1efedc3d531d8069a1bae8a51aee01d1#2d2edc3d531d803499edc8a01c5af34f" target="_blank" rel="external">筆記這部分</a>.</p>
+</blockquote>
+<h3 id="Action-value-with-function-approximation"><a href="#Action-value-with-function-approximation" class="headerlink" title="Action value with function approximation"></a>Action value with function approximation</h3><p>再來如果是 action value 做 continuous 推廣的話, 其實方法一樣<br>Sarsa 的 action value with function approximation 的算法公式:<br><span>$$\begin{align*}
+w_{t+1}=w_t+\alpha_t( r_{t+1}+\gamma {\color{orange}{\hat{q}(s_{t+1},a_{t+1},w_t)}} - {\color{orange}{\hat{q}(s_t,a_t,w_t)}} ) {\color{orange}{\nabla_{w}\hat{q}(s_t,a_t,w_t)}}
+\end{align*}$$</span><!-- Has MathJax --> 對比橘色的部分, 可以看到跟 state value 方法對比只是把 <span>$\hat{v}$</span><!-- Has MathJax --> 換成 <span>$\hat{q}$</span><!-- Has MathJax --> 而已</p>
+<h3 id="Q-learning-with-function-approximation"><a href="#Q-learning-with-function-approximation" class="headerlink" title="Q-learning with function approximation"></a>Q-learning with function approximation</h3><p>同樣的 Q-learning with function approximation 的算法公式如下:<br><span>$$\begin{align*}
+w_{t+1}=w_t+\alpha_t \left[ r_{t+1}+\gamma {\color{orange}{\max_{a\in\mathcal{A}(s_{t+1})}\hat{q}(s_{t+1},a,w_t)}} - \hat{q}(s_t,a_t,w_t) \right] \nabla_{w}\hat{q}(s_t,a_t,w_t)
+\end{align*}$$</span><!-- Has MathJax --> 基本上只是 TD target 改成 Q-learning 的 TD target (可以去回顧<a href="https://bobondemon.notion.site/Ch-7-Temporal-Difference-Learning-Methods-for-Prediction-Control-1c7edc3d531d802aa64cf9e5c8f81ca0#1ebedc3d531d80b79f36ff7da898c3a1" target="_blank" rel="external">前面的整理</a>)<br><img src="/2025/12/25/RL的數學原理/image 6.png" width="80%" height="80%"> 上圖的 pseudocode 是 on-policy (behavior 策略跟 target 策略相同), 所以還是使用 <a href="https://bobondemon.notion.site/Ch-5-Monte-Carlo-Methods-for-Prediction-Control-1c7edc3d531d800e923dea3217327660#1ccedc3d531d804885d7e9d15e4255e0" target="_blank" rel="external"><span>$\epsilon$</span><!-- Has MathJax -->-greedy</a> 更新目標策略以避免 <a href="https://bobondemon.notion.site/Ch-5-Monte-Carlo-Methods-for-Prediction-Control-1c7edc3d531d800e923dea3217327660#1ccedc3d531d80da97b4e352db62df36" target="_blank" rel="external">exploring starts</a> 缺點<br>但別忘了, <a href="https://bobondemon.notion.site/Ch-7-Temporal-Difference-Learning-Methods-for-Prediction-Control-1c7edc3d531d802aa64cf9e5c8f81ca0#1ebedc3d531d809a87bdebe68dae186d" target="_blank" rel="external">Q-learning 實際上是直接求解 BOE</a>, 因此可以直接計算最佳策略<br>其中一個最大的好處是 <a href="https://bobondemon.notion.site/Ch-7-Temporal-Difference-Learning-Methods-for-Prediction-Control-1c7edc3d531d802aa64cf9e5c8f81ca0#1ebedc3d531d801183ccf9486af2d4fd" target="_blank" rel="external">Q-learning 是 off-policy</a> 的, 所以可以不用 policy improvement (or called update policy) 這一步<br>Off-policy 的 Q-learning 會在下面用 Deep Q-learning (DQN) 給出</p>
+<h3 id="Deep-Q-learning-or-Deep-Q-network-DQN"><a href="#Deep-Q-learning-or-Deep-Q-network-DQN" class="headerlink" title="Deep Q-learning or Deep Q-network (DQN)"></a>Deep Q-learning or Deep Q-network (DQN)</h3><p>Deep Q-learning or DQN 可以視為 Q-learning (<a href="https://bobondemon.notion.site/Ch8-Value-Function-with-Function-Approximation-Methods-1efedc3d531d8069a1bae8a51aee01d1#1f2edc3d531d8000a0fdfc6184565459" target="_blank" rel="external">function approximation</a>) 的推廣作法, 數學(優化)目標函式為:<br><span>$$\begin{align*}
+J(w)=\mathbb{E}\left[\left(
+ \underbrace{\color{orange}{R+\gamma\max_{a\in\mathcal{A}(S&apos;)}\hat{q}(S&apos;,a,w)}}_{\text{TD Target}}
+- \underbrace{\hat{q}(S,A,w)}_{\text{Predicted Q-value}}
+\right)^2\right]
+\end{align*}$$</span><!-- Has MathJax --> DQN 的目標函式跟 <a href="https://bobondemon.notion.site/notes-mathematical-foundation-of-reinforcement-learning#2cdedc3d531d803cb4d7ca4f3556856e" target="_blank" rel="external">Q-learning (tabular) 的 BOE</a> 等價, 都是直接求解 BOE [<a href="https://bobondemon.notion.site/Ch8-Value-Function-with-Function-Approximation-Methods-1efedc3d531d8069a1bae8a51aee01d1#200edc3d531d80189e5dd51842bfdd2a" target="_blank" rel="external">證明</a>]<br>實務上 DQN 使用了兩個 NN models, 稱 main network <span>${\color{orange}{\hat{q}(s,a,w)}}$</span><!-- Has MathJax --> 和 target network <span>${\color{green}{\hat{q}(s,a,w_T)}}$</span><!-- Has MathJax -->:<br><span>$$\begin{align*}
+J(w)=\mathbb{E}\left[\left(
+R+\gamma\max_{a\in\mathcal{A}(S&apos;)} {\color{green}{\hat{q}(S&apos;,a,w_T)}} - {\color{orange}{\hat{q}(S,A,w)}}
+\right)^2\right]
+\end{align*}$$</span><!-- Has MathJax --> 然後 update main NN <span>${\color{orange}{\hat{q}(s,a,w)}}$</span><!-- Has MathJax --> 時 target network <span>${\color{green}{\hat{q}(s,a,w_T)}}$</span><!-- Has MathJax --> 視為常數不動, 所以 main network 的 gradient 很好計算<br>然後幾次 iteration 後, 把更新後的 main NN <span>${\color{orange}{\hat{q}(s,a,w)}}$</span><!-- Has MathJax --> copy 過去給 target network <span>${\color{green}{\hat{q}(s,a,w_T)}}$</span><!-- Has MathJax -->,  DQN 就是透過這樣的技巧很成功的把 DNN 引入到 RL 中<br>更多細節, 譬如這樣做的好處, 以及 mini-batch 採用 uniform distribution 抓取 examples 等, 請參考 <a href="https://www.notion.so/Ch8-Value-Function-with-Function-Approximation-Methods-1efedc3d531d8069a1bae8a51aee01d1?pvs=21" target="_blank" rel="external">Week8 筆記</a><br>DQN off-policy pseudocode:<br><img src="/2025/12/25/RL的數學原理/image 7.png" width="80%" height="80%"></p>
+<hr>
+<h2 id="Ch9-Policy-Gradient-Methods"><a href="#Ch9-Policy-Gradient-Methods" class="headerlink" title="[Ch9]: Policy Gradient Methods"></a>[Ch9]: Policy Gradient Methods</h2><p>讓 actions 不只限於 tabular form, 也可以是 continous form, 即 <span>$\pi(a,\theta)$</span><!-- Has MathJax -->, 其中 <span>$\theta$</span><!-- Has MathJax --> 為參數.<br>以前 tabular 形式的 optimal policy 可以直接求解 BOE 得到. 且明確知道 optimal policy 代表該 policy 在任何 state 都能得到最大的 value.<br>但什麼是 optimal 的 continous policy 就需要透過一些 metrics 來定義優劣.<br>藉由這些 metrics 用 SGD 來優化找出最佳 policy, 這種方法稱 policy gradient method.<br>Metrics 有兩種常見的定義方式</p>
+<ul>
+<li>[Metric 1] Average state value <span>$\bar{v}_\pi$</span><!-- Has MathJax -->: 每一個 state 的 value <span>$v_\pi(s)$</span><!-- Has MathJax --> 根據 state 分布 <span>$d(s)$</span><!-- Has MathJax --> 做個平均, 分兩種情況<ul>
+<li><span>$d(s)$</span><!-- Has MathJax --> 跟 policy <span>$\pi$</span><!-- Has MathJax --> 無關: 用 <span>$\bar{v}_\pi^0$</span><!-- Has MathJax --> 和 <span>$d_0$</span><!-- Has MathJax --> 來表示. 例如 <span>$d(s)=1/|\mathcal{S}|$</span><!-- Has MathJax --> 是一個 uniform. 或當我們只關心某一個 state 的話, <span>$d_0$</span><!-- Has MathJax --> 就是一個 one-hot vector.</li>
+<li><span>$d(s)$</span><!-- Has MathJax --> 跟 policy <span>$\pi$</span><!-- Has MathJax --> 有關: 通常設定為 <a href="https://bobondemon.notion.site/Ch8-Value-Function-with-Function-Approximation-Methods-1efedc3d531d8069a1bae8a51aee01d1#1f0edc3d531d80988640cbdf5789a688" target="_blank" rel="external">stationary distributino</a> <span>$d_\pi(s)$</span><!-- Has MathJax -->, 其滿足 <span>$d_\pi=P_\pi d_\pi$</span><!-- Has MathJax -->, 其中 <span>$P_\pi$</span><!-- Has MathJax --> 為狀態轉移矩陣.</li>
+</ul>
+</li>
+<li>[Metric 2] Average <em>one-step</em> reward <span>$\bar{r}_\pi$</span><!-- Has MathJax -->: 目前狀態是 <span>$s$</span><!-- Has MathJax --> 的情況下, <em>走一步的條件下</em>得到的平均 immediate rewards<ul>
+<li>其中 <span>$r_\pi(s)=\sum_{a\in\mathcal{A}}\pi(a|s,\theta){\sum_r}rp(r|s,a)$</span><!-- Has MathJax -->, 則 <span>$\bar{r}_\pi=\sum_{s\in\mathcal{S}}d_\pi(s)r_\pi(s)$</span><!-- Has MathJax -->.</li>
+</ul>
+</li>
+</ul>
+<p>以下有三種等價的 expressions 都很重要 (詳細參考 <a href="https://bobondemon.notion.site/Ch9-Policy-Gradient-Methods-1f1edc3d531d80b6adeeee5796ed9867?pvs=25" target="_blank" rel="external">Week9</a>)</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Expression 1</th>
+<th>Expression 2</th>
+<th>Expression 3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span>$\bar{v}_\pi$</span><!-- Has MathJax --></td>
+<td><span>$\sum_{s\in\mathcal{S}}d(s)v_\pi(s)$</span><!-- Has MathJax --></td>
+<td><span>$\mathbb{E}_{S\sim d}[v_\pi(S)]$</span><!-- Has MathJax --></td>
+<td><span>$\lim_{n\rightarrow\infty}\mathbb{E}\left[\sum_{t=0}^n{\gamma^t R_{t+1}}\right]$</span><!-- Has MathJax --></td>
+</tr>
+<tr>
+<td><span>$\bar{r}_\pi$</span><!-- Has MathJax --></td>
+<td><span>$\sum_{s\in\mathcal{S}}d_\pi(s)r_\pi(s)$</span><!-- Has MathJax --></td>
+<td><span>$\mathbb{E}_{S\sim d_\pi}[r_\pi(S)]$</span><!-- Has MathJax --></td>
+<td><span>$\lim_{n\rightarrow\infty}\frac{1}{n}\mathbb{E}\left[\sum_{t=0}^{n-1}{R_{t+1}}\right]$</span><!-- Has MathJax --></td>
+</tr>
+</tbody>
+</table>
+<p>當使用 stationary <span>$d_\pi$</span><!-- Has MathJax --> 時, 兩者等價 <span>${\color{orange}{\bar{r}_\pi=(1-\gamma)\bar{v}_\pi}}$</span><!-- Has MathJax -->.<br>最大化採用 gradient ascent, 但 gradient 的計算非常複雜, 還要考慮不同 cases 的情況, e.g. discounted or undiscounted cases, 不同 metrics <span>$\bar{v}_\pi$</span><!-- Has MathJax -->, <span>$\bar{v}_\pi^0$</span><!-- Has MathJax -->, <span>$\bar{r}_\pi$</span><!-- Has MathJax -->.<br>因此課程上老師只列出 gradient 通用的形式:<br><span>$$\begin{align*}
+{\color{orange}{\nabla_\theta J(\theta)=\sum_{s\in\mathcal{S}}\eta(s)\sum_{a\in\mathcal{A}}\nabla_\theta\pi(a|s,\theta)q_\pi(s,a)}} \\
+{\color{orange}{=\mathbb{E}_{S\sim\eta,A\sim\pi(S,\theta)}\left[\nabla_\theta\ln\pi(A|S,\theta)q_\pi(S,A)\right]}}
+\end{align*}$$</span><!-- Has MathJax --> 其中 <span>$J(\theta)$</span><!-- Has MathJax --> 可以是 <span>$\bar{v}_\pi$</span><!-- Has MathJax -->, <span>$\bar{v}_\pi^0$</span><!-- Has MathJax -->, <span>$\bar{r}_\pi$</span><!-- Has MathJax -->, 會導致 <span>$\eta$</span><!-- Has MathJax --> 會對應到不同的 state distributions 定義或變成 weightings, 同時 “<span>$=$</span><!-- Has MathJax -->” 也有可能變成 “<span>$\approx$</span><!-- Has MathJax -->”.<br>總結如下:<br><span>$$\begin{align*}
+\nabla_\theta\bar{r}_\pi\approx \sum_sd_\pi(s)\sum_a \nabla_\theta\pi(a|s,\theta)q_\pi(s,a),\\
+\nabla_\theta\bar{v}_\pi=\frac{1}{1-\gamma}\nabla_\theta\bar{r}_\pi,\\
+\nabla_\theta\bar{v}_\pi^0=\sum_s\rho_\pi(s)\sum_a\nabla_\theta\pi(a|s,\theta)q_\pi(s,a)
+\end{align*}$$</span><!-- Has MathJax --> 其中 <span>$\rho_\pi(s)$</span><!-- Has MathJax --> [<a href="https://bobondemon.notion.site/Ch9-Policy-Gradient-Methods-1f1edc3d531d80b6adeeee5796ed9867#206edc3d531d80828167e908ed6860a7" target="_blank" rel="external">詳細定義</a>] 為在 policy <span>$\pi$</span><!-- Has MathJax --> 下的 discounted total probability of transitioning from <span>$s&apos;$</span><!-- Has MathJax --> to <span>$s$</span><!-- Has MathJax -->.</p>
+<blockquote>
+<p><a href="https://www.youtube.com/@jbhuang0604" target="_blank" rel="external">Jia-Bin Huang</a> 這支影片 [<a href="https://www.youtube.com/watch?v=mg-iU-WxiNs" target="_blank" rel="external">YouTube</a>] 推導了 <span>$\nabla_\theta\bar{r}_\pi$</span><!-- Has MathJax -->, 我覺得滿清楚的, 推薦看一下</p>
+</blockquote>
+<p>所以 (Stochastic) Gradient Ascent (GA/SGA) 流程:<br><span>$$\begin{align*}
+\theta_{t+1}=\theta_t + \alpha\nabla_\theta J(\theta_t) \\
+\text{(GA)}\quad=\theta_t + \alpha\mathbb{E}\left[\nabla_\theta\ln\pi(A|S,\theta_t)q_\pi(S,A)\right] \\
+\text{(SGA)}\quad=\theta_t + \alpha\nabla_\theta\ln\pi(a_t|s_t,\theta_t)q_{\color{red}{\pi}}(s_t,a_t)
+\end{align*}$$</span><!-- Has MathJax --> 注意到我們無法得知 ground truth 的 <span>$q_{\color{red}{\pi}}(s_t,a_t)$</span><!-- Has MathJax -->, 因此直接用估計的 <span>$q_{\color{red}{t}}(s_t,a_t)$</span><!-- Has MathJax --> 替代<br>估計的 <span>$q_{\color{red}{t}}(s_t,a_t)$</span><!-- Has MathJax --> 可以用多種方法, 常見的有使用 MC (Monte Carlo) 方法和 TD 方法兩種 (TD 的方法為下一章 Actor-Critic)<br>其中 <strong>MC 方法的 policy gradient 又稱為 REINFORCE</strong> 方法, 其估計的 <span>$q_{\color{red}{t}}(s_t,a_t)$</span><!-- Has MathJax --> 使用 <span>$q_t(s_t,a_t)=\sum_{k=t+1}^T\gamma^{k-t-1}r_k$</span><!-- Has MathJax -->:<br>因此 REINFORCE 演算法為<br><img src="/2025/12/25/RL的數學原理/image 9.png" width="80%" height="80%"> 這算是最早且最簡單的 policy gradient 方法<br>注意到 GA (13) 採樣的時候我們是 follow <span>$S\sim\eta$</span><!-- Has MathJax -->, <span>$A\sim\pi(S,\theta)$</span><!-- Has MathJax -->. <span>$S\sim\eta$</span><!-- Has MathJax --> 是一個 long run 的 distribution 後的採樣, 通常人們不太關心<br>主要是 <span>$A\sim\pi(S,\theta)$</span><!-- Has MathJax -->, 這使得 <span>$a_t$</span><!-- Has MathJax --> 必須從 <span>$\pi(S,\theta_t)$</span><!-- Has MathJax --> 採樣出來, 也因此更新的 policy 同時也是採樣時候的 policy, 表示 <strong>REINFORCE 是 on-policy</strong> 算法.</p>
+<hr>
+<h2 id="Ch10-Actor-Critic-Methods"><a href="#Ch10-Actor-Critic-Methods" class="headerlink" title="[Ch10]: Actor-Critic Methods"></a>[Ch10]: Actor-Critic Methods</h2><h3 id="QAC-Q-function-actor-critic"><a href="#QAC-Q-function-actor-critic" class="headerlink" title="QAC (Q-function actor-critic)"></a>QAC (Q-function actor-critic)</h3><p>上面的 MC policy gradient (REINFORCE) 算法, 把 value update 的地方採用 <a href="https://bobondemon.notion.site/notes-mathematical-foundation-of-reinforcement-learning#2cfedc3d531d80d2bd67da5d0625c97a" target="_blank" rel="external">action value with function approximation</a> 的方法就得到最簡單的 QAC 了<br><img src="/2025/12/25/RL的數學原理/image 10.png" width="70%" height="70%"> 注意到改成 TD 變成有 incremental update 的好處, 不用像 MC 一樣等到一條 trajectory 採樣完才能做.</p>
+<h3 id="On-policy-A2C-Advantage-actor-critic"><a href="#On-policy-A2C-Advantage-actor-critic" class="headerlink" title="On-policy A2C (Advantage actor-critic)"></a>On-policy A2C (Advantage actor-critic)</h3><p>其實 A2C 就是使用: <a href="https://bobondemon.github.io/2025/06/04/REINFORCE-estimator/">https://bobondemon.github.io/2025/06/04/REINFORCE-estimator/</a> 提到的 baseline + control-variates 技巧, 去改進 QAC 的結果.<br>重複一次 policy gradient 的公式 <span>$\nabla_\theta J(\theta_t)=\mathbb{E}_{S\sim\eta,A\sim\pi}\left[\nabla_\theta\ln\pi(A|S,\theta_t)q_\pi(S,A)\right]$</span><!-- Has MathJax -->.<br>SGA 每次採樣出一個 <span>$\nabla_\theta\ln\pi(A|S,\theta_t)q_\pi(S,A)$</span><!-- Has MathJax --> 來更新, 觀察到如果加上一個與 <span>$\mathcal{A}$</span><!-- Has MathJax --> 無關的變數 <span>$b(S)$</span><!-- Has MathJax --> 對於計算期望值不會有任何影響<br><span>$$\begin{align*}
+X\doteq\nabla_\theta\ln\pi(A|S,\theta_t)(q_\pi(S,A)-{\color{orange}{b(S)}}) \\
+\Longrightarrow \mathbb{E}_{S\sim\eta,A\sim\pi}[X]=\nabla_\theta J(\theta_t)
+\end{align*}$$</span><!-- Has MathJax --> 但是 <span>$Var(X)$</span><!-- Has MathJax --> 仍會被 <span>$b(S)$</span><!-- Has MathJax --> 影響, 即 <span>$b(S)$</span><!-- Has MathJax --> 不同則算出來的 <span>$Var(X)$</span><!-- Has MathJax --> 不同, 因此目標就是找出一個最佳的 baseline <span>$b(S)$</span><!-- Has MathJax --> 使得 <span>$Var(X)$</span><!-- Has MathJax --> 最小<br>這樣做 SGA 採樣出來的 sample 之間 variance 就變小, 收斂快又穩定. 而理論上最佳解為:<br><span>$$\begin{align*}
+b^\ast(s)=\frac{\mathbb{E}_{A\sim\pi}[ {\color{orange}{\|\nabla_\theta\ln\pi(A|s,\theta_t)\|^2}} q_\pi(s,A) ]}
+{\mathbb{E}_{A\sim\pi}[ {\color{orange}{\|\nabla_\theta\ln\pi(A|s,\theta_t)\|^2}}]}
+\end{align*}$$</span><!-- Has MathJax --> 雖然這是最佳解, 但比較複雜通常不用, 我們直接把橘色的權重拔掉變成 <span>${\color{orange}{b(s)}}=\mathbb{E}_{A\sim\pi}[q_\pi(s,A)]{\color{orange}{=v_\pi(s)}}$</span><!-- Has MathJax -->. Baseline <span>$b(s)$</span><!-- Has MathJax --> 就設定成 state value <span>$v(s)$</span><!-- Has MathJax --> 即可!<br>加上 basline term 的 policy gradient 變成:<br><span>$$\begin{align*}
+{\color{orange}{\nabla_\theta J(\theta_t)}} = \mathbb{E}_{S\sim\eta,A\sim\pi}
+\left[\nabla_\theta\ln\pi(A|S,\theta_t) {\color{orange}{\delta_\pi(S,A)}}\right] \\
+{\color{orange}{\delta_\pi(S,A)\doteq q_\pi(S,A)-{v_\pi(S)}}}
+\end{align*}$$</span><!-- Has MathJax --> <span>$\delta_\pi(S,A)$</span><!-- Has MathJax --> 稱為 advantage function.<br>所以之前的 <a href="https://bobondemon.notion.site/Ch9-Policy-Gradient-Methods-1f1edc3d531d80b6adeeee5796ed9867#206edc3d531d8050ac4ede2a5ac70165" target="_blank" rel="external">policy gradient 其 gradient ascent 公式</a>改為:<br><span>$$\begin{align*}
+\theta_{t+1}=\theta_t + \alpha\nabla_\theta J(\theta_t) \\
+\text{(GA)}\quad=\theta_t + \alpha\mathbb{E}\left[\nabla_\theta\ln\pi(A|S,\theta_t){\color{orange}{\delta_\pi(S,A)}}\right] \\
+\text{(SGA)}\quad=\theta_t + \alpha\nabla_\theta\ln\pi(a_t|s_t,\theta_t) {\color{orange}{\delta_{\color{red}{t}}(s_t,a_t)}}
+\end{align*}$$</span><!-- Has MathJax --> 從 GA 到 SGA 我們也把無法得知的 <span>$\delta_\pi(s_t,a_t)$</span><!-- Has MathJax --> 用估計的 <span>$\delta_t(s_t,a_t)$</span><!-- Has MathJax --> 來替代<br>其中 <strong><span>$\delta_t(s_t,a_t)$</span><!-- Has MathJax --> 可以用 temporal difference</strong> 的想法來逼近:<br><span>$$\begin{align*}
+\delta_t(s_t,a_t)\doteq {\color{orange}{q_t(s_t,a_t)}}-v_t(s_t) \approx {\color{orange}{r_{t+1}+\gamma v_t(s_{t+1})}} -v_t(s_t)
+\end{align*}$$</span><!-- Has MathJax --> 這帶來的好處是只需要用一個 NN 學 <span>$v_t$</span><!-- Has MathJax --> 即可.</p>
+<h3 id="Off-policy-A2C-Advantage-actor-critic"><a href="#Off-policy-A2C-Advantage-actor-critic" class="headerlink" title="Off-policy A2C (Advantage actor-critic)"></a>Off-policy A2C (Advantage actor-critic)</h3><p>再結合 <a href="https://bobondemon.notion.site/Ch10-Actor-Critic-Methods-207edc3d531d80beaf1afd55a86b78a2#209edc3d531d8078a7bbd6b8d8441c82" target="_blank" rel="external">Important Sampling (IS)</a> 將 on-policy 的 A2C 變成 off-policy, 則 policy gradient 公式變成:<br><span>$$\begin{align*}
+\nabla_\theta J(\theta_t)=\mathbb{E}_{S\sim\eta,A\sim{\color{orange}{\pi}}}
+\left[\nabla_\theta\ln\pi(A|S,\theta_t) \delta_\pi(S,A)\right] \\
+=\mathbb{E}_{S\sim\eta,A\sim{\color{orange}{\beta}}}
+\left[
+{\color{orange}{\frac{\pi(A|S,\theta)}{\beta(A|S)}}}
+\nabla_\theta\ln\pi(A|S,\theta_t) \delta_\pi(S,A)
+\right] \\
+=\mathbb{E}_{S\sim\eta,A\sim{\color{orange}{\beta}}}
+\left[
+{\color{orange}{\frac{\delta_\pi(S,A)}{\beta(A|S)}}}
+\nabla_\theta\pi(A|S,\theta_t)
+\right]
+\end{align*}$$</span><!-- Has MathJax --> <span>$\beta$</span><!-- Has MathJax --> 是 behavior policy, user 定義地所以可以計算 <span>$\beta(A|S)$</span><!-- Has MathJax -->. 因此<br><span>$$\begin{align*}
+\theta_{t+1}=\theta_t + \alpha\nabla_\theta J(\theta_t) \\
+\text{(GA)}\quad=\theta_t + \alpha\mathbb{E}_{S\sim\eta,A\sim{\color{orange}{\beta}}}
+\left[
+{\color{orange}{\frac{\delta_\pi(S,A)}{\beta(A|S)}}}
+\nabla_\theta\pi(A|S,\theta_t)
+\right] \\
+\text{(SGA)}\quad=\theta_t + \alpha
+{\color{orange}{\frac{\delta_{\color{red}t}(s_t,a_t)}{\beta(a_t|s_t)}}}
+\nabla_\theta\pi(a_t|s_t,\theta_t)
+\end{align*}$$</span><!-- Has MathJax --> 注意到從 GA 變成 SGA 的時候, 我們也將無法得知的 advantage function <span>$\delta_\pi$</span><!-- Has MathJax --> 替還成目前正在估計的 <span>$\delta_t$</span><!-- Has MathJax --> 了. 因此 important weight <span>$\delta_t/\beta$</span><!-- Has MathJax --> 很容易計算.</p>
+<blockquote>
+<p>💡 用 PyTorch 的 auto-diff 實作的時候不會自己刻 gradient, 我們只需要定義好等價的 loss function<br>而對應給 PyTorch 的 loss function <span>$L(\theta)$</span><!-- Has MathJax --> 為: (同樣也把 advantage function <span>$\delta_\pi$</span><!-- Has MathJax --> 替還成還在估計的 <span>$\delta_t$</span><!-- Has MathJax -->)<br><span>$$\begin{align*}
+ L(\theta)=-J(\theta)=-\mathbb{E}_{S\sim\eta,A\sim{\color{orange}{\beta}}}\left[\frac{\pi(A|S)}{\beta(A|S)}\delta_{\color{red}t}(S,A)\right]\end{align*}$$</span><!-- Has MathJax --> (用 log derivative trick 很容易驗證, or <a href="https://youtu.be/mg-iU-WxiNs?si=ki2-fJGXwTBia0R8&amp;t=930" target="_blank" rel="external">see here</a>) 這個目標函式通常稱為 <strong>surrogate objective</strong> 也才是最後 NN 要做 training 的 loss.</p>
+</blockquote>
+<p>結論, A2C 的 off-policy psuedo code 如下:<br><img src="/2025/12/25/RL的數學原理/image 11.png" width="80%" height="80%"><br>注意到這邊我們對 state value <span>$v_t$</span><!-- Has MathJax --> 採用 function approximation 方法, 參考 <a href="https://bobondemon.notion.site/Ch8-Value-Function-with-Function-Approximation-Methods-1efedc3d531d8069a1bae8a51aee01d1#1f0edc3d531d807db9d5e0ba226580bb" target="_blank" rel="external">Ch8 這裡</a>. 但是要再加上 importance weight 修正.</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2025/12/25/RL的數學原理/" title="RL的數學原理: 趙世鈺課程濃縮筆記">https://bobondemon.github.io/2025/12/25/RL的數學原理/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Reinforcement-Learning/" rel="tag"># Reinforcement Learning</a>
+          
+            <a href="/tags/TD-Learning/" rel="tag"># TD Learning</a>
+          
+            <a href="/tags/Q-Learning/" rel="tag"># Q Learning</a>
+          
+            <a href="/tags/DQN/" rel="tag"># DQN</a>
+          
+            <a href="/tags/Actor-Critic/" rel="tag"># Actor Critic</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2025/12/11/IndexTTS2-筆記-by-AI/" rel="next" title="IndexTTS2 筆記 by AI">
+                <i class="fa fa-chevron-left"></i> IndexTTS2 筆記 by AI
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2026/01/07/dpo/" rel="prev" title="告別 Reward Model: DPO 如何讓 LLM 偏好對齊變得穩定且高效">
+                告別 Reward Model: DPO 如何讓 LLM 偏好對齊變得穩定且高效 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">123</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">262</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Ch1-Basic-Concepts"><span class="nav-number">1.</span> <span class="nav-text">[Ch1]: Basic Concepts</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ch2-Bellman-Equation"><span class="nav-number">2.</span> <span class="nav-text">[Ch2]: Bellman Equation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ch3-Bellman-Optimality-Equation"><span class="nav-number">3.</span> <span class="nav-text">[Ch3]: Bellman Optimality Equation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ch4-Value-Iteration-amp-Policy-Iteration"><span class="nav-number">4.</span> <span class="nav-text">[Ch4]: Value Iteration & Policy Iteration</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ch5-Monte-Carlo-Methods-for-Prediction-amp-Control"><span class="nav-number">5.</span> <span class="nav-text">[Ch5]: Monte Carlo Methods for Prediction & Control</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ch6-Robbins-Monro-Algorithm-和-Dvoretzky’s-Convergence-Theorem-筆記"><span class="nav-number">6.</span> <span class="nav-text">[Ch6]: Robbins-Monro Algorithm 和 Dvoretzky’s Convergence Theorem 筆記</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ch7-Temporal-Difference-Learning-Methods-for-Prediction-Control"><span class="nav-number">7.</span> <span class="nav-text">[Ch7]: Temporal Difference Learning Methods for Prediction/Control</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ch8-Value-Function-with-Function-Approximation-Methods"><span class="nav-number">8.</span> <span class="nav-text">[Ch8]: Value Function with Function Approximation Methods</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#State-value-with-function-approximation"><span class="nav-number">8.1.</span> <span class="nav-text">State value with function approximation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Action-value-with-function-approximation"><span class="nav-number">8.2.</span> <span class="nav-text">Action value with function approximation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q-learning-with-function-approximation"><span class="nav-number">8.3.</span> <span class="nav-text">Q-learning with function approximation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Deep-Q-learning-or-Deep-Q-network-DQN"><span class="nav-number">8.4.</span> <span class="nav-text">Deep Q-learning or Deep Q-network (DQN)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ch9-Policy-Gradient-Methods"><span class="nav-number">9.</span> <span class="nav-text">[Ch9]: Policy Gradient Methods</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ch10-Actor-Critic-Methods"><span class="nav-number">10.</span> <span class="nav-text">[Ch10]: Actor-Critic Methods</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#QAC-Q-function-actor-critic"><span class="nav-number">10.1.</span> <span class="nav-text">QAC (Q-function actor-critic)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#On-policy-A2C-Advantage-actor-critic"><span class="nav-number">10.2.</span> <span class="nav-text">On-policy A2C (Advantage actor-critic)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Off-policy-A2C-Advantage-actor-critic"><span class="nav-number">10.3.</span> <span class="nav-text">Off-policy A2C (Advantage actor-critic)</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+<span id="busuanzi_container_site_pv">
+  本站總瀏覽 <span id="busuanzi_value_site_pv"></span> 次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站訪客 <span id="busuanzi_value_site_uv"></span> 人
+</span>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

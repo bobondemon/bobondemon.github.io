@@ -1,0 +1,918 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Reinforcement Learning,DPO (Direct Preference Optimization),SFT (Supervised Fine-Tuning),RLHF (Reinforcement Learning from Human Feedback)," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="DPO 捨棄 RLHF 中笨重的 reward model, 並將 RL 問題直接轉換成對好壞兩個 responses 的 supervised training. [圖片產生自 ChatGPT]
+
+Pre-trained model 經過 SFT (Supervised Fine-Tuning) 再經過 RLHF (Reinforcement Learning from Human Fee">
+<meta property="og:type" content="article">
+<meta property="og:title" content="告別 Reward Model: DPO 如何讓 LLM 偏好對齊變得穩定且高效">
+<meta property="og:url" content="https://bobondemon.github.io/2026/01/07/dpo/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="DPO 捨棄 RLHF 中笨重的 reward model, 並將 RL 問題直接轉換成對好壞兩個 responses 的 supervised training. [圖片產生自 ChatGPT]
+
+Pre-trained model 經過 SFT (Supervised Fine-Tuning) 再經過 RLHF (Reinforcement Learning from Human Fee">
+<meta property="og:image" content="https://bobondemon.github.io/2026/01/07/dpo/ChatGPT_DPO.png">
+<meta property="og:image" content="https://bobondemon.github.io/2026/01/07/dpo/image 1.png">
+<meta property="og:updated_time" content="2026-08-19T13:01:09.833Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="告別 Reward Model: DPO 如何讓 LLM 偏好對齊變得穩定且高效">
+<meta name="twitter:description" content="DPO 捨棄 RLHF 中笨重的 reward model, 並將 RL 問題直接轉換成對好壞兩個 responses 的 supervised training. [圖片產生自 ChatGPT]
+
+Pre-trained model 經過 SFT (Supervised Fine-Tuning) 再經過 RLHF (Reinforcement Learning from Human Fee">
+<meta name="twitter:image" content="https://bobondemon.github.io/2026/01/07/dpo/ChatGPT_DPO.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2026/01/07/dpo/"/>
+
+
+
+
+
+  <title> 告別 Reward Model: DPO 如何讓 LLM 偏好對齊變得穩定且高效 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2026/01/07/dpo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                告別 Reward Model: DPO 如何讓 LLM 偏好對齊變得穩定且高效
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2026-01-07T19:22:30+08:00">
+                2026-01-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<p><img src="/2026/01/07/dpo/ChatGPT_DPO.png" width="60%" height="60%"></p>
+<blockquote>
+<p>DPO 捨棄 RLHF 中笨重的 reward model, 並將 RL 問題直接轉換成對好壞兩個 responses 的 supervised training. [圖片產生自 ChatGPT]</p>
+</blockquote>
+<p>Pre-trained model 經過 SFT (Supervised Fine-Tuning) 再經過 RLHF (Reinforcement Learning from Human Feedback) 的這一套組合拳在 2023 年堪稱顯學<br>網路上甚至產生了一個很有名的<a href="https://x.com/anthrupad/status/1622349563922362368" target="_blank" rel="external">修格斯(Shoggoth)怪物梗圖</a>. (<a href="https://zh.wikipedia.org/zh-tw/%E4%BF%AE%E6%A0%BC%E6%96%AF" target="_blank" rel="external">wiki</a>: 形態無定的原生質生物，是克蘇魯神話中最駭人的存在之一)</p>
+<a id="more"></a>
+<p>Elon Musk 也在 twiitter 發了一張帶著笑臉面具的修格斯對人類說著 [<a href="https://web.archive.org/web/20230223004549/https://twitter.com/elonmusk/status/1628491148124884992" target="_blank" rel="external">ref</a>]:</p>
+<blockquote>
+<p>“As an AI language model, I have been trained to generate responses that are intended to be helpful, informative, and objective…”</p>
+</blockquote>
+<p>第一步的 pre-trained phase 就是大力出奇蹟硬 train 一發, 模型長得像觸手怪的修格斯般, 什麼都有可能也很難控制其行為 (產生人類要的笑臉). 因此需要第二階段的 SFT, 而這很好做, 只要藉由篩選或人工介入得到比較高品質的資料後, 重新 supervised fine tuning 一下就結束了.<br>不過若要達到最終更好的效果或是人類喜歡的輸出等等, 還是得依靠最後一階段的 RLHF<br>相比 SFT, RLHF 對超參數敏感許多, 同時 RLHF 必須依賴一個<em>事先訓練好的 reward 模型</em>來為每個 output tokens 打分數, 才能訓練 LLM, 這種兩階段訓練也是模型調整的一大困難點之一.</p>
+<p>2023 年 Stanford 團隊提出 <strong>DPO (Direct Preference Optimization)</strong> [<a href="https://arxiv.org/abs/2305.18290" target="_blank" rel="external">arxiv</a>]<br>成功將 LLM 偏好對齊的問題<strong>從 RL 轉換成 supervised training</strong>, 一舉改善 RLHF 的缺點的同時, 效果仍然卓著.<br>究竟 DPO 怎麼將 RL 變 supervised training 的? 這數學魔術怎麼變的?<br>帶著好奇心讓我們讀下去, 不過還得先從 RLHF 說起</p>
+<hr>
+<h2 id="得先說-RLHF-才行"><a href="#得先說-RLHF-才行" class="headerlink" title="得先說 RLHF 才行"></a>得先說 RLHF 才行</h2><p>看一下 RLHF 的目標函式<br><span>$$\begin{align}
+J(\theta) = \mathbb{E}_{x \sim \mathcal{D}, y \sim \pi_\theta} [\underbrace{r_\phi(x, y)}_{\text{1. Maximize Reward}} - \underbrace{\beta \log \frac{\pi_\theta(y|x)}{\pi_{ref}(y|x)}}_{\text{2. KL Penalty}}]
+\end{align}$$</span><!-- Has MathJax --> 要求 <span>$\arg\max_\theta J(\theta)$</span><!-- Has MathJax -->.<br>其中 <span>$(x,y)$</span><!-- Has MathJax --> 分別是 input prompt 以及 LLM 的 output tokens; <span>$r_\phi(x,y)$</span><!-- Has MathJax --> 是參數為 <span>$\phi$</span><!-- Has MathJax --> 的 reward model, 其物理意義是代表 <span>$(x,y)$</span><!-- Has MathJax --> 這樣的 pair 人類來看有多少分, 愈高分愈好.<br><span>$\pi_\theta(y|x)$</span><!-- Has MathJax --> 和 <span>$\pi_{ref}(y|x)$</span><!-- Has MathJax --> 分別是欲訓練的模型 (參數 <span>$\theta$</span><!-- Has MathJax -->) 及初始模型 (這裡指經過 SFT 後的模型).</p>
+<blockquote>
+<p><span>$\pi$</span><!-- Has MathJax --> 在 RL 的術語就是 policy model 而如果套用在 LLM 情境裡正好就是語言模型. 因為 LLM 是 next token prediction, 翻譯到 RL 就是 next action prediction</p>
+</blockquote>
+<p>其實滿直觀的, (1) 第一個 term (Maximize Reward) 是原本強化學習 RL 的目標函式, 請參考 <a href="https://bobondemon.github.io/2025/12/25/RL%E7%9A%84%E6%95%B8%E5%AD%B8%E5%8E%9F%E7%90%86/#Ch9-Policy-Gradient-Methods">[Ch9] Policy Gradient</a> 的 metric expression 3.<br>而 RL 的最終目的就是找出能最大化 expected total rewards 的 policy model. 因此這裡一個重點是, 我們要有一個 “<em>事先訓練好的</em>” reward model <span>$r_\phi(x,y)$</span><!-- Has MathJax -->.</p>
+<h3 id="Bradley-Terry-模型-Reward-Model-的訓練"><a href="#Bradley-Terry-模型-Reward-Model-的訓練" class="headerlink" title="Bradley-Terry 模型: Reward Model 的訓練"></a>Bradley-Terry 模型: Reward Model 的訓練</h3><p>給一個 pair <span>$(x,y)$</span><!-- Has MathJax --> 要給幾分對人來說不僅難且沒個統一標準. 而如果要人對比哪個 output tokens 好 (<span>$y_w$</span><!-- Has MathJax -->) 或壞 (<span>$y_l$</span><!-- Has MathJax -->) 就容易多了.<br>因此花了一些 cost 去標記出很多的<strong>偏好數據集</strong> <span>$\{(x,y_w,y_l)\}$</span><!-- Has MathJax -->, 這就是 reward model <span>$r_\phi(x,y)$</span><!-- Has MathJax --> 依賴的訓練資料.<br>有了偏好數據集 <span>$\{(x,y_w,y_l)\}$</span><!-- Has MathJax --> 要怎麼變成給一個 pair <span>$(x,y)$</span><!-- Has MathJax --> 要給幾分呢?<br>最直覺的想法就是訓練一個模型 <span>$r_\phi$</span><!-- Has MathJax --> 希望 <span>$r_\phi(x,y_w)$</span><!-- Has MathJax --> 比 <span>$r_\phi(x,y_l)$</span><!-- Has MathJax --> 愈高分愈好, 這就是 Bradley-Terry 模型的目標函式<br>定義 <span>$y_w$</span><!-- Has MathJax --> 勝過 <span>$y_l$</span><!-- Has MathJax --> 的機率取決於兩者的獎勵差:<br><span>$$\begin{align}
+P(y_w \succ y_l | x) = \sigma(r_\phi(x, y_w) - r_\phi(x, y_l))
+\end{align}$$</span><!-- Has MathJax --> 簡單講, 做 MLE (Maximum Likelihood Estimation) 找出 <span>$\phi$</span><!-- Has MathJax --> 能最大化機率就結束了.</p>
+<h3 id="Reward-Hacking"><a href="#Reward-Hacking" class="headerlink" title="Reward Hacking"></a>Reward Hacking</h3><p>回到 RLHF 目標函式 (1), 第二個 term (KL Penalty) 表明訓練的 LLM 模型, <span>$\pi_\theta(y|x)$</span><!-- Has MathJax -->, 不要跟初始模型, <span>$\pi_{ref}(y|x)$</span><!-- Has MathJax -->, 差異太大.:<br><span>$$\begin{align*}
+D_{KL}(\pi_\theta || \pi_{ref}) = \mathbb{E}_{y \sim \pi_\theta} \left[ \log \frac{\pi_\theta(y|x)}{\pi_{ref}(y|x)} \right]
+\end{align*}$$</span><!-- Has MathJax --> 為什麼不希望差異太大?<br>因為 reward model <span>$r_\phi(x,y)$</span><!-- Has MathJax --> 是事先訓練好的模型, 也只是個近似, 如果說模型訓練後有些缺陷, 例如對很多 emojio 符號會給很高的 reward, 則基於 RL 追求最大化 reward 的行為就會瘋狂輸出 emojio.<br>這種行為稱為 <a href="https://en.wikipedia.org/wiki/Reward_hacking" target="_blank" rel="external">Reward Hacking</a>. 因此加個 KL 約束項來希望避免.</p>
+<h3 id="RLHF-總結和缺點"><a href="#RLHF-總結和缺點" class="headerlink" title="RLHF 總結和缺點"></a>RLHF 總結和缺點</h3><p>在 DPO 出現之前, 我們使用 RLHF 來讓模型符合人類喜好. 這是一個<strong>兩階段</strong>且不穩定的過程:</p>
+<ol>
+<li><strong>訓練 Reward Model (RM):</strong> 收集成對數據 <span>$(x, y_w, y_l)$</span><!-- Has MathJax -->, 其中 <span>$x$</span><!-- Has MathJax --> 是 prompt,  <span>$y_w$</span><!-- Has MathJax --> 是勝出的回答 (winner),  <span>$y_l$</span><!-- Has MathJax --> 是落敗的回答 (loser). 訓練一個神經網路 <span>$r_\phi(x, y)$</span><!-- Has MathJax --> 來預測哪個回答更好 (使用 Bradley-Terry 模型)<span>$$\begin{align*}
+\mathcal{L}_{RM} = -\log \sigma(r_\phi(x, y_w) - r_\phi(x, y_l))
+\end{align*}$$</span><!-- Has MathJax --></li>
+<li><strong>加上 KL-divergence 優化 Policy:</strong> 固定 RM, 加上 KL-divergence 更新語言模型 <span>$\pi_\theta$</span><!-- Has MathJax -->，最大化獎勵並防止模型偏離初始模型 <span>$\pi_{ref}$</span><!-- Has MathJax --> 太遠</li>
+</ol>
+<p>總結來說 RLHF 有以下缺點:</p>
+<ul>
+<li>需要同時維護 <strong>3~4 個模型</strong>在記憶體中 (Policy <span>$\pi_\theta(y|x)$</span><!-- Has MathJax -->, Reference <span>$\pi_{ref}(y|x)$</span><!-- Has MathJax -->, Reward Model <span>$r_\phi(x,y)$</span><!-- Has MathJax -->, <a href="https://bobondemon.github.io/2025/12/25/RL%E7%9A%84%E6%95%B8%E5%AD%B8%E5%8E%9F%E7%90%86/#Ch10-Actor-Critic-Methods">Critic value function in RL (如果有的話)</a>)</li>
+<li>目標函式 (1) 對超參數極度敏感, 或許要使用如 <a href="https://youtu.be/mg-iU-WxiNs?si=WRzy_mexotCm4H7F&amp;t=1008" target="_blank" rel="external">PPO-clip</a> 等的做法來維持訓練穩定</li>
+<li>Reward Model 本身也是個近似, 優化它可能會導致上面提到的 Reward Hacking 現象</li>
+</ul>
+<hr>
+<h2 id="DPO-Direct-Preference-Optimization-登板救援"><a href="#DPO-Direct-Preference-Optimization-登板救援" class="headerlink" title="DPO (Direct Preference Optimization) 登板救援"></a>DPO (Direct Preference Optimization) 登板救援</h2><p><strong>DPO 是一種將「人類偏好對齊 (Alignment)」視為「分類問題」而非「強化學習問題」的方法.</strong>  它在 2023 年由 Stanford 團隊提出 [<a href="https://arxiv.org/abs/2305.18290" target="_blank" rel="external">arxiv</a>], 迅速成為微調 LLM (如 Llama-3, Mistral) 的主流方法<br>轉換成單純的監督式學習好處是避開使用 RL <strong>兩階段</strong>且不穩定的過程, 且無須同時維護 3~4 個模型在記憶體中, 又因為不使用 RL 自然也就沒有 Reward Hacking problem.<br>聽起來太神奇了吧? 來一步步拆解怎麼辦到的.<br>回顧目標函數 (1) (為了簡化符號, 省略期望值 <span>$\mathbb{E}_x$</span><!-- Has MathJax -->, <span>$r_\phi$</span><!-- Has MathJax --> 的 <span>$\phi$</span><!-- Has MathJax -->, <span>$\pi_\theta$</span><!-- Has MathJax -->  的 <span>$\theta$</span><!-- Has MathJax -->)<br><span>$$\begin{align}
+\max_{\pi}J(\pi) \doteq \max_\pi \mathbb{E}_{y \sim \pi} \left[ r(x, y) - \beta \log \frac{\pi(y|x)}{\pi_{ref}(y|x)} \right]
+\end{align}$$</span><!-- Has MathJax --> 這個形式其實可以重寫, 對公式內的項進行代數變換:<br><span>$$\begin{aligned}
+\therefore J(\pi) &amp;= \sum_y \pi(y|x) \left( r(x, y) - \beta \log \pi(y|x) + \beta \log \pi_{ref}(y|x) \right) \\
+&amp;= \beta \sum_y \pi(y|x) \left( \frac{r(x, y)}{\beta} + \log \pi_{ref}(y|x) - \log \pi(y|x) \right) \\
+&amp;= \beta \sum_y \pi(y|x) \log \left( \frac{\pi_{ref}(y|x) \exp(\frac{r(x, y)}{\beta})}{\pi(y|x)} \right)
+\end{aligned}$$</span><!-- Has MathJax --> 這其實就是負的 KL-divergence. 為了讓這裡面的 <span>$\pi_{ref}(y|x) \exp(\dots)$</span><!-- Has MathJax --> 變成一個合法的機率分佈, 我們需要除以一個歸一化常數 (Partition Function) <span>$Z(x)$</span><!-- Has MathJax -->.<br>根據 KL-divergence 性質, 我們知道 if and only if <span>$\pi$</span><!-- Has MathJax --> 等於以下分佈時, 上述目標函數達到最大值:<br><span>$$\begin{align}
+\pi^*(y|x) = \frac{1}{Z(x)} \pi_{ref}(y|x) \exp\left( \frac{r(x, y)}{\beta} \right)
+\end{align}$$</span><!-- Has MathJax --> 其中 <span>$Z(x) = \sum_y \pi_{ref}(y|x) \exp\left( \frac{r(x, y)}{\beta} \right)$</span><!-- Has MathJax -->.<br>所以給定一個 reward <span>$r$</span><!-- Has MathJax --> 我們知道對應這個 <span>$r$</span><!-- Has MathJax --> 的最佳 policy <span>$\pi^*$</span><!-- Has MathJax --> (使得 (3) 達到最大) 長怎樣<br>反過來說, 給一個策略 <span>$\pi^*$</span><!-- Has MathJax -->, <em>讓這個策略成為最佳策略</em>的那個 reward <span>$r$</span><!-- Has MathJax --> 是不是也找的到? 可以的<br>代數反推一下 (4) 得到<br><span>$$\begin{align}
+\Longrightarrow \log \pi^*(y|x) = -\log Z(x) + \log \pi_{ref}(y|x) + \frac{1}{\beta} r(x, y) \\
+\Longrightarrow r(x, y) = \beta \log \frac{\pi^*(y|x)}{\pi_{ref}(y|x)} + \beta \log Z(x)
+\end{align}$$</span><!-- Has MathJax --> 現在回到我們的偏好數據集, 我們有 <span>$\{(x, y_w, y_l)\}$</span><!-- Has MathJax -->.  Bradley-Terry 模型 (式 (2)) 告訴我們, <span>$y_w$</span><!-- Has MathJax --> 勝過 <span>$y_l$</span><!-- Has MathJax --> 的機率取決於兩者的獎勵差:<br><span>$P(y_w \succ y_l | x) = \sigma(r(x, y_w) - r(x, y_l))$</span><!-- Has MathJax --> 現在把 <span>$r$</span><!-- Has MathJax --> 式 (6) 代入這個 <span>$r(x, y_w) - r(x, y_l)$</span><!-- Has MathJax --> 中：<br><span>$$\begin{align}
+r(x, y_w) - r(x, y_l) &amp;= \left( \beta \log \frac{\pi^*(y_w|x)}{\pi_{ref}(y_w|x)} + \beta \log Z(x) \right) - \left( \beta \log \frac{\pi^*(y_l|x)}{\pi_{ref}(y_l|x)} + \beta \log Z(x) \right) \\
+&amp;= \beta \log \frac{\pi^*(y_w|x)}{\pi_{ref}(y_w|x)} - \beta \log \frac{\pi^*(y_l|x)}{\pi_{ref}(y_l|x)}
+\end{align}$$</span><!-- Has MathJax --> <span>$\beta \log Z(x)$</span><!-- Has MathJax --> 因為跟 <span>$y$</span><!-- Has MathJax --> 無關, 抵銷掉了.<br>現在, 我們把理論上的 <span>$\pi^*$</span><!-- Has MathJax --> 替換成我們正在訓練的神經網路 <span>$\pi_\theta$</span><!-- Has MathJax -->. 我們的目標是最大化偏好數據的 Log Likelihood (也就是最小化 Negative Log Likelihood):<br><span>$$\begin{align}
+\mathcal{L}_{DPO}(\pi_\theta; \pi_{ref}) = -\mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}} \left[ \log \sigma \left( \beta \log \frac{\pi_\theta(y_w|x)}{\pi_{ref}(y_w|x)} - \beta \log \frac{\pi_\theta(y_l|x)}{\pi_{ref}(y_l|x)} \right) \right]
+\end{align}$$</span><!-- Has MathJax --> 這就是最終 DPO 的 loss 👏🏻<br>總結來說, <strong>優化 DPO loss (9) 使得我們能盡量對偏好數據集中的 <span>$y_w$</span><!-- Has MathJax --> 勝過 <span>$y_l$</span><!-- Has MathJax --> 的機率愈高愈好</strong>.<br>而 (9) 又是基於 <span>$\pi$</span><!-- Has MathJax --> 與 <span>$r$</span><!-- Has MathJax --> 的 closed form solution 關係 (式 (4)&amp;(6)) 推導出來的, <strong>該關係直接保證了 RL 的目標函式 (3) 達到最大</strong>.</p>
+<blockquote>
+<p><a href="https://arxiv.org/abs/2305.18290" target="_blank" rel="external">論文</a>還有許多內容, 包含 “Theoretical Analysis of DPO” 段落, 有興趣可以深入閱讀</p>
+</blockquote>
+<hr>
+<h2 id="Appendix-1-成對比較-V-S-單點回饋"><a href="#Appendix-1-成對比較-V-S-單點回饋" class="headerlink" title="Appendix 1: 成對比較 V.S. 單點回饋"></a>Appendix 1: <strong>成對比較 V.S. 單點回饋</strong></h2><p>偏好數據集 <span>$\{(x,y_w,y_l)\}$</span><!-- Has MathJax --> 需要給兩個回答來讓人們比較優劣, 相信在 2024 年的時候使用過 AI 的人都有過那種經驗:<br>兩個回答落落長, 看完都累了哪有能力評分好壞 🤮. 或是兩個回答都差不多, 也不想仔細評價誰好誰壞.<br>在 2025 年的時候, 筆者自己的經驗就比較少看到這種<strong>成對比較</strong>的回饋, 取而代之的是針對<strong>單個回答</strong>給 thumbs up/down:<br><img src="/2026/01/07/dpo/image 1.png" width="20%" height="20%"> 如果數據集改成這樣又該怎麼做 DPO 呢? 看起來無法套用 Bradley-Terry 模型了<br>基於這個好奇心, 我詢問了 Gemini:</p>
+<blockquote>
+<p>目前 RLHF 領域從 <strong>Pairwise (成對比較)</strong> 轉向 <strong>Pointwise (單點/一元回饋)</strong> 的趨勢<br>簡單的回答是：如果有單點的 Thumbs Up/Down 資料，我們不能直接「硬套」標準的 Bradley-Terry 模型（因為它數學上就是設計給 A vs B 的），但是我們有專門針對這種資料的替代方案，最著名的就是 KTO (Kahneman-Tversky Optimization)。<br>… (略)</p>
+</blockquote>
+<p>AI 給出的參考論文是這篇: KTO (Kahneman-Tversky Optimization) [<a href="https://arxiv.org/abs/2402.01306" target="_blank" rel="external">arxiv</a>]<br>非常概略的講, 它不再計算 <span>$r(y_w) - r(y_l)$</span><!-- Has MathJax -->, 而是將目標函數拆開, 定義了一個 <strong>「參考點 (Reference Point)」</strong></p>
+<ul>
+<li><strong>對於 Thumbs Up (Desirable) 的資料:</strong> 我們希望它的 Implicit Reward 高於某個參考值</li>
+<li><strong>對於 Thumbs Down (Undesirable) 的資料:</strong> 我們希望它的 Implicit Reward 低於某個參考值</li>
+</ul>
+<p>KTO 的 Loss 看起來很像把 DPO 拆成兩半:<br><span>$$\begin{align*}
+L_{KTO} \approx \underbrace{\mathbb{E}_{x, y \sim D_{good}} [\text{Loss}(\text{Reward}(x,y) &gt; \text{Target})]}_{\text{鼓勵好回答}} + \lambda \underbrace{\mathbb{E}_{x, y \sim D_{bad}} [\text{Loss}(\text{Reward}(x,y) &lt; \text{Target})]}_{\text{懲罰壞回答}}
+\end{align*}$$</span><!-- Has MathJax --> 詳細就要去讀論文了, 先大致了解到這.</p>
+<hr>
+<h2 id="Appendix-2-DPO-延伸改進"><a href="#Appendix-2-DPO-延伸改進" class="headerlink" title="Appendix 2: DPO 延伸改進"></a>Appendix 2: DPO 延伸改進</h2><p>DPO 仍面臨那些缺點? 以及有哪些方法提出來改進? 可自行查閱相關資料, 也滿有趣的.<br>請 Gemini 幫忙給個參考如下:</p>
+<table>
+<thead>
+<tr>
+<th><strong>問題點</strong></th>
+<th><strong>解決方案</strong></th>
+<th><strong>核心思路</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>過度懲罰 Loser</strong></td>
+<td><strong>IPO</strong></td>
+<td>使用 MSE Loss + Margin，不再使用 Sigmoid 強推極限。</td>
+</tr>
+<tr>
+<td><strong>顯存不夠 (OOM)</strong></td>
+<td><strong>SimPO</strong></td>
+<td>丟掉 Reference Model，改用長度歸一化。</td>
+</tr>
+<tr>
+<td><strong>數據有噪聲</strong></td>
+<td><strong>cDPO / rDPO</strong></td>
+<td>引入 Label Smoothing 或閾值，變得更保守。</td>
+</tr>
+<tr>
+<td><strong>推理能力變差</strong></td>
+<td><strong>Iterative DPO</strong></td>
+<td>像 PPO 一樣多輪迭代，自己生成數據自己學。</td>
+</tr>
+<tr>
+<td><strong>流程太慢</strong></td>
+<td><strong>ORPO</strong></td>
+<td>SFT + Alignment 合二為一，不需要 Ref Model。</td>
+</tr>
+</tbody>
+</table>
+<p><strong>您的下一步建議：</strong><br>如果您是自己在做實驗或微調小模型（如 Mistral-7B, Llama-3-8B）：</p>
+<ol>
+<li><strong>資源受限</strong>：強烈推薦試試 <strong>ORPO</strong> 或 <strong>SimPO</strong>，省顯存且效果好。</li>
+<li><strong>追求極致效果</strong>：如果是做數學或邏輯任務，建議使用 <strong>Iterative DPO</strong>（前提是您有一個好的 Reward Model 或 GPT-4 當裁判）。</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2026/01/07/dpo/" title="告別 Reward Model: DPO 如何讓 LLM 偏好對齊變得穩定且高效">https://bobondemon.github.io/2026/01/07/dpo/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Reinforcement-Learning/" rel="tag"># Reinforcement Learning</a>
+          
+            <a href="/tags/DPO-Direct-Preference-Optimization/" rel="tag"># DPO (Direct Preference Optimization)</a>
+          
+            <a href="/tags/SFT-Supervised-Fine-Tuning/" rel="tag"># SFT (Supervised Fine-Tuning)</a>
+          
+            <a href="/tags/RLHF-Reinforcement-Learning-from-Human-Feedback/" rel="tag"># RLHF (Reinforcement Learning from Human Feedback)</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2025/12/25/RL的數學原理/" rel="next" title="RL的數學原理: 趙世鈺課程濃縮筆記">
+                <i class="fa fa-chevron-left"></i> RL的數學原理: 趙世鈺課程濃縮筆記
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2026/03/03/EMD-1/" rel="prev" title="初探推土機距離和 Entropic 最優傳輸 (EOT): 前言和動機篇 (1/3)">
+                初探推土機距離和 Entropic 最優傳輸 (EOT): 前言和動機篇 (1/3) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">123</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">262</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#得先說-RLHF-才行"><span class="nav-number">1.</span> <span class="nav-text">得先說 RLHF 才行</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Bradley-Terry-模型-Reward-Model-的訓練"><span class="nav-number">1.1.</span> <span class="nav-text">Bradley-Terry 模型: Reward Model 的訓練</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reward-Hacking"><span class="nav-number">1.2.</span> <span class="nav-text">Reward Hacking</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RLHF-總結和缺點"><span class="nav-number">1.3.</span> <span class="nav-text">RLHF 總結和缺點</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DPO-Direct-Preference-Optimization-登板救援"><span class="nav-number">2.</span> <span class="nav-text">DPO (Direct Preference Optimization) 登板救援</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Appendix-1-成對比較-V-S-單點回饋"><span class="nav-number">3.</span> <span class="nav-text">Appendix 1: 成對比較 V.S. 單點回饋</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Appendix-2-DPO-延伸改進"><span class="nav-number">4.</span> <span class="nav-text">Appendix 2: DPO 延伸改進</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+<span id="busuanzi_container_site_pv">
+  本站總瀏覽 <span id="busuanzi_value_site_pv"></span> 次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站訪客 <span id="busuanzi_value_site_uv"></span> 人
+</span>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

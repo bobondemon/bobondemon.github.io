@@ -1,0 +1,857 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Deep Learning,Art," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Art with Neural Network風格, 創作這種能力在現在Alpha Go已經稱霸的時代, 目前覺得還是人類獨有的不過有趣的是, 對於那些已經在 ImageNet 訓練得非常好的模型, 如: VGG-19, 我們通常已經同意模型可以辨別一些較抽象的概念那麼是否模型裡, 也有具備類似風格和創作的元素呢? 又或者風格在模型裡該怎麼表達?">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Neural Art">
+<meta property="og:url" content="https://bobondemon.github.io/2017/02/13/Neural-Art/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="Art with Neural Network風格, 創作這種能力在現在Alpha Go已經稱霸的時代, 目前覺得還是人類獨有的不過有趣的是, 對於那些已經在 ImageNet 訓練得非常好的模型, 如: VGG-19, 我們通常已經同意模型可以辨別一些較抽象的概念那麼是否模型裡, 也有具備類似風格和創作的元素呢? 又或者風格在模型裡該怎麼表達?">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/13/Neural-Art/prisma.jpg">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/13/Neural-Art/family.bmp">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/13/Neural-Art/guernica.jpg">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/13/Neural-Art/final.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/13/Neural-Art/content_loss.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/13/Neural-Art/content_loss_by_Mark_Chang.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/13/Neural-Art/style_loss.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/13/Neural-Art/style_loss_by_Mark_Chang.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/13/Neural-Art/random_input.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/13/Neural-Art/style_image.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/13/Neural-Art/0.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/13/Neural-Art/1000.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/13/Neural-Art/2000.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/13/Neural-Art/3000.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/13/Neural-Art/4000.png">
+<meta property="og:image" content="https://bobondemon.github.io/2017/02/13/Neural-Art/5000.png">
+<meta property="og:updated_time" content="2017-03-15T01:00:52.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Neural Art">
+<meta name="twitter:description" content="Art with Neural Network風格, 創作這種能力在現在Alpha Go已經稱霸的時代, 目前覺得還是人類獨有的不過有趣的是, 對於那些已經在 ImageNet 訓練得非常好的模型, 如: VGG-19, 我們通常已經同意模型可以辨別一些較抽象的概念那麼是否模型裡, 也有具備類似風格和創作的元素呢? 又或者風格在模型裡該怎麼表達?">
+<meta name="twitter:image" content="https://bobondemon.github.io/2017/02/13/Neural-Art/prisma.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2017/02/13/Neural-Art/"/>
+
+
+
+
+
+  <title> Neural Art | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2017/02/13/Neural-Art/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Neural Art
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2017-02-13T22:04:36+08:00">
+                2017-02-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="Art-with-Neural-Network"><a href="#Art-with-Neural-Network" class="headerlink" title="Art with Neural Network"></a>Art with Neural Network</h3><p><img src="/2017/02/13/Neural-Art/prisma.jpg" width="50%" height="50%"><br>風格, 創作這種能力在現在Alpha Go已經稱霸的時代, 目前覺得還是人類獨有的<br>不過有趣的是, 對於那些已經在 ImageNet 訓練得非常好的模型, 如: VGG-19, 我們通常已經同意模型可以辨別一些較<strong>抽象</strong>的概念<br>那麼是否模型裡, 也有具備類似風格和創作的元素呢? 又或者風格在模型裡該怎麼表達?</p>
+<a id="more"></a>
+<p>本篇文章主要是介紹這篇 <a href="http://www.robots.ox.ac.uk/~vgg/rg/papers/1508.06576v2.pdf" target="_blank" rel="external">A Neural Algorithm of Artistic Style</a> 的概念和實作, 另外一個很好的<a href="http://www.slideshare.net/ckmarkohchang/a-neural-algorithm-of-artistic-style" target="_blank" rel="external">投影片</a> by Mark Chang 也很值得參考</p>
+<p>先給出範例結果, 結果 = 原始的<strong>內容</strong> + 希望的<strong>風格</strong></p>
+<ul>
+<li><strong>Content Image</strong><br><img src="/2017/02/13/Neural-Art/family.bmp" width="50%" height="50%"></li>
+<li><strong>Style Image</strong><br><img src="/2017/02/13/Neural-Art/guernica.jpg" width="50%" height="50%"></li>
+<li><strong>Result Image</strong><br><img src="/2017/02/13/Neural-Art/final.png" width="50%" height="50%"></li>
+</ul>
+<hr>
+<h3 id="說在前頭的最佳化"><a href="#說在前頭的最佳化" class="headerlink" title="說在前頭的最佳化"></a>說在前頭的最佳化</h3><p>在講下去之前, 我們先講 NN 的事情, 一般情況, 我們是給定 input image <em>x</em>, 而參數 <em>w</em> 則是要求的變數, 同時對 <em>loss</em> (objective function) 做 optimize, 實作上就是 backprob.<br>上面講到的三種東西列出來:</p>
+<ol>
+<li><em>x</em>: input image (given, <strong>constant</strong>)</li>
+<li><em>w</em>: NN parameters (<strong>variables</strong>)</li>
+<li><em>loss</em>: objective function which is correlated to some desired measure</li>
+</ol>
+<p>事實上, backprob 的計算 <strong><em>x</em> and <em>w</em> 角色可以互換</strong>. 也就是將 <em>w</em> 固定為 constant, 而 <em>x</em> 變成 variables, 如此一來, 我們一樣可以用 backprob 去計算出最佳的 image <em>x</em>.<br>因此, 如果我們能將 <strong><em>loss</em> 定義得與風格和內容高度相關</strong>, 那麼求得的最佳 image <em>x</em> 就會有原始的內容和希望的風格了!<br>那麼再來就很明確了, 我們要定義出什麼是 <strong>Content Loss</strong> 和 <strong>Style Loss</strong> 了</p>
+<hr>
+<h3 id="Content-Loss"><a href="#Content-Loss" class="headerlink" title="Content Loss"></a>Content Loss</h3><p>針對一個已經訓練好的 model, 我們常常將它拿來做 feature extraction. 例如一個 DNN 把它最後一層辨識的 softmax 層拿掉, 而它的前一層的 response (做forward的結果), 就會是對於<strong>原始 input 的一種 encoding</strong>. 理論上也會有很好的鑑別力 (因最只差最後一層的softmax).</p>
+<blockquote>
+<p>Udacity 的 traffic-sign detection 也有拿 VGG-19, ResNet, 和 gooLeNet 做 feature extraction, 然後只訓練重新加上的 softmax layer 來得到很高的辨識率.</p>
+</blockquote>
+<p>因此, 我們可以將 forward 的 response image 當作是一種 measure content 的指標!<br>知道這個理由後, 原文公式就很好理解, 引用如下:</p>
+<blockquote>
+<p>So let <em>p</em> and <em>x</em> be the original image and the image that is generated and <em>P<sup>l</sup></em> and <em>F<sup>l</sup></em> their respective feature representation in layer <em>l</em>. We then define the squared-error loss between the two feature representations<br><img src="/2017/02/13/Neural-Art/content_loss.png" width="50%" height="50%"></p>
+</blockquote>
+<p>簡單來說 <em>P<sup>l</sup></em> 是 content image <em>P</em> 在 <em>l</em> 層的 response, 而 <em>F<sup>l</sup></em> 是 input image <em>x</em> (記得嗎? 它是變數喔) 在 <em>l</em> 層的 response.<br>這兩個 responses 的 squared-error 定義為 content loss, 要愈小愈好. 由於 response 為 input 的某種 encoded feature, 所以它們如果愈接近, input 就會愈接近了 (content就愈接近).<br>引用 Mark Chang 的<a href="http://www.slideshare.net/ckmarkohchang/a-neural-algorithm-of-artistic-style" target="_blank" rel="external">投影片</a>:<br><img src="/2017/02/13/Neural-Art/content_loss_by_Mark_Chang.png" width="50%" height="50%"></p>
+<hr>
+<h3 id="Style-Loss"><a href="#Style-Loss" class="headerlink" title="Style Loss"></a>Style Loss</h3><p>個人覺得最神奇的地方就在這裡了! 當時自己怎麼猜測都沒猜到可以這麼 formulate.<br>我個人的理解是基於 CNN 來解釋<br>假設對於某一層 ConvNet 的 kernel 為 w*h*k (width, hieght, depth), ConvNet 的 k 通常代表了有幾種 feature maps<br>說白一點, 有 k 種 filter responses 的結果, 例如第一種是線條類的response, 第二種是弧形類的responses … 等等<br>而風格就是這些 <strong>responses 的 correlation matrix!</strong> (實際上用 <strong>Gram matrix</strong>, 但意義類似)<br>基於我們對於 CNN 的理解, 愈後面的 layers 能處理愈抽象的概念, 因此愈後面的 Gram matrix 也就愈能代表抽象的 style 概念.<br>原文公式引用如下:</p>
+<blockquote>
+<p><img src="/2017/02/13/Neural-Art/style_loss.png" width="50%" height="50%"></p>
+</blockquote>
+<p>總之就是計算在 <em>l</em> 層上, sytle image <em>a</em> 和 input image <em>x</em> 它們的 Gram matrix 的 L2-norm 值</p>
+<p>一樣再一次引用 Mark Chang 的<a href="http://www.slideshare.net/ckmarkohchang/a-neural-algorithm-of-artistic-style" target="_blank" rel="external">投影片</a>:<br><img src="/2017/02/13/Neural-Art/style_loss_by_Mark_Chang.png" width="50%" height="50%"><br>也可以去看看他的投影片, 有不同角度的解釋</p>
+<hr>
+<h3 id="實戰"><a href="#實戰" class="headerlink" title="實戰"></a>實戰</h3><p>主要參考此 <a href="https://github.com/log0/neural-style-painting/blob/master/TensorFlow%20Implementation%20of%20A%20Neural%20Algorithm%20of%20Artistic%20Style.ipynb" target="_blank" rel="external">gitHub</a><br>一開始 load VGG-19 model 就不說了, 主要的兩個 loss, codes 如下:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">content_loss_func</span><span class="params">(sess, model)</span>:</span></div><div class="line">    <span class="string">"""</span></div><div class="line"><span class="string">    Content loss function as defined in the paper.</span></div><div class="line"><span class="string">    """</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_content_loss</span><span class="params">(p, x)</span>:</span></div><div class="line">        <span class="comment"># N is the number of filters (at layer l).</span></div><div class="line">        N = p.shape[<span class="number">3</span>]</div><div class="line">        <span class="comment"># M is the height times the width of the feature map (at layer l).</span></div><div class="line">        M = p.shape[<span class="number">1</span>] * p.shape[<span class="number">2</span>]</div><div class="line">        <span class="comment"># Interestingly, the paper uses this form instead:</span></div><div class="line">        <span class="comment">#</span></div><div class="line">        <span class="comment">#   0.5 * tf.reduce_sum(tf.pow(x - p, 2)) </span></div><div class="line">        <span class="comment">#</span></div><div class="line">        <span class="comment"># But this form is very slow in "painting" and thus could be missing</span></div><div class="line">        <span class="comment"># out some constants (from what I see in other source code), so I'll</span></div><div class="line">        <span class="comment"># replicate the same normalization constant as used in style loss.</span></div><div class="line">        <span class="keyword">return</span> (<span class="number">1</span> / (<span class="number">4</span> * N * M)) * tf.reduce_sum(tf.pow(x - p, <span class="number">2</span>))</div><div class="line">    <span class="keyword">return</span> _content_loss(sess.run(model[<span class="string">'conv4_2'</span>]), model[<span class="string">'conv4_2'</span>])</div></pre></td></tr></table></figure></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Layers to use. We will use these layers as advised in the paper.</span></div><div class="line"><span class="comment"># To have softer features, increase the weight of the higher layers</span></div><div class="line"><span class="comment"># (conv5_1) and decrease the weight of the lower layers (conv1_1).</span></div><div class="line"><span class="comment"># To have harder features, decrease the weight of the higher layers</span></div><div class="line"><span class="comment"># (conv5_1) and increase the weight of the lower layers (conv1_1).</span></div><div class="line">STYLE_LAYERS = [</div><div class="line">    (<span class="string">'conv1_1'</span>, <span class="number">0.5</span>),</div><div class="line">    (<span class="string">'conv2_1'</span>, <span class="number">1.0</span>),</div><div class="line">    (<span class="string">'conv3_1'</span>, <span class="number">1.5</span>),</div><div class="line">    (<span class="string">'conv4_1'</span>, <span class="number">3.0</span>),</div><div class="line">    (<span class="string">'conv5_1'</span>, <span class="number">4.0</span>),</div><div class="line">]</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">style_loss_func</span><span class="params">(sess, model)</span>:</span></div><div class="line">    <span class="string">"""</span></div><div class="line"><span class="string">    Style loss function as defined in the paper.</span></div><div class="line"><span class="string">    """</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_gram_matrix</span><span class="params">(F, N, M)</span>:</span></div><div class="line">        <span class="string">"""</span></div><div class="line"><span class="string">        The gram matrix G.</span></div><div class="line"><span class="string">        """</span></div><div class="line">        Ft = tf.reshape(F, (M, N))</div><div class="line">        <span class="keyword">return</span> tf.matmul(tf.transpose(Ft), Ft)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_style_loss</span><span class="params">(a, x)</span>:</span></div><div class="line">        <span class="string">"""</span></div><div class="line"><span class="string">        The style loss calculation.</span></div><div class="line"><span class="string">        """</span></div><div class="line">        <span class="comment"># N is the number of filters (at layer l).</span></div><div class="line">        N = a.shape[<span class="number">3</span>]</div><div class="line">        <span class="comment"># M is the height times the width of the feature map (at layer l).</span></div><div class="line">        M = a.shape[<span class="number">1</span>] * a.shape[<span class="number">2</span>]</div><div class="line">        <span class="comment"># A is the style representation of the original image (at layer l).</span></div><div class="line">        A = _gram_matrix(a, N, M)</div><div class="line">        <span class="comment"># G is the style representation of the generated image (at layer l).</span></div><div class="line">        G = _gram_matrix(x, N, M)</div><div class="line">        result = (<span class="number">1</span> / (<span class="number">4</span> * N**<span class="number">2</span> * M**<span class="number">2</span>)) * tf.reduce_sum(tf.pow(G - A, <span class="number">2</span>))</div><div class="line">        <span class="keyword">return</span> result</div><div class="line"></div><div class="line">    E = [_style_loss(sess.run(model[layer_name]), model[layer_name]) <span class="keyword">for</span> layer_name, _ <span class="keyword">in</span> STYLE_LAYERS]</div><div class="line">    W = [w <span class="keyword">for</span> _, w <span class="keyword">in</span> STYLE_LAYERS]</div><div class="line">    loss = sum([W[l] * E[l] <span class="keyword">for</span> l <span class="keyword">in</span> range(len(STYLE_LAYERS))])</div><div class="line">    <span class="keyword">return</span> loss</div></pre></td></tr></table></figure>
+<p>一開始給定 random input image:<br><img src="/2017/02/13/Neural-Art/random_input.png" width="50%" height="50%"><br>style image 選定如下:<br><img src="/2017/02/13/Neural-Art/style_image.png" width="50%" height="50%"><br>隨著 iteration 增加會像這樣:</p>
+<ul>
+<li>第一次的 backprob:<br><img src="/2017/02/13/Neural-Art/0.png" width="50%" height="50%"></li>
+<li>1000 iteration:<br><img src="/2017/02/13/Neural-Art/1000.png" width="50%" height="50%"></li>
+<li>2000 iteration:<br><img src="/2017/02/13/Neural-Art/2000.png" width="50%" height="50%"></li>
+<li>3000 iteration:<br><img src="/2017/02/13/Neural-Art/3000.png" width="50%" height="50%"></li>
+<li>4000 iteration:<br><img src="/2017/02/13/Neural-Art/4000.png" width="50%" height="50%"></li>
+<li>5000 iteration:<br><img src="/2017/02/13/Neural-Art/5000.png" width="50%" height="50%"></li>
+</ul>
+<hr>
+<h3 id="短節"><a href="#短節" class="headerlink" title="短節"></a>短節</h3><p>這之間很多參數可以調整去玩, 有興趣可以自己下載 <a href="https://github.com/log0/neural-style-painting/blob/master/TensorFlow%20Implementation%20of%20A%20Neural%20Algorithm%20of%20Artistic%20Style.ipynb" target="_blank" rel="external">gitHub</a> 去測</p>
+<blockquote>
+<p>上一篇的 “GTX 1070 參見” 有提到, 原來用 CPU 去計算, 1000 iteration 花了<strong>六個小時</strong>! 但是強大的 GTX 1070 只需要 <strong>6 分鐘</strong>!</p>
+</blockquote>
+<p>不過, 就算是給手機用上GTX1070好了 (哈哈當然不可能), 6分鐘的一個結果也是無法接受!<br><a href="https://prisma-ai.com/" target="_blank" rel="external">PRISMA</a> 可以在一分鐘內處理完! 這必定不是這種要算 optimization 的方法可以達到的.<br>事實上, 李飛飛的團隊發表了一篇論文 “<a href="https://cs.stanford.edu/people/jcjohns/papers/fast-style/fast-style-supp.pdf" target="_blank" rel="external">Perceptual Losses for Real-Time Style Transfer and Super-Resolution</a>“<br>訓練過後, 只需要做 forward propagation 即可! Standford University 的 JC Johnson 的 <a href="https://github.com/jcjohnson/fast-neural-style" target="_blank" rel="external">gitHub</a> 有完整的 source code!<br>找時間再來寫這篇心得文囉!</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2017/02/13/Neural-Art/" title="Neural Art">https://bobondemon.github.io/2017/02/13/Neural-Art/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Deep-Learning/" rel="tag"># Deep Learning</a>
+          
+            <a href="/tags/Art/" rel="tag"># Art</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/12/GTX-1070/" rel="next" title="GTX 1070">
+                <i class="fa fa-chevron-left"></i> GTX 1070
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/27/Lane-Finding/" rel="prev" title="Lane-Finding">
+                Lane-Finding <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">123</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">262</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Art-with-Neural-Network"><span class="nav-number">1.</span> <span class="nav-text">Art with Neural Network</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#說在前頭的最佳化"><span class="nav-number">2.</span> <span class="nav-text">說在前頭的最佳化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Content-Loss"><span class="nav-number">3.</span> <span class="nav-text">Content Loss</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Style-Loss"><span class="nav-number">4.</span> <span class="nav-text">Style Loss</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#實戰"><span class="nav-number">5.</span> <span class="nav-text">實戰</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#短節"><span class="nav-number">6.</span> <span class="nav-text">短節</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+<span id="busuanzi_container_site_pv">
+  本站總瀏覽 <span id="busuanzi_value_site_pv"></span> 次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站訪客 <span id="busuanzi_value_site_uv"></span> 人
+</span>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

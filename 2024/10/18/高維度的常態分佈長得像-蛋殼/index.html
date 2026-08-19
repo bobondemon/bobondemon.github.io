@@ -1,0 +1,817 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Spherical Linear Interpolation (Slerp)," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="隱變量的內插還記得經典的 word embedding 特性嗎? 在當時 Mikolov 這篇經典的 word2vec 論文可讓人震驚了$$\mathbf{e}_{king}+(\mathbf{e}_{man}-\mathbf{e}_{woman})\approx\mathbf{e}_{queen}$$ 這樣看起來 embedding space 似乎滿足某些線性特性, 使得我們後來在做 emb">
+<meta property="og:type" content="article">
+<meta property="og:title" content="高維度的常態分佈長得像...蛋殼?">
+<meta property="og:url" content="https://bobondemon.github.io/2024/10/18/高維度的常態分佈長得像-蛋殼/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="隱變量的內插還記得經典的 word embedding 特性嗎? 在當時 Mikolov 這篇經典的 word2vec 論文可讓人震驚了$$\mathbf{e}_{king}+(\mathbf{e}_{man}-\mathbf{e}_{woman})\approx\mathbf{e}_{queen}$$ 這樣看起來 embedding space 似乎滿足某些線性特性, 使得我們後來在做 emb">
+<meta property="og:image" content="https://bobondemon.github.io/2024/10/18/高維度的常態分佈長得像-蛋殼/image 2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/10/18/高維度的常態分佈長得像-蛋殼/image 3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/10/18/高維度的常態分佈長得像-蛋殼/image 4.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/10/18/高維度的常態分佈長得像-蛋殼/image 5.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/10/18/高維度的常態分佈長得像-蛋殼/image 6.png">
+<meta property="og:updated_time" content="2026-08-19T13:01:09.839Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="高維度的常態分佈長得像...蛋殼?">
+<meta name="twitter:description" content="隱變量的內插還記得經典的 word embedding 特性嗎? 在當時 Mikolov 這篇經典的 word2vec 論文可讓人震驚了$$\mathbf{e}_{king}+(\mathbf{e}_{man}-\mathbf{e}_{woman})\approx\mathbf{e}_{queen}$$ 這樣看起來 embedding space 似乎滿足某些線性特性, 使得我們後來在做 emb">
+<meta name="twitter:image" content="https://bobondemon.github.io/2024/10/18/高維度的常態分佈長得像-蛋殼/image 2.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2024/10/18/高維度的常態分佈長得像-蛋殼/"/>
+
+
+
+
+
+  <title> 高維度的常態分佈長得像...蛋殼? | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/10/18/高維度的常態分佈長得像-蛋殼/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                高維度的常態分佈長得像...蛋殼?
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2024-10-18T20:39:42+08:00">
+                2024-10-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<h2 id="隱變量的內插"><a href="#隱變量的內插" class="headerlink" title="隱變量的內插"></a>隱變量的內插</h2><p>還記得經典的 word embedding 特性嗎? 在當時 Mikolov 這篇經典的 <a href="https://aclanthology.org/N13-1090.pdf" target="_blank" rel="external">word2vec 論文</a>可讓人震驚了<br><span>$$\mathbf{e}_{king}+(\mathbf{e}_{man}-\mathbf{e}_{woman})\approx\mathbf{e}_{queen}$$</span><!-- Has MathJax --> 這樣看起來 embedding space 似乎滿足某些線性特性, 使得我們後來在做 embedding 的內插往往採用線性內插:<br><span>$$\mathbf{e}_{new}=t\mathbf{e}_1+(1-t)\mathbf{e}_2$$</span><!-- Has MathJax --> 讓我們把話題轉到 generative model 上面<br>不管是 VAE, GAN, flow-based, diffusion-based or flow matching models 都是利用 NN 學習如何從一個”<strong>簡單容易採樣”</strong>的分布, e.g. standard normal distribution <span>$\mathcal{N}(\mathbf{0},\mathbf{I})$</span><!-- Has MathJax -->, 到資料分布 $p_{data}$ 的一個過程.<br><span>$$\mathbf{x}=\text{Decoder}_\theta(\mathbf{z}),\quad \mathbf{z}\sim\mathcal{N}(\mathbf{0},\mathbf{I})$$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>Lil’Log “<a href="https://lilianweng.github.io/posts/2021-07-11-diffusion-models/" target="_blank" rel="external">What are Diffusion Models?</a>” Fig. 1. 的 variable $\mathbf{z}$ 實務上大多使用 <span>$\mathcal{N}(\mathbf{0},\mathbf{I})$</span><!-- Has MathJax --> 的設定</p>
+</blockquote>
+<p>(借用 <a href="https://www.youtube.com/@jbhuang0604" target="_blank" rel="external">Jia-Bin Huang</a> 影片的圖 <a href="https://www.youtube.com/watch?v=i2qSxMVeVLI" target="_blank" rel="external">How I Understand Diffusion Models</a> 來舉例)<br><img src="/2024/10/18/高維度的常態分佈長得像-蛋殼/image 2.png" width="80%" height="80%"><br>因此如果我們想產生狗和牛的混合體, 是不是可以這樣作?<br><span>$$\text{Decoder}_\theta(t\mathbf{z}_{dog}+(1-t)\mathbf{z}_{cow}), \quad t\in[0,1]$$</span><!-- Has MathJax --> 答案是不行, 效果不好. 那具體怎麼做呢? 其實應該這麼做 [1]<br><span>$$\text{Decoder}_\theta(\cos(t\pi/2)\mathbf{z}_{dog}+\sin(t\pi/2)\mathbf{z}_{cow}), \quad t\in[0,1]$$</span><!-- Has MathJax --> 要使用 spherical linear interpolation [2] 這種內插方式<br><a id="more"></a><br>或簡單說球面內插:<br><img src="/2024/10/18/高維度的常態分佈長得像-蛋殼/image 3.png" width="40%" height="40%"><br>為什麼使用線性內插不好, 而需使用球面內插呢?<br>聰明的讀者或許會猜因為 $\mathbf{z}$ 是 normal distribution 或許是因為空間不是那麼線性的關係?<br>但就算使用線性內插好了, 也應該是符合 normal distribution 會產生的 sample 點阿?<br><img src="/2024/10/18/高維度的常態分佈長得像-蛋殼/image 4.png" width="40%" height="40%"><br>所以究竟為何線性內插效果不好?<br>要回答這問題就牽涉到高維度下的常態分佈長相, 可能會跟你想的不一樣, 挺反直覺的!</p>
+<hr>
+<h2 id="高維度下的常態分佈"><a href="#高維度下的常態分佈" class="headerlink" title="高維度下的常態分佈"></a>高維度下的常態分佈</h2><p>先問一個問題, 我們對一個常態分佈 <span>$\mathcal{N}(\mathbf{0},\sigma^2\mathbf{I})$</span><!-- Has MathJax --> 採樣, 採樣出來的點大概會落在什麼位置?<br>我想大部分的回答都是集中在 mean 附近吧.<br>對, 在低維度下是對的. 但如果維度 $D$ 很大, 其實幾乎只會落在 $\sqrt{D}\sigma$ 的距離的球面上<br>[3] 提到, 對常態分佈, 我們將 Cartesian coordinate 換成角度和距離的座標, 並把角度全部積分只留下距離後得到”<strong>距離 $r$ 的 pdf</strong>”:<br><span>$$p(r)=\frac{S_Dr^{D-1}}{(2\pi\sigma^2)^{D/2}}\exp\left({-\frac{r^2}{2\sigma^2}}\right)$$</span><!-- Has MathJax --> 其中 $S_D$ 是單位圓的球面面積, 跟 $r$ 無關視為常數即可<br>重新整理一下把跟 $r$ 無關的常數項合併為另一個常數 $c$<br><span>$$p(r)=cr^{D-1}\exp\left({-\frac{r^2}{2\sigma^2}}\right)$$</span><!-- Has MathJax --> 我們微分=0 並使用 chain rule 分析下去:<br><span>$$\frac{d}{dr}p=\frac{d}{dr}cr^{D-1}\exp\left({-\frac{r^2}{2\sigma^2}}\right)=0 \\
+\Longrightarrow r^2=\sigma^2(D-1)= \sigma^2D,\quad D\rightarrow\infty \\
+\Longrightarrow r=\sqrt{D}\sigma,\quad D\rightarrow\infty$$</span><!-- Has MathJax --> 這告訴我們 $p(r)$ 存在一個極大值! (可以驗證二次微分來確定是極大或極小值)<br>也就是說在 <span>$\hat{r}=\sqrt{D}\sigma$</span><!-- Has MathJax --> 的距離下 density $p(\hat{r})$ 是最大的<br>[3] 繼續分析到在 $\hat{r}$ 附近擾動一下 ($\varepsilon\ll\hat{r}$) 的 density 變化為:<br><span>$$p(\hat{r}+\varepsilon)
+=p(\hat{r})\exp\left({-\frac{3\varepsilon^2}{2\sigma^2}}\right)$$</span><!-- Has MathJax --> 白話就是在 $\hat{r}$ 附近的 density 會指數性下降! 下圖為示意圖:<br><img src="/2024/10/18/高維度的常態分佈長得像-蛋殼/image 5.png" width="40%" height="40%"><br>因此我們考慮累積分佈函數 (cdf) 會發現在 $\hat{r}$ 的值會突然從 $0$ 飆到 $1$.<br><strong>高斯分布的 pdf 幾乎存在 $\hat{r}=\sqrt{D}\sigma$ 這個半徑的圓表面上!</strong></p>
+<blockquote>
+<p>💡 數學分析是一回事, 如果想更值觀的理解為何如此, 不妨這麼想. 這些 $D$ 個維度只要有<strong>任一</strong>維度採樣不在 mean 附近, 整個 $\mathbf{z}$ 就不會在 mean 了.  所以當維度一高, 似乎不在 mean 也很合理.</p>
+</blockquote>
+<hr>
+<h2 id="回答為何要球面內插"><a href="#回答為何要球面內插" class="headerlink" title="回答為何要球面內插"></a>回答為何要球面內插</h2><p>在來回頭看狗和牛的線性內插<br><span>$$\text{Decoder}_\theta(t\mathbf{z}_{dog}+(1-t)\mathbf{z}_{cow}), \quad t\in[0,1]$$</span><!-- Has MathJax --> 因為 <span>$\mathbf{z}_{dog}$</span><!-- Has MathJax --> 和 <span>$\mathbf{z}_{cow}$</span><!-- Has MathJax --> 是從 <span>$\mathcal{N}(\mathbf{0},\sigma^2\mathbf{I})$</span><!-- Has MathJax --> 採樣出來的, 由上面一段討論我們知道, 他們有非常高的機率是在那個半徑為 $\hat{r}$ 的圓球表面採樣出來的<br>做了線性內插出來的值, 其實根本不符合從 <span>$\mathcal{N}(\mathbf{0},\sigma^2\mathbf{I})$</span><!-- Has MathJax --> 採樣出來的點.<br>所以使用球面內插就清楚了然了<br><span>$$\text{Decoder}_\theta(\cos(t\pi/2)\mathbf{z}_{dog}+\sin(t\pi/2)\mathbf{z}_{cow}), \quad t\in[0,1]$$</span><!-- Has MathJax --></p>
+<hr>
+<h2 id="後記"><a href="#後記" class="headerlink" title="後記"></a>後記</h2><p>在看蘇神的 <a href="https://spaces.ac.cn/archives/9181" target="_blank" rel="external">生成扩散模型漫谈（四）：DDIM = 高观点DDPM</a> 時看到使用球面內插. 突然間跟學生時代看的 PRML book 裡提到高微度常態分佈的長相 [3] 連結起來, 這種跨越好幾年把兩個東西連結在一起的感覺真有意思!<br>總之看到高維度的常態分佈, 腦袋要想的就是這個分布長的就像是只有蛋殼的蛋.<br><img src="/2024/10/18/高維度的常態分佈長得像-蛋殼/image 6.png" width="40%" height="40%"></p>
+<hr>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ol>
+<li><a href="https://spaces.ac.cn/archives/9181" target="_blank" rel="external">生成扩散模型漫谈（四）：DDIM = 高观点DDPM</a>, 或 DDIM 論文 <a href="https://arxiv.org/pdf/2010.02502" target="_blank" rel="external">Appendix D.5</a> 裡面都有提及使用球面內插</li>
+<li><a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.geometric_slerp.html" target="_blank" rel="external"><code>scipy.spatial.geometric_slerp</code></a>, <a href="https://en.wikipedia.org/wiki/Slerp" target="_blank" rel="external">wiki slerp</a></li>
+<li><a href="https://www.microsoft.com/en-us/research/uploads/prod/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf" target="_blank" rel="external">Bishop PRML book</a> Chapter 1 的 <a href="https://github.com/zhengqigao/PRML-Solution-Manual" target="_blank" rel="external">excercise 1.20</a></li>
+<li><a href="fig.pptx">一些圖的.pptx</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2024/10/18/高維度的常態分佈長得像-蛋殼/" title="高維度的常態分佈長得像...蛋殼?">https://bobondemon.github.io/2024/10/18/高維度的常態分佈長得像-蛋殼/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Spherical-Linear-Interpolation-Slerp/" rel="tag"># Spherical Linear Interpolation (Slerp)</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/09/25/整理隨機過程的連續性、微分、積分和Brownian-Motion/" rel="next" title="整理隨機過程的連續性、微分、積分和Brownian Motion">
+                <i class="fa fa-chevron-left"></i> 整理隨機過程的連續性、微分、積分和Brownian Motion
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2024/10/29/讀-Flow-Matching-前要先理解的東西/" rel="prev" title="讀 Flow Matching 前要先理解的東西">
+                讀 Flow Matching 前要先理解的東西 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">123</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">262</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#隱變量的內插"><span class="nav-number">1.</span> <span class="nav-text">隱變量的內插</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#高維度下的常態分佈"><span class="nav-number">2.</span> <span class="nav-text">高維度下的常態分佈</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#回答為何要球面內插"><span class="nav-number">3.</span> <span class="nav-text">回答為何要球面內插</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#後記"><span class="nav-number">4.</span> <span class="nav-text">後記</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">5.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+<span id="busuanzi_container_site_pv">
+  本站總瀏覽 <span id="busuanzi_value_site_pv"></span> 次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站訪客 <span id="busuanzi_value_site_uv"></span> 人
+</span>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

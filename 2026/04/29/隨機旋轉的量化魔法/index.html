@@ -1,0 +1,882 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Cayley SGD,SpinQuant,QuIP,QuIP#," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Motivation矩陣相乘 $y=Wx$ 是神經網路的基本單元, 其中 $W\in\mathbb{R}^{m\times n}$, $x\in\mathbb{R}^{n\times1}$, $y\in\mathbb{R}^{m\times 1}$.試想一下如果 $W$ 裡面的值存在 outliers, 則對整個 matrix 量化時, 為了能覆蓋 outlier 則會犧牲精度, 這正是現今 L">
+<meta property="og:type" content="article">
+<meta property="og:title" content="隨機旋轉的量化魔法: 去去極值走">
+<meta property="og:url" content="https://bobondemon.github.io/2026/04/29/隨機旋轉的量化魔法/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="Motivation矩陣相乘 $y=Wx$ 是神經網路的基本單元, 其中 $W\in\mathbb{R}^{m\times n}$, $x\in\mathbb{R}^{n\times1}$, $y\in\mathbb{R}^{m\times 1}$.試想一下如果 $W$ 裡面的值存在 outliers, 則對整個 matrix 量化時, 為了能覆蓋 outlier 則會犧牲精度, 這正是現今 L">
+<meta property="og:image" content="https://bobondemon.github.io/2026/04/29/隨機旋轉的量化魔法/image.png">
+<meta property="og:image" content="https://bobondemon.github.io/2026/04/29/隨機旋轉的量化魔法/Rotation_on_onehot_vector.png">
+<meta property="og:updated_time" content="2026-08-19T13:01:09.838Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="隨機旋轉的量化魔法: 去去極值走">
+<meta name="twitter:description" content="Motivation矩陣相乘 $y=Wx$ 是神經網路的基本單元, 其中 $W\in\mathbb{R}^{m\times n}$, $x\in\mathbb{R}^{n\times1}$, $y\in\mathbb{R}^{m\times 1}$.試想一下如果 $W$ 裡面的值存在 outliers, 則對整個 matrix 量化時, 為了能覆蓋 outlier 則會犧牲精度, 這正是現今 L">
+<meta name="twitter:image" content="https://bobondemon.github.io/2026/04/29/隨機旋轉的量化魔法/image.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2026/04/29/隨機旋轉的量化魔法/"/>
+
+
+
+
+
+  <title> 隨機旋轉的量化魔法: 去去極值走 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2026/04/29/隨機旋轉的量化魔法/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                隨機旋轉的量化魔法: 去去極值走
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2026-04-29T20:57:50+08:00">
+                2026-04-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<h2 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h2><p>矩陣相乘 <span>$y=Wx$</span><!-- Has MathJax --> 是神經網路的基本單元, 其中 <span>$W\in\mathbb{R}^{m\times n}$</span><!-- Has MathJax -->, <span>$x\in\mathbb{R}^{n\times1}$</span><!-- Has MathJax -->, <span>$y\in\mathbb{R}^{m\times 1}$</span><!-- Has MathJax -->.<br>試想一下如果 <span>$W$</span><!-- Has MathJax --> 裡面的值存在 outliers, 則對整個 matrix 量化時, 為了能覆蓋 outlier 則會犧牲精度, 這正是現今 LLM 極致量化時的魔王關卡.<br>考慮旋轉矩陣 <span>$U\in\mathbb{R}^{m\times m}$</span><!-- Has MathJax -->, <span>$V\in\mathbb{R}^{n\times n}$</span><!-- Has MathJax -->, 如果先對 <span>$W$</span><!-- Has MathJax --> 和 <span>$x$</span><!-- Has MathJax --> 作如下座標旋轉操作:<br><span>$$\begin{align}
+\tilde{W}\leftarrow UWV^T \\
+\tilde{x}\leftarrow Vx
+\end{align}$$</span><!-- Has MathJax --> 則我們觀察一下 <span>$\tilde{W}\tilde{x}$</span><!-- Has MathJax --> 與原來的 <span>$Wx$</span><!-- Has MathJax --> 差異在哪<br><span>$$\begin{align}
+\tilde{W}\tilde{x} &amp;= (UWV^T)(Vx) =UWx
+\end{align}$$</span><!-- Has MathJax --> 所以如果再多乘上 <span>$U^T$</span><!-- Has MathJax --> 旋轉一下, <strong>則就能還原出原本的 output activation</strong> <span>$y=Wx$</span><!-- Has MathJax --> 了.<br>那為什麼要套這些旋轉矩陣? 反正最後又要還原回去, 不是多此一舉嗎?<br>其實不是白做, 旋轉有很大的好處<br>這是因為透過旋轉矩陣, 我們能夠把 outlier 消除, 進而能夠很好的量化</p>
+<blockquote>
+<p><span>$\tilde{W}$</span><!-- Has MathJax --> 比 <span>$W$</span><!-- Has MathJax -->, <span>$\tilde{x}$</span><!-- Has MathJax --> 比 <span>$x$</span><!-- Has MathJax --> 好量化很多! 👍🏻</p>
+</blockquote>
+<a id="more"></a>
+<hr>
+<h2 id="Toy-Example-實驗"><a href="#Toy-Example-實驗" class="headerlink" title="Toy Example 實驗"></a>Toy Example 實驗</h2><p>用下面這個簡單的 3D 例子舉例<br>最極端的情況就是一個 one-hot vector, <span>$[1, 0, 0]^T$</span><!-- Has MathJax -->, 如下圖紅色箭頭<br><img src="/2026/04/29/隨機旋轉的量化魔法/image.png" width="50%" height="50%"> 透過旋轉矩陣:<br><span>$$\begin{aligned}
+R = \begin{bmatrix} 0.577 &amp; 0.707 &amp; 0.408 \\ 0.577 &amp; -0.707 &amp; 0.408 \\ 0.577 &amp; 0.000 &amp; -0.816 \end{bmatrix}
+\end{aligned}$$</span><!-- Has MathJax --> 轉到藍色箭頭的向量 <span>$[0.577, 0.577, 0.577]^T$</span><!-- Has MathJax -->, 此時所有數值都一樣, 達到完美量化的情況.<br>在用一個例子, 維度 1000 的 one hot vector 做實驗</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</div><div class="line"><span class="keyword">from</span> scipy.stats <span class="keyword">import</span> ortho_group</div><div class="line"></div><div class="line">np.random.seed(<span class="number">42</span>)</div><div class="line">n = <span class="number">1000</span></div><div class="line">v = np.zeros(n)</div><div class="line">v[<span class="number">0</span>] = <span class="number">1.0</span></div><div class="line"><span class="comment"># 隨機生成一個 n x n 的正交矩陣 (均勻分佈於 O(n) 空間)</span></div><div class="line">U = ortho_group.rvs(dim=n)</div><div class="line"><span class="comment"># 將隨機正交矩陣乘上原本的向量</span></div><div class="line">v_rotated = U @ v</div></pre></td></tr></table></figure>
+<p>畫出 <code>v_rotated</code> 的 histogram 如下圖:<br><img src="/2026/04/29/隨機旋轉的量化魔法/Rotation_on_onehot_vector.png" width="50%" height="50%"> 大部分的值已經落在 ±0.032 之間了<br>因此, 我們期望透過 <span>$U,V$</span><!-- Has MathJax --> 去旋轉, 使得 <span>$\tilde{W}$</span><!-- Has MathJax --> 變得非常容易量化</p>
+<hr>
+<h2 id="難點-高維度旋轉代價太高以及如何選擇旋轉矩陣"><a href="#難點-高維度旋轉代價太高以及如何選擇旋轉矩陣" class="headerlink" title="難點: 高維度旋轉代價太高以及如何選擇旋轉矩陣"></a>難點: 高維度旋轉代價太高以及如何選擇旋轉矩陣</h2><p>但要這麼做, 有幾個關鍵問題得回答, 這裡先點出兩個:</p>
+<ol>
+<li><p>高維度的矩陣相乘將會是無法忽視的負擔, 需要輕量化的旋轉矩陣乘法<br> <a href="https://arxiv.org/abs/2307.13304" target="_blank" rel="external">QuIP</a> 採用 Kronecker 方法拆解高維度 <span>$n$</span><!-- Has MathJax --> 成兩個低微度相乘 <span>$n=p\times q$</span><!-- Has MathJax -->, 因此只需要兩個低微度的隨機旋轉矩陣, 更多請參考論文.<br> 而 <a href="https://arxiv.org/abs/2402.04396" target="_blank" rel="external">QuIP#</a> (<a href="https://arxiv.org/abs/2307.13304" target="_blank" rel="external">QuIP</a>續作) 更進一步改進, 採用隨機阿達馬轉換 (Randomized Hadamard Transform, RHT), 因為矩陣的元素只有 <span>$\{-1, +1\}$</span><!-- Has MathJax -->, 所以計算過程甚至不需要進行浮點數的乘法運算. 注意到 RHT 也是正交矩陣, 論文更證明 RHT 能得到的量化誤差更小.</p>
+</li>
+<li><p>該選擇哪一個旋轉(正交)矩陣?<br> <strong>隨機旋轉</strong>就可以! 聽起來很玄, 但 <a href="https://arxiv.org/abs/2307.13304" target="_blank" rel="external">QuIP</a> 這篇論文證明了”隨機”也能保證有高機率消除 outlier. 本文後面將重點補充這個重要的數學證明.<br> 另外, <a href="https://arxiv.org/abs/2405.16406" target="_blank" rel="external">SpinQuant</a> 採用 <strong>Cayley SGD 來學習最佳的旋轉</strong> (<a href="https://bobondemon.github.io/2026/04/27/%E6%AD%A3%E4%BA%A4-%E6%97%8B%E8%BD%89-%E7%9F%A9%E9%99%A3%E7%9A%84%E6%A2%AF%E5%BA%A6-%E4%BB%A5%E5%8F%8A-Cayley-SGD-%E7%B6%AD%E6%8C%81%E6%AD%A3%E4%BA%A4%E6%80%A7%E7%9A%84%E6%A2%AF%E5%BA%A6%E6%9B%B4%E6%96%B0%E7%AE%97%E6%B3%95/">上一篇筆記</a>), 並且這些旋轉矩陣可以直接合併到原來的參數矩陣 <span>$W$</span><!-- Has MathJax --> 裡, 不會有額外開銷. 這種學習更直接, 也不隨機了!<br> PS: <a href="https://arxiv.org/abs/2405.16406" target="_blank" rel="external">SpinQuant</a> 在推論時, 可以套上一個預先設定好的 RHT 旋轉矩陣, 以便讓 activation 可以動態量化, 進一步壓縮. 這裡有個細節, 由於 <span>$W$</span><!-- Has MathJax --> 的旋轉矩陣是學出來的, 因此這個學習可以預先考慮到動態量化的 RHT 的誤差.</p>
+</li>
+</ol>
+<hr>
+<h2 id="隨機旋轉的數學保證"><a href="#隨機旋轉的數學保證" class="headerlink" title="隨機旋轉的數學保證"></a>隨機旋轉的數學保證</h2><p>接著, 我們來看看最重要的前提: ”隨機”也能保證有高機率消除 outlier<br><a href="https://arxiv.org/abs/2307.13304" target="_blank" rel="external">QuIP</a> 給出了數學保證<br>機率理論中有個不等式: <a href="https://en.wikipedia.org/wiki/Concentration_inequality" target="_blank" rel="external">Concentration inequality</a><br>這是在探討什麼樣的情況, random variable 偏離平均值太遠的機率, 不會太高</p>
+<p>首先我們看 <a href="https://arxiv.org/abs/2307.13304" target="_blank" rel="external">QuIP</a> 論文的 <strong>[Lemma 9]:</strong><br>設 <span>$x\in\mathbb{R}^n$</span><!-- Has MathJax -->, <span>$\|x\|_2=1$</span><!-- Has MathJax --> (unit sphere 表面的一個向量), 對任意 1-Lipschitz 函數 <span>$F:x\mapsto\mathbb{R}$</span><!-- Has MathJax -->, 存在 <span>$A$</span><!-- Has MathJax -->, <span>$C$</span><!-- Has MathJax --> 與維度 <span>$n$</span><!-- Has MathJax --> 無關, 滿足:<br><span>$$\begin{align}
+\mathbf{P}_x(F(x)-\mathbb{E}[F(x)]\geq t)\leq C\exp\left(-\frac{nt^2}{A}\right)
+\end{align}$$</span><!-- Has MathJax --> 白話來說, <span>$F(x)$</span><!-- Has MathJax --> 偏離期望值超過 <span>$t$</span><!-- Has MathJax --> 的機率不會太大 (不會超過 <span>$C\exp(-nt^2/A)$</span><!-- Has MathJax -->)</p>
+<p>接著 <strong>[Lemma 10]:</strong><br>設 <span>$B\in\mathbb{R}^{m\times n}$</span><!-- Has MathJax -->, 且 <span>$x$</span><!-- Has MathJax --> 是 <span>$\mathbb{R}^n$</span><!-- Has MathJax --> unit sphere 表面的一個均勻採樣向量<br>同樣存在 <span>$A$</span><!-- Has MathJax -->, <span>$C$</span><!-- Has MathJax --> 與維度 <span>$n$</span><!-- Has MathJax --> 無關, 滿足:<br><span>$$\begin{align}
+\mathbf{P}\left(\left(\frac{\|Bx\|}{\|B\|_F}\right)^2\geq \frac{A&apos;}{n}\log\left(C&apos;\over\delta\right)\right)\leq \delta
+\end{align}$$</span><!-- Has MathJax --> 其中定義 <span>$\delta$</span><!-- Has MathJax --> 為 <span>$A$</span><!-- Has MathJax -->, <span>$C$</span><!-- Has MathJax --> 的函數<br><span>$$\begin{aligned}
+\delta:=C\exp\left(-\frac{nt^2}{A}\right)
+\end{aligned}$$</span><!-- Has MathJax --> 讓我們用 <span>$B\in\mathbb{R}^{1\times n}$</span><!-- Has MathJax --> 為一個 row vector 來看會更容易明白<br>定義 <span>$b^T:=B$</span><!-- Has MathJax --> 此時相當於將球面的隨機向量 <span>$x$</span><!-- Has MathJax --> 投影到 <span>$b$</span><!-- Has MathJax -->.</p>
+<blockquote>
+<p>注意到如果是 vector 的話, Frobenius 等於 spectral norm, i.e. <span>$\|b\|_F=\|b\|$</span><!-- Has MathJax -->, 所以 <span>$F(x)=\|b^Tx\|/\|b\|_F$</span><!-- Has MathJax --> 相當對 <span>$x$</span><!-- Has MathJax --> 在 <span>$b$</span><!-- Has MathJax --> 向量上投影</p>
+</blockquote>
+<p>得到的結論就是: 這個隨機投影的長度平方, 要異常大的機率是極度微小的!<br>注意到如果維度 <span>$n$</span><!-- Has MathJax --> 愈大, 因為 (5) 機率裡的不等式右邊反比於 <span>$n$</span><!-- Has MathJax -->, 所以理論上愈不容易發生投影到 <span>$b$</span><!-- Has MathJax --> 後有 outliers 出現</p>
+<p>最後, 若把 <span>$x$</span><!-- Has MathJax --> 和 <span>$b$</span><!-- Has MathJax --> 的角色對調, 給定一個 <span>$x$</span><!-- Has MathJax -->, 令 <span>$U=\{b_i\}_{i=1}^n$</span><!-- Has MathJax --> 為隨機 orthogonal 矩陣, 則 <span>$Ux$</span><!-- Has MathJax --> 表示旋轉後投影在各 basis 的結果<br>根據上述討論, 我們知道其能量都不會太大! 這就是隨機旋轉能消除極值的理論奧秘和保證!</p>
+<hr>
+<h2 id="Appendix-補充-Lemma10-的詳細推導證明"><a href="#Appendix-補充-Lemma10-的詳細推導證明" class="headerlink" title="Appendix: 補充 Lemma10 的詳細推導證明"></a>Appendix: 補充 Lemma10 的詳細推導證明</h2><p><a href="https://arxiv.org/abs/2307.13304" target="_blank" rel="external">QuIP</a> 給的 Lemma 10 證明中間有幾個步驟對我來說省略太多, 因此這裡補充起來<br>定義 <span>$F(x)=\|Bx\|/\|B\|_F$</span><!-- Has MathJax -->, 則<br><span>$$\begin{aligned}
+\nabla F(x)=\frac{1}{\|B\|_F}\nabla (x^TB^TBx)^{1/2}=\frac{1}{\|B\|_F}\cdot\frac{B^TBx}{(x^TB^TBx)^{1/2}}=\frac{B^TBx}{\|Bx\|\cdot\|B\|_F} \\
+\Longrightarrow \|\nabla F(x)\|=\frac{\|B^TBx\|}{\|Bx\|\cdot\|B\|_F}\leq \frac{\|B\|^T\cdot\|Bx\|}{\|Bx\|\cdot\|B\|_F}=\frac{\|B\|}{\|B\|_F}\leq1
+\end{aligned}$$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>最後的不等式 <span>$\|B\|\leq\|B\|_F$</span><!-- Has MathJax --> 可以參考 “<a href="https://bobondemon.github.io/2026/04/18/MatrixNorm/">量量矩陣的大小</a>” 這篇筆記</p>
+</blockquote>
+<p>因此 <span>$F$</span><!-- Has MathJax --> 符合 1-Lipschitz 條件<br>因為 <span>$\mathrm{Var}(x)=\mathbb{E}(x^2)-(\mathbb{E}x)^2\geq0$</span><!-- Has MathJax -->, 所以 <span>$\mathbb{E}x\leq\sqrt{\mathbb{E}(x^2)}$</span><!-- Has MathJax -->, 所以 <span>$\mathbb{E}[F(x)]$</span><!-- Has MathJax -->:<br><span>$$\begin{aligned}
+\mathbb{E}[F(x)] &amp;\leq \sqrt{\mathbb{E}[F(x)^2]}=\sqrt{\mathbb{E}\left[\left(
+\frac{\|Bx\|}{\|B\|_F}
+\right)^2\right]} \\
+&amp;= \frac{1}{\|B\|_F}\cdot \sqrt{\mathbb{E}(x^TB^TBx)}
+\end{aligned}$$</span><!-- Has MathJax --> 因為 <span>$x^TB^TBx$</span><!-- Has MathJax --> 是一個 scalar 所以等於 <span>$\mathrm{Tr}(x^TB^TBx)$</span><!-- Has MathJax -->, 加上 <span>$\mathrm{Tr}(AB)=\mathrm{Tr}(BA)$</span><!-- Has MathJax --> 特性<br><span>$$\begin{aligned}
+\mathbb{E}(x^TB^TBx) &amp;= \mathbb{E}\left[\mathrm{Tr}\left(x^TB^TBx\right)\right]=\mathbb{E}\left[\mathrm{Tr}\left(Bxx^TB^T\right)\right] \\
+&amp;= \mathrm{Tr}\left(B\mathbb{E}[xx^T]B^T\right)
+\end{aligned}$$</span><!-- Has MathJax --> 注意到 <span>$\mathbb{E}[xx^T]$</span><!-- Has MathJax --> 是一個 <span>$n\times n$</span><!-- Has MathJax --> 的矩陣, 對角項為 <span>$\mathbb{E}[x_i^2]$</span><!-- Has MathJax --> 表示維度 <span>$i$</span><!-- Has MathJax --> 的能量大小, 而非對角項 <span>$\mathbb{E}[x_ix_j]$</span><!-- Has MathJax --> 可以想成是 維度 <span>$i$</span><!-- Has MathJax --> 和 <span>$j$</span><!-- Has MathJax --> 的相關性<br>由於 <span>$x$</span><!-- Has MathJax --> 來自於球面上的隨機向量, 理論上不同維度之間是獨立, 因此 <span>$\mathbb{E}[x_ix_j]=0$</span><!-- Has MathJax -->.<br>也因為維度之間是獨立, 所以每個維度分配到的能量理論上期望值也相同, 相當於從總能量 <span>$1$</span><!-- Has MathJax --> 去均分, 因此 <span>$\mathbb{E}[x_i^2]=1/n$</span><!-- Has MathJax -->.<br>得到結論 <span>$\mathbb{E}[xx^T]=\frac{1}{n}\cdot I$</span><!-- Has MathJax -->. 所以:<br><span>$$\begin{aligned}
+\mathbb{E}(x^TB^TBx) &amp;= \mathrm{Tr}\left(B\mathbb{E}[xx^T]B^T\right) = \mathrm{Tr}\left(B\frac{1}{n}IB^T\right) \\
+&amp;=\frac{1}{n}\mathrm{Tr}(BB^T)=\frac{1}{n}\mathrm{Tr}(B^TB)=\frac{1}{n}\|B\|_F^2
+\end{aligned}$$</span><!-- Has MathJax --> 代回去<br><span>$$\begin{aligned}
+\mathbb{E}[F(x)] &amp;\leq \frac{1}{\|B\|_F}\cdot \sqrt{\mathbb{E}(x^TB^TBx)}=\frac{1}{\|B\|_F}\cdot\frac{1}{\sqrt{n}}\|B\|_F=\frac{1}{\sqrt{n}}
+\end{aligned}$$</span><!-- Has MathJax --> 套用 Lemma 9, 存在 <span>$A,C$</span><!-- Has MathJax --> 獨立於維度 <span>$n$</span><!-- Has MathJax -->, s.t.<br><span>$$\begin{aligned}
+\mathbf{P}\left(\frac{\|Bx\|}{\|B\|_F}\geq t + \mathbb{E}[F(x)]\right)\leq C\exp\left(-\frac{nt^2}{A}\right)
+\end{aligned}$$</span><!-- Has MathJax --> 因為 <span>$\mathbb{E}[F(x)]\leq\frac{1}{\sqrt{n}}$</span><!-- Has MathJax -->, 所以同樣成立<br><span>$$\begin{aligned}
+\Longrightarrow\mathbf{P}\left(\frac{\|Bx\|}{\|B\|_F}\geq t+\frac{1}{\sqrt{n}}\right)\leq C\exp\left(-\frac{nt^2}{A}\right)
+\end{aligned}$$</span><!-- Has MathJax --> 舉個簡單例子, 由於 <span>$0.8&gt;0.5$</span><!-- Has MathJax -->, 如果 <span>$\mathbf{P}(x\geq 0.5)\leq \delta$</span><!-- Has MathJax -->, 則 <span>$\mathbf{P}(x\geq 0.8)\leq \delta$</span><!-- Has MathJax --> 同樣成立, 因為條件更嚴苛<br>定義<br><span>$$\begin{aligned}
+\delta:=C\exp\left(-\frac{nt^2}{A}\right) \\
+\Longrightarrow t^2=\frac{A}{n}\log\left(C\over\delta\right)
+\end{aligned}$$</span><!-- Has MathJax --> 繼續改寫, 由於機率裡面不等式條件兩邊都是正<br><span>$$\begin{aligned}
+\Longrightarrow \mathbf{P}\left(\left(\frac{\|Bx\|}{\|B\|_F}\right)^2\geq \left(t+\frac{1}{\sqrt{n}}\right)^2\right)\leq \delta
+\end{aligned}$$</span><!-- Has MathJax --> 利用 <span>$(a+b)^2\leq 2a^2+2b^2$</span><!-- Has MathJax -->, 得到 <span>$(t+1/\sqrt{n})^2\leq 2t^2+2/n$</span><!-- Has MathJax -->. 並帶入 <span>$t^2$</span><!-- Has MathJax --> 與 <span>$\delta$</span><!-- Has MathJax --> 的關係式<br><span>$$\begin{aligned}
+\left(t+\frac{1}{\sqrt{n}}\right)^2 &amp;\leq 2\frac{A}{n}\log\left(C\over\delta\right)+\frac{2}{n} \\
+&amp;=\frac{2A}{n}\left(\log\left(C\over\delta\right)+\frac{1}{A}\right) \\
+&amp;=\frac{2A}{n}\left(\log\left(C\over\delta\right)+\log(e^{1/A})\right) \\
+&amp;=\frac{2A}{n}\log\left(\frac{Ce^{1/A}}{\delta}\right) \\
+&amp;=\frac{A&apos;}{n}\log\left(C&apos;\over\delta\right)
+\end{aligned}$$</span><!-- Has MathJax --> 只要令 <span>$A&apos;=2A$</span><!-- Has MathJax -->, <span>$C&apos;=Ce^{1/A}$</span><!-- Has MathJax --> 即可. 因此<br><span>$$\begin{aligned}
+\mathbf{P}\left(\left(\frac{\|Bx\|}{\|B\|_F}\right)^2\geq \left(t+\frac{1}{\sqrt{n}}\right)^2\right)\leq \delta \\
+\Longrightarrow \mathbf{P}\left(\left(\frac{\|Bx\|}{\|B\|_F}\right)^2\geq \frac{A&apos;}{n}\log\left(C&apos;\over\delta\right)\right)\leq \delta
+\end{aligned}$$</span><!-- Has MathJax --> Q.E.D.</p>
+<hr>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li>QuIP: 2-Bit Quantization of Large Language Models With Guarantees [<a href="https://arxiv.org/abs/2307.13304" target="_blank" rel="external">arxiv</a>]</li>
+<li>QuIP#: Even Better LLM Quantization with Hadamard Incoherence and Lattice Codebooks [<a href="https://arxiv.org/abs/2402.04396" target="_blank" rel="external">arxiv</a>]</li>
+<li>SpinQuant: LLM quantization with learned rotations [<a href="https://arxiv.org/abs/2405.16406" target="_blank" rel="external">arxiv</a>]</li>
+<li>正交(旋轉)矩陣的切空間, 以及 Cayley SGD 維持正交性的梯度更新算法 [<a href="https://bobondemon.github.io/2026/04/27/%E6%AD%A3%E4%BA%A4-%E6%97%8B%E8%BD%89-%E7%9F%A9%E9%99%A3%E7%9A%84%E6%A2%AF%E5%BA%A6-%E4%BB%A5%E5%8F%8A-Cayley-SGD-%E7%B6%AD%E6%8C%81%E6%AD%A3%E4%BA%A4%E6%80%A7%E7%9A%84%E6%A2%AF%E5%BA%A6%E6%9B%B4%E6%96%B0%E7%AE%97%E6%B3%95/">link</a>]</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2026/04/29/隨機旋轉的量化魔法/" title="隨機旋轉的量化魔法: 去去極值走">https://bobondemon.github.io/2026/04/29/隨機旋轉的量化魔法/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Cayley-SGD/" rel="tag"># Cayley SGD</a>
+          
+            <a href="/tags/SpinQuant/" rel="tag"># SpinQuant</a>
+          
+            <a href="/tags/QuIP/" rel="tag"># QuIP</a>
+          
+            <a href="/tags/QuIP/" rel="tag"># QuIP#</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2026/04/27/正交-旋轉-矩陣的梯度-以及-Cayley-SGD-維持正交性的梯度更新算法/" rel="next" title="正交(旋轉)矩陣的切空間, 以及 Cayley SGD 維持正交性的梯度更新算法">
+                <i class="fa fa-chevron-left"></i> 正交(旋轉)矩陣的切空間, 以及 Cayley SGD 維持正交性的梯度更新算法
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2026/05/14/聊聊-SpinQuant/" rel="prev" title="聊聊 SpinQuant">
+                聊聊 SpinQuant <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">123</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">262</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Motivation"><span class="nav-number">1.</span> <span class="nav-text">Motivation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Toy-Example-實驗"><span class="nav-number">2.</span> <span class="nav-text">Toy Example 實驗</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#難點-高維度旋轉代價太高以及如何選擇旋轉矩陣"><span class="nav-number">3.</span> <span class="nav-text">難點: 高維度旋轉代價太高以及如何選擇旋轉矩陣</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#隨機旋轉的數學保證"><span class="nav-number">4.</span> <span class="nav-text">隨機旋轉的數學保證</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Appendix-補充-Lemma10-的詳細推導證明"><span class="nav-number">5.</span> <span class="nav-text">Appendix: 補充 Lemma10 的詳細推導證明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">6.</span> <span class="nav-text">References</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+<span id="busuanzi_container_site_pv">
+  本站總瀏覽 <span id="busuanzi_value_site_pv"></span> 次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站訪客 <span id="busuanzi_value_site_uv"></span> 人
+</span>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

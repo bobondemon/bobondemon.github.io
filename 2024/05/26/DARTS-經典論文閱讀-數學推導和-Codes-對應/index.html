@@ -1,0 +1,876 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Neural Architecture Search (NAS),DARTS," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="在這篇之前的 NAS (Neural Architecture Search) 主流方法為 evolution or RL 在 discrete space 上搜尋, 雖然可以得到當時最佳的結果, 但搜索的 cost 很高.這篇提出 DARTS (Differentiable ARchiTecture Search) 將 NAS 變成 continuous relaxation 的問題後, 就能">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DARTS 經典論文閱讀 (數學推導和 Codes 對應)">
+<meta property="og:url" content="https://bobondemon.github.io/2024/05/26/DARTS-經典論文閱讀-數學推導和-Codes-對應/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="在這篇之前的 NAS (Neural Architecture Search) 主流方法為 evolution or RL 在 discrete space 上搜尋, 雖然可以得到當時最佳的結果, 但搜索的 cost 很高.這篇提出 DARTS (Differentiable ARchiTecture Search) 將 NAS 變成 continuous relaxation 的問題後, 就能">
+<meta property="og:image" content="https://bobondemon.github.io/2024/05/26/DARTS-經典論文閱讀-數學推導和-Codes-對應/Untitled.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/05/26/DARTS-經典論文閱讀-數學推導和-Codes-對應/Untitled 1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/05/26/DARTS-經典論文閱讀-數學推導和-Codes-對應/codes.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/05/26/DARTS-經典論文閱讀-數學推導和-Codes-對應/Untitled 2.png">
+<meta property="og:updated_time" content="2026-08-19T13:01:09.814Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="DARTS 經典論文閱讀 (數學推導和 Codes 對應)">
+<meta name="twitter:description" content="在這篇之前的 NAS (Neural Architecture Search) 主流方法為 evolution or RL 在 discrete space 上搜尋, 雖然可以得到當時最佳的結果, 但搜索的 cost 很高.這篇提出 DARTS (Differentiable ARchiTecture Search) 將 NAS 變成 continuous relaxation 的問題後, 就能">
+<meta name="twitter:image" content="https://bobondemon.github.io/2024/05/26/DARTS-經典論文閱讀-數學推導和-Codes-對應/Untitled.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2024/05/26/DARTS-經典論文閱讀-數學推導和-Codes-對應/"/>
+
+
+
+
+
+  <title> DARTS 經典論文閱讀 (數學推導和 Codes 對應) | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/05/26/DARTS-經典論文閱讀-數學推導和-Codes-對應/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                DARTS 經典論文閱讀 (數學推導和 Codes 對應)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2024-05-26T19:23:43+08:00">
+                2024-05-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<p>在這篇之前的 NAS (Neural Architecture Search) 主流方法為 evolution or RL 在 discrete space 上搜尋, 雖然可以得到當時最佳的結果, 但搜索的 cost 很高.<br>這篇提出 DARTS (Differentiable ARchiTecture Search) 將 NAS 變成 continuous relaxation 的問題後, 就能套用 gradient-based optimize 方法來做 NAS. 因此比傳統方法快上一個 order. 雖然 gradient-based NAS 在這篇文章之前就有, 但是之前的方法沒辦法像 DARTS 一樣能套在各種不同的 architecture 上, 簡單講就是不夠 generalized.<br>核心想法是, 如果一個 layer 能包含多個 OPs (operations), 然後有個方法能找出最佳的 OP 應該是那些, 對每一層 layers 都這樣找我們就完成 NAS 了.</p>
+<p>圖片<a href="https://github.com/wangshusen/DeepLearning/blob/master/Slides/15_NAS_3.pdf" target="_blank" rel="external">來源</a>, 或參考這個 <a href="https://www.youtube.com/watch?v=D9m9-CXw_HY" target="_blank" rel="external">Youtube</a> 解說, 很清楚易懂<br><img src="/2024/05/26/DARTS-經典論文閱讀-數學推導和-Codes-對應/Untitled.png" width="80%" height="80%"> 不過關鍵是怎麼找? 這樣聽起來似乎需要為每個 OPs 都配上對應可訓練的權重, 最後選擇權重大的那些 OPs? 以及怎麼訓練這些架構權重?</p>
+<blockquote>
+<p>或這麼類比: 直接訓練一個很大的 super network, 根據 OP 對應的架構權重來選擇哪些 OPs 要留下來, 大概類似 model pruning 的想法</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="怎麼結合多個-OP-每個-OP-都訓練個權重-以及怎麼選擇哪個-OP"><a href="#怎麼結合多個-OP-每個-OP-都訓練個權重-以及怎麼選擇哪個-OP" class="headerlink" title="怎麼結合多個 OP? 每個 OP 都訓練個權重? 以及怎麼選擇哪個 OP?"></a>怎麼結合多個 OP? 每個 OP 都訓練個權重? 以及怎麼選擇哪個 OP?</h2><hr>
+<p>NN 的 forward inference (<a href="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/">computational graph</a>) 是個 DAG (Directional Acyclic Graph), 我們假設依循這個 DAG 可得到 inference 的 tensor sequences <span>$\{x^{(1)}, x^{(2)}, ..., x^{(n)}\}$</span><!-- Has MathJax --> 其中 $x^{(1)}$ 是 NN 的 input tensor, $x^{(n)}$ 是 output tensor</p>
+<p>因此要得到 tensor <span>$x^{(j)}$</span><!-- Has MathJax --> 可以這麼做:</p>
+<span>$$\begin{align}
+x^{(j)}=\sum_{i&lt;j}o^{(i,j)}\left(x^{(i)}\right)
+\end{align}$$</span><!-- Has MathJax --> 把小於第 $j$ 個 tensor 的所有 tensor 都執行完後即可得到. 其中 <span>$o^{(i,j)}$</span><!-- Has MathJax --> 表示 tensor $i$ 與 $j$ 的 operation.<br>這個 operation 原本都是人為手工定義好的, 例如 <span>$o^{(2, 4)}=\text{Conv2d}$</span><!-- Has MathJax -->, <span>$o^{(4,9)}=\text{maxpool}$</span><!-- Has MathJax -->, …<br>DARTS 將人為定義的 operation 變成可用 gradient 去學出來.<br>定義 $\mathcal{O}$ 是所有可能的 operation 的集合, e.g.<br><span>$$\mathcal{O}=\{\text{conv2d, fc, rnn, maxpool, ..., } {\color{orange}{\text{zero}}}\}$$</span><!-- Has MathJax -->
+<p>對於 tensor $i$ and tensor $j$ 的 operation 吃 input $x$, 則 output 定義為:</p>
+<p><span>$$\begin{align}
+\bar o^{(i,j)}(x)=\sum_{o\in\mathcal{O}}\frac
+{\exp\left(\alpha_o^{(i,j)}\right)}
+{\sum_{o&apos;\in\mathcal{O}}\exp\left(\alpha_{o&apos;}^{(i,j)}\right)}o(x)
+\end{align}$$</span><!-- Has MathJax --> 定義看起來好像很複雜, 我們舉個 toy example 應該就會清楚很多.<br>令 <span>$\mathcal{O}=\{\text{conv2d},\text{maxpool}, \text{zero}\}$</span><!-- Has MathJax -->, 只有 3 種 operations.<br>對於 edge $(i,j)$ 來說假設這 3 個 op 的機率分別為 <span>$\{0.2, 0.5, 0.3\}$</span><!-- Has MathJax --> 則:</p>
+<p><span>$$\begin{align}
+\bar{o}^{(i,j)}(x)=0.2\cdot\text{conv2d}(x) + 0.5\cdot\text{maxpool}(x) + 0.3\cdot\text{zero(x)}
+\end{align}$$</span><!-- Has MathJax --> 因此 output $x^{(j)}$ 就是:</p>
+<p><span>$$\begin{align}
+x^{(j)}=\sum_{i&lt;j}\bar{o}^{(i,j)}\left( x^{(i)}\right)
+\end{align}$$</span><!-- Has MathJax --> 可以看出來每一個 $(i,j)$ 都有一個 operations 的機率分佈 <span>$\{p_o^{(i,j)}\}_{o\in\mathcal{O}}$</span><!-- Has MathJax -->.<br>其中 <span>$\sum_{o\in\mathcal{O}}p_o^{(i,j)}=1$</span><!-- Has MathJax -->, 或以 logits 來看就是 <span>$\{\alpha_o^{(i,j)}\}_{o\in\mathcal{O}}$</span><!-- Has MathJax -->. 而這個 <span>$\alpha_o^{(i,j)}$</span><!-- Has MathJax --> 就是會跟著 NN 的 weights 一起訓練得到.</p>
+<p><img src="/2024/05/26/DARTS-經典論文閱讀-數學推導和-Codes-對應/Untitled 1.png" width="80%" height="80%"> 論文稱 <span>$\{\alpha_o^{(i,j)}\}_{o\in\mathcal{O},i,j}$</span><!-- Has MathJax --> 為 mixing probabilities, 訓練完成後可以選擇機率最大 (or topk) 的 operations 當作最後的 network 架構.<br>由於我們有 include $\color{orange}{\text{zero}}$ 這個 operation, 所以如果他的機率最高, 其實就表示 edge $(i,j)$ 相當於不存在, i.e. tensor $i$ 與 $j$ 不相連. 但其實作者有提到 zero 的權重估計應該會有點問題, 因為不管 zero 的權重大小都不影響最終辨識結果, 不確定這後面有沒有改善方式. 倒是如果有 identity OP 則變成 skip layer 的效果, 這可能會有一些問題出現, <a href="https://arxiv.org/pdf/1911.12126" target="_blank" rel="external">Fair DARTS</a> 提出這個問題並嘗試解決 (待讀)</p>
+<h2 id="目標函式和搜索參數-alpha-的求導"><a href="#目標函式和搜索參數-alpha-的求導" class="headerlink" title="目標函式和搜索參數 $\alpha$ 的求導"></a>目標函式和搜索參數 $\alpha$ 的求導</h2><hr>
+<p>Objective function:</p>
+<p><span>$$\begin{align}
+\min_{\alpha}\mathcal{L}_{\color{red}{val}}\left(w^*(\alpha), \alpha\right) \\
+\text{s.t.}\quad w^*(\alpha)=\arg\  min_w\mathcal{L}_{\color{red}{train}}(w,\alpha)
+\end{align}$$</span><!-- Has MathJax --> 注意到 $\alpha$ 的選擇是在 validation set 上, 而 NN 的 $w$ 則是在 training set 上訓練. 作用就是<strong>用 training loss 訓練模型參數，用 validation loss 找模型結構</strong>.<br>這樣的問題是 bilevel optimization problem (Anandalingam &amp; Friesz, 1992; Colson et al., 2007)<br>$\alpha$ 是 upper-level variable, 而 $w$ 是 lower-level variable.</p>
+<blockquote>
+<p>💡如果  $\alpha$ 的選擇是在 training set 上, 則不需這麼複雜, 直接一起跟 $w$ jointly training 就好, 這樣是不是更簡單??<br><span>$$\min_{\alpha,w}\mathcal{L}_{train}(w,\alpha)$$</span><!-- Has MathJax --> 論文做了這樣的實驗跟 bi-level optimization 對比, 相同參數量和訓練資料 (train+validation sets) 跑四次 random seeds 結果, CIFAR10 得到的 test error rate 為 3.56 ± 0.10%, 而 bi-level optimization 方法最好為 2.76 ± 0.09%, 作者推測是 architecture $\alpha$ 跟著一起訓練會 overfit (因為在 bi-level 方法 $\alpha$ 是在 validation set 上) 因此泛化能力變差.</p>
+</blockquote>
+<p>直接優化是很難的, 所以論文提出以下的近似:</p>
+<p><span>$$\begin{align}
+\nabla_\alpha\mathcal{L}_{val}(w^*(\alpha),\alpha) \\
+\approx\nabla_\alpha\mathcal{L}_{val}\left(w-\xi\nabla_w\mathcal{L}_{train}(w,\alpha),\alpha\right)
+\end{align}$$</span><!-- Has MathJax --> 原本要計算 <span>$w^*(\alpha)$</span><!-- Has MathJax --> 需要解 inner loop (6), 作者直接<strong>用一次 training step 來當作近似解 (8)</strong><br>對 (8) 使用 multivariable chain rule [<a href="https://math.hmc.edu/calculus/hmc-mathematics-calculus-online-tutorials/multivariable-calculus/multi-variable-chain-rule/" target="_blank" rel="external">ref</a>] 計算 gradient 得到:</p>
+<p><span>$$\begin{align}
+\nabla_\alpha\mathcal{L}_{val}(w&apos;,\alpha)-\xi{\color{orange}{\nabla_{\alpha,w}^2\mathcal{L}_{train}(w,\alpha)\cdot\nabla_{w&apos;}\mathcal{L}_{val}(w&apos;,\alpha)}}
+\end{align}$$</span><!-- Has MathJax -->(寫清楚一點: <span>$\nabla_{w&apos;}\mathcal{L}_{val}(w&apos;,\alpha)$</span><!-- Has MathJax --> 是 <span>$\left.\nabla_w\mathcal{L}_{val}(w,\alpha)\right|_{w=w&apos;}$</span><!-- Has MathJax --> 的簡寫)<br>其中 <span>$w&apos;=w-\xi\nabla_w\mathcal{L}_{train}(w,\alpha)$</span><!-- Has MathJax -->. 當 $\xi=0$, 稱為 first order 解, 否則 second order.<br>橘色這項因為二階微分的計算代價很高, 所以使用數值逼近的方式計算. (這個技巧請參考 Appendix)<br>令 <span>$w^{\pm}=w\pm\epsilon\nabla_{w&apos;}\mathcal{L}_{val}(w&apos;,\alpha)$</span><!-- Has MathJax -->, 則</p>
+<p><span>$$\begin{align}
+\nabla_{\alpha,w}^2\mathcal{L}_{train}(w,\alpha)\cdot\nabla_{w&apos;}\mathcal{L}_{val}(w&apos;,\alpha) \approx \frac{
+\nabla_\alpha\mathcal{L}_{train}(w^+,\alpha) - \nabla_\alpha\mathcal{L}_{train}(w^-,\alpha)
+}
+{2\epsilon}
+\end{align}$$</span><!-- Has MathJax -->(10) 的 R.H.S. 只要 <span>$\lim_{\epsilon\rightarrow0}$</span><!-- Has MathJax --> 的話, 就是對 $w$ 在 <span>$\nabla_{w&apos;}\mathcal{L}_{val}(w&apos;,\alpha)$</span><!-- Has MathJax --> 方向上的微分, 所以是 directional derivatives.</p>
+<blockquote>
+<p>L.H.S. 請參考 Directional derivatives <a href="https://www.wikiwand.com/en/Directional_derivative" target="_blank" rel="external">wiki 說明</a>: <span>$\nabla_v f(x)=\nabla f(x)\cdot v$</span><!-- Has MathJax --> provided by $f$ is differentialble at $x$.<br>另外作者補充說一般 <span>$\epsilon=0.01/\|\nabla_{w&apos;}\mathcal{L}_{val}(w&apos;,\alpha)\|_2$</span><!-- Has MathJax --> 在他們的實驗都可以.</p>
+</blockquote>
+<p>所以總結 $\alpha$ 的 gradient 為:</p>
+<p><span>$$\begin{align}
+\nabla_\alpha\mathcal{L}_{val}(w^*(\alpha),\alpha) \approx \nabla_\alpha\mathcal{L}_{val}(w&apos;,\alpha)-\xi\frac{
+\nabla_\alpha\mathcal{L}_{train}(w^+,\alpha) - \nabla_\alpha\mathcal{L}_{train}(w^-,\alpha)
+}
+{2\epsilon}
+\end{align}$$</span><!-- Has MathJax -->其中 <span>$w&apos;=w-\xi\nabla_w\mathcal{L}_{train}(w,\alpha)$</span><!-- Has MathJax --> 相當於做一次 $w$ 的 gradient update, 然後 <span>$w^{\pm}=w\pm\epsilon\nabla_{w&apos;}\mathcal{L}_{val}(w&apos;,\alpha)$</span><!-- Has MathJax -->.</p>
+<h2 id="對照-PyTorch-的求導-Codes"><a href="#對照-PyTorch-的求導-Codes" class="headerlink" title="對照 PyTorch 的求導 Codes"></a>對照 PyTorch 的求導 Codes</h2><hr>
+<p>那實際上怎麼 implement 的? 讓我們解析一下這段 official <a href="https://github.com/quark0/darts/blob/master/cnn/architect.py#L43C3-L59C34" target="_blank" rel="external">codes</a><br><img src="/2024/05/26/DARTS-經典論文閱讀-數學推導和-Codes-對應/codes.png" width="100%" height="100%"> row 2 <code>_compute_unrolled_model()</code> 計算了 <code>unrolled_model</code> ($w’$), 其中 <code>eta</code> 指 (8) 的 $\xi$.<br>有了 $w’$ 才能計算 <span>$\mathcal{L}_{val}(w&apos;,\alpha)$</span><!-- Has MathJax -->: <code>unrolled_loss = unrolled_model._loss(input_valid, target_valid)</code><br>注意到 $w’$ 和 $\alpha$ 都是 torch 的 parameters, 所以接著 <code>unrolled_loss.backward()</code><br>這行 code 我們可以同時得到 <span>$\nabla_{w&apos;}\mathcal{L}_{val}(w&apos;,\alpha)$</span><!-- Has MathJax -->(<code>vector</code>) 和 <span>$\nabla_\alpha\mathcal{L}_{val}(w&apos;,\alpha)$</span><!-- Has MathJax -->(<code>dalpha</code>)<br>接著 <code>self._hessian_vector_product()</code> 就可以計算 (10)了 (因為有了 <code>vector</code> 我們就可以計算 <span>$w^{\pm}$</span><!-- Has MathJax -->):<br><span>$$\begin{align}
+\frac{
+\nabla_\alpha\mathcal{L}_{train}(w^+,\alpha) - \nabla_\alpha\mathcal{L}_{train}(w^-,\alpha)
+}
+{2\epsilon}
+\end{align}$$</span><!-- Has MathJax -->計算出來的值稱 <code>implicit_grads</code><br>最後結合 <code>dalpha</code> 就可以得到最終的 $\alpha$ gradient (11) 了, 這步: <code>g.data.sub_(eta, ig.data)</code><br>整體 algorithm 如下:<br><img src="/2024/05/26/DARTS-經典論文閱讀-數學推導和-Codes-對應/Untitled 2.png" width="80%" height="80%"></p>
+<h2 id="一些總結-and-References"><a href="#一些總結-and-References" class="headerlink" title="一些總結 and References"></a>一些總結 and References</h2><hr>
+<p>DARTS 開啟了廣泛使用 gradient-based NAS 的方法. 但也還有些可以改進的地方, 如:</p>
+<ul>
+<li>Architecture 參數 $\alpha$ 或許可以讓他更傾向 one-hot 的結果, 因為如果每個 OPs 學出來都差不多重要, 那最後只保留 top-1 的 OP 效果就不大:<br>論文說可以使用 softmax annealing 方式, 漸漸變 one-hot, 或我猜可使用 <a href="https://arxiv.org/abs/1812.09926" target="_blank" rel="external">Stochastic NAS</a> (SNAS)</li>
+<li>記憶體的使用量仍然很大:<br>這是因為每個 candidate OPs 其實都需要在 computational graph 中保留, 需要做 backward gradients. 因此通常先在 proxy task 上 search, 譬如只用一部分訓練資料或只找部分 NN 的 OPs 等. 然後再把結果轉移到完整資料或大的 NN 上. <a href="https://arxiv.org/abs/1812.00332" target="_blank" rel="external">ProxylessNAS</a> 改進了這一缺點.</li>
+<li>搜尋或許可以加入 target 平台的考量, 譬如 latency, MCPS 限制, memory 限制等 …  <a href="https://arxiv.org/abs/1812.00332" target="_blank" rel="external">ProxylessNAS</a> 考慮了這些</li>
+<li>Skip layer 可能會有些問題, <a href="https://github.com/xiaomi-automl/FairDARTS" target="_blank" rel="external">FairDARTS</a> 嘗試改進這點</li>
+</ul>
+<p>Related repositories:</p>
+<ul>
+<li>原始的 <a href="https://github.com/quark0/darts" target="_blank" rel="external">DARTS codes</a> 只支援使用 <code>PyTorch == 0.3.1</code>, 硬在 PyTorch 1.12.1 跑得起來, 反正就是遇到 error 就修, 大部分是 API 的不同</li>
+<li><a href="https://github.com/khanrc/pt.darts" target="_blank" rel="external">https://github.com/khanrc/pt.darts</a>: 從 official 改的, 有些注釋和改動並且好閱讀, 同時支援 <code>PyTorch &gt;= 0.4.1</code> and multi-GPU</li>
+<li><a href="https://github.com/xiaomi-automl/FairDARTS" target="_blank" rel="external">FairDARTS</a></li>
+<li>MicroSoft [<a href="https://github.com/microsoft/archai" target="_blank" rel="external"><strong>archai</strong></a>]: <a href="https://github.com/microsoft/archai/blob/main/archai/supergraph/algos/darts/bilevel_optimizer.py" target="_blank" rel="external">bilevel_optimizer.py</a></li>
+</ul>
+<h2 id="Appendix-微分數值逼近技巧"><a href="#Appendix-微分數值逼近技巧" class="headerlink" title="Appendix 微分數值逼近技巧"></a>Appendix 微分數值逼近技巧</h2><hr>
+<p>首先我們知道<br><span>$$f(x+h)=f(x)+f&apos;(x)h+\frac{1}{2}f&apos;&apos;(x)h^2+\frac{1}{3!}f&apos;&apos;&apos;(x)h^3+O(h^4)$$</span><!-- Has MathJax -->所以<br><span>$$f&apos;(x)\approx\frac{f(x+h)-f(x)}{h}=f&apos;(x)+O(h)$$</span><!-- Has MathJax -->如果我們利用<br><span>$$f(x-h)=f(x)-f&apos;(x)h+\frac{1}{2}f&apos;&apos;(x)h^2-\frac{1}{3!}f&apos;&apos;&apos;(x)h^3+O(h^4)$$</span><!-- Has MathJax -->則可以將 $f’(x)$ 的數值逼近<strong>下降一個 order</strong>:<br><span>$$f&apos;(x)\approx\frac{f(x+h)-f(x-h)}{2h}=f&apos;(x)+O(h^2)$$</span><!-- Has MathJax -->利用這種做法, 我們可以將 (9) 的這項 <span>$\nabla_{\alpha,w}^2\mathcal{L}_{train}(w,\alpha)\cdot\nabla_{w&apos;}\mathcal{L}_{val}(w&apos;,\alpha)$</span><!-- Has MathJax --> 用數值逼近做出來:</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2024/05/26/DARTS-經典論文閱讀-數學推導和-Codes-對應/" title="DARTS 經典論文閱讀 (數學推導和 Codes 對應)">https://bobondemon.github.io/2024/05/26/DARTS-經典論文閱讀-數學推導和-Codes-對應/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Neural-Architecture-Search-NAS/" rel="tag"># Neural Architecture Search (NAS)</a>
+          
+            <a href="/tags/DARTS/" rel="tag"># DARTS</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/05/04/Model-Generalization-with-Flat-Optimum/" rel="next" title="Model Generalization with Flat Optimum">
+                <i class="fa fa-chevron-left"></i> Model Generalization with Flat Optimum
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2024/06/28/Neural-Architecture-Search-NAS-筆記/" rel="prev" title="Neural Architecture Search (NAS) 筆記">
+                Neural Architecture Search (NAS) 筆記 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">123</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">262</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#怎麼結合多個-OP-每個-OP-都訓練個權重-以及怎麼選擇哪個-OP"><span class="nav-number">1.</span> <span class="nav-text">怎麼結合多個 OP? 每個 OP 都訓練個權重? 以及怎麼選擇哪個 OP?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#目標函式和搜索參數-alpha-的求導"><span class="nav-number">2.</span> <span class="nav-text">目標函式和搜索參數 $\alpha$ 的求導</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#對照-PyTorch-的求導-Codes"><span class="nav-number">3.</span> <span class="nav-text">對照 PyTorch 的求導 Codes</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一些總結-and-References"><span class="nav-number">4.</span> <span class="nav-text">一些總結 and References</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Appendix-微分數值逼近技巧"><span class="nav-number">5.</span> <span class="nav-text">Appendix 微分數值逼近技巧</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+<span id="busuanzi_container_site_pv">
+  本站總瀏覽 <span id="busuanzi_value_site_pv"></span> 次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站訪客 <span id="busuanzi_value_site_uv"></span> 人
+</span>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,822 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Probably Approximately Correct (PAC)," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="這是林軒田教授在 Coursera 機器學習基石上 (Machine Learning Foundations)—Mathematical Foundations Week4 的課程筆記.說明了為什麼我們用 training data 學出來的 model 可以對沒看過的 data 有泛化能力, 因此機器學習才有可能真正應用上.課程單元的這句話總結得很好 “learning can be pro">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Introduction of Probably Approximately Correct (PAC) 林軒田課程筆記">
+<meta property="og:url" content="https://bobondemon.github.io/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="這是林軒田教授在 Coursera 機器學習基石上 (Machine Learning Foundations)—Mathematical Foundations Week4 的課程筆記.說明了為什麼我們用 training data 學出來的 model 可以對沒看過的 data 有泛化能力, 因此機器學習才有可能真正應用上.課程單元的這句話總結得很好 “learning can be pro">
+<meta property="og:image" content="https://bobondemon.github.io/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/Untitled.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/Untitled 1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/Untitled 2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/Untitled 3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/Untitled 4.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/Untitled 5.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/Untitled 6.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/Untitled 7.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/Untitled 8.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/Untitled 9.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/Untitled 10.png">
+<meta property="og:image" content="https://bobondemon.github.io/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/Untitled 11.png">
+<meta property="og:updated_time" content="2026-08-19T13:01:09.818Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Introduction of Probably Approximately Correct (PAC) 林軒田課程筆記">
+<meta name="twitter:description" content="這是林軒田教授在 Coursera 機器學習基石上 (Machine Learning Foundations)—Mathematical Foundations Week4 的課程筆記.說明了為什麼我們用 training data 學出來的 model 可以對沒看過的 data 有泛化能力, 因此機器學習才有可能真正應用上.課程單元的這句話總結得很好 “learning can be pro">
+<meta name="twitter:image" content="https://bobondemon.github.io/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/Untitled.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/"/>
+
+
+
+
+
+  <title> Introduction of Probably Approximately Correct (PAC) 林軒田課程筆記 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Introduction of Probably Approximately Correct (PAC) 林軒田課程筆記
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2024-03-19T19:55:05+08:00">
+                2024-03-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<p>這是林軒田教授在 Coursera <a href="https://www.coursera.org/learn/ntumlone-mathematicalfoundations" target="_blank" rel="external">機器學習基石上 (Machine Learning Foundations)—Mathematical Foundations</a> Week4 的課程筆記.<br>說明了為什麼我們用 training data 學出來的 model 可以對沒看過的 data 有泛化能力, 因此機器學習才有可能真正應用上.<br>課程單元的這句話總結得很好 “learning can be <strong>probably approximately correct</strong> when given enough statistical data and finite number of hypotheses”<br>以下為筆記內容</p>
+<a id="more"></a>
+<h2 id="怎麼說都你對-training-data-外的-predition"><a href="#怎麼說都你對-training-data-外的-predition" class="headerlink" title="怎麼說都你對, training data 外的 predition"></a>怎麼說都你對, training data 外的 predition</h2><p>$\mathcal{D}$ is training data, learning algorithm 找到的 function $g$ 對 $\mathcal{D}$ 完美的 predict, 但 training data 外的資料也能保證很好嗎?</p>
+<p><img src="/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/Untitled.png" width="70%" height="70%"> 所以對 training data $\mathcal{D}$ 找 hypothesis 沒問題嗎??<br>由 Probably Approximately Correct (PAC) 出發, 告訴我們當 data 量夠大的時候是沒問題的.</p>
+<h2 id="大概差不多正確-Probably-Approximately-Correct-PAC"><a href="#大概差不多正確-Probably-Approximately-Correct-PAC" class="headerlink" title="大概差不多正確 Probably Approximately Correct (PAC)"></a>大概差不多正確 Probably Approximately Correct (PAC)</h2><h3 id="Hoeffding’s-Inequality"><a href="#Hoeffding’s-Inequality" class="headerlink" title="Hoeffding’s Inequality"></a>Hoeffding’s Inequality</h3><p>請看投影片<br><img src="/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/Untitled 1.png" width="70%" height="70%"> $\mathbb{P}[|\nu-\mu|&gt;\epsilon]$ 想成壞事發生的機率. 所以告訴我們, 壞事發生的機率有個 upper bound. 就是當 $N$ 夠大, 壞事發生的機率就很小.<br><img src="/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/Untitled 2.png" width="70%" height="70%"> Wiki: <strong><a href="https://en.wikipedia.org/wiki/Hoeffding%27s_inequality" target="_blank" rel="external">Hoeffding’s inequality</a></strong><br>Let $X_1,…,X_N$ be independent r.v.s such that $a_i\leq X_i\leq b_i$ almost surely. Consider $S_N=X_1+…+X_N$. Then for all $t&gt;0$,<br><span>$$\begin{align}
+P(S_N-\mathbb{E}[S_N]\geq t)\leq \exp\left( -\frac{2t^2}{\sum_{i=1}^N(b_i-a_i)^2}\right) \\
+P(|S_N-\mathbb{E}[S_N]|\geq t)\leq 2\exp\left( -\frac{2t^2}{\sum_{i=1}^N(b_i-a_i)^2}\right)
+\end{align}$$</span><!-- Has MathJax --> 以老師的投影片來說, random variable $X_i$ 表示是不是橘球, 是的話就是 $1$, 不是就是 $0$. 所以 $0\leq X_i \leq 1$.<br>因此 $S_N=X_1+…+X_N$ 就表示 $N$ 個球中是橘球的數量的 random variable. 然後帶入 wiki 的公式就可以跟老師的投影片結果對照起來. 注意 wiki 使用 $S_N$, 但投影片用的是 $\nu=S_N/N, \mu=\mathbb{E}[S_N]/N$. 所以 $t=N\epsilon$.</p>
+<p><img src="/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/Untitled 3.png" width="70%" height="70%"> 所以對 training data $\mathcal{D}$ 不過 Hoeffding’s inequality 它的 bound 不是很 tight.</p>
+<h2 id="Connection-to-Learning"><a href="#Connection-to-Learning" class="headerlink" title="Connection to Learning"></a>Connection to Learning</h2><p>上面罐子抽彈珠的例子, 其實跟 ML 要怎麼確認找到的 $h$ 是不是跟 oracle $f$ 夠像是同一個問題<br><img src="/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/Untitled 4.png" width="70%" height="70%"> 把整個 $\mathcal{X}$ 當成是整個罐子的彈珠, 而 training dataset $\mathcal{D}$ 是抽樣出來的 $N$-sample.<br>對某一個 $x\in\mathcal{X}$, $h(x)\neq f(x)$ 就是橘色彈珠, 否則就是綠色彈珠. 則 $\mu$ 就是 <span>$\mathbb{E}_{out}$</span><!-- Has MathJax -->, $\nu$ 就是 <span>$\mathbb{E}_{in}$</span><!-- Has MathJax -->.<br>所以原來壞事發生的機率 <span>$\mathbb{P}[|\nu-\mu|&gt;\epsilon]$</span><!-- Has MathJax --> 在這裡變成 <span>$\mathbb{P}[|\mathbb{E}_{in}-\mathbb{E}_{out}|&gt;\epsilon]$</span><!-- Has MathJax --> (inside-test 和 outside-test 的錯誤率差太多的機率)<br>則根據 Hoeffding’s Inequality, 對某一固定的 hypothesis $h$ 在 training data 上的表現和 out-of-sample 的 data 表現大概接近.<br><span>$$\mathbb{P}\left[|E_{in}(h)-E_{out}(h)|&gt;\epsilon\right]\leq 2\exp\left(-2\epsilon^2N\right)$$</span><!-- Has MathJax --><br><img src="/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/Untitled 5.png" width="70%" height="70%"> 上圖中, 先不看 learning algorithm $\mathcal{A}$ 以及它挑出來的 final hypothesis $g$ 那兩塊.<br>注意到, 目前所說的是指已經固定一個 $h$ 了, 然後我們可以用 unknown probability $P$ 採樣出來的 set $\mathcal{X}$ 得到 <span>$\mathbb{E}_{in}\approx\mathbb{E}_{out}$</span><!-- Has MathJax -->. 意思就是這個 $h$ 不能針對 <span>$\mathbb{E}_{in}$</span><!-- Has MathJax --> 去學習找出來.<br>再白話一點 “固定一個 $h$” 意思是<strong>罐子裡彈珠的顏色已經先固定了</strong>! Hoeffding’s 只是告訴我們抽樣的資料 (size $N$ 的彈珠, set $\mathcal{D}$) 查看到的錯誤率跟整個罐子的錯誤率會很接近. 所以當然不能針對抽出來的資料再來挑選 $h$, 這樣等於事後改變彈珠顏色.<br><img src="/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/Untitled 6.png" width="70%" height="70%"> 也就是說這時候的 <span>$\mathbb{E}_{in}(g)$</span><!-- Has MathJax --> 指的是用 verification data 來看 error, 或許叫 <span>$\mathbb{E}_{ver}$</span><!-- Has MathJax --> 比較好. 而真正的 training data 給 learning algorithm $\mathcal{A}$ 用來挑 $g$.<br>這就是 Verification dataset 在做的事情.<br><img src="/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/Untitled 7.png" width="70%" height="70%"></p>
+<blockquote>
+<p>💡 下一段所講的 <span>$\mathbb{E}_{in}$</span><!-- Has MathJax --> 其實指的是 <span>$\mathbb{E}_{ver}$</span><!-- Has MathJax -->, training data $\mathcal{D}$ 其實是 verification data</p>
+</blockquote>
+<h2 id="Connection-to-Real-Learning"><a href="#Connection-to-Real-Learning" class="headerlink" title="Connection to Real Learning"></a><strong>Connection to Real Learning</strong></h2><p>一個固定的 hypothesis $h$ 會對應到一種彈珠顏色分布情形, 橘色代表它跟 oracle $f$ 不一樣的 input $x$.<br>Hoeffding 告訴我們, 對這一個 $h$ 我們看 <span>$\mathbb{E}_{in}(h)$</span><!-- Has MathJax --> 大概差不多等於 <span>$\mathbb{E}_{out}(h)$</span><!-- Has MathJax -->. 換句話說 BAD 的機率很小, 所以我們可以相信 <span>$\mathbb{E}_{in}(h)$</span><!-- Has MathJax --> 的評估結果.<br><img src="/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/Untitled 8.png" width="70%" height="70%"></p>
+<p><span>$$\mathbb{P}_{\mathcal{D}}[{\color{orange}{\text{BAD }}} \mathcal{D}] = \sum_{D\in\mathcal{D}}{\mathbb{P}(D)\cdot 1[D \text{ is}{\color{orange}{\text{ BAD}}}]}$$</span><!-- Has MathJax --> Hypothesis set $\mathcal{H}$ 通常會有無窮多個 hypothesis, 我們先假設它只有 $M$ 個就好.</p>
+<blockquote>
+<p>無窮多的 case 之後課程會介紹.</p>
+</blockquote>
+<p>結果對 sampling 出來的 data (training data), 我們發現其中有一個 hypothesis 表現全對, 我們可以選它嗎? 當然不能. 那不能的話, learning algorithm $\mathcal{A}$ 根據 training data (這裡其實指的是 verification data) 挑最好的 <span>$\mathbb{E}_{in}$</span><!-- Has MathJax --> 不就沒意義了?</p>
+<p><img src="/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/Untitled 9.png" width="70%" height="70%"> 別緊張, 我們先看一下所有 hypothesis 對應 training data 的表:<br><img src="/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/Untitled 10.png" width="70%" height="70%"> 關鍵在 column, 因為 learning algorithm $\mathcal{A}$, 對某一 sampling 出來的 training data $\mathcal{D}_i$ (這裡其實指的是 verification data) 會挑一個 error 最小的 hypothesis. 但會挑到哪一個不知道 (因為 $\mathcal{A}$ 是用真正的 training data 挑的, 不是用 $\mathcal{D}_i$ 挑的, 別忘了 $\mathcal{D}_i$ 是 verification data), 所以任何的 $h_i$ 都有可能被 $\mathcal{A}$ 挑到.<br><strong>所以只要 column 中有某一個 hypothesis 是 BAD 的話, learning algorithm 就失去作用了</strong>. 對於 all 最後那個 row 來說, 只要有一個 hypothesis 是 BAD, all 就算 BAD. 如同 PAC 一樣, 我們希望最後一個 row BAD 的機率越低愈好.<br>評估一下這樣情況下, 發生 BAD 的機率:</p>
+<p>$$<br>\mathbb{P}_{\mathcal{D}}[{\color{orange}{\text{BAD }}} \mathcal{D}] = 2{\color{orange}{M}}\exp\left(-2\epsilon^2N\right)<br>$$</p>
+<p><img src="/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/Untitled 11.png" width="70%" height="70%"> 所以其實還是有 upper bound, 換句話說, learening algorithm 挑出來的 $g$ 仍然滿足 PAC!</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/" title="Introduction of Probably Approximately Correct (PAC) 林軒田課程筆記">https://bobondemon.github.io/2024/03/19/Introduction-of-Probably-Approximately-Correct-PAC-林軒田課程筆記/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Probably-Approximately-Correct-PAC/" rel="tag"># Probably Approximately Correct (PAC)</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/02/17/量化技術路線/" rel="next" title="量化技術路線">
+                <i class="fa fa-chevron-left"></i> 量化技術路線
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2024/03/20/Sharpness-Aware-Minimization-SAM-論文閱讀筆記/" rel="prev" title="Sharpness-Aware Minimization (SAM) 論文閱讀筆記">
+                Sharpness-Aware Minimization (SAM) 論文閱讀筆記 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">123</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">262</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#怎麼說都你對-training-data-外的-predition"><span class="nav-number">1.</span> <span class="nav-text">怎麼說都你對, training data 外的 predition</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#大概差不多正確-Probably-Approximately-Correct-PAC"><span class="nav-number">2.</span> <span class="nav-text">大概差不多正確 Probably Approximately Correct (PAC)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Hoeffding’s-Inequality"><span class="nav-number">2.1.</span> <span class="nav-text">Hoeffding’s Inequality</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Connection-to-Learning"><span class="nav-number">3.</span> <span class="nav-text">Connection to Learning</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Connection-to-Real-Learning"><span class="nav-number">4.</span> <span class="nav-text">Connection to Real Learning</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+<span id="busuanzi_container_site_pv">
+  本站總瀏覽 <span id="busuanzi_value_site_pv"></span> 次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站訪客 <span id="busuanzi_value_site_uv"></span> 人
+</span>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

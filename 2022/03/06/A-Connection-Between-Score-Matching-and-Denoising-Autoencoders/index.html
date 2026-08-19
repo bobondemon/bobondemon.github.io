@@ -1,0 +1,861 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Denoising Score Matching,Score Matching," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="這是一篇論文筆記: “A Connection Between Score Matching and Denoising Autoencoders”建議看本文前請先參前一篇: Score Matching 系列 (一) Non-normalized 模型估計
+前言基於 Score Matching, 提出 Denoising Score Matching (DSM) 的目標函式, 好處是在 en">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Score Matching 系列 (二) Denoising Score Matching (DSM) 改善效率並可 Scalable">
+<meta property="og:url" content="https://bobondemon.github.io/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="這是一篇論文筆記: “A Connection Between Score Matching and Denoising Autoencoders”建議看本文前請先參前一篇: Score Matching 系列 (一) Non-normalized 模型估計
+前言基於 Score Matching, 提出 Denoising Score Matching (DSM) 的目標函式, 好處是在 en">
+<meta property="og:image" content="https://bobondemon.github.io/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/Untitled.png">
+<meta property="og:image" content="https://bobondemon.github.io/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/Untitled 1.png">
+<meta property="og:updated_time" content="2026-08-19T13:01:09.810Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Score Matching 系列 (二) Denoising Score Matching (DSM) 改善效率並可 Scalable">
+<meta name="twitter:description" content="這是一篇論文筆記: “A Connection Between Score Matching and Denoising Autoencoders”建議看本文前請先參前一篇: Score Matching 系列 (一) Non-normalized 模型估計
+前言基於 Score Matching, 提出 Denoising Score Matching (DSM) 的目標函式, 好處是在 en">
+<meta name="twitter:image" content="https://bobondemon.github.io/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/Untitled.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/"/>
+
+
+
+
+
+  <title> Score Matching 系列 (二) Denoising Score Matching (DSM) 改善效率並可 Scalable | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Score Matching 系列 (二) Denoising Score Matching (DSM) 改善效率並可 Scalable
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2022-03-06T09:30:22+08:00">
+                2022-03-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<p>這是一篇論文筆記: “A Connection Between Score Matching and Denoising Autoencoders”<br>建議看本文前請先參前一篇: <a href="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/">Score Matching 系列 (一) Non-normalized 模型估計</a></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>基於 Score Matching, 提出 Denoising Score Matching (DSM) 的目標函式, 好處是在 energy-based model 下:</p>
+<ol>
+<li>不用將 score function 的 gradients 也納入 loss 去計算 (避免二次微分做 backprop 提高效率)</li>
+<li>當 input $x$ 的維度很大也沒問題 (可以 scalable)</li>
+</ol>
+<p>但缺點是:</p>
+<ol>
+<li>最多只能學到加 noise 後的分布</li>
+<li>加 noise 的 level 不好調整</li>
+</ol>
+<p>這兩個缺點在下一篇 <a href="https://bobondemon.github.io/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/">Sliced Score Matching (SSM)</a> 可以得到改善<br>這篇論文最後也點出了 denoising autoencoder 跟 score matching 的關係 (實際上就是 DSM loss)</p>
+<p>以下正文開始<br><a id="more"></a></p>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><hr>
+<p>$q(x)$ 表示 data (真實資料) 的 pdf, $p(x;\theta)$ 表示 model 參數為 $\theta$ 的 pdf<br>Explicit Score Matching (ESM) 為:<br><span>$$\begin{align}
+J_{ESM,q}(\theta) = \mathbb{E}_{q(x)}\left[
+\frac{1}{2}\left\|
+\psi(x;\theta)-\frac{\partial \log q(x)}{\partial x}
+\right\|^2
+\right]
+\end{align}$$</span><!-- Has MathJax --><br>實際上我們不知道 $q(x)$, 因此式 (1) 的 <span>$J_{ESM}$</span><!-- Has MathJax --> 我們無法用. 不過, 最開始的 Score Matching 論文已經證明 <span>$J_{ESM}$</span><!-- Has MathJax --> 等價於如下的 <span>$J_{ISM}$</span><!-- Has MathJax -->, 而 <span>$J_{ISM}$</span><!-- Has MathJax --> 是我們能實作的<br>Implicit Score Matching (ISM) 為:<br><span>$$\begin{align}
+J_{ISM,q}(\theta)=\mathbb{E}_{q(x)}\left[
+\frac{1}{2}\|\psi(x;\theta)\|^2+ tr(\nabla_x\psi(x;\theta))
+\right]
+\end{align}$$</span><!-- Has MathJax --><br>如果我們對 $q(x)$ 做 pertrub, i.e. 每一個 data point $x$ 都加上一個 pdf 為 <span>$q_\sigma(\tilde{x}|x)$</span><!-- Has MathJax --> 的 random noise<br>其中 $\sigma$ 為該 noise pdf 的參數, 如果以 isotropic Gaussian pdf 為例子, $\sigma^2$ 就是 variance<br>則 noisy 的 data pdf <span>$q_\sigma(\tilde{x})$</span><!-- Has MathJax --> 就變成:<br><span>$q_\sigma(\tilde{x})=\int q_\sigma(\tilde{x}|x) q(x) dx$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>💡 兩個 independent random variables $x,y$ 相加 $z=x+y$, 則 $z$ 的 pdf 為 $x,y$ 的 pdfs 的 convolution</p>
+</blockquote>
+<p>然後 $\theta$ 要學的目標 pdf 變成 <span>$q_\sigma(\tilde{x})$</span><!-- Has MathJax --> 後, 其 ESM 為:<br><span>$$\begin{align}
+J_{ESM,q_\sigma}(\theta) = \mathbb{E}_{q_\sigma(\tilde{x})}\left[
+\frac{1}{2}\left\|
+\psi(\tilde{x};\theta)-\frac{\partial \log q_\sigma(\tilde{x})}{\partial \tilde{x}}
+\right\|^2
+\right]
+\end{align}$$</span><!-- Has MathJax --></p>
+<p><strong>只是將原來的 ESM data pdf 換成 noisy 版本而已.</strong> 因此, <span>$J_{ESM,q_\sigma}$</span><!-- Has MathJax --> 也會等價 <span>$J_{ISM,q_\sigma}$</span><!-- Has MathJax --> (只要適當的 noise pdf 讓 <span>$q_\sigma(\tilde{x})$</span><!-- Has MathJax --> 滿足原來 ESM 等於 ISM 的條件)<br>其中:<br><span>$$\begin{align}
+J_{ISM,q_\sigma}(\theta)=\mathbb{E}_{q_\sigma(\tilde{x})}\left[
+\frac{1}{2}\|\psi(\tilde{x};\theta)\|^2+ tr(\nabla_x\psi(\tilde{x};\theta))
+\right]
+\end{align}$$</span><!-- Has MathJax --></p>
+<blockquote>
+<p>⚠️ 乍看之下 (4) 好像跟原來的 ISM (式 (2)) 沒什麼不同, 其實不同的地方在 “expectation on what pdf”</p>
+</blockquote>
+<p>ISM 的缺點是必須要計算二次微分, 並且要當成 loss 的一部分, 這會導致計算過慢 (因為微分的 operations 也會加進 graph 裡, 可以想像 NN 本來的 graph 就很大了, 還要加一二次微分的 ops 進去)</p>
+<blockquote>
+<ol>
+<li>有關如何將一二次微分加入 loss 中可參考 [<a href="https://zhuanlan.zhihu.com/p/84890656" target="_blank" rel="external">retain_graph和create_graph参数</a>]</li>
+<li>其實我們可以直接用一個 NN 來表示 score function $\psi(x;\theta)$, 這樣原來的二次微分就是該 NN 的一次微分, 雖然這樣做比較有效率, 但 <a href="https://arxiv.org/abs/1805.08306" target="_blank" rel="external">Deep Energy Estimator Networks</a> 指出會不 robust. 不過如果使用 Sliced Score Matching (SSM), 該文作者說一樣可以有效的用 NN 直接 predict score function.</li>
+</ol>
+</blockquote>
+<p>這篇論文提出的 <strong>Denoising Score Matching (DSM)</strong> 的目標函式 <span>$J_{DSM,q_\sigma}(\theta)$</span><!-- Has MathJax --> 可以避開上述將微分項也加入 loss 計算導致不有效率的缺點. 該目標函式為:<br><span>$$\begin{align}
+J_{DSM,q_\sigma}(\theta)=\mathbb{E}_{q_\sigma(x,\tilde{x})}\left[
+\frac{1}{2}
+\left\|
+\psi(\tilde{x};\theta) - \frac{\partial\log q_\sigma(\tilde{x}|x)}{\partial\tilde{x}}
+\right\|^2
+\right]
+\end{align}$$</span><!-- Has MathJax --><br>注意到若 noise pdf 為 isotropic Gaussian nosie <span>$\mathcal{N}(x,\sigma^2I)$</span><!-- Has MathJax --> 則:</p>
+<span>$$\frac{\partial\log q_\sigma(\tilde{x}|x)}{\partial\tilde{x}} = \frac{1}{\sigma^2}(x-\tilde{x})$$</span><!-- Has MathJax -->
+<p>因此式 (5) 變得很容易計算也有效率</p>
+<blockquote>
+<p>💡 還有一個直觀的解釋, 我們給定一個 pair $(x,\tilde{x})$, 希望 $\tilde{x}$ 的 gradient 跟 noise pdf 的 gradient 流向一樣, <strong>相當於希望將 nosiey 的 $\tilde{x}$ 還原成 clean 的 $x$</strong></p>
+</blockquote>
+<p>文章並證明了 <span>$J_{DSM_{q_\sigma}}$</span><!-- Has MathJax --> 等價於 <span>$J_{ESM_{q_\sigma}}$</span><!-- Has MathJax -->, i.e. (5)=(3)</p>
+<p>我們擷取論文 Appendix 的證明:<br><img src="/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/Untitled.png" width="80%" height="80%"><br><img src="/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/Untitled 1.png" width="80%" height="80%"></p>
+<p>最後文章說明了一個有趣的發現<br>最簡單的 Denoise Autoencoder NN (一層 linear hidden layer, tied weights) 其 reconstruction mse 的目標函式等價於使用 <span>$J_{DSM_{q_\sigma}}$</span><!-- Has MathJax --><br>讓我們將 Score Matching 跟 Denoise Autoencoder 有了連結</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/" title="Score Matching 系列 (二) Denoising Score Matching (DSM) 改善效率並可 Scalable">https://bobondemon.github.io/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Denoising-Score-Matching/" rel="tag"># Denoising Score Matching</a>
+          
+            <a href="/tags/Score-Matching/" rel="tag"># Score Matching</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/" rel="next" title="Score Matching 系列 (一) Non-normalized 模型估計">
+                <i class="fa fa-chevron-left"></i> Score Matching 系列 (一) Non-normalized 模型估計
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/" rel="prev" title="Score Matching 系列 (三) Sliced Score Matching (SSM) 同時保持效率和效果">
+                Score Matching 系列 (三) Sliced Score Matching (SSM) 同時保持效率和效果 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">123</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">262</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#正文"><span class="nav-number">2.</span> <span class="nav-text">正文</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+<span id="busuanzi_container_site_pv">
+  本站總瀏覽 <span id="busuanzi_value_site_pv"></span> 次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站訪客 <span id="busuanzi_value_site_uv"></span> 人
+</span>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

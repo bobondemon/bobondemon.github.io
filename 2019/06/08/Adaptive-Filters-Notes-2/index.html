@@ -1,0 +1,865 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Adaptive Filters,OLA,OLS,circular convolution,linear convolution," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="上一篇說明了 time domain 的 adaptive filters, 由於是 sample-by-sample 處理, 因此太慢了不可用, 真正可用的都是基於 frequency domain. 不過在深入之前, 一定要先了解 convolution 在 input 為 block-by-block 的情況下如何加速. 本文內容主要參考 Partitioned convolution a">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Adaptive Filters 簡介 (2) Fast Convolution and Frequency Domain">
+<meta property="og:url" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="上一篇說明了 time domain 的 adaptive filters, 由於是 sample-by-sample 處理, 因此太慢了不可用, 真正可用的都是基於 frequency domain. 不過在深入之前, 一定要先了解 convolution 在 input 為 block-by-block 的情況下如何加速. 本文內容主要參考 Partitioned convolution a">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/classes_of_convolution_algo.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/Untitled.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/Untitled 1.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/Untitled 2.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/Untitled 3.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/Untitled 4.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/def_circular_conv.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/linear_conv_with_circular_conv.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/fast_conv.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/fast_conv_ola.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/fast_conv_ols.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/FDAF.png">
+<meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/upols.png">
+<meta property="og:updated_time" content="2026-08-19T13:01:09.811Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Adaptive Filters 簡介 (2) Fast Convolution and Frequency Domain">
+<meta name="twitter:description" content="上一篇說明了 time domain 的 adaptive filters, 由於是 sample-by-sample 處理, 因此太慢了不可用, 真正可用的都是基於 frequency domain. 不過在深入之前, 一定要先了解 convolution 在 input 為 block-by-block 的情況下如何加速. 本文內容主要參考 Partitioned convolution a">
+<meta name="twitter:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/classes_of_convolution_algo.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/"/>
+
+
+
+
+
+  <title> Adaptive Filters 簡介 (2) Fast Convolution and Frequency Domain | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Adaptive Filters 簡介 (2) Fast Convolution and Frequency Domain
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2019-06-08T23:35:35+08:00">
+                2019-06-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SP/" itemprop="url" rel="index">
+                    <span itemprop="name">SP</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<p>上一篇說明了 time domain 的 adaptive filters, 由於是 sample-by-sample 處理, 因此太慢了不可用, 真正可用的都是基於 frequency domain. 不過在深入之前, 一定要先了解 convolution 在 input 為 block-by-block 的情況下如何加速. 本文內容主要參考 <a href="https://dl.acm.org/citation.cfm?id=2834400" target="_blank" rel="external">Partitioned convolution algorithms for real-time auralization</a> by Frank Wefers (書的介紹十分詳盡).</p>
+<p>Convolution 分類如下:<br><img src="/2019/06/08/Adaptive-Filters-Notes-2/classes_of_convolution_algo.png" width="40%" height="40%"></p>
+<p>我們就針對最常使用的情形介紹: Input (UP) and Filter (0).</p>
+<blockquote>
+<p>這是因為實際應用 input 是 infinite length, 所以需要 block-by-block 給定, 而 filter 通常都是 finite length, 可以選擇不 partition, 或 uniformly partitioned 以便得到更低的延遲效果.</p>
+</blockquote>
+<p>針對 block-based input 的 convolution, 我們有兩種架構:</p>
+<ol>
+<li>OverLap-and-Add (OLA)</li>
+<li>OverLap-and-Save (OLS)</li>
+</ol>
+<a id="more"></a>
+<hr>
+<h3 id="Linear-Convolution"><a href="#Linear-Convolution" class="headerlink" title="Linear Convolution"></a>Linear Convolution</h3><p>Filter $h$ 長度為 $N$ 個, 對 input $x$ 做 convolution 為:</p>
+<p>$$<br>\begin{align}<br>y[i]=\sum_{n=0}^{N-1} h[n] \cdot x[i-n]<br>\end{align}<br>$$</p>
+<p>考慮 $h={h[0],h[1],h[2]}$, $x={x[0], x[1], x[2], x[3]}$ 的 case<br>根據 (1), 得知 $y[2]=h[0]x[2]+h[1]x[1]+h[2]x[0]$. 如下圖:<br><img src="/2019/06/08/Adaptive-Filters-Notes-2/Untitled.png" width="50%" height="50%"> 在舉個例子, $y[3]=h[0]x[3]+h[1]x[2]+h[2]x[1]$. 如下圖:<br><img src="/2019/06/08/Adaptive-Filters-Notes-2/Untitled 1.png" width="50%" height="50%"> 所以整個 linear convolution $y=x\star h$ 為:<br><img src="/2019/06/08/Adaptive-Filters-Notes-2/Untitled 2.png" width="100%" height="100%"> 因此當 $|h|=N$, $|x|=M$, 則 output $|y|=M+N-1$</p>
+<hr>
+<h3 id="OLA"><a href="#OLA" class="headerlink" title="OLA"></a>OLA</h3><p>OLA 相對來說很好理解的. 每一個新來的 data block $x_i$ (長度為 $B$), 都與 filter $h$ (長度為 $N$) 做 linear convolution, 產生的 output $y_i$ (長度為 $B+N−1$) 開頭的 $N−1$ 個結果與前一個output block 重疊的部分疊加 (“add”), 所以稱 overlap-and-ADD. 示意圖如下:<br>當 input 是一個 block 一個 block 近來的時候, (每個 block 長度為 $4$), ola 圖示為:<br><img src="/2019/06/08/Adaptive-Filters-Notes-2/Untitled 3.png" width="70%" height="70%"></p>
+<hr>
+<h3 id="OLS"><a href="#OLS" class="headerlink" title="OLS"></a>OLS</h3><p>OLS 則從 output 角度來看. 根據現在的 output 來決定需要用到那些 inputs 做 linear convolution.<br>舉例來說根據 convolution 定義, 式 (1), 如果我們需要計算 $y[6]$ 則我們需要用到 ${x[6], x[5], x[4]}$, i.e. $y[6]=h[0]x[6]+h[1]x[5]+h[2]x[4]$<br>因此根據此筆新 data ${x[4], x[5], x[6], x[7]}$, 我們可以得到相對應的 outputs ${y[4], y[5], y[6], y[7]}$. 如下圖所示:</p>
+<p><img src="/2019/06/08/Adaptive-Filters-Notes-2/Untitled 4.png" width="50%" height="50%"></p>
+<p>data block 長度為 $B$, filter $h$ 長度為 $N$</p>
+<p>如果我們把新的 block data ${x[4], x[5], x[6], x[7]}$ 結合 $N-1$ 個過去 data 使得 data $x={x[2], x[3], x[4], x[5], x[6], x[7]}$ 整體長度為 $B+N-1$. 根據上圖與 $h$ 做 linear convolution, 則有效 output 點如上圖所示只會有 $B(=4)$ 個是我們要的! 因此我們只需要 “save” 需要的這 $B$ 個 output, 其他都丟較即可. 所以稱 overlap-and-SAVE.</p>
+<hr>
+<h3 id="如何有效率的做-linear-convolution"><a href="#如何有效率的做-linear-convolution" class="headerlink" title="如何有效率的做 linear convolution?"></a>如何有效率的做 linear convolution?</h3><p>不管是 OLA 或 OLS 都需要對兩個固定長度 (通常使用 padding $0$ 成等長) 的 signal 做 linear convolution. 怎麼有效率的做 linear convolution 就變得十分重要.<br>我們都知道頻域的相乘相當於時域的 <strong>circular</strong> convolution. 因此如果能用 ciruclar convolution 來做出 linear convolution 的話, 我們就能轉到頻域上再相乘就可以了.<br>Circular convolution 的定義如下<a href="https://dl.acm.org/citation.cfm?id=2834400" target="_blank" rel="external">[1]</a>, 其實概念也很容易:</p>
+<p><img src="/2019/06/08/Adaptive-Filters-Notes-2/def_circular_conv.png" width="70%" height="70%"></p>
+<p>我們只需要適當地 padding zeros, 就可以使得 padding 後的 signals 做 circular convolution 會等於原來的 singals 做 linear convolution. 如下圖<a href="https://dl.acm.org/citation.cfm?id=2834400" target="_blank" rel="external">[1]</a></p>
+<p><img src="/2019/06/08/Adaptive-Filters-Notes-2/linear_conv_with_circular_conv.png" width="60%" height="60%"></p>
+<p>因此使用 FFT-domain 的 circular convolution 來實現 fast linear convolution 流程如下</p>
+<p><img src="/2019/06/08/Adaptive-Filters-Notes-2/fast_conv.png" width="70%" height="70%"></p>
+<hr>
+<h3 id="Fast-Conv-with-OLA"><a href="#Fast-Conv-with-OLA" class="headerlink" title="Fast Conv with OLA"></a>Fast Conv with OLA</h3><p>在 OLA 架構中使用 FFT-domain 的 circular convolution 如下:</p>
+<p><img src="/2019/06/08/Adaptive-Filters-Notes-2/fast_conv_ola.png" width="100%" height="100%"></p>
+<p>Padding zeros 不管在前還是在後都可以, 只要滿足 $K=\geq M+B-1$ 避免 aliasing 即可.</p>
+<hr>
+<h3 id="Fast-Conv-with-OLS"><a href="#Fast-Conv-with-OLS" class="headerlink" title="Fast Conv with OLS"></a>Fast Conv with OLS</h3><p>在 OLS 架構中使用 FFT-domain 的 circular convolution 如下:</p>
+<p><img src="/2019/06/08/Adaptive-Filters-Notes-2/fast_conv_ols.png" width="100%" height="100%"></p>
+<p>Input signal 不是 padding zeros, 而是在左邊 padding 之前的 input 訊號 (參考本篇上面的 OLS 段落), 用這樣的 padding 方式來看 circular convolution 的話, 每一次我們就 “save” output 的最後 $B$ 個結果即可.</p>
+<p>在實作上通常會將 $B=N$, 並且設定 $K=2B=2N$, 這樣我們每一次只需要保留前一次的 input block, 並且 padding 給新來的 input block.</p>
+<hr>
+<h3 id="Frequncy-Domain-Adaptive-Filter"><a href="#Frequncy-Domain-Adaptive-Filter" class="headerlink" title="Frequncy Domain Adaptive Filter"></a>Frequncy Domain Adaptive Filter</h3><p>Frequency Domain Adaptive Filter (FDAF) 請參考 [<a href="Block Adaptive Filters and Frequency Domain Adaptive Filters.pdf">2</a>], 整理的非常好, 所以這裡就不多描述, 完全可以照著實作出來! 我們會發現其實它採用的是我們上面說過的 Fast Convolution with OLS 架構, 只是 filter 必須 adaptive 更新.<br><img src="/2019/06/08/Adaptive-Filters-Notes-2/FDAF.png" width="90%" height="90%"></p>
+<p>以下是 python implementation<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># In the frequency domain methods, notations are defined as:</span></div><div class="line"><span class="comment"># x: reference signal, [-1, 1]</span></div><div class="line"><span class="comment"># d: desired signal, [-1, 1]</span></div><div class="line"><span class="comment"># step_size: step size</span></div><div class="line"><span class="comment"># alpha: the alpha filter for tracking the energy for each bin</span></div><div class="line"><span class="comment"># w: the retruned filter</span></div><div class="line"><span class="comment"># e: the error signal, of size (itr_num,)</span></div><div class="line"><span class="comment"># ========== FDAF (Frequency Domain Adaptive Filters)</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">FDAF</span><span class="params">(x,d,step_size,N=<span class="number">512</span>,alpha=<span class="number">0.9</span>)</span>:</span></div><div class="line">  iter_num = len(d)//N<span class="number">-1</span></div><div class="line">  <span class="keyword">assert</span>(iter_num&gt;<span class="number">0</span>)</div><div class="line">  <span class="comment"># Init</span></div><div class="line">  W = np.zeros(<span class="number">2</span>*N,dtype=complex)</div><div class="line">  pow_lambda = np.ones(<span class="number">2</span>*N)*np.finfo(np.float32).eps</div><div class="line">  rtn_e = np.zeros((iter_num<span class="number">-1</span>)*N)</div><div class="line">  <span class="comment"># Main Iteration</span></div><div class="line">  <span class="keyword">for</span> itridx <span class="keyword">in</span> range(<span class="number">1</span>,iter_num):</div><div class="line">    x_2blocks = x[(itridx<span class="number">-1</span>)*N:(itridx+<span class="number">1</span>)*N]  <span class="comment"># (2N)</span></div><div class="line">    d_block = d[itridx*N:(itridx+<span class="number">1</span>)*N]  <span class="comment"># (N)</span></div><div class="line">    X = fft(x_2blocks) <span class="comment"># (2N)</span></div><div class="line">    Y = np.einsum(<span class="string">'i,i-&gt;i'</span>,X,W)</div><div class="line">    y = ifft(Y) <span class="comment"># (2N)</span></div><div class="line">    y = y[N:] <span class="comment"># (N), discard first half block</span></div><div class="line">    <span class="comment"># print (y)</span></div><div class="line">    <span class="comment"># e = np.real(d_block - y) # (N)</span></div><div class="line">    e = d_block - y <span class="comment"># (N)</span></div><div class="line">    <span class="comment"># print(len(rtn_e))</span></div><div class="line">    rtn_e[(itridx<span class="number">-1</span>)*N:itridx*N] = np.real(e)</div><div class="line">    e = np.concatenate([np.zeros([N]),e]) <span class="comment"># (2N)</span></div><div class="line">    E = fft(e) <span class="comment"># (2N)</span></div><div class="line">    </div><div class="line">    pow_lambda = alpha*pow_lambda + (<span class="number">1</span>-alpha)*(np.abs(X)**<span class="number">2</span>)</div><div class="line">    </div><div class="line">    <span class="comment"># scale error signal, just like NLMS</span></div><div class="line">    E = E/pow_lambda</div><div class="line"></div><div class="line">    <span class="comment"># Set the upper bound of E, to prevent divergence</span></div><div class="line">    m_errThreshold = <span class="number">0.2</span></div><div class="line">    Enorm = np.abs(E) <span class="comment"># (2N)</span></div><div class="line">    <span class="comment"># print(E)</span></div><div class="line">    <span class="keyword">for</span> eidx <span class="keyword">in</span> range(<span class="number">2</span>*N):</div><div class="line">      <span class="keyword">if</span> Enorm[eidx]&gt;m_errThreshold:</div><div class="line">        E[eidx] = m_errThreshold*E[eidx]/(Enorm[eidx]+<span class="number">1e-10</span>)</div><div class="line">    </div><div class="line">    <span class="comment"># Constraint Part</span></div><div class="line">    gradient = np.einsum(<span class="string">'i,i-&gt;i'</span>,X.conj(),E) <span class="comment"># (2N)</span></div><div class="line">    gradient = ifft(gradient)</div><div class="line">    gradient[N:] = <span class="number">0</span></div><div class="line">    gradient = fft(gradient) <span class="comment"># (2N)</span></div><div class="line">    </div><div class="line">    <span class="comment"># Update Part</span></div><div class="line">    W = W + step_size*gradient</div><div class="line"></div><div class="line">  <span class="keyword">return</span> rtn_e</div></pre></td></tr></table></figure></p>
+<hr>
+<h3 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h3><p>我們介紹了針對 input 是 block-by-block 給定時, 計算 linear convolution 的兩種架構: OLA, OLS.</p>
+<p>而如何加速 linear convolution 我們則介紹了使用 circular convolution 來等價地完成 linear convolution. Circular convolution 可以利用頻域相乘來加快速度 (得益於 FFT 的效率).</p>
+<p>除了對 input 切 block 之外, 我們也還可以對 filter $h$ 切 block, 這樣的好處是計算量可以在更低, 且 latency 也會降低. 這部分請參考書的 Ch5, 附上一張書本裡的架構圖:</p>
+<p><img src="/2019/06/08/Adaptive-Filters-Notes-2/upols.png" width="100%" height="100%"></p>
+<p>這種方式其實很重要, 原因是 webrtc 中的 AEC 採用的是 Partitioned Block Frequency Domain Adaptive Filter (PBFDAF) [3], 就是 filter 也是 uniformly partitioned.</p>
+<p>最後我們利用 OLA 和 fast convolution, 列出來 frequency domain AF 的架構圖. 同時如果想要進一步降低 latency 則需使用 PBFDAF[3] (filter 也 partition).</p>
+<hr>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
+<li><a href="https://dl.acm.org/citation.cfm?id=2834400" target="_blank" rel="external">Partitioned convolution algorithms for real-time auralization</a> by Frank Wefers</li>
+<li><a href="Block Adaptive Filters and Frequency Domain Adaptive Filters.pdf">Block Adaptive Filters and Frequency Domain Adaptive Filters</a> by Prof. <a href="https://homepages.tuni.fi/ioan.tabus/" target="_blank" rel="external">Ioan Tabus</a></li>
+<li><a href="https://www.sciencedirect.com/science/article/pii/016516849290077A" target="_blank" rel="external">On the implementation of a partitioned block frequency domain adaptive filter (PBFDAF) for long acoustic echo cancellation</a></li>
+<li><a href="https://dsp.stackexchange.com/questions/22877/intuitive-explanation-of-cross-correlation-in-frequency-domain" target="_blank" rel="external">Intuitive explanation of cross-correlation in frequency domain</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/" title="Adaptive Filters 簡介 (2) Fast Convolution and Frequency Domain">https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Adaptive-Filters/" rel="tag"># Adaptive Filters</a>
+          
+            <a href="/tags/OLA/" rel="tag"># OLA</a>
+          
+            <a href="/tags/OLS/" rel="tag"># OLS</a>
+          
+            <a href="/tags/circular-convolution/" rel="tag"># circular convolution</a>
+          
+            <a href="/tags/linear-convolution/" rel="tag"># linear convolution</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/05/14/Adaptive-Filters-Notes/" rel="next" title="Adaptive Filters 簡介 (1) Time Domain">
+                <i class="fa fa-chevron-left"></i> Adaptive Filters 簡介 (1) Time Domain
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/06/18/SphereFace-paper-study-and-implementation-notes/" rel="prev" title="SphereFace Paper Study and Implementation Notes">
+                SphereFace Paper Study and Implementation Notes <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">123</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">262</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Linear-Convolution"><span class="nav-number">1.</span> <span class="nav-text">Linear Convolution</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#OLA"><span class="nav-number">2.</span> <span class="nav-text">OLA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#OLS"><span class="nav-number">3.</span> <span class="nav-text">OLS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何有效率的做-linear-convolution"><span class="nav-number">4.</span> <span class="nav-text">如何有效率的做 linear convolution?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fast-Conv-with-OLA"><span class="nav-number">5.</span> <span class="nav-text">Fast Conv with OLA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fast-Conv-with-OLS"><span class="nav-number">6.</span> <span class="nav-text">Fast Conv with OLS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Frequncy-Domain-Adaptive-Filter"><span class="nav-number">7.</span> <span class="nav-text">Frequncy Domain Adaptive Filter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Summary"><span class="nav-number">8.</span> <span class="nav-text">Summary</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">9.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+<span id="busuanzi_container_site_pv">
+  本站總瀏覽 <span id="busuanzi_value_site_pv"></span> 次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站訪客 <span id="busuanzi_value_site_uv"></span> 人
+</span>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

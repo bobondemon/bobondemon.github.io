@@ -1,0 +1,884 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Post Training Quantization (PTQ),Schur Complement,Cholesky Decomposition,GPTQ," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="近期回頭讀 GPTQ (針對 LLM 的 PTQ) 論文, 同時想認真理解其背後數學精隨, 才發現以前理解的太淺薄了.我認為掌握 Schur 互補 (Complement) 和 Cholesky 分解之間的關聯會是關鍵, 因此對此做比較詳細的數學筆記.最後會用一個簡單的情境來說明 GPTQ 怎麼應用 Cholesky 分解.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Schur 互補和 Cholesky 分解">
+<meta property="og:url" content="https://bobondemon.github.io/2026/08/16/Schur-互補和-Cholesky-分解/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="近期回頭讀 GPTQ (針對 LLM 的 PTQ) 論文, 同時想認真理解其背後數學精隨, 才發現以前理解的太淺薄了.我認為掌握 Schur 互補 (Complement) 和 Cholesky 分解之間的關聯會是關鍵, 因此對此做比較詳細的數學筆記.最後會用一個簡單的情境來說明 GPTQ 怎麼應用 Cholesky 分解.">
+<meta property="og:updated_time" content="2026-08-19T13:01:09.827Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Schur 互補和 Cholesky 分解">
+<meta name="twitter:description" content="近期回頭讀 GPTQ (針對 LLM 的 PTQ) 論文, 同時想認真理解其背後數學精隨, 才發現以前理解的太淺薄了.我認為掌握 Schur 互補 (Complement) 和 Cholesky 分解之間的關聯會是關鍵, 因此對此做比較詳細的數學筆記.最後會用一個簡單的情境來說明 GPTQ 怎麼應用 Cholesky 分解.">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2026/08/16/Schur-互補和-Cholesky-分解/"/>
+
+
+
+
+
+  <title> Schur 互補和 Cholesky 分解 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2026/08/16/Schur-互補和-Cholesky-分解/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Schur 互補和 Cholesky 分解
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2026-08-16T22:31:13+08:00">
+                2026-08-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<p>近期回頭讀 GPTQ (針對 LLM 的 PTQ) 論文, 同時想認真理解其背後數學精隨, 才發現以前理解的太淺薄了.<br>我認為掌握 Schur 互補 (Complement) 和 Cholesky 分解之間的關聯會是關鍵, 因此對此做比較詳細的數學筆記.<br>最後會用一個簡單的情境來說明 GPTQ 怎麼應用 Cholesky 分解.</p>
+<a id="more"></a>
+<hr>
+<h2 id="分塊矩陣逆定理-Block-Matrix-Inversion-Theorem"><a href="#分塊矩陣逆定理-Block-Matrix-Inversion-Theorem" class="headerlink" title="分塊矩陣逆定理 (Block Matrix Inversion Theorem)"></a>分塊矩陣逆定理 (Block Matrix Inversion Theorem)</h2><p>定義分塊矩陣 <span>$M=\begin{pmatrix} A &amp; B \\ C &amp; D \end{pmatrix}$</span><!-- Has MathJax -->, 且 <span>$S_D:=A-BD^{-1}C$</span><!-- Has MathJax --> 定義為 <span>$D$</span><!-- Has MathJax --> 在 <span>$M$</span><!-- Has MathJax --> 中的 Schur 互補.</p>
+<p>若 <span>$D$</span><!-- Has MathJax --> 和 <span>$S_D$</span><!-- Has MathJax --> 可逆, 則</p>
+<p><span>$$\begin{align}
+M^{-1}=
+\begin{pmatrix}
+A &amp; B \\ C &amp; D
+\end{pmatrix}^{-1}
+= \begin{pmatrix}
+S_D^{-1} &amp; -S_D^{-1}BD^{-1} \\
+-D^{-1}CS_D^{-1} &amp; D^{-1}+D^{-1}CS_D^{-1}BD^{-1}
+\end{pmatrix}
+\end{align}$$</span><!-- Has MathJax --> 證明可參考此 YouTube [<a href="https://www.youtube.com/watch?v=m6q1UIomQA4" target="_blank" rel="external">Schur complement in applications</a>] 前 6 分半, 我覺得滿清楚的.</p>
+<p>這定理有一個很大的應用: 快速計算分塊的反矩陣.</p>
+<p>若矩陣 <span>$H$</span><!-- Has MathJax --> 的 inverse <span>$M:=H^{-1}$</span><!-- Has MathJax --> 已知, 注意到 <span>$H$</span><!-- Has MathJax --> 不用已知, 定義他們對應的 submatrix 如下:</p>
+<p><span>$$\begin{aligned}
+H=\begin{pmatrix}
+H_a &amp; H_b \\ H_c &amp; H_d
+\end{pmatrix},\quad
+M:=H^{-1}=\begin{pmatrix}
+A &amp; B \\ C &amp; D
+\end{pmatrix}
+\end{aligned}$$</span><!-- Has MathJax --> 則 <span>$H_a$</span><!-- Has MathJax --> 這個 submatrix 的 inverse, i.e. <span>$(H_a)^{-1}$</span><!-- Has MathJax -->, 可由已知的 <span>$M$</span><!-- Has MathJax --> 做 Schur 互補快速求得:</p>
+<p><span>$$\begin{align}
+(H_a)^{-1}=S_D:=A-BD^{-1}C
+\end{align}$$</span><!-- Has MathJax --> 這是因為 <span>$M^{-1}=H$</span><!-- Has MathJax -->, 由分塊矩陣的逆矩陣定理 (1) 知 <span>$H_a$</span><!-- Has MathJax --> 剛好就是 <span>$S_D^{-1}$</span><!-- Has MathJax -->, 則有 <span>$(H_a)^{-1}=S_D$</span><!-- Has MathJax --> 的結論.</p>
+<p>另外當 <span>$D$</span><!-- Has MathJax --> 是 scalar 時, 因為 <span>$C$</span><!-- Has MathJax --> 變 row vector、<span>$B$</span><!-- Has MathJax --> 變 col vector, 則等同於做 Rank-1 update.</p>
+<h2 id="基本矩陣-和-基本列運算"><a href="#基本矩陣-和-基本列運算" class="headerlink" title="基本矩陣 和 基本列運算"></a>基本矩陣 和 基本列運算</h2><p>為了簡潔, 請參考: <a href="https://bobondemon.notion.site/Week-2-Systems-of-Linear-Equations-184edc3d531d80c58078d593bacfebdf" target="_blank" rel="external">Week 2 Systems of Linear Equations</a></p>
+<h2 id="高斯消去法的一步-計算一次-Schur-Complement"><a href="#高斯消去法的一步-計算一次-Schur-Complement" class="headerlink" title="高斯消去法的一步 = 計算一次 Schur Complement"></a>高斯消去法的一步 = 計算一次 Schur Complement</h2><p>令矩陣 <span>$M=\begin{pmatrix} a &amp; \mathbf{b} \\ \mathbf{c} &amp; D \end{pmatrix}_{n\times n}$</span><!-- Has MathJax -->, 其中 <span>$a\in\mathbb{R}$</span><!-- Has MathJax -->、<span>$\mathbf{b}\in\mathbb{R}^{1\times(n-1)}$</span><!-- Has MathJax -->、<span>$\mathbf{c}\in\mathbb{R}^{(n-1)\times1}$</span><!-- Has MathJax -->、<span>$D\in\mathbb{R}^{(n-1)\times(n-1)}$</span><!-- Has MathJax -->.</p>
+<p>為了要把 column 1 的 <span>$\mathbf{c}$</span><!-- Has MathJax --> 消掉變成 <span>$\mathbf{0}$</span><!-- Has MathJax -->, 我們會將 row 1 乘上 <span>$\mathbf{c}/{a}$</span><!-- Has MathJax -->, 然後從 row 2 (也就是下方所有 rows) 減去它, 相當於左乘一個 “取代” 的基本列運算矩陣 <span>$E$</span><!-- Has MathJax -->:</p>
+<p><span>$$\begin{align}
+EM=
+\begin{pmatrix} 1 &amp; \mathbf{0}^T \\ -\frac{\mathbf{c}}{a} &amp; I \end{pmatrix}
+\begin{pmatrix} a &amp; \mathbf{b} \\ \mathbf{c} &amp; D
+\end{pmatrix} =
+\begin{pmatrix} a &amp; \mathbf{b} \\ \mathbf{0} &amp; D - \frac{\mathbf{c} \mathbf{b}}{a}
+\end{pmatrix}
+\end{align}$$</span><!-- Has MathJax --> 右下角的 <span>$(n-1)\times(n-1)$</span><!-- Has MathJax --> 矩陣, 正好就是 <span>$a$</span><!-- Has MathJax --> 在 <span>$M$</span><!-- Has MathJax --> 中的 Schur 互補.</p>
+<p><span>$$\begin{aligned}
+D_{new} = D - \frac{\mathbf{c} \mathbf{b}}{a}
+\end{aligned}$$</span><!-- Has MathJax --> 這也正好也是做 Rank-1 Update.</p>
+<h2 id="連續的高斯消去-逐步建構-Cholesky-分解"><a href="#連續的高斯消去-逐步建構-Cholesky-分解" class="headerlink" title="連續的高斯消去 = 逐步建構 Cholesky 分解"></a>連續的高斯消去 = 逐步建構 Cholesky 分解</h2><p>Cholesky 分解在說明, 對於一正定矩陣 <span>$M$</span><!-- Has MathJax --> 來說, 存在唯一下三角矩陣 <span>$L$</span><!-- Has MathJax --> (對角項皆為正) 滿足 <span>$M=LL^T$</span><!-- Has MathJax -->.</p>
+<p>因為 <span>$M$</span><!-- Has MathJax --> 正定, 所以主對角項 <span>$&gt;0$</span><!-- Has MathJax -->, 則可重複高斯消去法 (3) 使得最後變成上三角矩陣 <span>$U$</span><!-- Has MathJax -->:</p>
+<p><span>$$\begin{aligned}
+E_{n-1} \dots E_2 E_1 M = U \\
+\end{aligned}$$</span><!-- Has MathJax --> 注意到 <span>$E_i$</span><!-- Has MathJax --> 全部都是下三角矩陣且皆可逆 (因為基本列運算可逆), 而下三角矩陣的連乘或反矩陣仍然是下三角.</p>
+<p>全部移到右邊後令 <span>$L_{unit}:=(E_{n-1} \dots E_2 E_1)^{-1}$</span><!-- Has MathJax --> 為一下三角矩陣, 得到:</p>
+<p><span>$$\begin{aligned}
+M = L_{unit} U
+\end{aligned}$$</span><!-- Has MathJax --> 在我們的問題裡, 因為 <span>$M$</span><!-- Has MathJax --> 是 (對稱) 正定矩陣:</p>
+<p><span>$$\begin{aligned}
+M=M^T \\
+\Longrightarrow L_{unit}U=U^TL_{unit}^T \\
+\Longrightarrow L_{unit}^{-1}(L_{unit}U)(L_{unit}^T)^{-1} = L_{unit}^{-1}(U^TL_{unit}^T)(L_{unit}^T)^{-1} \\
+\Longrightarrow U(L_{unit}^T)^{-1}=L_{unit}^{-1}U^T
+\end{aligned}$$</span><!-- Has MathJax --> 最後一行, L.H.S. 是兩個上三角矩陣相乘其結果仍為上三角, 同理 R.H.S. 結果為下三角.</p>
+<p>上三角等於下三角, 所以結論為對角矩陣, 令為 <span>$\Lambda:=U(L_{unit}^T)^{-1}$</span><!-- Has MathJax -->, 得到 <span>$U=\Lambda L_{unit}^T$</span><!-- Has MathJax -->.</p>
+<p>所以我們可推導出 Cholesky 分解:</p>
+<p><span>$$\begin{aligned}
+M = L_{unit} U = L_{unit} \Lambda L_{unit}^T \\
+\Longrightarrow M = (L_{unit} \Lambda^{1/2}) (L_{unit} \Lambda^{1/2})^T \\
+\Longrightarrow M = LL^T
+\end{aligned}$$</span><!-- Has MathJax --> 從代數角度來看, <strong>連續對矩陣進行 Rank-1 Update 的 Schur 互補操作, 數學上完全等價於在對該矩陣執行高斯消去法, 也就是在一步步計算它的 Cholesky 分解.</strong></p>
+<h2 id="Cholesky-分解與分塊反矩陣的關聯"><a href="#Cholesky-分解與分塊反矩陣的關聯" class="headerlink" title="Cholesky 分解與分塊反矩陣的關聯"></a>Cholesky 分解與分塊反矩陣的關聯</h2><p>文章開頭我們介紹如何利用 Schur 互補 (2) 快速計算分塊的反矩陣.<br>而上一節介紹對矩陣連續進行 Schur 互補等於計算它的 Cholesky 分解.<br>我們現在把這兩件事關連起來!</p>
+<p>令正定矩陣 <span>$H$</span><!-- Has MathJax --> 和其反矩陣 <span>$M$</span><!-- Has MathJax --> 的分塊矩陣定義如下:</p>
+<p><span>$$\begin{aligned}
+H=\begin{pmatrix}
+h_a &amp; \mathbf{h}_c^T \\ \mathbf{h}_c &amp; {\color{green}{H_d}}
+\end{pmatrix},\quad
+M:=H^{-1}=\begin{pmatrix}
+a &amp; \mathbf{c}^T \\ \mathbf{c} &amp; D
+\end{pmatrix}
+\end{aligned}$$</span><!-- Has MathJax --> 注意到 <span>$h_a$</span><!-- Has MathJax --> 和 <span>$a$</span><!-- Has MathJax --> 都是 scalar, 所以這裡的分塊矩陣概念上是希望從一個大矩陣降一個維度.</p>
+<p>因為 <span>$M$</span><!-- Has MathJax --> 也是正定, 所以存在唯一 Cholesky 分解 <span>$M = L L^T$</span><!-- Has MathJax -->, 並將 <span>$L$</span><!-- Has MathJax --> 分塊:</p>
+<p><span>$M = \begin{pmatrix} l_a &amp; \mathbf{0}^T \\ \mathbf{l}_c &amp; {\color{orange}{L_d}} \end{pmatrix} \begin{pmatrix} l_a &amp; \mathbf{l}_c^T \\ \mathbf{0} &amp; {\color{orange}{L_d}}^T \end{pmatrix} = \begin{pmatrix} l_a^2 &amp; l_a\mathbf{l}_c^T \\ l_a\mathbf{l}_c &amp; \mathbf{l}_c\mathbf{l}_c^T + {\color{orange}{L_dL_d^T}} \end{pmatrix}$</span><!-- Has MathJax --> 與 <span>$M$</span><!-- Has MathJax --> 的分塊矩陣對照馬上得到: <span>$l_a=\sqrt{a}$</span><!-- Has MathJax --> 和 <span>$\mathbf{l}_c=\mathbf{c}/\sqrt{a}$</span><!-- Has MathJax -->.</p>
+<p>觀察右下角區塊的等式:</p>
+<p><span>$$\begin{aligned}
+D = \mathbf{l}_c\mathbf{l}_c^T + {\color{orange}{L_dL_d^T}} \\
+\Longrightarrow {\color{orange}{L_dL_d^T}} = D - \mathbf{l}_c\mathbf{l}_c^T
+\end{aligned}$$</span><!-- Has MathJax --> 代入 <span>$\mathbf{l}_c=\mathbf{c}/\sqrt{a}$</span><!-- Has MathJax --> 進去得到:</p>
+<p><span>$$\begin{align}
+\Longrightarrow {\color{orange}{L_dL_d^T}} = {\color{green}{ D - \frac{\mathbf{c}\mathbf{c}^T}{a} }}
+\end{align}$$</span><!-- Has MathJax --> R.H.S. 是 <span>$S_a$</span><!-- Has MathJax --> (<span>$a$</span><!-- Has MathJax --> 在 <span>$M$</span><!-- Has MathJax --> 中的 Schur 互補), 根據之前的討論 (2) 知道它就是 <span>${\color{green}{H_d^{-1}}}$</span><!-- Has MathJax -->.</p>
+<p>L.H.S. 表明 <span>${\color{green}{H_d^{-1}}}$</span><!-- Has MathJax --> 的 Cholesky 分解, 剛好就是原 <span>$H^{-1}$</span><!-- Has MathJax --> 的 Cholesky 矩陣 <span>$L$</span><!-- Has MathJax --> 的子區塊 <span>${\color{orange}{L_d}}$</span><!-- Has MathJax -->.</p>
+<p>這在代數上給出了一個強大的結論: 對矩陣執行一次完整的 Cholesky 分解, 等同於預先計算了所有可能遞迴的 Submatrix Inverse. 矩陣 <span>$L$</span><!-- Has MathJax --> 內的每一個元素, 都已經是各階段 Rank-1 Update 所需的現成係數.</p>
+<p>我們用個簡單的例子來說明:</p>
+<p>令 <span>$H_7$</span><!-- Has MathJax --> 是維度 <span>$7$</span><!-- Has MathJax --> 的正定矩陣, 且我們已經花第一次的代價算出其反矩陣 <span>$M_7:=H_7^{-1}$</span><!-- Has MathJax -->.<br>此時對 <span>$M_7$</span><!-- Has MathJax --> 計算 Cholesky 分解得到 <span>$M_7=L_7 L_7^T$</span><!-- Has MathJax -->.<br>令 <span>$M_5$</span><!-- Has MathJax --> 表示 <span>$M_7$</span><!-- Has MathJax --> 的右下角維度為 <span>$5$</span><!-- Has MathJax --> 的 submatrix, 同理 <span>$H_5$</span><!-- Has MathJax --> 對應 <span>$H_7$</span><!-- Has MathJax --> 的右下角子矩陣, <span>$L_5$</span><!-- Has MathJax --> 對應 <span>$L_7$</span><!-- Has MathJax --> 的右下角子矩陣<br>則 <span>$H_5^{-1}$</span><!-- Has MathJax --> 直接就用已經有的 <span>$L_5$</span><!-- Has MathJax --> 計算 <span>$L_5 L_5^T$</span><!-- Has MathJax --> 就可得到!</p>
+<p>這樣做的好處是如果矩陣維度一旦很大 (GPTQ 裡這個矩陣的維度就是該層的 input channel 數, LLM 動輒上千甚至上萬), 每個子矩陣的反運算代價就很高.<br>不如一開始算一次高效的 Cholesky 分解 (數值又穩定), 這樣之後每個子矩陣的反矩陣一次全部都能得到!</p>
+<p>這就是 GPTQ 「神來之筆」的數學核心!</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a href="https://www.youtube.com/watch?v=m6q1UIomQA4" target="_blank" rel="external">https://www.youtube.com/watch?v=m6q1UIomQA4</a></li>
+<li><a href="https://ccjou.wordpress.com/2010/08/02/%E5%88%86%E5%A1%8A%E7%9F%A9%E9%99%A3%E7%9A%84%E8%A7%A3%E9%A1%8C%E6%A1%88%E4%BE%8B/" target="_blank" rel="external">https://ccjou.wordpress.com/2010/08/02/%E5%88%86%E5%A1%8A%E7%9F%A9%E9%99%A3%E7%9A%84%E8%A7%A3%E9%A1%8C%E6%A1%88%E4%BE%8B/</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2026/08/16/Schur-互補和-Cholesky-分解/" title="Schur 互補和 Cholesky 分解">https://bobondemon.github.io/2026/08/16/Schur-互補和-Cholesky-分解/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Post-Training-Quantization-PTQ/" rel="tag"># Post Training Quantization (PTQ)</a>
+          
+            <a href="/tags/Schur-Complement/" rel="tag"># Schur Complement</a>
+          
+            <a href="/tags/Cholesky-Decomposition/" rel="tag"># Cholesky Decomposition</a>
+          
+            <a href="/tags/GPTQ/" rel="tag"># GPTQ</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2026/05/14/聊聊-SpinQuant/" rel="next" title="聊聊 SpinQuant">
+                <i class="fa fa-chevron-left"></i> 聊聊 SpinQuant
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">123</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">262</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#分塊矩陣逆定理-Block-Matrix-Inversion-Theorem"><span class="nav-number">1.</span> <span class="nav-text">分塊矩陣逆定理 (Block Matrix Inversion Theorem)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基本矩陣-和-基本列運算"><span class="nav-number">2.</span> <span class="nav-text">基本矩陣 和 基本列運算</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#高斯消去法的一步-計算一次-Schur-Complement"><span class="nav-number">3.</span> <span class="nav-text">高斯消去法的一步 = 計算一次 Schur Complement</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#連續的高斯消去-逐步建構-Cholesky-分解"><span class="nav-number">4.</span> <span class="nav-text">連續的高斯消去 = 逐步建構 Cholesky 分解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cholesky-分解與分塊反矩陣的關聯"><span class="nav-number">5.</span> <span class="nav-text">Cholesky 分解與分塊反矩陣的關聯</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">6.</span> <span class="nav-text">References</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+<span id="busuanzi_container_site_pv">
+  本站總瀏覽 <span id="busuanzi_value_site_pv"></span> 次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站訪客 <span id="busuanzi_value_site_uv"></span> 人
+</span>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
