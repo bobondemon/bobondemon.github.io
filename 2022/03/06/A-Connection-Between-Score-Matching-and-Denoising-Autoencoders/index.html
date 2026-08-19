@@ -97,7 +97,7 @@
 前言基於 Score Matching, 提出 Denoising Score Matching (DSM) 的目標函式, 好處是在 en">
 <meta property="og:image" content="https://bobondemon.github.io/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/Untitled.png">
 <meta property="og:image" content="https://bobondemon.github.io/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/Untitled 1.png">
-<meta property="og:updated_time" content="2026-08-19T14:30:13.129Z">
+<meta property="og:updated_time" content="2026-08-19T15:19:39.141Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Score Matching 系列 (二) Denoising Score Matching (DSM) 改善效率並可 Scalable">
 <meta name="twitter:description" content="這是一篇論文筆記: “A Connection Between Score Matching and Denoising Autoencoders”建議看本文前請先參前一篇: Score Matching 系列 (一) Non-normalized 模型估計
@@ -399,9 +399,7 @@ J_{ESM,q}(\theta) = \mathbb{E}_{q(x)}\left[
 J_{ISM,q}(\theta)=\mathbb{E}_{q(x)}\left[
 \frac{1}{2}\|\psi(x;\theta)\|^2+ tr(\nabla_x\psi(x;\theta))
 \right]
-\end{align}$$</span><!-- Has MathJax --> 如果我們對 <span>$q(x)$</span><!-- Has MathJax --> 做 pertrub, i.e. 每一個 data point <span>$x$</span><!-- Has MathJax --> 都加上一個 pdf 為 <span>$q_\sigma(\tilde{x}|x)$</span><!-- Has MathJax --> 的 random noise<br>其中 <span>$\sigma$</span><!-- Has MathJax --> 為該 noise pdf 的參數, 如果以 isotropic Gaussian pdf 為例子, <span>$\sigma^2$</span><!-- Has MathJax --> 就是 variance<br>則 noisy 的 data pdf <span>$q_\sigma(\tilde{x})$</span><!-- Has MathJax --> 就變成:</p>
-<span>$$q_\sigma(\tilde{x})=\int q_\sigma(\tilde{x}|x) q(x) dx$$</span><!-- Has MathJax -->
-
+\end{align}$$</span><!-- Has MathJax --> 如果我們對 <span>$q(x)$</span><!-- Has MathJax --> 做 pertrub, i.e. 每一個 data point <span>$x$</span><!-- Has MathJax --> 都加上一個 pdf 為 <span>$q_\sigma(\tilde{x}|x)$</span><!-- Has MathJax --> 的 random noise<br>其中 <span>$\sigma$</span><!-- Has MathJax --> 為該 noise pdf 的參數, 如果以 isotropic Gaussian pdf 為例子, <span>$\sigma^2$</span><!-- Has MathJax --> 就是 variance<br>則 noisy 的 data pdf <span>$q_\sigma(\tilde{x})$</span><!-- Has MathJax --> 就變成:<br><span>$q_\sigma(\tilde{x})=\int q_\sigma(\tilde{x}|x) q(x) dx$</span><!-- Has MathJax --></p>
 <blockquote>
 <p>💡 兩個 independent random variables <span>$x,y$</span><!-- Has MathJax --> 相加 <span>$z=x+y$</span><!-- Has MathJax -->, 則 <span>$z$</span><!-- Has MathJax --> 的 pdf 為 <span>$x,y$</span><!-- Has MathJax --> 的 pdfs 的 convolution</p>
 </blockquote>

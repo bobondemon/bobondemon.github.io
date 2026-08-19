@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Pruning,Straight Through Estimator (STE),Movement pruning," />
+  <meta name="keywords" content="Straight Through Estimator (STE),Pruning,Movement pruning," />
 
 
 
@@ -101,7 +101,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/Untitled.png">
 <meta property="og:image" content="https://bobondemon.github.io/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/Untitled 1.png">
 <meta property="og:image" content="https://bobondemon.github.io/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/Untitled 2.png">
-<meta property="og:updated_time" content="2026-08-19T14:30:13.177Z">
+<meta property="og:updated_time" content="2026-08-19T15:19:39.155Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Movement Pruning Adaptive Sparsity by Fine-Tuning 筆記">
 <meta name="twitter:description" content="先引用這篇論文的論點 Train Large, Then Compress: Rethinking Model Size for Efficient Training and Inference of Transformers [pdf]
@@ -397,9 +397,7 @@
 <a id="more"></a>
 <h2 id="怎麼引入-score-<span>$S$</span><!-- Has MathJax -->"><a href="#怎麼引入-score-<span>$S$</span><!-- Has MathJax -->" class="headerlink" title="怎麼引入 score <span>$S$</span><!-- Has MathJax -->?"></a>怎麼引入 score <span>$S$</span><!-- Has MathJax -->?</h2><hr>
 <p>首先, 看一下 <span>$W$</span><!-- Has MathJax --> and <span>$S$</span><!-- Has MathJax --> 的 gradients</p>
-<p><u> <strong>Forward:</strong> </u> </p>
-<span>$$a=(W\odot M)x$$</span><!-- Has MathJax -->
-
+<p><u> <strong>Forward:</strong> </u><br><span>$a=(W\odot M)x$</span><!-- Has MathJax --></p>
 <p><span>$W$</span><!-- Has MathJax -->是 weight matrix, 而 <span>$M$</span><!-- Has MathJax -->是 mask matrix 每一個 element <span>$\in\\{0,1\\}$</span><!-- Has MathJax -->, <span>$M$</span><!-- Has MathJax --> 通常是從一個 score matrix <span>$S$</span><!-- Has MathJax --> 搭配上 masking function e.g. <span>$\text{Top}_v$</span><!-- Has MathJax --> 而來:<br><span>$$M_{ij}=\text{Top}_v(S)_{ij}=\left\{
 \begin{array}{ll}
 1, &amp; S_{ij}\quad\text{in top }v\% \\
@@ -449,9 +447,7 @@ W_{ij}\downarrow \iff \mathcal{L}\downarrow \\$$</span><!-- Has MathJax --> 如�
 <p>注意到繼承 <code>autograd.Function</code> 就要 implement <code>forward</code> and <code>backward</code> 方法, 讓它可以微分<br>我們可以看到 <code>backward</code> 什麼事都沒做, 這是因為 STE (Straight-Through Estimator) 的關係<br>所以在 <code>forward</code> 的時候 <code>inputs</code> tensor 就給 score matrix <span>$S$</span><!-- Has MathJax -->, 這樣可以求出對應的 <code>mask</code> <span>$M$</span><!-- Has MathJax -->, 同時這個 TopK 又可以微分</p>
 <h2 id="Appendix-A-1-Guarantees-on-the-decrease-of-the-training-loss"><a href="#Appendix-A-1-Guarantees-on-the-decrease-of-the-training-loss" class="headerlink" title="Appendix A.1 Guarantees on the decrease of the training loss"></a>Appendix A.1 Guarantees on the decrease of the training loss</h2><hr>
 <p>補充推導, 先回顧一下</p>
-<p><u> <strong>Forward:</strong> </u></p>
-<span>$$a=(W\odot M)x$$</span><!-- Has MathJax -->
-
+<p><u> <strong>Forward:</strong> </u><br><span>$a=(W\odot M)x$</span><!-- Has MathJax --></p>
 <p><u> <strong>針對 Backward relaxing 的 forward:</strong> </u></p>
 <span>$$a=(W\odot S)x$$</span><!-- Has MathJax -->
 
@@ -544,9 +540,9 @@ W_{kl}^{(t+1)} = W_{kl}^{(t)} - \alpha_W\frac{\partial L}{\partial W_{kl}}$$</sp
       
         <div class="post-tags">
           
-            <a href="/tags/Pruning/" rel="tag"># Pruning</a>
-          
             <a href="/tags/Straight-Through-Estimator-STE/" rel="tag"># Straight Through Estimator (STE)</a>
+          
+            <a href="/tags/Pruning/" rel="tag"># Pruning</a>
           
             <a href="/tags/Movement-pruning/" rel="tag"># Movement pruning</a>
           

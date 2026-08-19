@@ -107,7 +107,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/cutting_plane_p1.png">
 <meta property="og:image" content="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/cutting_plane_algo.png">
 <meta property="og:image" content="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/most_violate.png">
-<meta property="og:updated_time" content="2026-08-19T14:30:13.230Z">
+<meta property="og:updated_time" content="2026-08-19T15:19:39.170Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Structure Perceptron and Structure SVM">
 <meta name="twitter:description" content="記得當年念博的時候，對於SVM頗有愛，也覺得掌握度很高惹，就是 kernel method + convex optimization 的完美合體。直到某天看到 structureSVM，看了老半天實在不得要領，當時就放下沒再管了。多年後 (2015)，剛好台大李宏毅教授教的課程最後一堂 Project demo，有請我們部門介紹做的一些內容給學生，才看到了強大的李老師的課程內容。他所教的 st">
@@ -470,9 +470,7 @@ For \forall{y}: C^n\geq w\cdot\phi(x^n,y)+\triangle(\hat{y}^n,y)-w\cdot\phi(x^n,
 <span>$$C=\frac{1}{2}\Vert{w}\Vert ^2+\lambda\sum_{n=1}^N \epsilon^n \\
 For \forall{y}\neq{\hat{y}^n}: w\cdot (\phi(x^n,\hat{y}^n)-\phi(x^n,y))\leq \triangle (\hat{y}^n,y)-\epsilon^n,\epsilon^n\leq 0$$</span><!-- Has MathJax -->
 
-<p>注意到，對於一個 n-th training pair <span>$(x^n,\hat{y}^n)$</span><!-- Has MathJax --> 和給定一個 <span>$y\neq\hat{y}^n$</span><!-- Has MathJax --> 來說，我們都會得到一個 linear constraint。可以將上面式子的 constant 用 a, b來表示變成:</p>
-<span>$$w\cdot a \leq b - \epsilon^n \\$$</span><!-- Has MathJax -->
-
+<p>注意到，對於一個 n-th training pair <span>$(x^n,\hat{y}^n)$</span><!-- Has MathJax --> 和給定一個 <span>$y\neq\hat{y}^n$</span><!-- Has MathJax --> 來說，我們都會得到一個 linear constraint。可以將上面式子的 constant 用 a, b來表示變成:<br><span>$w\cdot a \leq b - \epsilon^n \\$</span><!-- Has MathJax --></p>
 <p>發現了嗎? 對於變數 <span>$w$</span><!-- Has MathJax --> 和 <span>$\epsilon^n$</span><!-- Has MathJax --> 來說，這就是一個 linear constraint。</p>
 <p>眼尖的讀者，可能就會覺得 P3 很眼熟。沒錯!它跟 SVM 長很像! 讓我們來跟 <a href="https://en.wikipedia.org/wiki/Support_vector_machine" target="_blank" rel="external">SVM 的 Primal form</a> (不是 dual form) 做個比較吧。可以發現有兩點不同，原 SVM from wiki 列出如下:<br><img src="/2017/05/20/Structure-Perceptron-and-Structure-SVM/svm_primal.png" width="60%" height="60%"></p>
 <ol>

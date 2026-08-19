@@ -93,7 +93,7 @@
 <meta property="og:url" content="https://bobondemon.github.io/2019/07/02/TF-Notes-Candidate-Sampling/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="NN 做分類最後一層通常使用 softmax loss, 但如果類別數量很大會導致計算 softmax 的 cost 太高, 這樣會讓訓練變得很慢. 假如總共的 class 數量是 10000 個, candidate sampling 的想法就是對於一個 input $x$ 採樣出一個 subset (當然需要包含正確的 label), 譬如只用 50 個 classes, 扣掉正確的那個 c">
-<meta property="og:updated_time" content="2026-08-19T14:30:13.231Z">
+<meta property="og:updated_time" content="2026-08-19T15:19:39.170Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="TF Notes (6), Candidate Sampling, Sampled Softmax Loss">
 <meta name="twitter:description" content="NN 做分類最後一層通常使用 softmax loss, 但如果類別數量很大會導致計算 softmax 的 cost 太高, 這樣會讓訓練變得很慢. 假如總共的 class 數量是 10000 個, candidate sampling 的想法就是對於一個 input $x$ 採樣出一個 subset (當然需要包含正確的 label), 譬如只用 50 個 classes, 扣掉正確的那個 c">
@@ -378,7 +378,7 @@
 
 <p>推導過程自行看文檔就可以, 重要的是了解式子的物理意義.<br><span>$C_i$</span><!-- Has MathJax --> 是對 input <span>$x_i$</span><!-- Has MathJax --> 採樣出的 subset, 包含了 <em>一個正確的類別標籤</em> 和 <em>其他採樣出的類別 <span>$S_i$</span><!-- Has MathJax --></em>. <span>$Q(y\|x_i)$</span><!-- Has MathJax --> 是基於 input <span>$x_i$</span><!-- Has MathJax -->, label <span>$y$</span><!-- Has MathJax --> 被選中成為 <span>$S_i$</span><!-- Has MathJax --> 的機率. <span>$K&apos;$</span><!-- Has MathJax --> 是跟 <span>$y$</span><!-- Has MathJax --> 無關的, 所以對於式子來說是 constant. 注意到式子的變數是 <span>$y$</span><!-- Has MathJax --> 代表了是 softmax 的哪一個 output node.</p>
 <p>式 (1) 的解釋為: <u>“在 candidate set <span>$C_i$</span><!-- Has MathJax --> 下的 logits 結果”</u> 等於 <u>“在 full set 下的 logtis 結果減去 <span>$\log Q(y\|x_i)$</span><!-- Has MathJax -->”</u>, <span>$K&apos;$</span><!-- Has MathJax --> 會直接被 <span>$\log P(y\|x_i)$</span><!-- Has MathJax --> 吸收, 因為 logits 加上 constant 對於 softmax 來說會分子分母消掉, 所以不影響.</p>
-<p>以下我們順便複習一下, 為什麼 logits 可以寫成 “<span>$\mbox{const}+\log P(y\|x)$</span><!-- Has MathJax -->” 這種形式. (包含複習 Entropy, cross-entropy, softmax loss)</p>
+<p>以下我們順便複習一下, 為什麼 logits 可以寫成 “<span>$\text{const}+\log P(y\|x)$</span><!-- Has MathJax -->” 這種形式. (包含複習 Entropy, cross-entropy, softmax loss)</p>
 <hr>
 <h3 id="Entropy-定義"><a href="#Entropy-定義" class="headerlink" title="Entropy 定義"></a>Entropy 定義</h3><span>$$\begin{align}
 \sum_i{q(x_i)\log{\frac{1}{q(x_i)}}}
@@ -393,14 +393,14 @@
 <hr>
 <h3 id="Cross-entropy"><a href="#Cross-entropy" class="headerlink" title="Cross-entropy"></a>Cross-entropy</h3><p>如上面所說, 錯誤的 encoding 方式造成的代價如下:</p>
 <span>$$\begin{align}
-\mbox{Xent}(p,q)\triangleq\sum_i{q(x_i)\log{\frac{1}{p(x_i)}}} - \sum_i{q(x_i)\log{\frac{1}{q(x_i)}}} \\
+\text{Xent}(p,q)\triangleq\sum_i{q(x_i)\log{\frac{1}{p(x_i)}}} - \sum_i{q(x_i)\log{\frac{1}{q(x_i)}}} \\
 =\sum_i{q(x_i)\log{\frac{q(x_i)}{p(x_i)}}} \\
 \end{align}$$</span><!-- Has MathJax -->
 
 <hr>
 <h3 id="Sparse-softmax-loss"><a href="#Sparse-softmax-loss" class="headerlink" title="Sparse softmax loss"></a>Sparse softmax loss</h3><p>最常見的情形為當只有 <span>$q(x_j)=1$</span><!-- Has MathJax --> 而其他 <span>$x\neq x_j$</span><!-- Has MathJax --> 時 <span>$q(x)=0$</span><!-- Has MathJax --> 的話 (<span>$q$</span><!-- Has MathJax --> 變成 one-hot), 上面的 corss-entropy 變成:</p>
 <span>$$\begin{align}
-\mbox{SparseSoftmaxLoss}\triangleq\mbox{Xent}(p,q\mbox{ is one-hot})=-\log p(x_j) \\
+\text{SparseSoftmaxLoss}\triangleq\text{Xent}(p,q\text{ is one-hot})=-\log p(x_j) \\
 =-\log\frac{e^{z_j}}{\sum_i{e^{z_i}}}=-\log e^{z_j} + \log\sum_i{e^{z_i}} \\
 =-z_j + \log\sum_i{e^{z_i}}
 \end{align}$$</span><!-- Has MathJax -->
@@ -409,13 +409,13 @@
 <hr>
 <h3 id="Logits-的解釋"><a href="#Logits-的解釋" class="headerlink" title="Logits 的解釋"></a>Logits 的解釋</h3><p>j-th logtis <span>$z_j$</span><!-- Has MathJax --> 可解釋為 “const + class <span>$j$</span><!-- Has MathJax --> 的 log probability”.</p>
 <span>$$\begin{align}
-z_j = \mbox{cosnt} + \log p(j)
+z_j = \text{cosnt} + \log p(j)
 \end{align}$$</span><!-- Has MathJax -->
 
 <p>為什麼呢? 這是因為 logtis 經過 softmax 後會變成機率, 我們假設經過 softmax 後 node <span>$j$</span><!-- Has MathJax --> 的機率為 <span>$p&apos;(j)$</span><!-- Has MathJax -->, 計算一下這個值:</p>
 <span>$$\begin{align}
 p&apos;(j)=\frac{e^{z_j}}{\sum_i e^{z_i}} \\
-=\frac{e^{\log p(j)}e^{\mbox{const}}}{e^{\mbox{const}}\sum_i e^{\log p(i)}} \\
+=\frac{e^{\log p(j)}e^{\text{const}}}{e^{\text{const}}\sum_i e^{\log p(i)}} \\
 =\frac{p(j)}{\sum_i p(i)} \\
 =p(j)
 \end{align}$$</span><!-- Has MathJax -->

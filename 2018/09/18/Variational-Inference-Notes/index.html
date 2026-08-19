@@ -104,7 +104,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/MFVI1.png">
 <meta property="og:image" content="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/MFVI2.png">
 <meta property="og:image" content="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/em_ELBO.png">
-<meta property="og:updated_time" content="2026-08-19T14:30:13.235Z">
+<meta property="og:updated_time" content="2026-08-19T15:19:39.172Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Variational Inference and VAE Notes">
 <meta name="twitter:description" content="前一陣子學習了 Variational Inference, 因為自己記性只有 LSTM 沒有 L, 所以趕快記下筆記. 學得還是很粗淺, 又是一個大坑阿.監督學習不外乎就是 training 和 testing (inference). 而 inference 在做的事情就是在計算後驗概率 $p(z\|x)$. 在 PGM 中通常是 intractable, 或要找到 exact soluti">
@@ -416,7 +416,7 @@ KL\left(q(z)\Vert p(z|x)\right)=-\sum_z q(z)\log\frac{p(z|x)}{q(z)}\\
 <span>$$\begin{align}
 \mathcal{L}(\nu)=\mathbb{E}_{z\sim q}\left[\log p(x,z) - \log q(z;\nu)\right]\\
 \Rightarrow \nabla_{\nu}\mathcal{L}(\nu)=\nabla_{\nu}\left(\mathbb{E}_{z\sim q}\left[\log p(x,z) - \log q(z;\nu)\right]\right)\\
-\mbox{Note  }\neq \mathbb{E}_{z\sim q}\left(\nabla_{\nu}\left[\log p(x,z) - \log q(z;\nu)\right]\right)\\
+\text{Note  }\neq \mathbb{E}_{z\sim q}\left(\nabla_{\nu}\left[\log p(x,z) - \log q(z;\nu)\right]\right)\\
 \end{align}$$</span><!-- Has MathJax -->
 
 <p>注意 (8) 不能將 Expectation 與 derivative 交換的原因是因為要微分的 <span>$\nu$</span><!-- Has MathJax --> 與要計算的 Expectation 分布 <span>$q$</span><!-- Has MathJax --> 有關. 下面會提到一個很重要的技巧, Reparameterization trick, 將 Expectation 與 derivative 交換, 而交換後有什麼好處呢? 下面提到的時候再說明.</p>
@@ -424,7 +424,7 @@ KL\left(q(z)\Vert p(z|x)\right)=-\sum_z q(z)\log\frac{p(z|x)}{q(z)}\\
 <p><img src="/2018/09/18/Variational-Inference-Notes/ELBO_gradient.png" width="80%" height="80%"></p>
 <p>計算一個機率分佈的 Expectation 可用 Monte Carlo method 採樣, 例如採樣 <span>$T$</span><!-- Has MathJax --> 個 samples</p>
 <span>$$\begin{align}
-\mathbb{E}_{z\sim q}f(z)\approx\frac{1}{T}\sum_{t=1}^Tf(z)\mbox{, where }z\sim q
+\mathbb{E}_{z\sim q}f(z)\approx\frac{1}{T}\sum_{t=1}^Tf(z)\text{, where }z\sim q
 \end{align}$$</span><!-- Has MathJax -->
 
 <p>因此 gradient 可以這麼大致找出來, 不過這方法找出來的 gradient 與真實的 gradient 存在很大的誤差, 換句話說, 這個近似的 gradient variance 太大了. 原因兩個</p>
@@ -455,7 +455,7 @@ KL\left(q(z)\Vert p(z|x)\right)=-\sum_z q(z)\log\frac{p(z|x)}{q(z)}\\
 <p>這時候我們計算 ELBO 的 gradient 時, 我們發現 <span>$\nu$</span><!-- Has MathJax --> 與 Expectation 的分佈, <span>$\mathcal{N}(0,\mathbf{I})$</span><!-- Has MathJax -->, 無關了! 因此 (7) 套用上面的 trick 就可以將 Expectation 與 derivative 交換. 結果如下:</p>
 <span>$$\begin{align}
 \nabla_{\mu}\mathcal{L}(\nu)=\mathbb{E}_{\epsilon\sim \mathcal{N}(0,\mathbf{I})}\left[\nabla_{\mu}\left(\log p(x,\mu+\sigma \epsilon) - \log q(\mu+\sigma \epsilon;\nu)\right)\right]\\
-\approx\frac{1}{T}\sum_{t=1}^T \nabla_{\mu}\left( \log p(x,\mu+\sigma \epsilon) - \log q(\mu+\sigma \epsilon;\nu) \right)\mbox{, where }\epsilon\sim\mathcal{N}(0,\mathbf{I})\\
+\approx\frac{1}{T}\sum_{t=1}^T \nabla_{\mu}\left( \log p(x,\mu+\sigma \epsilon) - \log q(\mu+\sigma \epsilon;\nu) \right)\text{, where }\epsilon\sim\mathcal{N}(0,\mathbf{I})\\
 \end{align}$$</span><!-- Has MathJax -->
 
 <p>在上一段計算 ELBO gradient 所造成誤差的第一項原因就不存在了, 因此我們用 reparameterization 得到的 gradient 具有很小的 variance. <a href="https://github.com/gokererdogan" target="_blank" rel="external">這個 github</a> 做了實驗, 發現 reperameterization 的確大大降低了估計的 gradient 的 variance.</p>

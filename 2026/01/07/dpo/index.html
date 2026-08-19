@@ -99,7 +99,7 @@ Pre-trained model 經過 SFT (Supervised Fine-Tuning) 再經過 RLHF (Reinforcem
 Pre-trained model 經過 SFT (Supervised Fine-Tuning) 再經過 RLHF (Reinforcement Learning from Human Fee">
 <meta property="og:image" content="https://bobondemon.github.io/2026/01/07/dpo/ChatGPT_DPO.png">
 <meta property="og:image" content="https://bobondemon.github.io/2026/01/07/dpo/image 1.png">
-<meta property="og:updated_time" content="2026-08-19T14:30:13.241Z">
+<meta property="og:updated_time" content="2026-08-19T15:19:39.173Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="告別 Reward Model: DPO 如何讓 LLM 偏好對齊變得穩定且高效">
 <meta name="twitter:description" content="DPO 捨棄 RLHF 中笨重的 reward model, 並將 RL 問題直接轉換成對好壞兩個 responses 的 supervised training. [圖片產生自 ChatGPT]
@@ -429,7 +429,7 @@ D_{KL}(\pi_\theta || \pi_{ref}) = \mathbb{E}_{y \sim \pi_\theta} \left[ \log \fr
 \end{align}$$</span><!-- Has MathJax --> 其中 <span>$Z(x) = \sum_y \pi_{ref}(y|x) \exp\left( \frac{r(x, y)}{\beta} \right)$</span><!-- Has MathJax -->.<br>所以給定一個 reward <span>$r$</span><!-- Has MathJax --> 我們知道對應這個 <span>$r$</span><!-- Has MathJax --> 的最佳 policy <span>$\pi^*$</span><!-- Has MathJax --> (使得 (3) 達到最大) 長怎樣<br>反過來說, 給一個策略 <span>$\pi^*$</span><!-- Has MathJax -->, <em>讓這個策略成為最佳策略</em>的那個 reward <span>$r$</span><!-- Has MathJax --> 是不是也找的到? 可以的<br>代數反推一下 (4) 得到<br><span>$$\begin{align}
 \Longrightarrow \log \pi^*(y|x) = -\log Z(x) + \log \pi_{ref}(y|x) + \frac{1}{\beta} r(x, y) \\
 \Longrightarrow r(x, y) = \beta \log \frac{\pi^*(y|x)}{\pi_{ref}(y|x)} + \beta \log Z(x)
-\end{align}$$</span><!-- Has MathJax --> 現在回到我們的偏好數據集, 我們有 <span>$\{(x, y_w, y_l)\}$</span><!-- Has MathJax -->.  Bradley-Terry 模型 (式 (2)) 告訴我們, <span>$y_w$</span><!-- Has MathJax --> 勝過 <span>$y_l$</span><!-- Has MathJax --> 的機率取決於兩者的獎勵差:<br><span>$$P(y_w \succ y_l | x) = \sigma(r(x, y_w) - r(x, y_l))$$</span><!-- Has MathJax --> 現在把 <span>$r$</span><!-- Has MathJax --> 式 (6) 代入這個 <span>$r(x, y_w) - r(x, y_l)$</span><!-- Has MathJax --> 中：<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 現在回到我們的偏好數據集, 我們有 <span>$\{(x, y_w, y_l)\}$</span><!-- Has MathJax -->.  Bradley-Terry 模型 (式 (2)) 告訴我們, <span>$y_w$</span><!-- Has MathJax --> 勝過 <span>$y_l$</span><!-- Has MathJax --> 的機率取決於兩者的獎勵差:<br><span>$P(y_w \succ y_l | x) = \sigma(r(x, y_w) - r(x, y_l))$</span><!-- Has MathJax --><br>現在把 <span>$r$</span><!-- Has MathJax --> 式 (6) 代入這個 <span>$r(x, y_w) - r(x, y_l)$</span><!-- Has MathJax --> 中：<br><span>$$\begin{align}
 r(x, y_w) - r(x, y_l) &amp;= \left( \beta \log \frac{\pi^*(y_w|x)}{\pi_{ref}(y_w|x)} + \beta \log Z(x) \right) - \left( \beta \log \frac{\pi^*(y_l|x)}{\pi_{ref}(y_l|x)} + \beta \log Z(x) \right) \\
 &amp;= \beta \log \frac{\pi^*(y_w|x)}{\pi_{ref}(y_w|x)} - \beta \log \frac{\pi^*(y_l|x)}{\pi_{ref}(y_l|x)}
 \end{align}$$</span><!-- Has MathJax --><br><span>$\beta \log Z(x)$</span><!-- Has MathJax --> 因為跟 <span>$y$</span><!-- Has MathJax --> 無關, 抵銷掉了.<br>現在, 我們把理論上的 <span>$\pi^*$</span><!-- Has MathJax --> 替換成我們正在訓練的神經網路 <span>$\pi_\theta$</span><!-- Has MathJax -->. 我們的目標是最大化偏好數據的 Log Likelihood (也就是最小化 Negative Log Likelihood):<br><span>$$\begin{align}

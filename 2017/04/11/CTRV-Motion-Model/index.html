@@ -122,7 +122,7 @@ v_y
 <meta property="og:image" content="https://bobondemon.github.io/2017/04/11/CTRV-Motion-Model/CTRV_state_vector.png">
 <meta property="og:image" content="https://bobondemon.github.io/2017/04/11/CTRV-Motion-Model/NoiseTermPosition.png">
 <meta property="og:image" content="https://bobondemon.github.io/2017/04/11/CTRV-Motion-Model/UKF_idea.png">
-<meta property="og:updated_time" content="2026-08-19T14:30:13.134Z">
+<meta property="og:updated_time" content="2026-08-19T15:19:39.143Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="CTRV Motion Model">
 <meta name="twitter:description" content="Motion Models
@@ -475,7 +475,7 @@ x_{k+1}=x_k+\int_{t_k}^{t_{k+1}}{
 }dt\\
 x_{k+1}=x_k+
 \left[
-\begin{array}{center}
+\begin{array}{c}
 \int_{t_k}^{t_{k+1}}{v(t)\cdot cos(\psi(t))}dt \\
 \int_{t_k}^{t_{k+1}}{v(t)\cdot sin(\psi(t))}dt \\
 0 \\
@@ -486,7 +486,7 @@ x_{k+1}=x_k+
 \end{align}$$</span><!-- Has MathJax --> 注意到 CTRV 的假設 <span>$v$</span><!-- Has MathJax --> 和 <span>$\dot{\psi}$</span><!-- Has MathJax --> 是 constant，也就會造成式(5)中 <span>$\dot{v}(t)=\ddot{\psi(t)}=0$</span><!-- Has MathJax -->，且從時間 <span>$k$</span><!-- Has MathJax --> 到 <span>$k+1$</span><!-- Has MathJax --> 的 <span>$\dot{\psi}(t)$</span><!-- Has MathJax --> 都等於 <span>$\dot{\psi}_k$</span><!-- Has MathJax -->，也因此得到式(6)。<br>但是我們仍然要處理式(6)前兩項的積分，首先一樣基於CTRV假設 <span>$v(t)=v_k$</span><!-- Has MathJax --> 對於時間 <span>$k$</span><!-- Has MathJax --> 到 <span>$k+1$</span><!-- Has MathJax --> 都是一樣，所以提到積分外面。然後由於 yaw rate 是 constant，因此 <span>$\psi(t)$</span><!-- Has MathJax --> 可以明確表示出來，總之改寫如下:<br><span>$$\begin{align}
 x_{k+1}=x_k+
 \left[
-\begin{array}{center}
+\begin{array}{c}
 v_k\int_{t_k}^{t_{k+1}}{cos(\psi_k+\dot{\psi}_k\cdot(t-t_k))}dt \\
 v_k\int_{t_k}^{t_{k+1}}{sin(\psi_k+\dot{\psi}_k\cdot(t-t_k))}dt \\
 0 \\
@@ -497,7 +497,7 @@ v_k\int_{t_k}^{t_{k+1}}{sin(\psi_k+\dot{\psi}_k\cdot(t-t_k))}dt \\
 \end{align}$$</span><!-- Has MathJax --> 然後沒什麼好說的，就積它吧:<br><span>$$\begin{align}
 x_{k+1}=x_k+
 \left[
-\begin{array}{center}
+\begin{array}{c}
 \frac{v_k}{\dot{\psi}_k}(sin(\psi_k+\dot{\psi}_k\Delta{t})-sin(\psi_k)) \\
 \frac{v_k}{\dot{\psi}_k}(-cos(\psi_k+\dot{\psi}_k\Delta{t})+cos(\psi_k)) \\
 0 \\
@@ -510,7 +510,7 @@ x_{k+1}=x_k+
 <span>$$\begin{align}
 x_{k+1}=x_k+
 \left[
-\begin{array}{center}
+\begin{array}{c}
 v_kcos(\psi_k)\Delta{t} \\
 v_ksin(\psi_k)\Delta{t} \\
 0 \\
@@ -526,7 +526,7 @@ v_ksin(\psi_k)\Delta{t} \\
 <span>$$\begin{align}
 v_k=
 \left[
-\begin{array}{center}
+\begin{array}{c}
 v_{a,k} \\
 v_{\ddot{\psi},k}
 \end{array}
@@ -537,7 +537,7 @@ v_{\ddot{\psi},k}
 x_{k+1}=x_k+Deterministic_k+
 
 \left[
-\begin{array}{center}
+\begin{array}{c}
 \frac{1}{2}(\Delta{t})^2cos(\psi_k)\cdot v_{a,k} \\
 \frac{1}{2}(\Delta{t})^2sin(\psi_k)\cdot v_{a,k} \\
 \Delta{t}\cdot v_{a,k} \\
@@ -561,9 +561,9 @@ v \\
 \end{array}
 \right)$$</span><!-- Has MathJax -->
 
-<p>if <span>$\dot{\psi}_k\neq0$</span><!-- Has MathJax -->, then<br><span>$$x_{k+1}=x_k+Deterministic_k+Stochastic_k$$</span><!-- Has MathJax --> where<br><span>$$Deterministic_k=
+<p>if <span>$\dot{\psi}_k\neq0$</span><!-- Has MathJax -->, then<br><span>$x_{k+1}=x_k+Deterministic_k+Stochastic_k$</span><!-- Has MathJax --><br>where<br><span>$$Deterministic_k=
 \left[
-\begin{array}{center}
+\begin{array}{c}
 \frac{v_k}{\dot{\psi}_k}(sin(\psi_k+\dot{\psi}_k\Delta{t})-sin(\psi_k)) \\
 \frac{v_k}{\dot{\psi}_k}(-cos(\psi_k+\dot{\psi}_k\Delta{t})+cos(\psi_k)) \\
 0 \\
@@ -572,17 +572,17 @@ v \\
 \end{array}
 \right]$$</span><!-- Has MathJax --> and<br><span>$$Stochastic_k=
 \left[
-\begin{array}{center}
+\begin{array}{c}
 \frac{1}{2}(\Delta{t})^2cos(\psi_k)\cdot v_{a,k} \\
 \frac{1}{2}(\Delta{t})^2sin(\psi_k)\cdot v_{a,k} \\
 \Delta{t}\cdot v_{a,k} \\
 \frac{1}{2}(\Delta{t})^2\cdot v_{\ddot{\psi},k} \\
 \Delta{t}\cdot v_{\ddot{\psi},k}
 \end{array}
-\right]$$</span><!-- Has MathJax --> otherwise <span>$\dot{\psi}_k=0$</span><!-- Has MathJax -->, then<br><span>$$x_{k+1}=x_k+Deterministic&apos;_k+Stochastic_k$$</span><!-- Has MathJax --> where</p>
+\right]$$</span><!-- Has MathJax --> otherwise <span>$\dot{\psi}_k=0$</span><!-- Has MathJax -->, then<br><span>$x_{k+1}=x_k+Deterministic&apos;_k+Stochastic_k$</span><!-- Has MathJax --><br>where</p>
 <span>$$Deterministic&apos;_k=
 \left[
-\begin{array}{center}
+\begin{array}{c}
 v_kcos(\psi_k)\Delta{t} \\
 v_ksin(\psi_k)\Delta{t} \\
 0 \\

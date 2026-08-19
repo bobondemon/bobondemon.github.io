@@ -105,7 +105,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2025/12/25/RL的數學原理/image 9.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/12/25/RL的數學原理/image 10.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/12/25/RL的數學原理/image 11.png">
-<meta property="og:updated_time" content="2026-08-19T14:30:13.196Z">
+<meta property="og:updated_time" content="2026-08-19T15:19:39.160Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="RL的數學原理: 趙世鈺課程濃縮筆記">
 <meta name="twitter:description" content="📔 筆記內容: 赵世钰老師 “强化学习的数学原理” 課程 (也推薦用 Notion版本 來閱讀)很高興我初次學習 RL 就是透過這門課, 讓我扎實理解其背後的數學和邏輯老實說 RL 方法很多很雜, 套句趙老師的話, RL 數學很深, 結構性又很強, 一環扣一環如果沒有這堂課這樣循序剖析和從數學出發解釋的話, 我自己應該很難入門, 謝謝這門課的赵世钰老師! 🙏🏻
@@ -391,7 +391,7 @@
 <p>挖坑給自己: 下一次讀 Kevin Murphy 的 reinforcement learning [<a href="https://arxiv.org/abs/2412.05265" target="_blank" rel="external">arxiv</a>]</p>
 </blockquote>
 <hr>
-<h2 id="Ch1-Basic-Concepts"><a href="#Ch1-Basic-Concepts" class="headerlink" title="[Ch1]: Basic Concepts"></a>[Ch1]: Basic Concepts</h2><p>RL 的環境設定 reward <span>$r$</span><!-- Has MathJax -->, action <span>$a$</span><!-- Has MathJax -->, state <span>$s$</span><!-- Has MathJax -->, policy <span>$\pi(a|s)$</span><!-- Has MathJax --> 等的初步介紹自行查資料即可<br>重點是套用 Markov Decision Process (MDP) 的框架.<br>Markov Decision Process (MDP) 給定前一次 state <span>$s$</span><!-- Has MathJax --> 和前一次 action <span>$a$</span><!-- Has MathJax -->, 我們可以定義 state 和 reward 的 distribution:<br><span>$$p(s&apos;,r|s,a)\triangleq Pr\{S_t=s&apos;,R_t=r|S_{t-1}=s,A_{t-1}=a\}$$</span><!-- Has MathJax --> For all <span>$s&apos;,s\in\mathcal{S}$</span><!-- Has MathJax -->, <span>$r\in\mathcal{R}$</span><!-- Has MathJax --> , and <span>$a\in\mathcal{A}(s)$</span><!-- Has MathJax -->. Action space 是從 state 定義出來的.<br>所以 <span>$p:\mathcal{S}\times\mathcal{R}\times\mathcal{S}\times\mathcal{A}\rightarrow[0,1]$</span><!-- Has MathJax -->. (<span>$p$</span><!-- Has MathJax --> 稱 <strong>dynamics function of MDP</strong>)</p>
+<h2 id="Ch1-Basic-Concepts"><a href="#Ch1-Basic-Concepts" class="headerlink" title="[Ch1]: Basic Concepts"></a>[Ch1]: Basic Concepts</h2><p>RL 的環境設定 reward <span>$r$</span><!-- Has MathJax -->, action <span>$a$</span><!-- Has MathJax -->, state <span>$s$</span><!-- Has MathJax -->, policy <span>$\pi(a|s)$</span><!-- Has MathJax --> 等的初步介紹自行查資料即可<br>重點是套用 Markov Decision Process (MDP) 的框架.<br>Markov Decision Process (MDP) 給定前一次 state <span>$s$</span><!-- Has MathJax --> 和前一次 action <span>$a$</span><!-- Has MathJax -->, 我們可以定義 state 和 reward 的 distribution:<br><span>$p(s&apos;,r|s,a)\triangleq Pr\{S_t=s&apos;,R_t=r|S_{t-1}=s,A_{t-1}=a\}$</span><!-- Has MathJax --><br>For all <span>$s&apos;,s\in\mathcal{S}$</span><!-- Has MathJax -->, <span>$r\in\mathcal{R}$</span><!-- Has MathJax --> , and <span>$a\in\mathcal{A}(s)$</span><!-- Has MathJax -->. Action space 是從 state 定義出來的.<br>所以 <span>$p:\mathcal{S}\times\mathcal{R}\times\mathcal{S}\times\mathcal{A}\rightarrow[0,1]$</span><!-- Has MathJax -->. (<span>$p$</span><!-- Has MathJax --> 稱 <strong>dynamics function of MDP</strong>)</p>
 <blockquote>
 <p>知道這個四元 <span>$p(s&apos;,r|s,a)$</span><!-- Has MathJax --> 的機率就稱 with model 的 RL 方法, 反之就是 without model 的方法</p>
 </blockquote>

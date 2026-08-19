@@ -116,7 +116,7 @@ z_k">
 <meta property="og:image" content="https://bobondemon.github.io/2017/04/12/Unscented-Kalman-Filter-Notes/mean_cov2.png">
 <meta property="og:image" content="https://bobondemon.github.io/2017/04/12/Unscented-Kalman-Filter-Notes/update.png">
 <meta property="og:image" content="https://bobondemon.github.io/2017/04/12/Unscented-Kalman-Filter-Notes/result.png">
-<meta property="og:updated_time" content="2026-08-19T14:30:13.233Z">
+<meta property="og:updated_time" content="2026-08-19T15:19:39.171Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Notes for Unscented Kalman Filter">
 <meta name="twitter:description" content="資料為 Udacity 課程內容。事實上 UKF 挺囉嗦的，單純看本文應該無法理解，必須搭配前兩篇 KF and EKF 和 CTRV。主要是筆記用，讓自己可以根據文章完整實做出來。
@@ -434,7 +434,7 @@ v \\
 <p><span>$$\begin{align}
 v_k=
 \left[
-\begin{array}{center}
+\begin{array}{c}
 v_{a,k} \\
 v_{\ddot{\psi},k}
 \end{array}
@@ -453,7 +453,7 @@ Q=E[v_k,v_k^T]=
 x_{k+1}=x_k+Deterministic_k+
 
 \left[
-\begin{array}{center}
+\begin{array}{c}
 \frac{1}{2}(\Delta{t})^2cos(\psi_k)\cdot v_{a,k} \\
 \frac{1}{2}(\Delta{t})^2sin(\psi_k)\cdot v_{a,k} \\
 \Delta{t}\cdot v_{a,k} \\

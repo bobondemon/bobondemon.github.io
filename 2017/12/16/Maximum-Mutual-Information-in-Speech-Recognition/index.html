@@ -97,7 +97,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/MMI_computational_graph1.png">
 <meta property="og:image" content="https://bobondemon.github.io/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/MMI_computational_graph2.png">
 <meta property="og:image" content="https://bobondemon.github.io/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/eq18_details.jpg">
-<meta property="og:updated_time" content="2026-08-19T14:30:13.173Z">
+<meta property="og:updated_time" content="2026-08-19T15:19:39.153Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Maximum Mutual Information in Speech Recognition">
 <meta name="twitter:description" content="Maximum Mutual Information (MMI) 序列的鑑別性訓練方法從早期的 GMM-HMM, 到現今就算使用了深度學習同樣十分有用, 如 Kaldi chain model 在 DNN-HMM 的基礎上加上序列鑑別訓練, 性能會再進一步提升. 前一陣子讀了俞棟、鄧力的這本 語音識別實踐, 對我來說整理得滿好的, 就是數學部分的推導有點簡潔了些, 所以這篇就基於該書的推導, 補">
@@ -379,7 +379,7 @@
 <p><img src="/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/MMI_computational_graph2.png" width="50%" height="50%"></p>
 <a id="more"></a>
 <hr>
-<h3 id="MMI-數學定義"><a href="#MMI-數學定義" class="headerlink" title="MMI 數學定義"></a>MMI 數學定義</h3><p>定義<br><span>$$o^m=o_1^m,...,o_t^m,...,o_{T_m}^m$$</span><!-- Has MathJax --> 是訓練樣本裡第 m 句話的 observation (MFCC,fbank,…) sequence, 該 sequence 有 <span>$T_m$</span><!-- Has MathJax --> 個 observation vector. 而<br><span>$$w^m=w_1^m,...,w_t^m,...,w_{N_m}^m$$</span><!-- Has MathJax --> 則是該句話的正確 transcription, 有 <span>$N_m$</span><!-- Has MathJax --> 個字. 通過 forced-alignment 可以得到相對應的 state sequence<br><span>$$s^m=s_1^m,...,s_t^m,...,s_{T_m}^m$$</span><!-- Has MathJax --> MMI 目的就是希望模型算出的正確答案 sequence 機率愈大愈好, 同時非正確答案 (與之競爭的其他 sequences) 的機率要愈小愈好, 所以正確答案放分子, 非正確放分母, 整體要愈大愈好. 由於考慮了競爭 sequences 的最小化, 所以是<strong>鑑別性</strong>訓練. 又此種方始是基於整句的 sequence 考量, 因此是<strong>序列</strong>鑑別性訓練. 數學寫下來如下:</p>
+<h3 id="MMI-數學定義"><a href="#MMI-數學定義" class="headerlink" title="MMI 數學定義"></a>MMI 數學定義</h3><p>定義<br><span>$o^m=o_1^m,...,o_t^m,...,o_{T_m}^m$</span><!-- Has MathJax --><br>是訓練樣本裡第 m 句話的 observation (MFCC,fbank,…) sequence, 該 sequence 有 <span>$T_m$</span><!-- Has MathJax --> 個 observation vector. 而<br><span>$w^m=w_1^m,...,w_t^m,...,w_{N_m}^m$</span><!-- Has MathJax --><br>則是該句話的正確 transcription, 有 <span>$N_m$</span><!-- Has MathJax --> 個字. 通過 forced-alignment 可以得到相對應的 state sequence<br><span>$s^m=s_1^m,...,s_t^m,...,s_{T_m}^m$</span><!-- Has MathJax --><br>MMI 目的就是希望模型算出的正確答案 sequence 機率愈大愈好, 同時非正確答案 (與之競爭的其他 sequences) 的機率要愈小愈好, 所以正確答案放分子, 非正確放分母, 整體要愈大愈好. 由於考慮了競爭 sequences 的最小化, 所以是<strong>鑑別性</strong>訓練. 又此種方始是基於整句的 sequence 考量, 因此是<strong>序列</strong>鑑別性訓練. 數學寫下來如下:</p>
 <span>$$J_{MMI}(\theta;S)=\sum_{m=1}^M J_{MMI}(\theta\|o^m,w^m) \\
 =\sum_{m=1}^M \log \frac{ p(o^m\|s^m,\theta)^KP(w^m) }{ \sum_w p(o^m\|s^w,\theta)^K P(w) }$$</span><!-- Has MathJax -->
 
@@ -394,9 +394,7 @@ J_{MMI}(\theta\|o,w)
 \triangledown_\theta J_{MMI}(\theta\|o,w)
 =\sum_t \triangledown_{z_t^L}J_{MMI}(\theta\|o,w)\frac{\partial z_t^L}{\partial\theta} \\
 =\sum_t e_t^L\frac{\partial z_t^L}{\partial\theta}
-\end{align}$$</span><!-- Has MathJax --> 其中定義</p>
-<span>$$e_t^L=\triangledown_{z_t^L}J_{MMI}(\theta\|o,w)$$</span><!-- Has MathJax -->
-
+\end{align}$$</span><!-- Has MathJax --> 其中定義<br><span>$e_t^L=\triangledown_{z_t^L}J_{MMI}(\theta\|o,w)$</span><!-- Has MathJax --></p>
 <p>語音聲學模型 (AM) 傳統上使用 GMM 來 model, 而現在都是基於 DNN, 其中最後的 output layer 假設為第 <span>$L$</span><!-- Has MathJax --> 層: <span>$z_t^L$</span><!-- Has MathJax -->, 過了 softmax 之後我們定義為 <span>$v_t^L$</span><!-- Has MathJax -->, 而其 index <span>$r$</span><!-- Has MathJax -->, <strong><span>$v_t^L(r)=P(r\|o_t)$</span><!-- Has MathJax --> 就是給定某一個時間 <span>$t$</span><!-- Has MathJax --> 的 observation <span>$o_t$</span><!-- Has MathJax --> 是 state <span>$r$</span><!-- Has MathJax --> 的機率.</strong></p>
 <p>讀者別緊張, 我們用 <a href="https://bobondemon.github.io/2017/11/29/TF-Notes-Computational-Graph-in-Tensorflow/">Computational graph</a> 的方式將上式直接<strong>畫出來</strong>:</p>
 <h3 id="MMI-Computational-Graph-表達"><a href="#MMI-Computational-Graph-表達" class="headerlink" title="MMI Computational Graph 表達"></a>MMI Computational Graph 表達</h3><p><img src="/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/MMI_computational_graph1.png" width="80%" height="80%"><br><img src="/2017/12/16/Maximum-Mutual-Information-in-Speech-Recognition/MMI_computational_graph2.png" width="80%" height="80%"></p>
@@ -447,7 +445,7 @@ K\color{green}{
 <h4 id="橘色部分"><a href="#橘色部分" class="headerlink" title="橘色部分"></a>橘色部分</h4><p><span>$$\begin{align}
 \frac{\partial\log\left[\sum_w p(o\|s^w,\theta)^K p(w)\right]}{\partial \log p(o_t|r)}=
 \frac{1}{\sum_w p(o\|s^w,\theta)^K p(w)}\times\frac{\partial \sum_w \color{red}{p(o\|s^w,\theta)}^K p(w)}{\partial \log p(o_t|r)}
-\end{align}$$</span><!-- Has MathJax --> 紅色的部分如同上面綠色項的討論, 只有時間點 <span>$t$</span><!-- Has MathJax --> 才跟微分項有關, 不同的是這次沒有 <span>$\log$</span><!-- Has MathJax --> 因此是連乘, 如果 <span>$s_t\neq r$</span><!-- Has MathJax --> 整條 sequence 的機率與微分項無關, 因此只會保留 <span>$s_t=r$</span><!-- Has MathJax --> 的那些 <span>$w$</span><!-- Has MathJax --> sequences.<br>另外,<br><span>$$\frac{\partial p(o_t\|r)^K}{\partial\log p(o_t\|r)} \mbox{  可想成  } \frac{\partial e^{Kx}}{\partial x} = Ke^{Kx}$$</span><!-- Has MathJax --> 綜合以上討論橘色部分為</p>
+\end{align}$$</span><!-- Has MathJax --> 紅色的部分如同上面綠色項的討論, 只有時間點 <span>$t$</span><!-- Has MathJax --> 才跟微分項有關, 不同的是這次沒有 <span>$\log$</span><!-- Has MathJax --> 因此是連乘, 如果 <span>$s_t\neq r$</span><!-- Has MathJax --> 整條 sequence 的機率與微分項無關, 因此只會保留 <span>$s_t=r$</span><!-- Has MathJax --> 的那些 <span>$w$</span><!-- Has MathJax --> sequences.<br>另外,<br><span>$\frac{\partial p(o_t\|r)^K}{\partial\log p(o_t\|r)} \text{  可想成  } \frac{\partial e^{Kx}}{\partial x} = Ke^{Kx}$</span><!-- Has MathJax --><br>綜合以上討論橘色部分為</p>
 <span>$$\begin{align}
 \frac{\partial\log\left[\sum_w p(o\|s^w,\theta)^K p(w)\right]}{\partial \log p(o_t|r)}=
 K\frac{\sum_{w:s_t=r}p(o\|s,\theta)^K p(w)}{\sum_w p(o\|s^w,\theta)^K p(w)}

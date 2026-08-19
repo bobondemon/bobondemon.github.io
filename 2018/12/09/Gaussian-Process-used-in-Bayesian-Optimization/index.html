@@ -112,7 +112,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/black_box_opt.png">
 <meta property="og:image" content="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GPyOpt1.png">
 <meta property="og:image" content="https://bobondemon.github.io/2018/12/09/Gaussian-Process-used-in-Bayesian-Optimization/GPyOpt2.png">
-<meta property="og:updated_time" content="2026-08-19T14:30:13.157Z">
+<meta property="og:updated_time" content="2026-08-19T15:19:39.149Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Gaussian Process used in Bayesian Optimization">
 <meta name="twitter:description" content="上了 Coursera 的 Bayesian Methods for Machine Learning, 其中最後一週的課程介紹了 Gaussian processes &amp;amp; Bayesian optimization 覺得很有收穫, 因為做 ML 最痛苦的就是 hyper-parameter tuning, 常見的方法就是手動調, grid search or random search">
@@ -427,7 +427,7 @@ p(f(x_1),f(x_2),f(x_3))=p(f(x_1+t),f(x_2+t),f(x_3+t))
 </blockquote>
 <p>注意 WSS 與 Stationary 的定義差異. 準確來說 Stationary 要求所有的 moments 都只與相對位置有關, 但 WSS 只要求到 first and second order moments. 說明了 WSS 將 stationary 的條件放寬. 注意到 WSS 不一定是 stationary 的 GP, 這是因為 WSS 沒有要求 distribution 必須是 Normal.<br>WSS, Stationary GP, Stationary RP 之間的關係可以這麼描述:</p>
 <span>$$\begin{align}
-\mbox{Stationary GP}\subset\mbox{Stationary RP}\subset\mbox{WSS}
+\text{Stationary GP}\subset\text{Stationary RP}\subset\text{WSS}
 \end{align}$$</span><!-- Has MathJax -->
 
 <p>其實 WSS 與本篇主要討論的 Bayesian Optimization 沒有直接關係, 會想介紹是因為滿足 WSS 的話, 能使我們更直覺的 “看出” 一個訊號是否可能是 stationary. (另外 WSS 在 <a href="https://en.wikipedia.org/wiki/Adaptive_filter" target="_blank" rel="external">Adaptive Filtering</a> 非常重要, 相當於基石的存在)<br>首先使用課程的 stationary 範例:</p>

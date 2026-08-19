@@ -101,7 +101,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2018/09/03/Ensemble-Algorithm-Summary-Notes/adaboost_best_h_selection.png">
 <meta property="og:image" content="https://bobondemon.github.io/2018/09/03/Ensemble-Algorithm-Summary-Notes/GBDT.png">
 <meta property="og:image" content="https://bobondemon.github.io/2018/09/03/Ensemble-Algorithm-Summary-Notes/Boosting_FD_ref.png">
-<meta property="og:updated_time" content="2026-08-19T14:30:13.147Z">
+<meta property="og:updated_time" content="2026-08-19T15:19:39.147Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Ensemble Algorithm Summary Notes">
 <meta name="twitter:description" content="這是用自己理解的方式整理了林軒田老師 ML 課程. 其中 Decision tree and Random Forest 沒紀錄.
@@ -405,14 +405,14 @@ g_t=\arg\min_{h\in \mathcal{H}}\left(\sum_{n=1}^N u_n^{(t)} \mathbb{I}[y_n\neq h
 
 <p>物理意義就是對於 <span>$g_t$</span><!-- Has MathJax --> 來說</p>
 <span>$$\begin{align}
-\mbox{for weak learner }g_t\mbox{:  }\left(\mbox{total }u_n^{(t+1)}\mbox{ of incorrect}\right)=
-\left(\mbox{total }u_n^{(t+1)}\mbox{ of correct}\right)
+\text{for weak learner }g_t\text{:  }\left(\text{total }u_n^{(t+1)}\text{ of incorrect}\right)=
+\left(\text{total }u_n^{(t+1)}\text{ of correct}\right)
 \end{align}$$</span><!-- Has MathJax -->
 
 <p>所以新的權重調整方式其實很簡單, 用一個例子解釋. 假如 <span>$u_n^t$</span><!-- Has MathJax --> incorrect 合是 300, <span>$u_n^t$</span><!-- Has MathJax --> correct 合是 500. 我們只要把之前的 <span>$u_n^t$</span><!-- Has MathJax --> incorrect部分都乘 500, 而 correct 部分乘 300就可以了.<br>或者我們這麼寫, 定義 <span>$\epsilon_t=300/(300+500)$</span><!-- Has MathJax -->, 則</p>
 <span>$$\begin{align}
-u_n^{(t+1)}=u_n^{(t)}(1-\epsilon_t) \mbox{, if } y_n\neq g_t(x_n)\\
-u_n^{(t+1)}=u_n^{(t)}\epsilon_t \mbox{, if } y_n = g_t(x_n)\\
+u_n^{(t+1)}=u_n^{(t)}(1-\epsilon_t) \text{, if } y_n\neq g_t(x_n)\\
+u_n^{(t+1)}=u_n^{(t)}\epsilon_t \text{, if } y_n = g_t(x_n)\\
 \end{align}$$</span><!-- Has MathJax -->
 
 <p>或通常也可以這麼計算</p>
@@ -447,7 +447,7 @@ G(x_n)=sign\left(
 
 <p>而如果將 <span>$\alpha_t$</span><!-- Has MathJax --> 看成是 t-th coefficient, <span>$g_t(x_n)$</span><!-- Has MathJax --> 看成是 t-th 維度的特徵, 橘色部分就等同於 <strong>unnormalized margin</strong>. (除以 coefficients 的 norm 就是 margin了)<br>Adaboost 可以證明 (with exponential decay)</p>
 <span>$$\begin{align}
-\sum_{n=1}^N u_n^{(t)}\rightarrow 0\mbox{,  for  }t\rightarrow 0
+\sum_{n=1}^N u_n^{(t)}\rightarrow 0\text{,  for  }t\rightarrow 0
 \end{align}$$</span><!-- Has MathJax -->
 
 <p>這意味著什麼? 說明了隨著 iteration 增加, 橘色的值會愈大, 等同於我們的 <span>$G$</span><!-- Has MathJax --> 對於資料的 margin 會愈大.<br>證明可參考 <a href="https://book.douban.com/subject/10590856/" target="_blank" rel="external">李航 統計學習方法</a> p142</p>
@@ -493,7 +493,7 @@ f_T(x)=f_{T-1}(x)+\alpha_T g_T(x)
 <h3 id="Gradient-Boosting"><a href="#Gradient-Boosting" class="headerlink" title="Gradient Boosting"></a>Gradient Boosting</h3><p>Additive model framework 很簡單, 難的地方在那個 <span>$\arg\min$</span><!-- Has MathJax --> 式 (15). 而 <a href="https://en.wikipedia.org/wiki/Gradient_boosting" target="_blank" rel="external">Gradient Boosting</a> 可以說是一種明確實現 Additive model 的方式, 我們可以將 <span>$\eta$</span><!-- Has MathJax --> 和 <span>$h$</span><!-- Has MathJax --> 分開找, 例如先找 <span>$h$</span><!-- Has MathJax -->:</p>
 <span>$$\begin{align}
 &amp;\min_h\sum_{n=1}^N L(y_n,f_{T-1}(x_n)+\eta h(x_n))\\
-&amp;\mbox{by Taylor:  }\simeq \min_h\sum_{n=1}^N\left(L(y_n,f_{T-1}(x_n))+\eta h(x_n)
+&amp;\text{by Taylor:  }\simeq \min_h\sum_{n=1}^N\left(L(y_n,f_{T-1}(x_n))+\eta h(x_n)
 \color{red}{
 \left(\frac{\partial L(y_n,f)}{\partial f}\right) _{f=f_{T-1}}
 }
@@ -502,14 +502,14 @@ f_T(x)=f_{T-1}(x)+\alpha_T g_T(x)
 
 <p>Taylor 展開式那邊可以這麼想</p>
 <span>$$\begin{align}
-&amp;\mbox{將  }L(y_n,
+&amp;\text{將  }L(y_n,
 \color{green}{
 f_{T-1}(x_n)
 }+
 \color{blue}{
 \eta h(x_n)
 }
-)\mbox{  看作  }\hat{L}(
+)\text{  看作  }\hat{L}(
 \color{green}{
 \tilde{x}
 }+
@@ -517,7 +517,7 @@ f_{T-1}(x_n)
 \delta
 }
 )\\
-&amp;\mbox{因此 by Taylor  }
+&amp;\text{因此 by Taylor  }
 \simeq \hat{L}(
 \color{green}{\tilde{x}}
 )+
@@ -544,7 +544,7 @@ f_{T-1}(x_n)
 \tilde{y_n}
 }
 \right)\\
-&amp;\mbox{去掉與}h\mbox{無關項並補上}2=\min_h \sum_{n=1}^N \left(-2h(x_n)\tilde{y}_n\right)
+&amp;\text{去掉與}h\text{無關項並補上}2=\min_h \sum_{n=1}^N \left(-2h(x_n)\tilde{y}_n\right)
 \end{align}$$</span><!-- Has MathJax -->
 
 <p>很明顯, 如果 <span>$h$</span><!-- Has MathJax --> 無限制, 則解為 <span>$h=\infty$</span><!-- Has MathJax -->, 這顯然不是我們要的, 在 optimization 的時候, 我們需要的只是 gradient 的方向, 而不是大小, 大小可以由 stepsize 控制. 不過如果加上 <span>$norm(h)=1$</span><!-- Has MathJax --> 條件並使用 Lagrange Multipliers 會較複雜, 實作上我們就直接將 <span>$norm(h)$</span><!-- Has MathJax --> 當作一個 penality 加在 loss 裡就可以. 因此 (23) 修改如下:</p>
@@ -554,7 +554,7 @@ f_{T-1}(x_n)
 
 <p>湊齊平方項會變成 (之前加的2是為了這裡湊平方項)</p>
 <span>$$\begin{align}
-=\min_h \sum_{n=1}^N \left( \mbox{const}+\left(h(x_n)-\tilde{y}_n\right)^2 \right)
+=\min_h \sum_{n=1}^N \left( \text{const}+\left(h(x_n)-\tilde{y}_n\right)^2 \right)
 \end{align}$$</span><!-- Has MathJax -->
 
 <p>OK! 到這裡我們發現了一個重要的解釋, <strong><span>$h$</span><!-- Has MathJax --> 的找法就是對 <span>$\tilde{y}_n$</span><!-- Has MathJax --> 做 sqaure error regression!</strong></p>
@@ -566,12 +566,12 @@ f_{T-1}(x_n)
 <p>這個解通常很好算, 令 <span>$L$</span><!-- Has MathJax --> 微分為 0 即可, 是個單變量求解.</p>
 <p>到目前為止, 我們可以將整個 Gradient Boost 演算法列出來了:</p>
 <span>$$\begin{align}
-&amp;\mbox{1. Init }g_0(x)\\
-&amp;\mbox{2. For }t=1~T\mbox{  do:}\\
-&amp;\mbox{3. }\tilde{y}_n=-\left(\frac{\partial L(y_n,f)}{\partial f}\right)_{f=f_{t-1}}\mbox{,  n=1~N}\\
-&amp;\mbox{4. }g_t=\arg\min_h\left(h(x_n)-\tilde{y}_n\right)^2\\
-&amp;\mbox{5. }\alpha_T=\arg\min_{\eta}\sum_{n=1}^N L\left(y_n,f_{t-1}(x_n)+\eta g_t(x_n)\right)\\
-&amp;\mbox{6. }f_t(x)=f_{t-1}(x)+\alpha_t g_t(x)
+&amp;\text{1. Init }g_0(x)\\
+&amp;\text{2. For }t=1~T\text{  do:}\\
+&amp;\text{3. }\tilde{y}_n=-\left(\frac{\partial L(y_n,f)}{\partial f}\right)_{f=f_{t-1}}\text{,  n=1~N}\\
+&amp;\text{4. }g_t=\arg\min_h\left(h(x_n)-\tilde{y}_n\right)^2\\
+&amp;\text{5. }\alpha_T=\arg\min_{\eta}\sum_{n=1}^N L\left(y_n,f_{t-1}(x_n)+\eta g_t(x_n)\right)\\
+&amp;\text{6. }f_t(x)=f_{t-1}(x)+\alpha_t g_t(x)
 \end{align}$$</span><!-- Has MathJax -->
 
 <hr>
@@ -591,8 +591,8 @@ g_T=\min_h\sum_{n=1}^N\exp\left(-y_n\left(f_{T-1}(x_n)+\eta h(x_n)\right)\right)
 
 <p>兩種情況:</p>
 <span>$$\begin{align}
-\mbox{1. }y_n=g_t(x_n)\mbox{:  }u_n^{(T)}\exp(-\eta)\\
-\mbox{2. }y_n\neq g_t(x_n)\mbox{:  }u_n^{(T)}\exp(+\eta)\\
+\text{1. }y_n=g_t(x_n)\text{:  }u_n^{(T)}\exp(-\eta)\\
+\text{2. }y_n\neq g_t(x_n)\text{:  }u_n^{(T)}\exp(+\eta)\\
 \end{align}$$</span><!-- Has MathJax -->
 
 <p>所以</p>
@@ -622,13 +622,13 @@ g_T=\min_h\sum_{n=1}^N\exp\left(-y_n\left(f_{T-1}(x_n)+\eta h(x_n)\right)\right)
 +\eta^2h^2(x_n)\left(\frac{\partial^2 L(y_n,f)}{\partial^2 f}\right)_{f=f_{T-1}}
 }
 \right)\\
-&amp;=\min_h\sum_{n=1}^N \left( L(y_n,f_{T-1}(x_n)) + \eta h(x_n)\mbox{Gradient}_n + \frac{\eta^2h^2(x_n)}{2}\mbox{Hessian}_n \right)\\
-&amp;=\min_h\sum_{n=1}^N \left( \eta h(x_n)\mbox{Gradient}_n + \frac{\eta^2h^2(x_n)}{2}\mbox{Hessian}_n \right)\\
+&amp;=\min_h\sum_{n=1}^N \left( L(y_n,f_{T-1}(x_n)) + \eta h(x_n)\text{Gradient}_n + \frac{\eta^2h^2(x_n)}{2}\text{Hessian}_n \right)\\
+&amp;=\min_h\sum_{n=1}^N \left( \eta h(x_n)\text{Gradient}_n + \frac{\eta^2h^2(x_n)}{2}\text{Hessian}_n \right)\\
 \end{align}$$</span><!-- Has MathJax -->
 
 <p>最後再加上一個 regularization term</p>
 <span>$$\begin{align}
-&amp;=\min_h\sum_{n=1}^N \left( \eta h(x_n)\mbox{Gradient}_n + \frac{\eta^2h^2(x_n)}{2}\mbox{Hessian}_n \right) + \Omega(h)\\
+&amp;=\min_h\sum_{n=1}^N \left( \eta h(x_n)\text{Gradient}_n + \frac{\eta^2h^2(x_n)}{2}\text{Hessian}_n \right) + \Omega(h)\\
 \end{align}$$</span><!-- Has MathJax -->
 
 <p>針對 (46) 要找到最好的 <span>$h$</span><!-- Has MathJax -->, 如果使用 Decision Tree, <span>$\Omega(h)$</span><!-- Has MathJax --> 可以使用樹的深度、葉子數量、葉子值的大小等等計算. 但關鍵是如何有效率地找到很好的 <span>$h$</span><!-- Has MathJax -->, 而在 Decision Tree 此問題相當於如何有效率的對 Tree 做 splitting. XGBoost <a href="https://arxiv.org/abs/1603.02754" target="_blank" rel="external">文章</a>使用非常有效率的近似方法, 並且該方法可以很好的並行加速.</p>

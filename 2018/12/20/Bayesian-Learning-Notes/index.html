@@ -99,7 +99,7 @@
 圖片來自 wiki, 我也好想要這個裝飾燈. 就這麼一個 Baye’s Rule, 撐起了統計機器學習的基石!">
 <meta property="og:image" content="https://bobondemon.github.io/2018/12/20/Bayesian-Learning-Notes/cover.jpg">
 <meta property="og:image" content="https://bobondemon.github.io/2018/12/20/Bayesian-Learning-Notes/summary.png">
-<meta property="og:updated_time" content="2026-08-19T14:30:13.133Z">
+<meta property="og:updated_time" content="2026-08-19T15:19:39.143Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Bayesian Learning Notes">
 <meta name="twitter:description" content="枉費我學習 ML 這麼久, 最近才完整了解 Bayesian learning 大架構, 以及與 MLE, MAP, Variational Inference, Sampling 之間的關聯. 這才終於有了見樹又見林的港覺阿! 筆記整理如下 …
@@ -400,7 +400,7 @@ p(y^*|x^*,X,Y)=\color{red}{\int p(y^*|x^*,\theta)p(\theta|X,Y)\,d\theta}
 <li>使用 sampling 方法. 理解一下這個積分的形式, 可以發現這是在算<strong>根據某個機率分佈<span>$p(x)$</span><!-- Has MathJax -->計算<span>$f(x)$</span><!-- Has MathJax -->的期望值</strong>. 因此, 如果我們直接根據 <span>$p(x)$</span><!-- Has MathJax --> sample 出 <span>$M$</span><!-- Has MathJax --> 個 <span>$x$</span><!-- Has MathJax -->, 就可以用如下的平均算出近似值了.</li>
 </ol>
 <span>$$\begin{align}
-\int p(x)f(x) \,dx \simeq \frac{1}{M}\sum_{i=1}^M f(x_i)\mbox{,  where }x_i \sim p(x)
+\int p(x)f(x) \,dx \simeq \frac{1}{M}\sum_{i=1}^M f(x_i)\text{,  where }x_i \sim p(x)
 \end{align}$$</span><!-- Has MathJax -->
 
 <p>我們可能會想, 是不是可以將 Bayesian learning 做些簡化來避掉上述紅色積分? 是的, MLE 和 MAP 就是簡化了完整的 Bayesian learning 過程. 下面介紹.</p>

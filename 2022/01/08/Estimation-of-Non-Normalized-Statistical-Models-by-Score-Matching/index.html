@@ -102,7 +102,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 4.png">
 <meta property="og:image" content="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 5.png">
 <meta property="og:image" content="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 6.png">
-<meta property="og:updated_time" content="2026-08-19T14:30:13.149Z">
+<meta property="og:updated_time" content="2026-08-19T15:23:01.212Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Score Matching 系列 (一) Non-normalized 模型估計">
 <meta name="twitter:description" content="這是一篇論文筆記: “Estimation of Non-Normalized Statistical Models by Score Matching”, 其實推薦直接讀論文, 數學式很清楚, 表達也明確, 只是想順著自己的說法做一下筆記
@@ -390,7 +390,7 @@
 <h2 id="直觀的-Objective-Function-Explicit-Score-Matching"><a href="#直觀的-Objective-Function-Explicit-Score-Matching" class="headerlink" title="直觀的 Objective Function (Explicit Score Matching)"></a>直觀的 Objective Function (Explicit Score Matching)</h2><hr>
 <p>我們使用 MSE loss 來計算式 (1), 利用此 loss 找最佳 <span>$\theta$</span><!-- Has MathJax --> 的方法稱為 Score Matching<br>定義 score function, 它其實就是 gradient of the log-density with respect to the data vector:</p>
 <ul>
-<li>Data pdf 的 score function:<br>  <span>$$\psi_x(\xi)=\nabla_\xi\log p_x(\xi) \in \mathbb{R}^n$$</span><!-- Has MathJax --></li>
+<li>Data pdf 的 score function:<br>  <span>$\psi_x(\xi)=\nabla_\xi\log p_x(\xi) \in \mathbb{R}^n$</span><!-- Has MathJax --></li>
 <li>Model pdf 的 score function:<br>  <span>$$\psi(\xi;\theta)=
     \left(
     \begin{array}{c}

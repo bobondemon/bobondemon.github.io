@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Earth Mover’s Distance (EMD),Optimal Transport,Wasserstein distance,Entropic Optimal Transport (EOT),Sinkhorn Knopp Algorithm,Lagrangian function,KKT," />
+  <meta name="keywords" content="Earth Mover’s Distance (EMD),Optimal Transport,Wasserstein distance,Sinkhorn Knopp Algorithm,Lagrangian function,KKT,Entropic Optimal Transport (EOT)," />
 
 
 
@@ -96,7 +96,7 @@
 <meta property="og:description" content="這是初探最優傳輸 OT (Optimal Transport) 的第二篇, 聊一下背後的數學理論接續上一篇引導出 EMD 是什麼以及什麼情況下我們需要 EMD 而非 KL or JSD 距離後, 我們最後說到 EMD 的兩個缺點: 不夠有效率以及無法微分
 本篇我們介紹 EOT (Entorpic Optimal Transport)EOT 將 EMD 問題 relax 後, 雖然只能找到逼近解,">
 <meta property="og:image" content="https://bobondemon.github.io/2026/03/03/EMD-2/image.png">
-<meta property="og:updated_time" content="2026-08-19T14:30:13.144Z">
+<meta property="og:updated_time" content="2026-08-19T15:19:39.146Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="初探推土機距離和 Entropic 最優傳輸 (EOT): 數學理論篇 (2/3)">
 <meta name="twitter:description" content="這是初探最優傳輸 OT (Optimal Transport) 的第二篇, 聊一下背後的數學理論接續上一篇引導出 EMD 是什麼以及什麼情況下我們需要 EMD 而非 KL or JSD 距離後, 我們最後說到 EMD 的兩個缺點: 不夠有效率以及無法微分
@@ -452,8 +452,8 @@ S_\epsilon(a, b) = OT_\epsilon(a, b) - \frac{1}{2} OT_\epsilon(a, a) - \frac{1}{
 \min_{P \ge 0} \langle P, C \rangle - \epsilon H(P) \quad \text{s.t. } P\mathbf{1} \le a, P^T\mathbf{1} \le b, \sum P_{ij} = m
 \end{aligned}$$</span><!-- Has MathJax --> 原先的標準 Sinkhorn 是 <span>$u = a / (Kv)$</span><!-- Has MathJax -->, 其中 <strong>Gibbs Kernel</strong>: <span>$K = e^{-C/\epsilon}$</span><!-- Has MathJax -->.<br>在 Partial OT 中, 因為是<strong>不等式 (<span>$\le$</span><!-- Has MathJax -->),</strong> 更新公式會變成:</p>
 <ol>
-<li>更新 <span>$v$</span><!-- Has MathJax --> (列): 如果需求超過了 <span>$b$</span><!-- Has MathJax --> 就 clipping, 這裡的 1 是指乘法因子的上限, 具體推導與對偶變數有關<br> <span>$$v \leftarrow \min \left( \frac{b}{K^T u}, \ 1 \right)$$</span><!-- Has MathJax --></li>
-<li>更新 <span>$u$</span><!-- Has MathJax --> (行):<br> <span>$$u \leftarrow \min \left( \frac{a}{K v}, \ 1 \right)$$</span><!-- Has MathJax --></li>
+<li>更新 <span>$v$</span><!-- Has MathJax --> (列): 如果需求超過了 <span>$b$</span><!-- Has MathJax --> 就 clipping, 這裡的 1 是指乘法因子的上限, 具體推導與對偶變數有關<br> <span>$v \leftarrow \min \left( \frac{b}{K^T u}, \ 1 \right)$</span><!-- Has MathJax --></li>
+<li>更新 <span>$u$</span><!-- Has MathJax --> (行):<br> <span>$u \leftarrow \min \left( \frac{a}{K v}, \ 1 \right)$</span><!-- Has MathJax --></li>
 <li>總質量重整 (Rescaling): 上面的更新不能保證總質量為 <span>$m$</span><!-- Has MathJax -->, 需重新對 <span>$P$</span><!-- Has MathJax --> 做 scaling 縮放</li>
 </ol>
 <p>這裡仍列一下<a href="https://arxiv.org/abs/1412.5154" target="_blank" rel="external">論文</a>的 Proposition 5. 算法更新步驟:<br><img src="/2026/03/03/EMD-2/image.png" width="80%" height="80%"><br>以及 <a href="https://pythonot.github.io/index.html" target="_blank" rel="external">POT</a> 庫提供的函數為 <code>ot.partial.entropic_partial_wasserstein</code> [<a href="https://pythonot.github.io/gen_modules/ot.partial.html#ot.partial.entropic_partial_wasserstein" target="_blank" rel="external">doc</a>], [<a href="https://pythonot.github.io/_modules/ot/partial/partial_solvers.html#entropic_partial_wasserstein" target="_blank" rel="external">codes</a>]</p>
@@ -519,13 +519,13 @@ S_\epsilon(a, b) = OT_\epsilon(a, b) - \frac{1}{2} OT_\epsilon(a, a) - \frac{1}{
           
             <a href="/tags/Wasserstein-distance/" rel="tag"># Wasserstein distance</a>
           
-            <a href="/tags/Entropic-Optimal-Transport-EOT/" rel="tag"># Entropic Optimal Transport (EOT)</a>
-          
             <a href="/tags/Sinkhorn-Knopp-Algorithm/" rel="tag"># Sinkhorn Knopp Algorithm</a>
           
             <a href="/tags/Lagrangian-function/" rel="tag"># Lagrangian function</a>
           
             <a href="/tags/KKT/" rel="tag"># KKT</a>
+          
+            <a href="/tags/Entropic-Optimal-Transport-EOT/" rel="tag"># Entropic Optimal Transport (EOT)</a>
           
         </div>
       

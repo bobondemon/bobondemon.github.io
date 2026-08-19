@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="PyTorch,Fake Quantization,Quantization Aware Training (QAT),Straight Through Estimator (STE),LSQ,LSQ+," />
+  <meta name="keywords" content="PyTorch,Fake Quantization,Quantization Aware Training (QAT),LSQ,LSQ+,Straight Through Estimator (STE)," />
 
 
 
@@ -99,7 +99,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/gradient_multiplier.png">
 <meta property="og:image" content="https://bobondemon.github.io/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/gradients_of_zero_point.png">
 <meta property="og:image" content="https://bobondemon.github.io/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/pytorch_implementation.png">
-<meta property="og:updated_time" content="2026-08-19T14:30:13.167Z">
+<meta property="og:updated_time" content="2026-08-19T15:19:39.151Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Learning Zero Point and Scale in Quantization Parameters">
 <meta name="twitter:description" content="在上一篇 搞懂 Quantization Aware Training 中的 Fake Quantization 我們討論了 fake quantization 以及 QAT提到了 observer 負責計算 zero point and scale $(z,s)$, 一般來說只需要透過統計觀測值的 min/max 範圍就能給定, 所以也不需要參與 backward 計算
@@ -425,7 +425,7 @@ Q_P - z &amp; \text{if }v/s+z\geq Q_P
 <p><img src="/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/Untitled 1.png" width="100%" height="100%"></p>
 <h2 id="Scale-的-Gradient-要做調整"><a href="#Scale-的-Gradient-要做調整" class="headerlink" title="Scale 的 Gradient 要做調整"></a>Scale 的 Gradient 要做調整</h2><hr>
 <p>LSQ 作者實驗認為 weights 和 scale 的 gradients 大小, 再除以各自的參數數量後, 如果在比例上一樣的話效果比較好:</p>
-<p><span>$$R=\left.\left|\frac{\nabla_s L}{s}\right|\right/\frac{\|\nabla_w L\|}{\|w\|}\approx 1$$</span><!-- Has MathJax --> 要讓更新的相對大小是接近的, 因此會把 gradients 乘上如下的 scale 值: <span>$g=1/\sqrt{NQ_P}$</span><!-- Has MathJax -->, 其中 <span>$N$</span><!-- Has MathJax --> 是那一層的 (pytorch) tensor 總數量 <code>.numel</code></p>
+<p><span>$R=\left.\left|\frac{\nabla_s L}{s}\right|\right/\frac{\|\nabla_w L\|}{\|w\|}\approx 1$</span><!-- Has MathJax --><br>要讓更新的相對大小是接近的, 因此會把 gradients 乘上如下的 scale 值: <span>$g=1/\sqrt{NQ_P}$</span><!-- Has MathJax -->, 其中 <span>$N$</span><!-- Has MathJax --> 是那一層的 (pytorch) tensor 總數量 <code>.numel</code></p>
 <blockquote>
 <p>Weight tensor <span>$W$</span><!-- Has MathJax --> 就是 <code>W.numel</code>, 而如果要處理 scale <span>$s$</span><!-- Has MathJax --> 的話, 假設處理的是 activations <span>$X$</span><!-- Has MathJax -->, 那就是 <code>X.numel</code></p>
 </blockquote>
@@ -500,11 +500,11 @@ Q_P - z &amp; \text{if }v/s+z\geq Q_P
           
             <a href="/tags/Quantization-Aware-Training-QAT/" rel="tag"># Quantization Aware Training (QAT)</a>
           
-            <a href="/tags/Straight-Through-Estimator-STE/" rel="tag"># Straight Through Estimator (STE)</a>
-          
             <a href="/tags/LSQ/" rel="tag"># LSQ</a>
           
             <a href="/tags/LSQ/" rel="tag"># LSQ+</a>
+          
+            <a href="/tags/Straight-Through-Estimator-STE/" rel="tag"># Straight Through Estimator (STE)</a>
           
         </div>
       

@@ -102,7 +102,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2017/11/14/Notes-for-KKT-Conditions/KKT.png">
 <meta property="og:image" content="https://bobondemon.github.io/2017/11/14/Notes-for-KKT-Conditions/feasible_seq_and_limiting_directions.png">
 <meta property="og:image" content="https://bobondemon.github.io/2017/11/14/Notes-for-KKT-Conditions/Thm4.png">
-<meta property="og:updated_time" content="2026-08-19T14:30:13.183Z">
+<meta property="og:updated_time" content="2026-08-19T15:19:39.157Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Notes for KKT Conditions">
 <meta name="twitter:description" content="2011年自己做的筆記, 放上來以免檔案丟失, 也方便隨時參考. 參考自 “Numerical Optimization” by Jorge Nocedal and Stephen J. Wright. 但是打算只用 Lagrange Multiplier Theorem 理解 KKT. :)
@@ -388,7 +388,7 @@
 <p>具體來說，我們要探討的是對於以下的問題，如果 <span>$x^\ast$</span><!-- Has MathJax --> 為一 minimal point 且滿足式 (2) 的條件, 則會發生什麼事情 (我們找的是<strong>必要條件</strong>)</p>
 <span>$$\begin{align} 
 \min f(x) \\
-\mbox{subject to } \begin{array}{rcl}
+\text{subject to } \begin{array}{rcl}
 c_i(x)=0,i \in \mathbf{E} \\
 c_i(x)\geq 0, i \in \mathbf{I} \\
 \end{array}
@@ -422,7 +422,7 @@ c_i(x)\geq 0, i \in \mathbf{I} \\
 </blockquote>
 <p>考慮以下問題</p>
 <span>$$\min f(x) \\
-\mbox{subject to } \begin{array}{rcl}
+\text{subject to } \begin{array}{rcl}
 c(x)=0 \\
 \end{array}$$</span><!-- Has MathJax -->
 
@@ -430,7 +430,7 @@ c(x)=0 \\
 <p><img src="/2017/11/14/Notes-for-KKT-Conditions/pic1.png" width="60%" height="60%"></p>
 <h4 id="限制條件為不等式"><a href="#限制條件為不等式" class="headerlink" title="限制條件為不等式"></a>限制條件為不等式</h4><p>考慮以下問題</p>
 <span>$$\min f(x) \\
-\mbox{subject to } \begin{array}{rcl}
+\text{subject to } \begin{array}{rcl}
 c(x)\geq 0 \\
 \end{array}$$</span><!-- Has MathJax -->
 
@@ -467,7 +467,7 @@ c(x)\geq 0 \\
 <p><a href="LICQ">Def</a>:<br>若滿足以下條件稱 <span>$d$</span><!-- Has MathJax --> 是 <span>$x_0$</span><!-- Has MathJax --> 的 limiting direction. (當然 <span>$x_0$</span><!-- Has MathJax --> 是 feasible point)<br>存在一個 feasible sequence <span>$(z_k)_k$</span><!-- Has MathJax --> 使得該 sequence 有一個 subsequence</p>
 </blockquote>
 <span>$$\exists (z_{k_j})_j
-\mbox{  such that  }
+\text{  such that  }
 d = \lim\frac{(z_{k_j}-x_0)}{\parallel z_{k_j}-x_0\parallel}$$</span><!-- Has MathJax -->
 
 <p>從定義上我們可以知道 limiting direction 長度為 1, 因為我們只在乎方向. 另外要特別說存在一個 subsequence 是因為 feasible sequence 不會只有一個 limiting direction. 例子如下:</p>
@@ -478,15 +478,11 @@ d = \lim\frac{(z_{k_j}-x_0)}{\parallel z_{k_j}-x_0\parallel}$$</span><!-- Has Ma
 </blockquote>
 <p>直觀上如果不滿足, 我們就可以找到一個 feasible sequence 從而得到該 limiting direction 會是一個 descent direction, 因此與 <span>$x^\ast$</span><!-- Has MathJax --> 是 local minium 矛盾.<br>我們在等下的第4個步驟可以看到此條件 “所有的 limiting direction <span>$d$</span><!-- Has MathJax --> 都滿足 <span>$\triangledown f(x^\ast)^Td \geq 0$</span><!-- Has MathJax -->” 等價於 KKT Conditions 的表達方式. 因此 Thm4 可以重寫成 <strong>“已知 <span>$x^\ast$</span><!-- Has MathJax --> 是一個 local minimum, 則滿足 KKT Conditions”</strong>, 在最後第5步會串起來.</p>
 <h4 id="3-Limiting-directions-的集合-F"><a href="#3-Limiting-directions-的集合-F" class="headerlink" title="3. Limiting directions 的集合 (F)"></a>3. Limiting directions 的集合 (F)</h4><blockquote>
-<p><a href="LICQ">Def</a>: Active Set<br>對於某一 feasible point <span>$x_0$</span><!-- Has MathJax -->, 它的 active set <span>$\mathbf{A}(x_0)$</span><!-- Has MathJax --> 定義為</p>
+<p><a href="LICQ">Def</a>: Active Set<br>對於某一 feasible point <span>$x_0$</span><!-- Has MathJax -->, 它的 active set <span>$\mathbf{A}(x_0)$</span><!-- Has MathJax --> 定義為<br><span>$\mathbf{A}(x_0) = \mathbf{E} \cup \{i \in \mathbf{I} | c_i(x_0)=0 \}$</span><!-- Has MathJax --></p>
 </blockquote>
-<span>$$\mathbf{A}(x_0) = \mathbf{E} \cup \{i \in \mathbf{I} | c_i(x_0)=0 \}$$</span><!-- Has MathJax -->
-
 <blockquote>
-<p>如果以下集合為線性獨立集, 則稱 LICQ 在 <span>$x_0$</span><!-- Has MathJax --> 成立</p>
+<p>如果以下集合為線性獨立集, 則稱 LICQ 在 <span>$x_0$</span><!-- Has MathJax --> 成立<br><span>$\{\triangledown c_i(x_0), i \in \mathbf{A}(x_0) \}$</span><!-- Has MathJax --></p>
 </blockquote>
-<span>$$\{\triangledown c_i(x_0), i \in \mathbf{A}(x_0) \}$$</span><!-- Has MathJax -->
-
 <p>其實我們在上面的討論都有使用這兩個定義, 這裡只不過用數學表示方便等下的討論.<br>某一點它的所有 limiting direction 的集合 (<span>$F$</span><!-- Has MathJax -->) 如下:</p>
 <blockquote>
 <p>[Thm5]:<br>對於某一 feasible point <span>$x_0$</span><!-- Has MathJax -->,</p>
@@ -510,7 +506,7 @@ d^T\triangledown c_i(x_0) \geq 0, i \in \mathbf{A}(x_0) \cap \mathbf{I} \\
 <p>[Thm6]:<br>對於某一 feasible point <span>$x_0$</span><!-- Has MathJax -->, Let <span>$\mathbf{A}(x_0)=(1...m)$</span><!-- Has MathJax -->, <span>$\mathbf{A}^T=[\triangledown c_1(x_0)...\triangledown c_m(x_0)]$</span><!-- Has MathJax --> 則</p>
 </blockquote>
 <span>$$\triangledown f(x-0)^Td\geq 0,\forall d \in F1 \Leftrightarrow\\
-\exists \lambda \in \mathbb{R}^m \mbox{  where  } \lambda_i \geq 0 \forall i \in \mathbf{A}(x_0) \cap \mathbf{I} \mbox{, such that } \triangledown f(x_0)=\sum_{i=1}^m \lambda_i \triangledown c_i(x_0)=\mathbf{A}^T$$</span><!-- Has MathJax -->
+\exists \lambda \in \mathbb{R}^m \text{  where  } \lambda_i \geq 0 \forall i \in \mathbf{A}(x_0) \cap \mathbf{I} \text{, such that } \triangledown f(x_0)=\sum_{i=1}^m \lambda_i \triangledown c_i(x_0)=\mathbf{A}^T$$</span><!-- Has MathJax -->
 
 <p>同樣跳過, 證明可查看<a href="Appendix_proof.pdf">舊的筆記</a></p>
 <p>我們可以仔細對照一下上面的 Lagrange Multiplier 那個條件, 其實它跟 “[Thm3]: Karush‐Kuhn‐Tucker conditions” 是一樣的, 只差在一個地方就是 complementarity slackness 沒有明確寫出來, 但我們知道一定存在 <span>$\lambda$</span><!-- Has MathJax --> 可以滿足. 因此這個 Lagrange Multiplier 的條件也就是 KKT 的表達方式.</p>

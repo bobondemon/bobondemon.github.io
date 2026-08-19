@@ -93,7 +93,7 @@
 <meta property="og:url" content="https://bobondemon.github.io/2026/04/18/MatrixNorm/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="向量的 norm 我們很熟悉了, 但對於一個矩陣的 norm 又該怎麼定義呢?最直覺的想法就是把矩陣 flatten 成一個向量, 套用向量的 norm 即可. 這引導出了 Frobenius norm.但是矩陣還包含了將向量做線性轉換的作用, 所以向量經過矩陣轉換後的 norm 變化是不是可以用來當作矩陣 norm 的度量方式呢? 這樣的想法引導出了 operator norm 或 spect">
-<meta property="og:updated_time" content="2026-08-19T14:30:13.172Z">
+<meta property="og:updated_time" content="2026-08-19T15:19:39.153Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="量量矩陣的大小: Frobenius 和 Spectral Norm">
 <meta name="twitter:description" content="向量的 norm 我們很熟悉了, 但對於一個矩陣的 norm 又該怎麼定義呢?最直覺的想法就是把矩陣 flatten 成一個向量, 套用向量的 norm 即可. 這引導出了 Frobenius norm.但是矩陣還包含了將向量做線性轉換的作用, 所以向量經過矩陣轉換後的 norm 變化是不是可以用來當作矩陣 norm 的度量方式呢? 這樣的想法引導出了 operator norm 或 spect">
@@ -479,7 +479,7 @@ d(u_1^Tu_1) &amp;= d(\|u_1\|^2)=d(1)=0 \\
 <p>首先先證明 <span>$(I-A)$</span><!-- Has MathJax --> 可逆, 令 <span>$x\neq0$</span><!-- Has MathJax -->, 考慮 <span>$(I-A)x=0$</span><!-- Has MathJax -->:<br><span>$$\begin{aligned}
 x=Ax &amp;\Longrightarrow \|x\|=\|Ax\|\leq\|A\|\cdot\|x\|\\
 &amp;\Longrightarrow \|A\|\geq 1
-\end{aligned}$$</span><!-- Has MathJax --> 與已知條件 <span>$\|A\|&lt;1$</span><!-- Has MathJax --> 矛盾, 因此 <span>$(I-A)x=0$</span><!-- Has MathJax --> 只有 <span>$x=0$</span><!-- Has MathJax --> 解, 所以 <span>$(I-A)$</span><!-- Has MathJax --> 可逆<br>接著證明 Neumann 無窮級數的形式, 令<br><span>$$S_{\color{orange}{n}}=\sum_{k=0}^{\color{orange}{n}} A^k$$</span><!-- Has MathJax --> 先證明 <span>$S_n$</span><!-- Has MathJax --> 為收斂數列, 即證明其為<a href="https://www.notion.so/Cauchy-Sequence-b623a219a0a443df8aeb4b1774ec3da1?pvs=21" target="_blank" rel="external">歌西列</a>, 設 <span>$p&gt;q$</span><!-- Has MathJax --><br><span>$$\begin{aligned}
+\end{aligned}$$</span><!-- Has MathJax --> 與已知條件 <span>$\|A\|&lt;1$</span><!-- Has MathJax --> 矛盾, 因此 <span>$(I-A)x=0$</span><!-- Has MathJax --> 只有 <span>$x=0$</span><!-- Has MathJax --> 解, 所以 <span>$(I-A)$</span><!-- Has MathJax --> 可逆<br>接著證明 Neumann 無窮級數的形式, 令<br><span>$S_{\color{orange}{n}}=\sum_{k=0}^{\color{orange}{n}} A^k$</span><!-- Has MathJax --><br>先證明 <span>$S_n$</span><!-- Has MathJax --> 為收斂數列, 即證明其為<a href="https://www.notion.so/Cauchy-Sequence-b623a219a0a443df8aeb4b1774ec3da1?pvs=21" target="_blank" rel="external">歌西列</a>, 設 <span>$p&gt;q$</span><!-- Has MathJax --><br><span>$$\begin{aligned}
 \|S_q-S_q\|=\left\|\sum_{k=q+1}^p A^k\right\| \leq \sum_{k=q+1}^p \|A\|^k
 \end{aligned}$$</span><!-- Has MathJax --> 因為 <span>$\|A\|&lt;1$</span><!-- Has MathJax -->, 所以 <span>$\|S_p-S_q\|\rightarrow0$</span><!-- Has MathJax -->, as <span>$p,q\longrightarrow\infty$</span><!-- Has MathJax -->. <span>$S_n$</span><!-- Has MathJax --> 為收斂數列<br>觀察 <span>$(I-A)S_n$</span><!-- Has MathJax -->:<br><span>$$\begin{aligned}
 (I-A)S_n=(I-A)\sum_{k=0}^n A^k=I-A^{n+1} \\

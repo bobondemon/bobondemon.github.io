@@ -104,7 +104,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2019/06/18/SphereFace-paper-study-and-implementation-notes/psi.png">
 <meta property="og:image" content="https://bobondemon.github.io/2019/06/18/SphereFace-paper-study-and-implementation-notes/asoftmax-implement.png">
 <meta property="og:image" content="https://bobondemon.github.io/2019/06/18/SphereFace-paper-study-and-implementation-notes/psi_m4.png">
-<meta property="og:updated_time" content="2026-08-19T14:30:13.206Z">
+<meta property="og:updated_time" content="2026-08-19T15:19:39.163Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SphereFace Paper Study and Implementation Notes">
 <meta name="twitter:description" content="SphereFace: Deep Hypersphere Embedding for Face Recognition 使得訓練出來的 embeddings 可以很好的使用 cosine similarity 做 verification/identification. 可以先網路上搜尋一下其他人的筆記和討論, 當然直接看論文最好.一般來說我們對訓練集的每個人用 classification 的">
@@ -421,7 +421,7 @@
 <p><img src="/2019/06/18/SphereFace-paper-study-and-implementation-notes/asoftmaxloss2.png" width="70%" height="70%"> 其中</p>
 <span>$$\begin{align}
 \psi(\theta)=(-1)^k \cos(m\theta)-2k\\
-\mbox{where  }\theta\in[\frac{k\pi}{m},\frac{(k+1)\pi}{m}]\mbox{  and  }k\in[0,m-1]
+\text{where  }\theta\in[\frac{k\pi}{m},\frac{(k+1)\pi}{m}]\text{  and  }k\in[0,m-1]
 \end{align}$$</span><!-- Has MathJax -->
 
 <p>我們將 <span>$\psi$</span><!-- Has MathJax --> 畫出來:</p>
@@ -439,7 +439,7 @@
 <p>這什麼操作?! 怎麼跟原來理解的 (3) and (4) 長相差這麼多! 網路上幾乎大家都直接拿來用, 也沒什麼說明. 不過我們仔細分析一下, 還是能發現端倪.<br>首先注意到這樣的實現是<strong>基於 <span>$m=4$</span><!-- Has MathJax --> 做的</strong>. (論文的實驗最後在這個設定有不錯的效果) 因此將 <span>$m=4$</span><!-- Has MathJax --> 套入 (3)(4) 得:</p>
 <span>$$\begin{align}
 \psi(\theta)=(-1)^k \cos(\color{red}{4}\theta)-2k\\
-\mbox{where  }\theta\in[\frac{k\pi}{\color{red}{4}},\frac{(k+1)\pi}{\color{red}{4}}]\mbox{  and  }k\in[0,\color{red}{3}]
+\text{where  }\theta\in[\frac{k\pi}{\color{red}{4}},\frac{(k+1)\pi}{\color{red}{4}}]\text{  and  }k\in[0,\color{red}{3}]
 \end{align}$$</span><!-- Has MathJax -->
 
 <p>接著我們作如下分析:</p>

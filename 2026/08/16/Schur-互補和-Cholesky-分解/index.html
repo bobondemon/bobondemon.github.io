@@ -87,16 +87,16 @@
 
 
 
-<meta name="description" content="近期回頭讀 GPTQ (針對 LLM 的 PTQ) 論文, 同時想認真理解其背後數學精隨, 才發現以前理解的太淺薄了.我認為掌握 Schur 互補 (Complement) 和 Cholesky 分解之間的關聯會是關鍵, 因此對此做比較詳細的數學筆記.最後會用一個簡單的情境來說明 GPTQ 怎麼應用 Cholesky 分解.">
+<meta name="description" content="近期回頭讀 GPTQ (針對 LLM 的 PTQ) 論文, 同時想認真理解其背後數學精隨, 才發現以前理解的太淺薄了.當我理解 Schur 互補 (Complement) 和 Cholesky 分解之間的關聯裡, 突然有種直擊核心的感覺, 因此決定做比較詳細的數學筆記.最後會用一個簡單的情境來說明 GPTQ 怎麼應用 Cholesky 分解.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Schur 互補和 Cholesky 分解">
 <meta property="og:url" content="https://bobondemon.github.io/2026/08/16/Schur-互補和-Cholesky-分解/index.html">
 <meta property="og:site_name" content="棒棒生">
-<meta property="og:description" content="近期回頭讀 GPTQ (針對 LLM 的 PTQ) 論文, 同時想認真理解其背後數學精隨, 才發現以前理解的太淺薄了.我認為掌握 Schur 互補 (Complement) 和 Cholesky 分解之間的關聯會是關鍵, 因此對此做比較詳細的數學筆記.最後會用一個簡單的情境來說明 GPTQ 怎麼應用 Cholesky 分解.">
-<meta property="og:updated_time" content="2026-08-19T14:30:13.200Z">
+<meta property="og:description" content="近期回頭讀 GPTQ (針對 LLM 的 PTQ) 論文, 同時想認真理解其背後數學精隨, 才發現以前理解的太淺薄了.當我理解 Schur 互補 (Complement) 和 Cholesky 分解之間的關聯裡, 突然有種直擊核心的感覺, 因此決定做比較詳細的數學筆記.最後會用一個簡單的情境來說明 GPTQ 怎麼應用 Cholesky 分解.">
+<meta property="og:updated_time" content="2026-08-19T15:19:39.162Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Schur 互補和 Cholesky 分解">
-<meta name="twitter:description" content="近期回頭讀 GPTQ (針對 LLM 的 PTQ) 論文, 同時想認真理解其背後數學精隨, 才發現以前理解的太淺薄了.我認為掌握 Schur 互補 (Complement) 和 Cholesky 分解之間的關聯會是關鍵, 因此對此做比較詳細的數學筆記.最後會用一個簡單的情境來說明 GPTQ 怎麼應用 Cholesky 分解.">
+<meta name="twitter:description" content="近期回頭讀 GPTQ (針對 LLM 的 PTQ) 論文, 同時想認真理解其背後數學精隨, 才發現以前理解的太淺薄了.當我理解 Schur 互補 (Complement) 和 Cholesky 分解之間的關聯裡, 突然有種直擊核心的感覺, 因此決定做比較詳細的數學筆記.最後會用一個簡單的情境來說明 GPTQ 怎麼應用 Cholesky 分解.">
 
 
 
@@ -369,7 +369,7 @@
 
       
         <hr>
-<p>近期回頭讀 GPTQ (針對 LLM 的 PTQ) 論文, 同時想認真理解其背後數學精隨, 才發現以前理解的太淺薄了.<br>我認為掌握 Schur 互補 (Complement) 和 Cholesky 分解之間的關聯會是關鍵, 因此對此做比較詳細的數學筆記.<br>最後會用一個簡單的情境來說明 GPTQ 怎麼應用 Cholesky 分解.</p>
+<p>近期回頭讀 GPTQ (針對 LLM 的 PTQ) 論文, 同時想認真理解其背後數學精隨, 才發現以前理解的太淺薄了.<br>當我理解 Schur 互補 (Complement) 和 Cholesky 分解之間的關聯裡, 突然有種直擊核心的感覺, 因此決定做比較詳細的數學筆記.<br>最後會用一個簡單的情境來說明 GPTQ 怎麼應用 Cholesky 分解.</p>
 <a id="more"></a>
 <hr>
 <h2 id="分塊矩陣逆定理-Block-Matrix-Inversion-Theorem"><a href="#分塊矩陣逆定理-Block-Matrix-Inversion-Theorem" class="headerlink" title="分塊矩陣逆定理 (Block Matrix Inversion Theorem)"></a>分塊矩陣逆定理 (Block Matrix Inversion Theorem)</h2><p>定義分塊矩陣 <span>$M=\begin{pmatrix} A &amp; B \\ C &amp; D \end{pmatrix}$</span><!-- Has MathJax -->, 且 <span>$S_D:=A-BD^{-1}C$</span><!-- Has MathJax --> 定義為 <span>$D$</span><!-- Has MathJax --> 在 <span>$M$</span><!-- Has MathJax --> 中的 Schur 互補.</p>
@@ -383,9 +383,7 @@ A &amp; B \\ C &amp; D
 S_D^{-1} &amp; -S_D^{-1}BD^{-1} \\
 -D^{-1}CS_D^{-1} &amp; D^{-1}+D^{-1}CS_D^{-1}BD^{-1}
 \end{pmatrix}
-\end{align}$$</span><!-- Has MathJax --> 證明可參考此 YouTube [<a href="https://www.youtube.com/watch?v=m6q1UIomQA4" target="_blank" rel="external">Schur complement in applications</a>] 前 6 分半, 我覺得滿清楚的.</p>
-<p>這定理有一個很大的應用: 快速計算分塊的反矩陣.</p>
-<p>若矩陣 <span>$H$</span><!-- Has MathJax --> 的 inverse <span>$M:=H^{-1}$</span><!-- Has MathJax --> 已知, 注意到 <span>$H$</span><!-- Has MathJax --> 不用已知, 定義他們對應的 submatrix 如下:</p>
+\end{align}$$</span><!-- Has MathJax --> 證明可參考此 YouTube [<a href="https://www.youtube.com/watch?v=m6q1UIomQA4" target="_blank" rel="external">Schur complement in applications</a>] 前 6 分半, 我覺得滿清楚的.<br>這定理有一個很大的應用: 快速計算分塊的反矩陣.<br>若矩陣 <span>$H$</span><!-- Has MathJax --> 的 inverse <span>$M:=H^{-1}$</span><!-- Has MathJax --> 已知, 注意到 <span>$H$</span><!-- Has MathJax --> 不用已知, 定義他們對應的 submatrix 如下:</p>
 <p><span>$$\begin{aligned}
 H=\begin{pmatrix}
 H_a &amp; H_b \\ H_c &amp; H_d
@@ -396,8 +394,7 @@ A &amp; B \\ C &amp; D
 \end{aligned}$$</span><!-- Has MathJax --> 則 <span>$H_a$</span><!-- Has MathJax --> 這個 submatrix 的 inverse, i.e. <span>$(H_a)^{-1}$</span><!-- Has MathJax -->, 可由已知的 <span>$M$</span><!-- Has MathJax --> 做 Schur 互補快速求得:</p>
 <p><span>$$\begin{align}
 (H_a)^{-1}=S_D:=A-BD^{-1}C
-\end{align}$$</span><!-- Has MathJax --> 這是因為 <span>$M^{-1}=H$</span><!-- Has MathJax -->, 由分塊矩陣的逆矩陣定理 (1) 知 <span>$H_a$</span><!-- Has MathJax --> 剛好就是 <span>$S_D^{-1}$</span><!-- Has MathJax -->, 則有 <span>$(H_a)^{-1}=S_D$</span><!-- Has MathJax --> 的結論.</p>
-<p>另外當 <span>$D$</span><!-- Has MathJax --> 是 scalar 時, 因為 <span>$C$</span><!-- Has MathJax --> 變 row vector、<span>$B$</span><!-- Has MathJax --> 變 col vector, 則等同於做 Rank-1 update.</p>
+\end{align}$$</span><!-- Has MathJax --> 這是因為 <span>$M^{-1}=H$</span><!-- Has MathJax -->, 由分塊矩陣的逆矩陣定理 (1) 知 <span>$H_a$</span><!-- Has MathJax --> 剛好就是 <span>$S_D^{-1}$</span><!-- Has MathJax -->, 則有 <span>$(H_a)^{-1}=S_D$</span><!-- Has MathJax --> 的結論.<br>另外當 <span>$D$</span><!-- Has MathJax --> 是 scalar 時, 因為 <span>$C$</span><!-- Has MathJax --> 變 row vector、<span>$B$</span><!-- Has MathJax --> 變 col vector, 則等同於做 Rank-1 update.</p>
 <h2 id="基本矩陣-和-基本列運算"><a href="#基本矩陣-和-基本列運算" class="headerlink" title="基本矩陣 和 基本列運算"></a>基本矩陣 和 基本列運算</h2><p>為了簡潔, 請參考: <a href="https://bobondemon.notion.site/Week-2-Systems-of-Linear-Equations-184edc3d531d80c58078d593bacfebdf" target="_blank" rel="external">Week 2 Systems of Linear Equations</a></p>
 <h2 id="高斯消去法的一步-計算一次-Schur-Complement"><a href="#高斯消去法的一步-計算一次-Schur-Complement" class="headerlink" title="高斯消去法的一步 = 計算一次 Schur Complement"></a>高斯消去法的一步 = 計算一次 Schur Complement</h2><p>令矩陣 <span>$M=\begin{pmatrix} a &amp; \mathbf{b} \\ \mathbf{c} &amp; D \end{pmatrix}_{n\times n}$</span><!-- Has MathJax -->, 其中 <span>$a\in\mathbb{R}$</span><!-- Has MathJax -->、<span>$\mathbf{b}\in\mathbb{R}^{1\times(n-1)}$</span><!-- Has MathJax -->、<span>$\mathbf{c}\in\mathbb{R}^{(n-1)\times1}$</span><!-- Has MathJax -->、<span>$D\in\mathbb{R}^{(n-1)\times(n-1)}$</span><!-- Has MathJax -->.</p>
 <p>為了要把 column 1 的 <span>$\mathbf{c}$</span><!-- Has MathJax --> 消掉變成 <span>$\mathbf{0}$</span><!-- Has MathJax -->, 我們會將 row 1 乘上 <span>$\mathbf{c}/{a}$</span><!-- Has MathJax -->, 然後從 row 2 (也就是下方所有 rows) 減去它, 相當於左乘一個 “取代” 的基本列運算矩陣 <span>$E$</span><!-- Has MathJax -->:</p>
@@ -412,8 +409,7 @@ EM=
 <p><span>$$\begin{aligned}
 D_{new} = D - \frac{\mathbf{c} \mathbf{b}}{a}
 \end{aligned}$$</span><!-- Has MathJax --> 這也正好也是做 Rank-1 Update.</p>
-<h2 id="連續的高斯消去-逐步建構-Cholesky-分解"><a href="#連續的高斯消去-逐步建構-Cholesky-分解" class="headerlink" title="連續的高斯消去 = 逐步建構 Cholesky 分解"></a>連續的高斯消去 = 逐步建構 Cholesky 分解</h2><p>Cholesky 分解在說明, 對於一正定矩陣 <span>$M$</span><!-- Has MathJax --> 來說, 存在唯一下三角矩陣 <span>$L$</span><!-- Has MathJax --> (對角項皆為正) 滿足 <span>$M=LL^T$</span><!-- Has MathJax -->.</p>
-<p>因為 <span>$M$</span><!-- Has MathJax --> 正定, 所以主對角項 <span>$&gt;0$</span><!-- Has MathJax -->, 則可重複高斯消去法 (3) 使得最後變成上三角矩陣 <span>$U$</span><!-- Has MathJax -->:</p>
+<h2 id="連續的高斯消去-逐步建構-Cholesky-分解"><a href="#連續的高斯消去-逐步建構-Cholesky-分解" class="headerlink" title="連續的高斯消去 = 逐步建構 Cholesky 分解"></a>連續的高斯消去 = 逐步建構 Cholesky 分解</h2><p>Cholesky 分解在說明, 對於一正定矩陣 <span>$M$</span><!-- Has MathJax --> 來說, 存在唯一下三角矩陣 <span>$L$</span><!-- Has MathJax --> (對角項皆為正) 滿足 <span>$M=LL^T$</span><!-- Has MathJax -->.<br>因為 <span>$M$</span><!-- Has MathJax --> 正定, 所以主對角項 <span>$&gt;0$</span><!-- Has MathJax -->, 則可重複高斯消去法 (3) 使得最後變成上三角矩陣 <span>$U$</span><!-- Has MathJax -->:</p>
 <p><span>$$\begin{aligned}
 E_{n-1} \dots E_2 E_1 M = U \\
 \end{aligned}$$</span><!-- Has MathJax --> 注意到 <span>$E_i$</span><!-- Has MathJax --> 全部都是下三角矩陣且皆可逆 (因為基本列運算可逆), 而下三角矩陣的連乘或反矩陣仍然是下三角.</p>
@@ -427,8 +423,7 @@ M=M^T \\
 \Longrightarrow L_{unit}^{-1}(L_{unit}U)(L_{unit}^T)^{-1} = L_{unit}^{-1}(U^TL_{unit}^T)(L_{unit}^T)^{-1} \\
 \Longrightarrow U(L_{unit}^T)^{-1}=L_{unit}^{-1}U^T
 \end{aligned}$$</span><!-- Has MathJax --> 最後一行, L.H.S. 是兩個上三角矩陣相乘其結果仍為上三角, 同理 R.H.S. 結果為下三角.</p>
-<p>上三角等於下三角, 所以結論為對角矩陣, 令為 <span>$\Lambda:=U(L_{unit}^T)^{-1}$</span><!-- Has MathJax -->, 得到 <span>$U=\Lambda L_{unit}^T$</span><!-- Has MathJax -->.</p>
-<p>所以我們可推導出 Cholesky 分解:</p>
+<p>上三角等於下三角, 所以結論為對角矩陣, 令為 <span>$\Lambda:=U(L_{unit}^T)^{-1}$</span><!-- Has MathJax -->, 得到 <span>$U=\Lambda L_{unit}^T$</span><!-- Has MathJax -->.<br>所以我們可推導出 Cholesky 分解:</p>
 <p><span>$$\begin{aligned}
 M = L_{unit} U = L_{unit} \Lambda L_{unit}^T \\
 \Longrightarrow M = (L_{unit} \Lambda^{1/2}) (L_{unit} \Lambda^{1/2})^T \\
@@ -445,7 +440,7 @@ a &amp; \mathbf{c}^T \\ \mathbf{c} &amp; D
 \end{pmatrix}
 \end{aligned}$$</span><!-- Has MathJax --> 注意到 <span>$h_a$</span><!-- Has MathJax --> 和 <span>$a$</span><!-- Has MathJax --> 都是 scalar, 所以這裡的分塊矩陣概念上是希望從一個大矩陣降一個維度.</p>
 <p>因為 <span>$M$</span><!-- Has MathJax --> 也是正定, 所以存在唯一 Cholesky 分解 <span>$M = L L^T$</span><!-- Has MathJax -->, 並將 <span>$L$</span><!-- Has MathJax --> 分塊:</p>
-<p><span>$$M = \begin{pmatrix} l_a &amp; \mathbf{0}^T \\ \mathbf{l}_c &amp; {\color{orange}{L_d}} \end{pmatrix} \begin{pmatrix} l_a &amp; \mathbf{l}_c^T \\ \mathbf{0} &amp; {\color{orange}{L_d}}^T \end{pmatrix} = \begin{pmatrix} l_a^2 &amp; l_a\mathbf{l}_c^T \\ l_a\mathbf{l}_c &amp; \mathbf{l}_c\mathbf{l}_c^T + {\color{orange}{L_dL_d^T}} \end{pmatrix}$$</span><!-- Has MathJax --> 與 <span>$M$</span><!-- Has MathJax --> 的分塊矩陣對照馬上得到: <span>$l_a=\sqrt{a}$</span><!-- Has MathJax --> 和 <span>$\mathbf{l}_c=\mathbf{c}/\sqrt{a}$</span><!-- Has MathJax -->.</p>
+<p><span>$M = \begin{pmatrix} l_a &amp; \mathbf{0}^T \\ \mathbf{l}_c &amp; {\color{orange}{L_d}} \end{pmatrix} \begin{pmatrix} l_a &amp; \mathbf{l}_c^T \\ \mathbf{0} &amp; {\color{orange}{L_d}}^T \end{pmatrix} = \begin{pmatrix} l_a^2 &amp; l_a\mathbf{l}_c^T \\ l_a\mathbf{l}_c &amp; \mathbf{l}_c\mathbf{l}_c^T + {\color{orange}{L_dL_d^T}} \end{pmatrix}$</span><!-- Has MathJax --><br>與 <span>$M$</span><!-- Has MathJax --> 的分塊矩陣對照馬上得到: <span>$l_a=\sqrt{a}$</span><!-- Has MathJax --> 和 <span>$\mathbf{l}_c=\mathbf{c}/\sqrt{a}$</span><!-- Has MathJax -->.</p>
 <p>觀察右下角區塊的等式:</p>
 <p><span>$$\begin{aligned}
 D = \mathbf{l}_c\mathbf{l}_c^T + {\color{orange}{L_dL_d^T}} \\

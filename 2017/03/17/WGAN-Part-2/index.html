@@ -97,7 +97,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2017/03/17/WGAN-Part-2/EM_exp.png">
 <meta property="og:image" content="https://bobondemon.github.io/2017/03/17/WGAN-Part-2/WGAN_algo.png">
 <meta property="og:image" content="https://bobondemon.github.io/2017/03/17/WGAN-Part-2/WGAN_exp.png">
-<meta property="og:updated_time" content="2026-08-19T14:30:13.238Z">
+<meta property="og:updated_time" content="2026-08-19T15:19:39.172Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="WGAN Part 2: 主角 W 登場">
 <meta name="twitter:description" content="前情提要GAN 作者設計出一個 Minimax game，讓兩個 players: 生成器 G 和 鑑別器 D 去彼此競爭，並且達到平衡點時，此問題達到最佳解且生成器 G 鍊成。大致上訓練流程為先 optimize 鑑別器 D for some iterations，然後換 optimize 生成器 G (在 optimize G 時，此問題等價於最佳化 JSD 距離)，重複上述 loop 直到">
@@ -390,7 +390,7 @@ f_1(A)=f_1(B)=f_1(C)=1/3
 \end{align*}$$</span><!-- Has MathJax --> 可以很容易知道它們的 marginal distributions 正好符合 f1 and f2 的機率分佈。<br>則這兩種搬運法造成的 EM distance 分別如下:<br><span>$$\begin{align*} 
 EM_{\gamma_1}=\gamma_1(a,A)*\Vert a-A \Vert + \gamma_1(b,B)*\Vert b-B \Vert + \gamma_1(c,C)*\Vert c-C \Vert \\\\
 EM_{\gamma_2}=\gamma_2(a,B)*\Vert a-B \Vert + \gamma_2(b,C)*\Vert b-C \Vert + \gamma_2(c,A)*\Vert c-A \Vert
-\end{align*}$$</span><!-- Has MathJax --> 明顯知道 <span>$$\theta=EM_{\gamma_1}&lt;EM_{\gamma_2}$$</span><!-- Has MathJax --><br>而 EM distance 就是在算所有搬運法中，最小的那個，並將那最小的 cost 定義為此兩機率分佈的距離。<br>這個距離如果是兩條平行 1 維的直線 pdf (上面的例子是直線上只有三個離散資料點)，會有如下的 cost:</p>
+\end{align*}$$</span><!-- Has MathJax --> 明顯知道 <span>$\theta=EM_{\gamma_1}&lt;EM_{\gamma_2}$</span><!-- Has MathJax --><br>而 EM distance 就是在算所有搬運法中，最小的那個，並將那最小的 cost 定義為此兩機率分佈的距離。<br>這個距離如果是兩條平行 1 維的直線 pdf (上面的例子是直線上只有三個離散資料點)，會有如下的 cost:</p>
 <p><img src="/2017/03/17/WGAN-Part-2/EM_exp.png" width="30%" height="30%"></p>
 <p>對比此圖和上一篇的 JSD 的結果，EM 能夠正確估算兩個沒有交集的機率分佈的距離，直接的結果就是 <strong>gradient 連續且可微 !</strong> 使得 WGAN 訓練上穩定非常多。</p>
 <hr>

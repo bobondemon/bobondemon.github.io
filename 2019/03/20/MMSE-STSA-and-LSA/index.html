@@ -87,16 +87,16 @@
 
 
 
-<meta name="description" content="記錄一下單通道降噪的一個經典方法, MMSE-STSA, MMSE-LSA, 已經是 1984 左右的文章了. 單通道降噪 OMLSA 也從這衍生出來的. 我們先從 MMSE-STSA 說起, 全名是 minimum mean-square error short time spectral amplitude.$$y(t)=x(t)+d(t),0\leq t\leq T$$$x$, $d$,">
+<meta name="description" content="記錄一下單通道降噪的一個經典方法, MMSE-STSA, MMSE-LSA, 已經是 1984 左右的文章了. 單通道降噪 OMLSA 也從這衍生出來的. 我們先從 MMSE-STSA 說起, 全名是 minimum mean-square error short time spectral amplitude.$y(t)=x(t)+d(t),0\leq t\leq T$$x$, $d$, $y">
 <meta property="og:type" content="article">
 <meta property="og:title" content="懷舊篇, 單通道降噪, MMSE-STSA, MMSE-LSA 方法">
 <meta property="og:url" content="https://bobondemon.github.io/2019/03/20/MMSE-STSA-and-LSA/index.html">
 <meta property="og:site_name" content="棒棒生">
-<meta property="og:description" content="記錄一下單通道降噪的一個經典方法, MMSE-STSA, MMSE-LSA, 已經是 1984 左右的文章了. 單通道降噪 OMLSA 也從這衍生出來的. 我們先從 MMSE-STSA 說起, 全名是 minimum mean-square error short time spectral amplitude.$$y(t)=x(t)+d(t),0\leq t\leq T$$$x$, $d$,">
-<meta property="og:updated_time" content="2026-08-19T14:30:13.170Z">
+<meta property="og:description" content="記錄一下單通道降噪的一個經典方法, MMSE-STSA, MMSE-LSA, 已經是 1984 左右的文章了. 單通道降噪 OMLSA 也從這衍生出來的. 我們先從 MMSE-STSA 說起, 全名是 minimum mean-square error short time spectral amplitude.$y(t)=x(t)+d(t),0\leq t\leq T$$x$, $d$, $y">
+<meta property="og:updated_time" content="2026-08-19T15:19:39.152Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="懷舊篇, 單通道降噪, MMSE-STSA, MMSE-LSA 方法">
-<meta name="twitter:description" content="記錄一下單通道降噪的一個經典方法, MMSE-STSA, MMSE-LSA, 已經是 1984 左右的文章了. 單通道降噪 OMLSA 也從這衍生出來的. 我們先從 MMSE-STSA 說起, 全名是 minimum mean-square error short time spectral amplitude.$$y(t)=x(t)+d(t),0\leq t\leq T$$$x$, $d$,">
+<meta name="twitter:description" content="記錄一下單通道降噪的一個經典方法, MMSE-STSA, MMSE-LSA, 已經是 1984 左右的文章了. 單通道降噪 OMLSA 也從這衍生出來的. 我們先從 MMSE-STSA 說起, 全名是 minimum mean-square error short time spectral amplitude.$y(t)=x(t)+d(t),0\leq t\leq T$$x$, $d$, $y">
 
 
 
@@ -369,7 +369,7 @@
 
       
         <hr>
-<p>記錄一下單通道降噪的一個經典方法, MMSE-STSA, MMSE-LSA, 已經是 1984 左右的文章了. 單通道降噪 OMLSA 也從這衍生出來的. 我們先從 MMSE-STSA 說起, 全名是 minimum mean-square error short time spectral amplitude.<br><span>$$y(t)=x(t)+d(t),0\leq t\leq T$$</span><!-- Has MathJax --><br><span>$x$</span><!-- Has MathJax -->, <span>$d$</span><!-- Has MathJax -->, <span>$y$</span><!-- Has MathJax --> 分別是 speech, noise, 和收到的 noisy signal, 其中 <span>$x$</span><!-- Has MathJax -->, <span>$d$</span><!-- Has MathJax --> 相互獨立. 相對應的第 <span>$k$</span><!-- Has MathJax --> 個 frequency bin 如下:</p>
+<p>記錄一下單通道降噪的一個經典方法, MMSE-STSA, MMSE-LSA, 已經是 1984 左右的文章了. 單通道降噪 OMLSA 也從這衍生出來的. 我們先從 MMSE-STSA 說起, 全名是 minimum mean-square error short time spectral amplitude.<br><span>$y(t)=x(t)+d(t),0\leq t\leq T$</span><!-- Has MathJax --><br><span>$x$</span><!-- Has MathJax -->, <span>$d$</span><!-- Has MathJax -->, <span>$y$</span><!-- Has MathJax --> 分別是 speech, noise, 和收到的 noisy signal, 其中 <span>$x$</span><!-- Has MathJax -->, <span>$d$</span><!-- Has MathJax --> 相互獨立. 相對應的第 <span>$k$</span><!-- Has MathJax --> 個 frequency bin 如下:</p>
 <span>$$X_k=A_k\exp(j\alpha_k) \\
 D_k \\
 Y_k=R_k\exp(j\theta_k)$$</span><!-- Has MathJax -->
@@ -419,9 +419,9 @@ p(a_k,\alpha_k)=\frac{1}{\pi\lambda_x (k)}\exp\left[-\frac{a_k^2}{\lambda_x (k)}
 \end{align}$$</span><!-- Has MathJax --> [3] 給出了一個好算的近似結果<br><span>$$\begin{align}
 \int_{\upsilon_k}^{\infty}\frac{e^{-t}}{t}dt\approx \left\{
 \begin{array}{rcl}
--2.31\log_{10}(\upsilon_k)-0.6\mbox{ for }\upsilon_k&lt;0.1 \\
--1.544\log_{10}(\upsilon_k)+0.166\mbox{ for }0.1\leq\upsilon_k\leq 1 \\
-10^{-(0.52\upsilon_k+0.26)}\mbox{ for }\upsilon_k&gt;1 \\
+-2.31\log_{10}(\upsilon_k)-0.6\text{ for }\upsilon_k&lt;0.1 \\
+-1.544\log_{10}(\upsilon_k)+0.166\text{ for }0.1\leq\upsilon_k\leq 1 \\
+10^{-(0.52\upsilon_k+0.26)}\text{ for }\upsilon_k&gt;1 \\
 \end{array}\right.
 \end{align}$$</span><!-- Has MathJax --> 另外還有 optimally-modified log-spectral amplitude (OMLSA) [4] 方法, 作者有提供 MATLAB codes. 這算單通道降噪標配了, 但實驗結果對聽覺有幫助, 對 WER 不一定降低. 總之不管哪一種方法, 都必須很好的估出 prior and posterior SNR.</p>
 <hr>
