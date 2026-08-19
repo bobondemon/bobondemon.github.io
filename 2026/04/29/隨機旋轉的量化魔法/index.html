@@ -95,7 +95,7 @@
 <meta property="og:description" content="Motivation矩陣相乘 $y=Wx$ 是神經網路的基本單元, 其中 $W\in\mathbb{R}^{m\times n}$, $x\in\mathbb{R}^{n\times1}$, $y\in\mathbb{R}^{m\times 1}$.試想一下如果 $W$ 裡面的值存在 outliers, 則對整個 matrix 量化時, 為了能覆蓋 outlier 則會犧牲精度, 這正是現今 L">
 <meta property="og:image" content="https://bobondemon.github.io/2026/04/29/隨機旋轉的量化魔法/image.png">
 <meta property="og:image" content="https://bobondemon.github.io/2026/04/29/隨機旋轉的量化魔法/Rotation_on_onehot_vector.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.838Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.263Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="隨機旋轉的量化魔法: 去去極值走">
 <meta name="twitter:description" content="Motivation矩陣相乘 $y=Wx$ 是神經網路的基本單元, 其中 $W\in\mathbb{R}^{m\times n}$, $x\in\mathbb{R}^{n\times1}$, $y\in\mathbb{R}^{m\times 1}$.試想一下如果 $W$ 裡面的值存在 outliers, 則對整個 matrix 量化時, 為了能覆蓋 outlier 則會犧牲精度, 這正是現今 L">
@@ -412,10 +412,12 @@ R = \begin{bmatrix} 0.577 &amp; 0.707 &amp; 0.408 \\ 0.577 &amp; -0.707 &amp; 0.
 <p>得到的結論就是: 這個隨機投影的長度平方, 要異常大的機率是極度微小的!<br>注意到如果維度 <span>$n$</span><!-- Has MathJax --> 愈大, 因為 (5) 機率裡的不等式右邊反比於 <span>$n$</span><!-- Has MathJax -->, 所以理論上愈不容易發生投影到 <span>$b$</span><!-- Has MathJax --> 後有 outliers 出現</p>
 <p>最後, 若把 <span>$x$</span><!-- Has MathJax --> 和 <span>$b$</span><!-- Has MathJax --> 的角色對調, 給定一個 <span>$x$</span><!-- Has MathJax -->, 令 <span>$U=\{b_i\}_{i=1}^n$</span><!-- Has MathJax --> 為隨機 orthogonal 矩陣, 則 <span>$Ux$</span><!-- Has MathJax --> 表示旋轉後投影在各 basis 的結果<br>根據上述討論, 我們知道其能量都不會太大! 這就是隨機旋轉能消除極值的理論奧秘和保證!</p>
 <hr>
-<h2 id="Appendix-補充-Lemma10-的詳細推導證明"><a href="#Appendix-補充-Lemma10-的詳細推導證明" class="headerlink" title="Appendix: 補充 Lemma10 的詳細推導證明"></a>Appendix: 補充 Lemma10 的詳細推導證明</h2><p><a href="https://arxiv.org/abs/2307.13304" target="_blank" rel="external">QuIP</a> 給的 Lemma 10 證明中間有幾個步驟對我來說省略太多, 因此這裡補充起來<br>定義 <span>$F(x)=\|Bx\|/\|B\|_F$</span><!-- Has MathJax -->, 則<br><span>$$\begin{aligned}
+<h2 id="Appendix-補充-Lemma10-的詳細推導證明"><a href="#Appendix-補充-Lemma10-的詳細推導證明" class="headerlink" title="Appendix: 補充 Lemma10 的詳細推導證明"></a>Appendix: 補充 Lemma10 的詳細推導證明</h2><p><a href="https://arxiv.org/abs/2307.13304" target="_blank" rel="external">QuIP</a> 給的 Lemma 10 證明中間有幾個步驟對我來說省略太多, 因此這裡補充起來<br>定義 <span>$F(x)=\|Bx\|/\|B\|_F$</span><!-- Has MathJax -->, 則</p>
+<span>$$\begin{aligned}
 \nabla F(x)=\frac{1}{\|B\|_F}\nabla (x^TB^TBx)^{1/2}=\frac{1}{\|B\|_F}\cdot\frac{B^TBx}{(x^TB^TBx)^{1/2}}=\frac{B^TBx}{\|Bx\|\cdot\|B\|_F} \\
 \Longrightarrow \|\nabla F(x)\|=\frac{\|B^TBx\|}{\|Bx\|\cdot\|B\|_F}\leq \frac{\|B\|^T\cdot\|Bx\|}{\|Bx\|\cdot\|B\|_F}=\frac{\|B\|}{\|B\|_F}\leq1
-\end{aligned}$$</span><!-- Has MathJax --></p>
+\end{aligned}$$</span><!-- Has MathJax -->
+
 <blockquote>
 <p>最後的不等式 <span>$\|B\|\leq\|B\|_F$</span><!-- Has MathJax --> 可以參考 “<a href="https://bobondemon.github.io/2026/04/18/MatrixNorm/">量量矩陣的大小</a>” 這篇筆記</p>
 </blockquote>

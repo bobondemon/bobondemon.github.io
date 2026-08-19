@@ -101,7 +101,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/gan_too_strong.png">
 <meta property="og:image" content="https://bobondemon.github.io/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/recog_results.png">
 <meta property="og:image" content="https://bobondemon.github.io/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/dann.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.816Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.149Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Exp of Adversarial Domain Adaptation">
 <meta name="twitter:description" content="Domain Adaptation 是希望在 source domain 有 label 但是 target domain 無 label 的情況下, 能針對 target domain (或同時也能對 source domain) 進行分類任務. “Adversarial” 的意思是利用 GAN 的 “對抗” 想法: Label predictor 雖然只能保證 source domain 的">
@@ -388,7 +388,8 @@
 Div\left(P_d\|P_G\right) = \max_D\left[ E_{x\sim P_d} D(x) - E_{x\sim P_G}f^*(D(x)) \right] \\
 G^*=\arg\min_G{Div\left(P_d\|P_G\right)} + reg(G) \\
 \end{align}$$</span><!-- Has MathJax -->
-<p>對於 Adversarial Domain Adaptation 來說只要在正常 GAN 的 training 流程中, update $G$ 時多加一個 regularization term $reg(G)$ 就可以了. 而 $reg(G)$ 就是 Label Predictor 的 loss, 作用就是 train $G$ 時除了要欺騙 $D$, 同時要能降低 prediction error.</p>
+
+<p>對於 Adversarial Domain Adaptation 來說只要在正常 GAN 的 training 流程中, update <span>$G$</span><!-- Has MathJax --> 時多加一個 regularization term <span>$reg(G)$</span><!-- Has MathJax --> 就可以了. 而 <span>$reg(G)$</span><!-- Has MathJax --> 就是 Label Predictor 的 loss, 作用就是 train <span>$G$</span><!-- Has MathJax --> 時除了要欺騙 <span>$D$</span><!-- Has MathJax -->, 同時要能降低 prediction error.</p>
 <hr>
 <h3 id="實驗"><a href="#實驗" class="headerlink" title="實驗"></a>實驗</h3><p><img src="/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/domain_adversarial_training.png" width="70%" height="70%" align="center"></p>
 <p>source domain 為標準的 mnist, 而 target domain 是 modified mnist, 如何產生可以參考<a href="https://github.com/Daipuwei/DANN-MNIST" target="_blank" rel="external">Daipuwei/DANN-MNIST</a>.</p>
@@ -398,7 +399,7 @@ G^*=\arg\min_G{Div\left(P_d\|P_G\right)} + reg(G) \\
 <p><img src="/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/before_dann.png" width="50%" height="50%" align="center"></p>
 <p>我們之前說過, 不用管 GRL (Gradient Reversal Layer), 就一般的 GAN 架構, 加上 regularization term 就可以. 聽起來很容易, 我就隨手自己用了幾個 CNN 在 generator, 幾層 fully connected layers 給 classifier 和 discriminator 就做了起來. 發現怎麼弄都<strong>訓練不起來</strong>! 產生下面兩種情形:</p>
 <ol>
-<li><p>GAN too weak:<br><img src="/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/gan_too_weak.png" width="60%" height="60%" align="center"><br>重新調整了一下 $reg(G)$ 的比重後….</p>
+<li><p>GAN too weak:<br><img src="/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/gan_too_weak.png" width="60%" height="60%" align="center"><br>重新調整了一下 <span>$reg(G)$</span><!-- Has MathJax --> 的比重後….</p>
 </li>
 <li><p>GAN too strong:<br><img src="/2020/05/17/Exp-of-Adversarial-Domain-Adaptation/gan_too_strong.png" width="70%" height="70%" align="center"><br>兩個 domain 的 features 幾乎完全 overlap, 然後 classifier 幾乎無作用 (也看不出有10個分群). 話說, 這圖很像腦的紋路? 貪食蛇? 迷宮? 肚子裡的蛔蟲?</p>
 </li>

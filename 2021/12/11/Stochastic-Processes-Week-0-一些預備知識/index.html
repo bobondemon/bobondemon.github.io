@@ -112,7 +112,7 @@ Week 5: Stationari">
 <meta property="og:image" content="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/Untitled 2.png">
 <meta property="og:image" content="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/1_8fqGjD53hQHAg_3Ew-rFVA.png">
 <meta property="og:image" content="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/1_ChFQfJHe8uHTcWpLCipg7g.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.828Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.207Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Stochastic Processes Week 0 一些預備知識">
 <meta name="twitter:description" content="Coursera Stochastic Processes 課程筆記, 共十篇:
@@ -420,66 +420,73 @@ Week 5: Stationari">
 <a id="more"></a>
 <hr>
 <h2 id="回顧機率知識"><a href="#回顧機率知識" class="headerlink" title="回顧機率知識"></a>回顧機率知識</h2><ul>
-<li><p>$e^x=\sum_{k=0}^\infty\frac{x^k}{k!}$. <a href="https://math.stackexchange.com/questions/1407111/how-to-prove-that-ex-sum-k-0-infty-fracxkk" target="_blank" rel="external">Proof link</a>.</p>
+<li><p><span>$e^x=\sum_{k=0}^\infty\frac{x^k}{k!}$</span><!-- Has MathJax -->. <a href="https://math.stackexchange.com/questions/1407111/how-to-prove-that-ex-sum-k-0-infty-fracxkk" target="_blank" rel="external">Proof link</a>.</p>
 </li>
 <li><p>Independent of Random Variables</p>
-<p>  $X\perp Y \Longleftrightarrow \mathcal{P}(XY)=\mathcal{P}(X)\mathcal{P}(Y)$</p>
+<p>  <span>$X\perp Y \Longleftrightarrow \mathcal{P}(XY)=\mathcal{P}(X)\mathcal{P}(Y)$</span><!-- Has MathJax --></p>
 </li>
 </ul>
 <ul>
-<li>$Cov(X,Y)=\mathbb{E}[XY]-\mathbb{E}[X]\mathbb{E}[Y]$</li>
-</ul>
-<ul>
-<li>$Var(X)=\mathbb{E}[X^2]-(\mathbb{E}[X])^2$</li>
-</ul>
-<ul>
-<li>$X,Y$ uncorrelated $\Longleftrightarrow Cov(X,Y)=0 \Longleftrightarrow \mathbb{E}[XY]=\mathbb{E}[X]\mathbb{E}[Y]$</li>
-<li><p>$X\perp Y \Rightarrow$ $X,Y$ uncorrelated $\Rightarrow \mathbb{E}[XY]=\mathbb{E}[X]\mathbb{E}[Y]$</p>
+<li><p><span>$Cov(X,Y)=\mathbb{E}[XY]-\mathbb{E}[X]\mathbb{E}[Y]$</span><!-- Has MathJax --><br>[Proof]:</p>
+<span>$$Cov(X,Y)=\mathbb{E}[(X-\mu_x)(Y-\mu_y)] \\
+=\mathbb{E}[XY]-\mu_x\mathbb{E}[Y]-\mu_y\mathbb{E}[X]+\mu_x\mu_y \\
+=\mathbb{E}[XY]-\mu_x\mu_y$$</span><!-- Has MathJax -->
 </li>
-<li><p>Covariance 是線性的: $Cov(aX+bY,cZ)=acCov(X,Z)+bcCov(Y,Z)$</p>
-</li>
-</ul>
-<ul>
-<li><p><strong>[Characteristic Function Def]:</strong><br>  For random variable $\xi$, 定義 characteristic function $\Phi:\mathbb{R}\rightarrow \mathbb{C}$ 為<br>  $$\Phi_\xi(u) = \mathbb{E}\left[ e^{iu\xi} \right]$$</p>
-</li>
-<li><p>如果 $\xi_1\perp\xi_2$, 則</p>
-<span>$\Phi_{\xi_1+\xi_2}(u)=\Phi_{\xi_1}(u)\Phi_{\xi_2}(u)$</span><!-- Has MathJax -->
+<li><p><span>$Var(X)=\mathbb{E}[X^2]-(\mathbb{E}[X])^2$</span><!-- Has MathJax --><br>[Proof]:</p>
+<span>$$Var(X)=Cov(X,X)=\mathbb{E}[XX]-\mathbb{E}[X]\mathbb{E}[X] \\
+= \mathbb{E}[X^2]-(\mathbb{E}[X])^2$$</span><!-- Has MathJax -->
+
+
 </li>
 </ul>
 <ul>
-<li><p>$\mathbb{E}[X+Y]=\mathbb{E}[X]+\mathbb{E}[Y]$. 跟 $X,Y$ 是否獨立或不相關無關.</p>
+<li><span>$X,Y$</span><!-- Has MathJax --> uncorrelated <span>$\Longleftrightarrow Cov(X,Y)=0 \Longleftrightarrow \mathbb{E}[XY]=\mathbb{E}[X]\mathbb{E}[Y]$</span><!-- Has MathJax --></li>
+<li><p><span>$X\perp Y \Rightarrow$</span><!-- Has MathJax --> <span>$X,Y$</span><!-- Has MathJax --> uncorrelated <span>$\Rightarrow \mathbb{E}[XY]=\mathbb{E}[X]\mathbb{E}[Y]$</span><!-- Has MathJax --></p>
 </li>
-<li><p>$|Cov(X,Y)|\leq\sqrt{Var(X)}\sqrt{Var(Y)}$<br>[<a href="https://en.wikipedia.org/wiki/Covariance" target="_blank" rel="external">Proof</a>]:<br><img src="/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/Untitled.png" width="65%" height="65%"></p>
+<li><p>Covariance 是線性的: <span>$Cov(aX+bY,cZ)=acCov(X,Z)+bcCov(Y,Z)$</span><!-- Has MathJax --><br>[Proof]:</p>
+<span>$$Cov(aX+bY,cZ)=\mathbb{E}[(aX+bY)cZ]-\mathbb{E}[aX+bY]\mathbb{E}[cZ] \\
+= ac\mathbb{E}[XZ]+bc\mathbb{E}[YZ]-ac\mathbb{E}[X]\mathbb{E}[Z]-bc\mathbb{E}[Y]\mathbb{E}[Z] \\
+= ac(\mathbb{E}[XZ]-\mathbb{E}[X]\mathbb{E}[Z])+bc(\mathbb{E}[YZ]-\mathbb{E}[Y]\mathbb{E}[Z]) \\
+= acCov(X,Z)+bcCov(Y,Z)$$</span><!-- Has MathJax -->
 </li>
-<li><p>$Var(X+Y)=Var(X)+Var(Y)+2Cov(X,Y)$</p>
+<li><p><strong>[Characteristic Function Def]:</strong><br>  For random variable <span>$\xi$</span><!-- Has MathJax -->, 定義 characteristic function <span>$\Phi:\mathbb{R}\rightarrow \mathbb{C}$</span><!-- Has MathJax --> 為<br>  <span>$$\Phi_\xi(u) = \mathbb{E}\left[ e^{iu\xi} \right]$$</span><!-- Has MathJax --></p>
 </li>
-</ul>
-<ul>
-<li><p>如果 $X,Y$ uncorrelated (所以 $X\perp Y$ 也成立), 則 $Var(X+Y)=Var(X)+Var(Y)$</p>
+<li><p>如果 <span>$\xi_1\perp\xi_2$</span><!-- Has MathJax -->, 則<br><span>$$\Phi_{\xi_1+\xi_2}(u)=\Phi_{\xi_1}(u)\Phi_{\xi_2}(u)$$</span><!-- Has MathJax --> [Proof]:</p>
+<span>$$\Phi_{\xi_1+\xi_2}(u)=\mathbb{E}[e^{iu(\xi_1+\xi_2)}]=\mathbb{E}[e^{iu\xi_1}e^{iu\xi_2}] \\
+= \int_{\xi_1,\xi_2} \mathcal{P}(\xi_1,\xi_2)e^{iu\xi_1}e^{iu\xi_2} d\xi_1 d\xi_2 \\
+= \int_{\xi_1,\xi_2} \left(\mathcal{P}(\xi_1)e^{iu\xi_1}\right)\left(\mathcal{P}(\xi_2)e^{iu\xi_2}\right) d\xi_1 d\xi_2 \\
+=\mathbb{E}[e^{iu\xi_1}]\mathbb{E}[e^{iu\xi_2}] \\
+=\Phi_{\xi_1}(u)\Phi_{\xi_2}(u)$$</span><!-- Has MathJax -->
+</li>
+<li><p><span>$\mathbb{E}[X+Y]=\mathbb{E}[X]+\mathbb{E}[Y]$</span><!-- Has MathJax -->. 跟 <span>$X,Y$</span><!-- Has MathJax --> 是否獨立或不相關無關.</p>
+</li>
+<li><p><span>$|Cov(X,Y)|\leq\sqrt{Var(X)}\sqrt{Var(Y)}$</span><!-- Has MathJax --><br>[<a href="https://en.wikipedia.org/wiki/Covariance" target="_blank" rel="external">Proof</a>]:<br><img src="/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/Untitled.png" width="65%" height="65%"></p>
+</li>
+<li><p><span>$Var(X+Y)=Var(X)+Var(Y)+2Cov(X,Y)$</span><!-- Has MathJax --><br>[Proof]:</p>
+<span>$$Var(X+Y)=Cov(X+Y,X+Y)\\
+=Cov(X,X)+2Cov(X,Y)+Cov(Y,Y)\\
+=Var(X)+Var(Y)+2Cov(X,Y)$$</span><!-- Has MathJax -->
+</li>
+<li><p>如果 <span>$X,Y$</span><!-- Has MathJax --> uncorrelated (所以 <span>$X\perp Y$</span><!-- Has MathJax --> 也成立), 則 <span>$Var(X+Y)=Var(X)+Var(Y)$</span><!-- Has MathJax --></p>
 </li>
 <li><p>Normal distribution of one r.v.</p>
 <span>$$X\sim\mathcal{N}(\mu,\sigma^2), \text{ for }\sigma&gt;0,\mu\in\mathbb{R} \\
 p(x)=\frac{1}{\sqrt{2\pi}\sigma} e^{-\frac{(x-\mu)^2}{2\sigma^2}}$$</span><!-- Has MathJax -->
 </li>
 <li><p>The characteristic function of normal distribution is:</p>
-<span>$\Phi(u)=e^{iu\mu-\frac{1}{2}u^2\sigma^2}$</span><!-- Has MathJax -->
+<span>$$\Phi(u)=e^{iu\mu-\frac{1}{2}u^2\sigma^2}$$</span><!-- Has MathJax -->
 </li>
-<li><p>獨立高斯分佈之和仍為高斯分佈, mean and variance 都相加</p>
+<li><p>獨立高斯分佈之和仍為高斯分佈, mean and variance 都相加<br>[Proof]:<br><span>$$(X_1,...,X_n) \text{ where } X_k\sim\mathcal{N}(\mu_k,\sigma_k^2),\forall k=1,...,n$$</span><!-- Has MathJax --> 我們知道<br><span>$$X_k\sim\mathcal{N}(\mu_k,\sigma_k^2)\longleftrightarrow
+\Phi_k(u)=e^{iu\mu_k-\frac{1}{2}u^2\sigma_k^2}$$</span><!-- Has MathJax --> 則<br><span>$$\sum_k X_k \longleftrightarrow
+\prod_k \Phi_k(u) = e^{iu(\sum_k \mu_k)-\frac{1}{2}u^2(\sum_k \sigma_k^2)}$$</span><!-- Has MathJax --> 由特徵方程式與機率分佈一對一對應得知</p>
+<span>$$\sum_k X_k \sim \mathcal{N}\left(\sum_k \mu_k, \sum_k \sigma_k^2\right)$$</span><!-- Has MathJax -->
+</li>
+<li><p><span>$K:\mathcal{X}\times\mathcal{X}\rightarrow\mathbb{R}$</span><!-- Has MathJax --> is symmetric positive semi-definite:<br><img src="/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/Untitled 1.png" width="75%" height="75%"></p>
 </li>
 </ul>
-<p>我們知道<br><span>$$X_k\sim\mathcal{N}(\mu_k,\sigma_k^2)\longleftrightarrow
-\Phi_k(u)=e^{iu\mu_k-\frac{1}{2}u^2\sigma_k^2}$$</span><!-- Has MathJax --><br>則<br><span>$$\sum_k X_k \longleftrightarrow
-\prod_k \Phi_k(u) = e^{iu(\sum_k \mu_k)-\frac{1}{2}u^2(\sum_k \sigma_k^2)}$$</span><!-- Has MathJax --><br>由特徵方程式與機率分佈一對一對應得知<br><span>$\sum_k X_k \sim \mathcal{N}\left(\sum_k \mu_k, \sum_k \sigma_k^2\right)$</span><!-- Has MathJax --></p>
 <ul>
-<li>$K:\mathcal{X}\times\mathcal{X}\rightarrow\mathbb{R}$ is symmetric positive semi-definite:<br><img src="/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/Untitled 1.png" width="75%" height="75%"></li>
-</ul>
-<ul>
-<li><p>給定 $t_1&lt;t_2&lt;…&lt;t_n$ 一個很有用的技巧為:<br>可以變成以下這些 disjoint 區段的線性組合</p>
-<span>$(t_2-t_1),...,(t_n-t_{n-1})$</span><!-- Has MathJax -->
-<p>具體如下:</p>
-<span>$$\sum_{k=1}^n \lambda_k B_{t_k} = \lambda_n(B_{t_n}-B_{t_{n-1}}) + (\lambda_n+\lambda_{n-1})B_{t_{n-1}} + \sum_{k=1}^{n-2} \lambda_k B_{t_k} \\
-= \sum_{k=1}^n d_k(B_{t_n}-B_{t_{n-1}})$$</span><!-- Has MathJax -->
-<p>會想要這樣轉換是因為課程會學到 independent increment 特性, 表明 disjoint 區段的 random variables 之間互相獨立, 因此可以變成互相獨立的 r.v.s 線性相加</p>
+<li><p>給定 <span>$t_1&lt;t_2&lt;...&lt;t_n$</span><!-- Has MathJax --> 一個很有用的技巧為:<br>可以變成以下這些 disjoint 區段的線性組合<br><span>$$(t_2-t_1),...,(t_n-t_{n-1})$$</span><!-- Has MathJax --> 具體如下:<br><span>$$\sum_{k=1}^n \lambda_k B_{t_k} = \lambda_n(B_{t_n}-B_{t_{n-1}}) + (\lambda_n+\lambda_{n-1})B_{t_{n-1}} + \sum_{k=1}^{n-2} \lambda_k B_{t_k} \\
+= \sum_{k=1}^n d_k(B_{t_n}-B_{t_{n-1}})$$</span><!-- Has MathJax --> 會想要這樣轉換是因為課程會學到 independent increment 特性, 表明 disjoint 區段的 random variables 之間互相獨立, 因此可以變成互相獨立的 r.v.s 線性相加</p>
 </li>
 <li><p>Calculating Moments with Characteristic Functions (<a href="https://en.wikipedia.org/wiki/Characteristic_function_(probability_theory" target="_blank" rel="external">wiki</a>))<br><img src="/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/Untitled 2.png" width="75%" height="75%"></p>
 </li>
@@ -489,14 +496,12 @@ p(x)=\frac{1}{\sqrt{2\pi}\sigma} e^{-\frac{(x-\mu)^2}{2\sigma^2}}$$</span><!-- H
 </li>
 <li><p>Lebesgue Measure and Integration<br><a href="https://towardsdatascience.com/lebesgue-measure-and-integration-64f5c45d7888" target="_blank" rel="external">A guide to the Lebesgue measure and integration</a><br>Lebesgue integration from <a href="https://en.wikipedia.org/wiki/Lebesgue_integration" target="_blank" rel="external">wiki</a><br><a href="https://ch-hsieh.blogspot.com/2010/04/measurable-function.html" target="_blank" rel="external">[測度論] Sigma Algebra 與 Measurable function 簡介</a></p>
 </li>
-<li><p>Probability Theory<br><a href="https://ch-hsieh.blogspot.com/2013/12/blog-post_7.html" target="_blank" rel="external">[機率論] 淺談機率公理 與 基本性質</a><br><a href="https://towardsdatascience.com/measure-theory-in-probability-c8aaf1dea87c" target="_blank" rel="external">Measure theory in probability</a><br>Distribution function $F$ defined with (probability) measure $\mu$ (<a href="https://towardsdatascience.com/measure-theory-in-probability-c8aaf1dea87c" target="_blank" rel="external">ref</a>)<br><img src="/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/1_8fqGjD53hQHAg_3Ew-rFVA.png" width="60%" height="60%"><br>$F$ 又稱 cumulative distribution function (c.d.f.), 或稱 cumulative function<br>其微分稱為 probability density function (p.d.f.), 或簡稱 density function. 注意到 density 不是 (probability) measure $\mu$!<br>而期望值可以用 Lebesgue measure or in probability measure 來看待:<br>Given Probability space: $(\Omega,\Sigma,\mathcal{P})$, 期望值定義為<br><img src="/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/1_ChFQfJHe8uHTcWpLCipg7g.png" width="35%" height="35%"></p>
+<li><p>Probability Theory<br><a href="https://ch-hsieh.blogspot.com/2013/12/blog-post_7.html" target="_blank" rel="external">[機率論] 淺談機率公理 與 基本性質</a><br><a href="https://towardsdatascience.com/measure-theory-in-probability-c8aaf1dea87c" target="_blank" rel="external">Measure theory in probability</a><br>Distribution function <span>$F$</span><!-- Has MathJax --> defined with (probability) measure <span>$\mu$</span><!-- Has MathJax --> (<a href="https://towardsdatascience.com/measure-theory-in-probability-c8aaf1dea87c" target="_blank" rel="external">ref</a>)<br><img src="/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/1_8fqGjD53hQHAg_3Ew-rFVA.png" width="60%" height="60%"><br><span>$F$</span><!-- Has MathJax --> 又稱 cumulative distribution function (c.d.f.), 或稱 cumulative function<br>其微分稱為 probability density function (p.d.f.), 或簡稱 density function. 注意到 density 不是 (probability) measure <span>$\mu$</span><!-- Has MathJax -->!<br>而期望值可以用 Lebesgue measure or in probability measure 來看待:<br>Given Probability space: <span>$(\Omega,\Sigma,\mathcal{P})$</span><!-- Has MathJax -->, 期望值定義為<br><img src="/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/1_ChFQfJHe8uHTcWpLCipg7g.png" width="35%" height="35%"></p>
 <blockquote>
-<p>所有 event $\omega\in\Sigma$ 的 probability measure $\mathcal{P}(\omega)$, 乘上該 random variable 的值 $X(\omega)$<br>所有 outcome $\omega\in\Omega$ 的 probability measure $\mathcal{P}(d\omega)$, 乘上該 random variable 的值 $X(\omega)$</p>
+<p>所有 event <span>$\omega\in\Sigma$</span><!-- Has MathJax --> 的 probability measure <span>$\mathcal{P}(\omega)$</span><!-- Has MathJax -->, 乘上該 random variable 的值 <span>$X(\omega)$</span><!-- Has MathJax --><br>所有 outcome <span>$\omega\in\Omega$</span><!-- Has MathJax --> 的 probability measure <span>$\mathcal{P}(d\omega)$</span><!-- Has MathJax -->, 乘上該 random variable 的值 <span>$X(\omega)$</span><!-- Has MathJax --></p>
 </blockquote>
 </li>
-<li><p><a href="https://en.wikipedia.org/wiki/Dominated_convergence_theorem" target="_blank" rel="external">Lebesgue’s Dominated Convergence Theorem</a>: Exchanging $\lim$ and $\int$<br>Let $(f_n)$ be a sequence of measurable functions on a measure space $(S,\Sigma,\mu)$. Assume $(f_n)$ <strong><em>converges pointwise</em></strong> to $f$ and is dominated by some <a href="https://en.wikipedia.org/wiki/Lebesgue_integration#Signed_functions" target="_blank" rel="external">(Lebesgue) integrable</a> function $g$, i.e.</p>
-<span>$|f_n(x)|\leq g(x), \qquad \forall n,\forall x\in S$</span><!-- Has MathJax -->
-<p>Then $f$ is <a href="https://en.wikipedia.org/wiki/Lebesgue_integration#Signed_functions" target="_blank" rel="external">(Lebesgue) integrable</a>, i.e. $\int_S |f|d\mu&lt;\infty$<br>and</p>
+<li><p><a href="https://en.wikipedia.org/wiki/Dominated_convergence_theorem" target="_blank" rel="external">Lebesgue’s Dominated Convergence Theorem</a>: Exchanging <span>$\lim$</span><!-- Has MathJax --> and <span>$\int$</span><!-- Has MathJax --><br>Let <span>$(f_n)$</span><!-- Has MathJax --> be a sequence of measurable functions on a measure space <span>$(S,\Sigma,\mu)$</span><!-- Has MathJax -->. Assume <span>$(f_n)$</span><!-- Has MathJax --> <strong><em>converges pointwise</em></strong> to <span>$f$</span><!-- Has MathJax --> and is dominated by some <a href="https://en.wikipedia.org/wiki/Lebesgue_integration#Signed_functions" target="_blank" rel="external">(Lebesgue) integrable</a> function <span>$g$</span><!-- Has MathJax -->, i.e.<br><span>$$|f_n(x)|\leq g(x), \qquad \forall n,\forall x\in S$$</span><!-- Has MathJax --> Then <span>$f$</span><!-- Has MathJax --> is <a href="https://en.wikipedia.org/wiki/Lebesgue_integration#Signed_functions" target="_blank" rel="external">(Lebesgue) integrable</a>, i.e. <span>$\int_S |f|d\mu&lt;\infty$</span><!-- Has MathJax --><br>and</p>
 <span>$$\lim_{n\rightarrow\infty}\int_S |f_n-f|d\mu=0 \\
 \lim_{n\rightarrow\infty}\int_S f_nd\mu = \int_S\lim_{n\rightarrow\infty}f_nd\mu = \int_S f d\mu$$</span><!-- Has MathJax -->
 </li>

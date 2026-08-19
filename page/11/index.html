@@ -516,11 +516,11 @@
         
           <hr>
 <p>2011年自己做的筆記, 放上來以免檔案丟失, 也方便隨時參考. 參考自 “Numerical Optimization” by Jorge Nocedal and Stephen J. Wright. 但是打算只用 Lagrange Multiplier Theorem 理解 KKT. :)</p>
-<p>就像是一般微積分裡學到的一樣, 對於一個函式 $f(x)$ 若 $x^\ast$ 為一 minimal/maximum point, 則必要條件為 $f’(x^\ast)=0$. 而在 <strong>constraint optimization 版本必要條件變成 KKT conditions</strong>. 說更清楚一點就是, 若 $x^\ast$ 為一 minimal/maximum point (+滿足某些神秘條件) , 則必要條件為在 $x^\ast$ 滿足 KKT Conditions.</p>
+<p>就像是一般微積分裡學到的一樣, 對於一個函式 <span>$f(x)$</span><!-- Has MathJax --> 若 <span>$x^\ast$</span><!-- Has MathJax --> 為一 minimal/maximum point, 則必要條件為 <span>$f&apos;(x^\ast)=0$</span><!-- Has MathJax -->. 而在 <strong>constraint optimization 版本必要條件變成 KKT conditions</strong>. 說更清楚一點就是, 若 <span>$x^\ast$</span><!-- Has MathJax --> 為一 minimal/maximum point (+滿足某些神秘條件) , 則必要條件為在 <span>$x^\ast$</span><!-- Has MathJax --> 滿足 KKT Conditions.</p>
 <blockquote>
 <p>神秘條件稱為 Constraint Qualifications, 常見的為 LICQ, 在 Convex opt 裡為 Slater’s condition. <a href="https://en.wikipedia.org/wiki/Karush%E2%80%93Kuhn%E2%80%93Tucker_conditions">wiki KKT</a></p>
 </blockquote>
-<p>具體來說，我們要探討的是對於以下的問題，如果 $x^\ast$ 為一 minimal point 且滿足式 (2) 的條件, 則會發生什麼事情 (我們找的是<strong>必要條件</strong>)</p>
+<p>具體來說，我們要探討的是對於以下的問題，如果 <span>$x^\ast$</span><!-- Has MathJax --> 為一 minimal point 且滿足式 (2) 的條件, 則會發生什麼事情 (我們找的是<strong>必要條件</strong>)</p>
 <span>$$\begin{align} 
 \min f(x) \\
 \mbox{subject to } \begin{array}{rcl}
@@ -979,8 +979,8 @@ c_i(x)\geq 0, i \in \mathbf{I} \\
 <li>求 Embeddings</li>
 <li>Encoder–Decoder 結構</li>
 </ol>
-<h3 id="字典向量"><a href="#字典向量" class="headerlink" title="字典向量"></a>字典向量</h3><p>若我們字典裡有 $N$ 個 words, 第 $i$ 個字 $w^i$ 應該怎麼表示呢?</p>
-<p>通常使用 one-hot vector 來表示: 把 $w^i$ 變成一個長度 $N$ 的向量 $x^i$。</p>
+<h3 id="字典向量"><a href="#字典向量" class="headerlink" title="字典向量"></a>字典向量</h3><p>若我們字典裡有 <span>$N$</span><!-- Has MathJax --> 個 words, 第 <span>$i$</span><!-- Has MathJax --> 個字 <span>$w^i$</span><!-- Has MathJax --> 應該怎麼表示呢?</p>
+<p>通常使用 one-hot vector 來表示: 把 <span>$w^i$</span><!-- Has MathJax --> 變成一個長度 <span>$N$</span><!-- Has MathJax --> 的向量 <span>$x^i$</span><!-- Has MathJax -->。</p>
 <p><img src="/2017/09/07/Word-Embeddings-and-Encoder-Decoder-Neural-Net/one-hot.png" height="15%" width="15%"></p>
           <!--noindex-->
           <div class="post-button text-center">

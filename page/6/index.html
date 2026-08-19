@@ -374,7 +374,7 @@
 <p>　💡 如果連我都能懂, 相信大家都能理解 HMC 了</p>
 </blockquote>
 <p>但還是<strong>建議先看 <a href="https://bobondemon.github.io/2021/10/27/MCMC-by-Gibbs-and-Metropolis-Hasting-Sampling/">MCMC by Gibbs and Metropolis-Hasting Sampling</a></strong>, 因為這篇要說的 Hamiltonian Monte Carlo (HMC) 是 Metropolis-Hastings (MH) 方法的一種, 只是 proposal distribution 從 random walk 改成使用 Hamiltonian dynamics 來做, 因而變的非常有效率 (accept rate 很高), 且對於高維度資料採樣也很有效.</p>
-<p>首先粗體字如 <span>$\mathbf{x}, \mathbf{v}, \mathbf{p}$</span><!-- Has MathJax --> 都是 column vector, 而非粗體字表 scalar, e.g. $m,t$</p>
+<p>首先粗體字如 <span>$\mathbf{x}, \mathbf{v}, \mathbf{p}$</span><!-- Has MathJax --> 都是 column vector, 而非粗體字表 scalar, e.g. <span>$m,t$</span><!-- Has MathJax --></p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2022/05/07/Hamiltonian-Monte-Carlo/#more" rel="contents">
@@ -535,10 +535,10 @@
 </li>
 <li><p>Langevin dynamics:<br> Langevin dynamics 可以使用 score function, i.e. <span>$\nabla_x\log p_{data}(x)$</span><!-- Has MathJax -->, 來取 sample, 取出來的 sample 具有 <span>$p_{data}(x)$</span><!-- Has MathJax --> 的分佈<br> 而我們已經用一個 NN <span>$s_\theta(x)$</span><!-- Has MathJax --> 來逼近 score function 了, 因此可以用 <span>$s_\theta(x)$</span><!-- Has MathJax --> 來取 sample, 步驟如下:<br> 給定一個固定的 step size <span>$\epsilon&gt;0$</span><!-- Has MathJax -->, initial value <span>$z=\tilde{x}_0\sim\pi(x)$</span><!-- Has MathJax -->, 其中 <span>$\pi(x)$</span><!-- Has MathJax --> 是固定的 prior distribution, and <span>$z_t\sim\mathcal{N}(0,I)$</span><!-- Has MathJax --></p>
 <p> <span>$$\tilde{x}_t = \tilde{x}_{t-1}+\frac{\epsilon}{2}\nabla_x\log p_{data}(\tilde{x}_{t-1})+\sqrt{\epsilon}z_t \\
-\approx \tilde{x}_{t-1}+\frac{\epsilon}{2}s_\theta(\tilde{x}_{t-1})+\sqrt{\epsilon}z_t$$</span><!-- Has MathJax --> 當 <span>$\epsilon\rightarrow 0$</span><!-- Has MathJax -->, <span>$T\rightarrow\infty$</span><!-- Has MathJax --> 則 <span>$\tilde{x}_T$</span><!-- Has MathJax --> 等同於從 <span>$p_{data}(x)$</span><!-- Has MathJax --> 取樣!<br> 我們在這篇文章 <strong><a href="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/">忘記物理也要搞懂的 Hamiltonian Monte Carlo (HMC) 筆記</a></strong><br> 非常仔細得解釋了為什麼可以這麼做, 注意到其實這裡涉及了很多知識, 依序包含 MCMC, Metropolis Hastings, Hamiltonian Dynamic, 最後才關聯到 Langevin Dynamics. 不過只想單純使用的話, 上面的描述就足夠.</p>
+    \approx \tilde{x}_{t-1}+\frac{\epsilon}{2}s_\theta(\tilde{x}_{t-1})+\sqrt{\epsilon}z_t$$</span><!-- Has MathJax --><br>當 <span>$\epsilon\rightarrow 0$</span><!-- Has MathJax -->, <span>$T\rightarrow\infty$</span><!-- Has MathJax --> 則 <span>$\tilde{x}_T$</span><!-- Has MathJax --> 等同於從 <span>$p_{data}(x)$</span><!-- Has MathJax --> 取樣!<br> 我們在這篇文章 <strong><a href="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/">忘記物理也要搞懂的 Hamiltonian Monte Carlo (HMC) 筆記</a></strong><br> 非常仔細得解釋了為什麼可以這麼做, 注意到其實這裡涉及了很多知識, 依序包含 MCMC, Metropolis Hastings, Hamiltonian Dynamic, 最後才關聯到 Langevin Dynamics. 不過只想單純使用的話, 上面的描述就足夠.</p>
 </li>
 </ol>
-<p>藉由 Score Matching + Langevin Dynamics (SMLD), 我們發現如果成功學到 score function, 則可以從 random noise $z$ 產生符合 data distribution 的 sample.<br>而這正是 generative model 在做的事情, 此種方法論文稱為 SMLD<br>但是直接訓練出來的 SMLD 在真實資料上會有兩個問題導致做不好, 接著<a href="https://arxiv.org/abs/1907.05600">論文</a>裡說明是什麼原因以及解決方法</p>
+<p>藉由 Score Matching + Langevin Dynamics (SMLD), 我們發現如果成功學到 score function, 則可以從 random noise <span>$z$</span><!-- Has MathJax --> 產生符合 data distribution 的 sample.<br>而這正是 generative model 在做的事情, 此種方法論文稱為 SMLD<br>但是直接訓練出來的 SMLD 在真實資料上會有兩個問題導致做不好, 接著<a href="https://arxiv.org/abs/1907.05600">論文</a>裡說明是什麼原因以及解決方法</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2022/03/26/Generative-Modeling-by-Estimating-Gradients-of-the-Data-Distribution/#more" rel="contents">
@@ -1003,7 +1003,7 @@
 <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>基於 Score Matching, 提出 Denoising Score Matching (DSM) 的目標函式, 好處是在 energy-based model 下:</p>
 <ol>
 <li>不用將 score function 的 gradients 也納入 loss 去計算 (避免二次微分做 backprop 提高效率)</li>
-<li>當 input $x$ 的維度很大也沒問題 (可以 scalable)</li>
+<li>當 input <span>$x$</span><!-- Has MathJax --> 的維度很大也沒問題 (可以 scalable)</li>
 </ol>
 <p>但缺點是:</p>
 <ol>
@@ -1160,7 +1160,7 @@
         
           <hr>
 <p>這是一篇論文筆記: “Estimation of Non-Normalized Statistical Models by Score Matching”, 其實推薦直接讀論文, 數學式很清楚, 表達也明確, 只是想順著自己的說法做一下筆記</p>
-<h2 id="動機介紹"><a href="#動機介紹" class="headerlink" title="動機介紹"></a>動機介紹</h2><p>在 Machine Learning 中, 我們常常希望用參數 $\theta$ 估出來的 pdf <span>$p(.;\theta)$</span><!-- Has MathJax --> 能跟真實 data (training data) 的 pdf <span>$p_x(.)$</span><!-- Has MathJax --> 愈像愈好.<br>由於是 pdf <span>$p(.;\theta)$</span><!-- Has MathJax -->, 必須滿足機率形式, i.e. 積分所有 outcomes 等於 1, 因此引入一個 normalization term $Z(\theta)$<br><span>$$p(\xi;\theta)=\frac{1}{Z(\theta)}q(\xi;\theta)$$</span><!-- Has MathJax --><br>其中 <span>$\xi\in\mathbb{R}^n$</span><!-- Has MathJax --> 為一個 data point<br>假設我們有 $T$ 個 observations <span>$\{x_1,...,x_T\}$</span><!-- Has MathJax -->, 套用 empirical expecation 並對 likelihood estimation 找出最佳 $\theta$ (MLE):<br><span>$$\theta_{mle}=\arg\max_\theta \sum_{t=1}^T \log p(x_t;\theta)$$</span><!-- Has MathJax --><br>計算 gradient, 會發現由於存在 $Z(\theta)$ 變得很難計算, 導致 gradient-based optimization 也很困難.</p>
+<h2 id="動機介紹"><a href="#動機介紹" class="headerlink" title="動機介紹"></a>動機介紹</h2><p>在 Machine Learning 中, 我們常常希望用參數 <span>$\theta$</span><!-- Has MathJax --> 估出來的 pdf <span>$p(.;\theta)$</span><!-- Has MathJax --> 能跟真實 data (training data) 的 pdf <span>$p_x(.)$</span><!-- Has MathJax --> 愈像愈好.<br>由於是 pdf <span>$p(.;\theta)$</span><!-- Has MathJax -->, 必須滿足機率形式, i.e. 積分所有 outcomes 等於 1, 因此引入一個 normalization term <span>$Z(\theta)$</span><!-- Has MathJax --><br><span>$$p(\xi;\theta)=\frac{1}{Z(\theta)}q(\xi;\theta)$$</span><!-- Has MathJax --> 其中 <span>$\xi\in\mathbb{R}^n$</span><!-- Has MathJax --> 為一個 data point<br>假設我們有 <span>$T$</span><!-- Has MathJax --> 個 observations <span>$\{x_1,...,x_T\}$</span><!-- Has MathJax -->, 套用 empirical expecation 並對 likelihood estimation 找出最佳 <span>$\theta$</span><!-- Has MathJax --> (MLE):<br><span>$$\theta_{mle}=\arg\max_\theta \sum_{t=1}^T \log p(x_t;\theta)$$</span><!-- Has MathJax --> 計算 gradient, 會發現由於存在 <span>$Z(\theta)$</span><!-- Has MathJax --> 變得很難計算, 導致 gradient-based optimization 也很困難.</p>
 <p>山不轉路轉, 如果我們能換個想法:<br></p>
           <!--noindex-->
           <div class="post-button text-center">
@@ -1309,9 +1309,9 @@
       
         
           <hr>
-<p>Bayesian statistics 視 dataset <span>$\mathcal{D}=\{x_1,...,x_n\}$</span><!-- Has MathJax --> 為固定, 而 model parameter $\theta$ 為 random variables, 透過假設 prior $p(\theta)$, 利用 Bayes rule 可得 posterior $p(\theta|\mathcal{D})$. 而估計的參數就是 posterior 的 mode, i.e. $\theta_{map}$ (Maximum A Posterior, MAP)</p>
-<p>關於 Fisher information matrix 在 Bayesian 觀點的用途, 其中一個為幫助定義一個特殊的 prior distribution (<a href="https://en.wikipedia.org/wiki/Jeffreys_prior">Jeffreys prior</a>), 使得如果 parameter $\theta$ 重新定義成 $\phi$, 例如 $\phi=f(\theta)$, 則 MAP 解不會改變. 關於這部分還請參考 <a href="https://probml.github.io/pml-book/book0.html">Machine Learning: a Probabilistic Perspective</a> by <a href="https://www.cs.ubc.ca/~murphyk/">Kevin Patrick Murphy</a>. Chapters 5 的 Figure 5.2 圖很清楚</p>
-<p>反之 Frequentist statistics 視 dataset <span>$\mathcal{D}=\{X_1,...,X_n\}$</span><!-- Has MathJax --> 為 random variables, 透過真實 <span>$\theta^*$</span><!-- Has MathJax --> 採樣出 $K$ 組 datasets, 每一組 dataset $\mathcal{D}^k$ 都可以求得一個 <span>$\theta_{mle}^k$</span><!-- Has MathJax --> (MLE 表示 Maximum Likelihood Estimator), 則 <span>$\theta_{mle}^k$</span><!-- Has MathJax --> 跟 <span>$\theta^*$</span><!-- Has MathJax --> 的關係可藉由 Fisher information matrix 看出來</p>
+<p>Bayesian statistics 視 dataset <span>$\mathcal{D}=\{x_1,...,x_n\}$</span><!-- Has MathJax --> 為固定, 而 model parameter <span>$\theta$</span><!-- Has MathJax --> 為 random variables, 透過假設 prior <span>$p(\theta)$</span><!-- Has MathJax -->, 利用 Bayes rule 可得 posterior <span>$p(\theta|\mathcal{D})$</span><!-- Has MathJax -->. 而估計的參數就是 posterior 的 mode, i.e. <span>$\theta_{map}$</span><!-- Has MathJax --> (Maximum A Posterior, MAP)</p>
+<p>關於 Fisher information matrix 在 Bayesian 觀點的用途, 其中一個為幫助定義一個特殊的 prior distribution (<a href="https://en.wikipedia.org/wiki/Jeffreys_prior">Jeffreys prior</a>), 使得如果 parameter <span>$\theta$</span><!-- Has MathJax --> 重新定義成 <span>$\phi$</span><!-- Has MathJax -->, 例如 <span>$\phi=f(\theta)$</span><!-- Has MathJax -->, 則 MAP 解不會改變. 關於這部分還請參考 <a href="https://probml.github.io/pml-book/book0.html">Machine Learning: a Probabilistic Perspective</a> by <a href="https://www.cs.ubc.ca/~murphyk/">Kevin Patrick Murphy</a>. Chapters 5 的 Figure 5.2 圖很清楚</p>
+<p>反之 Frequentist statistics 視 dataset <span>$\mathcal{D}=\{X_1,...,X_n\}$</span><!-- Has MathJax --> 為 random variables, 透過真實 <span>$\theta^*$</span><!-- Has MathJax --> 採樣出 <span>$K$</span><!-- Has MathJax --> 組 datasets, 每一組 dataset <span>$\mathcal{D}^k$</span><!-- Has MathJax --> 都可以求得一個 <span>$\theta_{mle}^k$</span><!-- Has MathJax --> (MLE 表示 Maximum Likelihood Estimator), 則 <span>$\theta_{mle}^k$</span><!-- Has MathJax --> 跟 <span>$\theta^*$</span><!-- Has MathJax --> 的關係可藉由 Fisher information matrix 看出來</p>
 <p>本文探討 score function 和 Fisher information matrix 的定義, 重點會放在怎麼直觀理解. 然後會說明 Fisher information matrix 在 Frequentist statistics 角度代表什麼意義.</p>
 <p>先定義一波</p>
           <!--noindex-->

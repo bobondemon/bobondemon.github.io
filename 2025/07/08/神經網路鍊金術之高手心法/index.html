@@ -106,7 +106,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/image 10.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/image 11.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/image 12.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.837Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.254Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="神經網路鍊金術之高手心法">
 <meta name="twitter:description" content="這裡指的 “高手” 來自 Google DeepMind 的科學家 Sander Dieleman [blog], 而他的工作有多大影響力請自行查看 [google scholar] 就會知道.這是筆者參加 ACDL 2025 MLSS 的其中一個 lecture, 也是私心認為最好的演講.共分三堂, 前兩堂講了 diffusion models, 最後一堂講了他目前對神經網路訓練的各種心得/m">
@@ -399,7 +399,7 @@
 <h2 id="Process-mindset-和工作流程"><a href="#Process-mindset-和工作流程" class="headerlink" title="Process (mindset 和工作流程)"></a>Process (mindset 和工作流程)</h2><ul>
 <li><p><strong>大部分想法都沒用, 多嘗試就對了</strong>:<br>  當我們在開啟一個 ML 研究問題時, Sander Dieleman 劈頭就先說大部分的想法都沒用, 但大家不用因此而沮喪<br>  需要的僅僅是嘗試大量的想法, 且不要在同一個方向投資太多 (鑽牛角尖) <img src="/2025/07/08/神經網路鍊金術之高手心法/image 1.png" width="75%" height="75%"></p>
 </li>
-<li><p><strong>先決定 metric 是什麼並盡量自動化</strong>:<br>  當一個 metric 包含了人工流程, 絕對會拖慢整個研發進度<br>  也不用太擔心 metric 不夠”精準”, 就算比較簡單粗暴的 metrics (e.g. FID or BLEU) 也很有用<br>  另外注意到 metric $\neq$ loss, 我們不能僅僅看訓練的 loss 來挑模型, 也要根據 metric 來挑選</p>
+<li><p><strong>先決定 metric 是什麼並盡量自動化</strong>:<br>  當一個 metric 包含了人工流程, 絕對會拖慢整個研發進度<br>  也不用太擔心 metric 不夠”精準”, 就算比較簡單粗暴的 metrics (e.g. FID or BLEU) 也很有用<br>  另外注意到 metric <span>$\neq$</span><!-- Has MathJax --> loss, 我們不能僅僅看訓練的 loss 來挑模型, 也要根據 metric 來挑選</p>
 </li>
 <li><p><strong>實驗的 Iteration 速度是關鍵</strong>:<br>  別急著把 dataset/model 等等 scale up, 先讓自己在一個合適的 scale 上快速做實驗<br>  這裡的快速是重點, 誰能更快做出更多實驗, 誰就更有可能達到目標<br>  有個例外: O(10B) 參數量以上的等級, 因為有可能小模型的結論在這個等級以上不適用</p>
 </li>
@@ -415,11 +415,11 @@
 <hr>
 <h2 id="Architecture-NN-backbone"><a href="#Architecture-NN-backbone" class="headerlink" title="Architecture (NN backbone)"></a>Architecture (NN backbone)</h2><p>省略說明基本 layers, 如 linear, ReLU, GeLU, conv., pooling, attention, initialization, … etc.</p>
 <ul>
-<li><p><strong>Residual connections 非常有效</strong>:<br>  這是最簡單且有效的模型設計技巧 (或許 dropout 也是)<br>  他能有效保證 gradient 流通並且層數可以很深<br>  <strong>Morden version: divided by $\sqrt{2}$, or residual 初始化為 $0$</strong>. (這我不清楚, 有機會找找來源)</p>
+<li><p><strong>Residual connections 非常有效</strong>:<br>  這是最簡單且有效的模型設計技巧 (或許 dropout 也是)<br>  他能有效保證 gradient 流通並且層數可以很深<br>  <strong>Morden version: divided by <span>$\sqrt{2}$</span><!-- Has MathJax -->, or residual 初始化為 <span>$0$</span><!-- Has MathJax --></strong>. (這我不清楚, 有機會找找來源)</p>
 </li>
 <li><p><strong>Normalization layers 設計</strong>:<br>  不管 BatchNorm, LayerNorm, GroupNorm, InstanceNorm, RMSNorm 或是 FiLM 都用以下公式:<br>  <span>$$\begin{align*}
-\mathbf{y}=a\cdot\frac{\mathbf{x}-\mu}{\sigma}+b
-\end{align*}$$</span><!-- Has MathJax --> <img src="/2025/07/08/神經網路鍊金術之高手心法/image 5.png" width="75%" height="75%"></p>
+    \mathbf{y}=a\cdot\frac{\mathbf{x}-\mu}{\sigma}+b
+    \end{align*}$$</span><!-- Has MathJax --><br><img src="/2025/07/08/神經網路鍊金術之高手心法/image 5.png" width="75%" height="75%"></p>
 </li>
 <li><p><strong>BatchNorm 漸漸淡出</strong>:<br>  說的一個原因是太多可能的 bug 出現在 deploy 階段了<br>  (看看筆者之前<a href="https://bobondemon.github.io/2025/05/04/Convolution-%E8%88%87-BatchNorm-%E7%9A%84%E8%9E%8D%E5%90%88%E5%A4%A7%E6%B3%95/">這篇筆記</a>就知道 BN 確實比較複雜, 但自己目前的工作上還是很多地方依賴 BN layer…)</p>
 </li>
@@ -432,7 +432,7 @@
 </ul>
 <hr>
 <h2 id="Training-心得和技巧"><a href="#Training-心得和技巧" class="headerlink" title="Training (心得和技巧)"></a>Training (心得和技巧)</h2><ul>
-<li><p><strong>Optimizers 心得</strong>:<br>  沒其他理由就用 Adam<br>  (筆者認為應該用 AdamW, 參考 <a href="https://www.youtube.com/@jbhuang0604" target="_blank" rel="external">Jia-Bin Huang</a> 的這部解說: <a href="https://www.youtube.com/watch?v=1_nujVNUsto&amp;t=6s" target="_blank" rel="external">The Algorithm that Helps Machines Learn</a>)<br>  注意到超參數 $\beta_2$ (adaptive step size 的控制) 也是很重要的, 需要調整<br>  別忽略另一個可條的超參數 $\epsilon$! (這其實也影響到 step size 的控制)<br>  <img src="/2025/07/08/神經網路鍊金術之高手心法/image 8.png" width="50%" height="50%"></p>
+<li><p><strong>Optimizers 心得</strong>:<br>  沒其他理由就用 Adam<br>  (筆者認為應該用 AdamW, 參考 <a href="https://www.youtube.com/@jbhuang0604" target="_blank" rel="external">Jia-Bin Huang</a> 的這部解說: <a href="https://www.youtube.com/watch?v=1_nujVNUsto&amp;t=6s" target="_blank" rel="external">The Algorithm that Helps Machines Learn</a>)<br>  注意到超參數 <span>$\beta_2$</span><!-- Has MathJax --> (adaptive step size 的控制) 也是很重要的, 需要調整<br>  別忽略另一個可條的超參數 <span>$\epsilon$</span><!-- Has MathJax -->! (這其實也影響到 step size 的控制)<br>  <img src="/2025/07/08/神經網路鍊金術之高手心法/image 8.png" width="50%" height="50%"></p>
 </li>
 <li><p><strong>Scheduler 心得</strong>:<br>  Sander Dieleman 提醒到利用 scheduler 把 learning rate 階梯式的降低很關鍵, 可以大大進步<br>  <img src="/2025/07/08/神經網路鍊金術之高手心法/image 9.png" width="75%" height="75%"></p>
 </li>

@@ -96,7 +96,7 @@
 <meta property="og:description" content="本文是這篇論文 “LoRAPrune: Pruning Meets Low-Rank Parameter-Efficient Fine-Tuning [arxiv]” 的筆記.
 一般來說使用 first-order Taylor importance 的 pruning 方法 (下面會介紹此法) 需計算 gradients 來對每個 weight 計算重要性, 然後根據重要性剪枝. 但是現在模型">
 <meta property="og:image" content="https://bobondemon.github.io/2023/10/09/Pruning-Meets-Low-Rank-Parameter-Efficient-Fine-Tuning-筆記/ProgressivePruning.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.823Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.186Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="LoRAPrune, Pruning Meets Low-Rank Parameter-Efficient Fine-Tuning 筆記">
 <meta name="twitter:description" content="本文是這篇論文 “LoRAPrune: Pruning Meets Low-Rank Parameter-Efficient Fine-Tuning [arxiv]” 的筆記.
@@ -385,6 +385,7 @@
 \hline \text{LoRAPrune} &amp; \text{Yes} &amp; \text{Yes} \\
 \hline
 \end{array}$$</span><!-- Has MathJax -->
+
 <p>以下會先介紹 first-order Taylor importance 的 pruning 方法, 再來介紹 LoRA, 最後說明如何取兩者之優點得出此篇的方法: LoRAPrune</p>
 <a id="more"></a>
 <h2 id="First-order-Taylor-Importance-Pruning"><a href="#First-order-Taylor-Importance-Pruning" class="headerlink" title="First-order Taylor Importance Pruning"></a>First-order Taylor Importance Pruning</h2><hr>
@@ -395,39 +396,46 @@
 <span>$$\begin{align}
 \mathcal{I}_{ij}=(\mathcal{L}(x,y,W_0)-\mathcal{L}(x,y,W_0|w_{ij}=0))^2
 \end{align}$$</span><!-- Has MathJax -->
+
 <blockquote>
-<p>複習一下 Taylor expansion<br><span>$$f(x)=f(a)+{f&apos;(a)\over 1!}(x-a)+{f&apos;&apos;(a)\over 2!}(x-a)^2+{f&apos;&apos;&apos;(a)\over 3!}(x-a)^3+...$$</span><!-- Has MathJax --> 所以<br><span>$$\mathcal{L}(W-\delta W) = \mathcal{L}(W)
+<p>複習一下 Taylor expansion<br><span>$$f(x)=f(a)+{f&apos;(a)\over 1!}(x-a)+{f&apos;&apos;(a)\over 2!}(x-a)^2+{f&apos;&apos;&apos;(a)\over 3!}(x-a)^3+...$$</span><!-- Has MathJax --> 所以</p>
+</blockquote>
+<span>$$\mathcal{L}(W-\delta W) = \mathcal{L}(W)
 + \nabla_W \mathcal{L}^T\cdot(-\delta W)
 + {1\over2}(-\delta W)^T\cdot(\nabla_W^2 \mathcal{L})\cdot(-\delta W)
 +... \\
 \Longrightarrow
 \mathcal{L}(W)-\mathcal{L}(W-\delta W)=
 \nabla_W \mathcal{L}^T\cdot(\delta W)
-- {1\over2}\delta W^T\cdot(\nabla_W^2 \mathcal{L})\cdot\delta W + ...$$</span><!-- Has MathJax --></p>
-</blockquote>
-<p>假設二次項之後影響都比一次項小很多, 因此我們可以把參數 <span>$w_{ij}$</span><!-- Has MathJax --> 的 importance score 設定成一次項的 power:<br>(這時的 <span>$\delta W=w_{ij}$</span><!-- Has MathJax -->)<br><span>$$\begin{align}
+- {1\over2}\delta W^T\cdot(\nabla_W^2 \mathcal{L})\cdot\delta W + ...$$</span><!-- Has MathJax -->
+
+<p>假設二次項之後影響都比一次項小很多, 因此我們可以把參數 <span>$w_{ij}$</span><!-- Has MathJax --> 的 importance score 設定成一次項的 power:<br>(這時的 <span>$\delta W=w_{ij}$</span><!-- Has MathJax -->)</p>
+<span>$$\begin{align}
 \mathcal{\hat I}_{ij}=\left(
 {\partial\mathcal{L}\over\partial w_{ij}}w_{ij}
 \right)^2
-\end{align}$$</span><!-- Has MathJax --></p>
+\end{align}$$</span><!-- Has MathJax -->
+
 <p>我們就根據 <span>$\mathcal{\hat I}_{ij}$</span><!-- Has MathJax --> 來逐步剪枝不要的參數</p>
 <h2 id="LoRA"><a href="#LoRA" class="headerlink" title="LoRA"></a>LoRA</h2><hr>
 <p>LoRA (Low-Rank Adaptation) 公式為:<br><span>$$\begin{align}
 z=xW_0+xBA
-\end{align}$$</span><!-- Has MathJax --> 其中 <span>$W_0\in\mathbf{R}^{d\times k}$</span><!-- Has MathJax --> 是原來 model 的參數, <span>$A\in\mathbf{R}^{r\times k}$</span><!-- Has MathJax --> and <span>$B\in\mathbf{R}^{d\times r}$</span><!-- Has MathJax --> 是 LoRA 的兩個 learnable low rank (rank $r$) 參數.<br>會將 $W_0$ fixed 住, 只學 $A$ and $B$, 且由於 rank $r$ 通常都不大, 因此很有效率. 注意到為了保證 initial 的時候 performance (output) 跟原來一樣, 會將 $B$ initial 成 $0$ matrix ($A$ random Guassian 即可)<br>學完之後, 可將 $A,B$ 的參數 merge 回 $W_0$, 所以 inference 不會增加額外計算量<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 其中 <span>$W_0\in\mathbf{R}^{d\times k}$</span><!-- Has MathJax --> 是原來 model 的參數, <span>$A\in\mathbf{R}^{r\times k}$</span><!-- Has MathJax --> and <span>$B\in\mathbf{R}^{d\times r}$</span><!-- Has MathJax --> 是 LoRA 的兩個 learnable low rank (rank <span>$r$</span><!-- Has MathJax -->) 參數.<br>會將 <span>$W_0$</span><!-- Has MathJax --> fixed 住, 只學 <span>$A$</span><!-- Has MathJax --> and <span>$B$</span><!-- Has MathJax -->, 且由於 rank <span>$r$</span><!-- Has MathJax --> 通常都不大, 因此很有效率. 注意到為了保證 initial 的時候 performance (output) 跟原來一樣, 會將 <span>$B$</span><!-- Has MathJax --> initial 成 <span>$0$</span><!-- Has MathJax --> matrix (<span>$A$</span><!-- Has MathJax --> random Guassian 即可)<br>學完之後, 可將 <span>$A,B$</span><!-- Has MathJax --> 的參數 merge 回 <span>$W_0$</span><!-- Has MathJax -->, 所以 inference 不會增加額外計算量</p>
+<span>$$\begin{align}
 W=W_0+BA
-\end{align}$$</span><!-- Has MathJax --></p>
+\end{align}$$</span><!-- Has MathJax -->
+
 <h2 id="LoRAPrune"><a href="#LoRAPrune" class="headerlink" title="LoRAPrune"></a>LoRAPrune</h2><hr>
 <p>如果要將 <span>$w_{ij}$</span><!-- Has MathJax --> prune 掉的話, 相當於設定 <span>$(BA)_{ij}=-w_{ij}$</span><!-- Has MathJax -->, 所以 importance score (1) 改寫如下:<br><span>$$\begin{align}
 \mathcal{I}_{ij}=(\mathcal{L}(x,y,W_0)-\mathcal{L}(x,y,W_0|(BA)_{ij}=-w_{ij}))^2
 \end{align}$$</span><!-- Has MathJax --> 如同上面一樣 first order Taylor approximation 為:</p>
-<span>$$\begin{align}
+<p><span>$$\begin{align}
 \mathcal{\hat I}_{ij}=\left(
 {\partial\mathcal{L}\over\partial (BA)_{ij}}((BA)_{ij}+w_{ij})
 \right)^2
-\end{align}$$</span><!-- Has MathJax --> 注意到 $W_0$ 是 fixed 住, 而 $A,B$ 才是 learnable parameters, 所以是對 <span>$(BA)_{ij}$</span><!-- Has MathJax --> 偏微分<br>其中由於 SGD update 公式的關係, (6) 的偏微分那項可這麼看待:<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 注意到 <span>$W_0$</span><!-- Has MathJax --> 是 fixed 住, 而 <span>$A,B$</span><!-- Has MathJax --> 才是 learnable parameters, 所以是對 <span>$(BA)_{ij}$</span><!-- Has MathJax --> 偏微分<br>其中由於 SGD update 公式的關係, (6) 的偏微分那項可這麼看待:<br><span>$$\begin{align}
 {\partial\mathcal{L}\over\partial(BA)_{ij}}\propto (BA)_{ij}|_t - (BA)_{ij}|_{t+1}
-\end{align}$$</span><!-- Has MathJax --> $t$ 為當下的 weights, $t+1$ 是要 update 的 SGD iteration, 繼續拆解如下:<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --><br><span>$t$</span><!-- Has MathJax --> 為當下的 weights, <span>$t+1$</span><!-- Has MathJax --> 是要 update 的 SGD iteration, 繼續拆解如下:<br><span>$$\begin{align}
 {\partial\mathcal{L}\over\partial(BA)_{ij}}\propto\left[
 B_{i:}A_{:j}-
 \left(B_{i:}-\frac{\partial\mathcal{L}}{\partial B_{i:}}\right)
@@ -440,17 +448,18 @@ B_{i:}A_{:j}-
 \mathcal{\hat I}_{ij}=\left(
 (\nabla B \cdot A + B\cdot\nabla A - \nabla B\cdot\nabla A)\odot(BA+W_0)
 \right)^2
-\end{align}$$</span><!-- Has MathJax -->
-<p>其中 <span>$\odot$</span><!-- Has MathJax --> 表示 element-wised 相乘, 到這裡我們發現只使用 $A,B$ 的 gradients, 因此保有了 LoRA 效率的好處.</p>
+\end{align}$$</span><!-- Has MathJax --> 其中 <span>$\odot$</span><!-- Has MathJax --> 表示 element-wised 相乘, 到這裡我們發現只使用 <span>$A,B$</span><!-- Has MathJax --> 的 gradients, 因此保有了 LoRA 效率的好處.</p>
 <p>💡 總結一下精神: 原來所有 weights 的 first-order Taylor importance scores <span>$\mathcal{I}_{ij}$</span><!-- Has MathJax --> (式 5) 在 fine tune LoRA 時使用它的”少量”參數的 gradients 來逼近 <span>$\mathcal{\hat I}_{ij}$</span><!-- Has MathJax --> (式 10), 這樣計算 importance score 沒效率的情形就能被改善.</p>
 <h2 id="Progressive-LoRAPrune"><a href="#Progressive-LoRAPrune" class="headerlink" title="Progressive LoRAPrune"></a>Progressive LoRAPrune</h2><hr>
 <p>在計算 forward and backward 的時候是使用 masking 的方式計算:<br><span>$$\begin{align}
 z=(xW_0+xBA)\odot M
-\end{align}$$</span><!-- Has MathJax --> 其中 $M$ 是 binary mask, 是根據 importance score <span>$\mathcal{\bar I}$</span><!-- Has MathJax --> 計算得到, 而 <span>$\mathcal{\bar I}$</span><!-- Has MathJax --> 只是個 smoothed 過後的 <span>$\mathcal{\hat I}$</span><!-- Has MathJax --> (10) 而已<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 其中 <span>$M$</span><!-- Has MathJax --> 是 binary mask, 是根據 importance score <span>$\mathcal{\bar I}$</span><!-- Has MathJax --> 計算得到, 而 <span>$\mathcal{\bar I}$</span><!-- Has MathJax --> 只是個 smoothed 過後的 <span>$\mathcal{\hat I}$</span><!-- Has MathJax --> (10) 而已</p>
+<span>$$\begin{align}
 \mathcal{\bar I}|_t=\lambda\mathcal{\bar I}|_{t-1}+(1-\lambda)\mathcal{\hat I}|_t
-\end{align}$$</span><!-- Has MathJax --></p>
+\end{align}$$</span><!-- Has MathJax -->
+
 <blockquote>
-<p>注意到由於直接乘 mask $M$, 沒有特別使用 <a href="https://hassanaskary.medium.com/intuitive-explanation-of-straight-through-estimators-with-pytorch-implementation-71d99d25d9d0#what-is-a-straight-through-estimator" target="_blank" rel="external">STE</a> 來讓 mask = 0 的地方的 gradient 流通, 因此被 mask 的 $i,j$ 會沒有 gradients, 但其實 <span>$B_{i:}$</span><!-- Has MathJax --> 或 <span>$A_{:j}$</span><!-- Has MathJax --> 還是有機會被其他位置的 gradients 更新到, 例如 <span>$M_{ik}\neq0$</span><!-- Has MathJax --> 則 <span>$B_{i:}$</span><!-- Has MathJax --> 還是會被 update, <span>$M_{lj}\neq0$</span><!-- Has MathJax --> 則 <span>$A_{:j}$</span><!-- Has MathJax --> 也會被 update, 綜合起來 <span>$(BA)_{ij}$</span><!-- Has MathJax --> 也被改變了. 也因此就算 <span>$M_{ij}=0$</span><!-- Has MathJax -->, $w_{ij}$ 還是有敗部復活的機會.</p>
+<p>注意到由於直接乘 mask <span>$M$</span><!-- Has MathJax -->, 沒有特別使用 <a href="https://hassanaskary.medium.com/intuitive-explanation-of-straight-through-estimators-with-pytorch-implementation-71d99d25d9d0#what-is-a-straight-through-estimator" target="_blank" rel="external">STE</a> 來讓 mask = 0 的地方的 gradient 流通, 因此被 mask 的 <span>$i,j$</span><!-- Has MathJax --> 會沒有 gradients, 但其實 <span>$B_{i:}$</span><!-- Has MathJax --> 或 <span>$A_{:j}$</span><!-- Has MathJax --> 還是有機會被其他位置的 gradients 更新到, 例如 <span>$M_{ik}\neq0$</span><!-- Has MathJax --> 則 <span>$B_{i:}$</span><!-- Has MathJax --> 還是會被 update, <span>$M_{lj}\neq0$</span><!-- Has MathJax --> 則 <span>$A_{:j}$</span><!-- Has MathJax --> 也會被 update, 綜合起來 <span>$(BA)_{ij}$</span><!-- Has MathJax --> 也被改變了. 也因此就算 <span>$M_{ij}=0$</span><!-- Has MathJax -->, <span>$w_{ij}$</span><!-- Has MathJax --> 還是有敗部復活的機會.</p>
 </blockquote>
 <p>所以 progressive LoRAPrune 流程如下<br><img src="/2023/10/09/Pruning-Meets-Low-Rank-Parameter-Efficient-Fine-Tuning-筆記/ProgressivePruning.png" width="100%" height="100%"></p>
 <p>論文後面有些實驗很有意思, 例如使用 <span>$\frac{\partial\mathcal{L}}{\partial w_{ij}}$</span><!-- Has MathJax --> 來替換 (6) 中的 <span>$\frac{\partial\mathcal{L}}{\partial (BA)_{ij}}$</span><!-- Has MathJax -->. 再請有興趣的讀者自行閱讀論文.</p>

@@ -93,7 +93,7 @@
 <meta property="og:url" content="https://bobondemon.github.io/2026/04/18/MatrixNorm/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="向量的 norm 我們很熟悉了, 但對於一個矩陣的 norm 又該怎麼定義呢?最直覺的想法就是把矩陣 flatten 成一個向量, 套用向量的 norm 即可. 這引導出了 Frobenius norm.但是矩陣還包含了將向量做線性轉換的作用, 所以向量經過矩陣轉換後的 norm 變化是不是可以用來當作矩陣 norm 的度量方式呢? 這樣的想法引導出了 operator norm 或 spect">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.820Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.172Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="量量矩陣的大小: Frobenius 和 Spectral Norm">
 <meta name="twitter:description" content="向量的 norm 我們很熟悉了, 但對於一個矩陣的 norm 又該怎麼定義呢?最直覺的想法就是把矩陣 flatten 成一個向量, 套用向量的 norm 即可. 這引導出了 Frobenius norm.但是矩陣還包含了將向量做線性轉換的作用, 所以向量經過矩陣轉換後的 norm 變化是不是可以用來當作矩陣 norm 的度量方式呢? 這樣的想法引導出了 operator norm 或 spect">
@@ -371,25 +371,22 @@
         <hr>
 <p>向量的 norm 我們很熟悉了, 但對於一個矩陣的 norm 又該怎麼定義呢?<br>最直覺的想法就是把矩陣 flatten 成一個向量, 套用向量的 norm 即可. 這引導出了 Frobenius norm.<br>但是矩陣還包含了將向量做線性轉換的作用, 所以向量經過矩陣轉換後的 <em>norm 變化</em>是不是可以用來當作矩陣 norm 的度量方式呢? 這樣的想法引導出了 operator norm 或 spectral norm.<br>先給出 take away 總結:</p>
 <ul>
-<li><p>Frobenius norm: 開根號的 “singular value 平方和”</p>
-  <span>$$\begin{aligned}
-\|A\|_F := \sqrt{\sum_{i,j}|a_{ij}|^2} =\mathrm{Tr}(A^HA)=\sqrt{\sum_i^{\min\{m,n\}}\sigma_i^2(A)}
-\end{aligned}$$</span><!-- Has MathJax -->
+<li><p>Frobenius norm: 開根號的 “singular value 平方和”<br>  <span>$$\begin{aligned}
+    \|A\|_F := \sqrt{\sum_{i,j}|a_{ij}|^2} =\mathrm{Tr}(A^HA)=\sqrt{\sum_i^{\min\{m,n\}}\sigma_i^2(A)}
+    \end{aligned}$$</span><!-- Has MathJax --></p>
 </li>
-<li><p>Spectral norm: 最大的 singular value</p>
-  <span>$$\begin{aligned}
-\|A\|_2 :=\sup_{\|x\|_2\leq1}\{\|Ax\|_2\}=\sqrt{\lambda_{\max}(A^HA)}=\sigma_{\max}(A)
-\end{aligned}$$</span><!-- Has MathJax -->
+<li><p>Spectral norm: 最大的 singular value<br>  <span>$$\begin{aligned}
+    \|A\|_2 :=\sup_{\|x\|_2\leq1}\{\|Ax\|_2\}=\sqrt{\lambda_{\max}(A^HA)}=\sigma_{\max}(A)
+    \end{aligned}$$</span><!-- Has MathJax --></p>
 </li>
 </ul>
 <blockquote>
 <p>💡 為什麼 spectral norm 這麼定義?<br>推薦閱讀周老師的文章, <a href="https://ccjou.wordpress.com/2010/05/10/%E7%9F%A9%E9%99%A3%E6%A8%A1/" target="_blank" rel="external">矩陣範數</a>, 非常具有啟發性！更多延伸：<a href="https://ccjou.wordpress.com/2012/07/03/%E8%AD%9C%E5%8D%8A%E5%BE%91%E8%88%87%E7%9F%A9%E9%99%A3%E7%AF%84%E6%95%B8/" target="_blank" rel="external">譜半徑與矩陣範數</a></p>
 </blockquote>
 <ul>
-<li>兩者的關係:      <span>$$\begin{aligned}
-\|A\|_2 \leq \|A\|_F
-\end{aligned}$$</span><!-- Has MathJax -->
-</li>
+<li>兩者的關係:<br>  <span>$$\begin{aligned}
+    \|A\|_2 \leq \|A\|_F
+    \end{aligned}$$</span><!-- Has MathJax --></li>
 </ul>
 <p>接著詳細記錄定義和推導證明 (參考自黃子嘉線性代數講義)</p>
 <a id="more"></a>
@@ -464,7 +461,7 @@ df(W) &amp;=d(\|W\|_F^2)=d\mathrm{Tr}(W^TW) \\
 &amp;=\mathrm{Tr}((2W)^TdW)
 \end{aligned}$$</span><!-- Has MathJax --> 用到了 <span>$d(AB)=d(A)B+Ad(B)$</span><!-- Has MathJax --> 和 <span>$\mathrm{Tr}(A^T)=\mathrm{Tr}(A)^T$</span><!-- Has MathJax -->.<br>因此得到 Frobenius norm 平方的梯度, 令 <span>$W$</span><!-- Has MathJax --> 的 SVD 分解為 <span>$U\Sigma V^H$</span><!-- Has MathJax -->:<br><span>$$\begin{align}
 {\color{orange}{\nabla_W(\|W\|_F^2)=2W = 2\sum_i^{\min\{m,n\}}\sigma_i u_i v_i^T}}
-\end{align}$$</span><!-- Has MathJax --> 而 Sepctral norm 的梯度同樣也用到 trace trick, 詳見蘇劍霖的好文章: <a href="https://www.spaces.ac.cn/archives/10648" target="_blank" rel="external">从谱范数梯度到新式权重衰减的思考</a>, 這裡列出梯度結果<br>設 <span>$u_{\max}$ 和 $v_{\max}$</span><!-- Has MathJax --> 為對應到最大的 singular value <span>$\sigma_{\max}$</span><!-- Has MathJax --> 的左和右 singular vectors.<br>Spectral norm 平方的梯度為:<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 而 Sepctral norm 的梯度同樣也用到 trace trick, 詳見蘇劍霖的好文章: <a href="https://www.spaces.ac.cn/archives/10648" target="_blank" rel="external">从谱范数梯度到新式权重衰减的思考</a>, 這裡列出梯度結果<br>設 <span>$u_{\max}$</span><!-- Has MathJax --> 和 <span>$v_{\max}$</span><!-- Has MathJax --> 為對應到最大的 singular value <span>$\sigma_{\max}$</span><!-- Has MathJax --> 的左和右 singular vectors.<br>Spectral norm 平方的梯度為:<br><span>$$\begin{align}
 {\color{orange}{\nabla_W(\|W\|_2^2)=2\sigma_{\max} u_{\max} v_{\max}^T}}
 \end{align}$$</span><!-- Has MathJax --> 文章除了用到 trace trick, 還用了一個性質<br><span>$$\begin{aligned}
 d(u_1^Tu_1) &amp;= d(\|u_1\|^2)=d(1)=0 \\
@@ -475,19 +472,19 @@ d(u_1^Tu_1) &amp;= d(\|u_1\|^2)=d(1)=0 \\
 <hr>
 <h2 id="應用-Neumann-無窮級數"><a href="#應用-Neumann-無窮級數" class="headerlink" title="應用: Neumann 無窮級數"></a>應用: Neumann 無窮級數</h2><p>摘錄自周老師文章: <a href="https://ccjou.wordpress.com/2010/06/25/neumann-%e7%84%a1%e7%aa%ae%e7%b4%9a%e6%95%b8/" target="_blank" rel="external">Neumann 無窮級數</a><br>設 <span>$A\in\mathbb{R}^{n\times n}$</span><!-- Has MathJax -->, 若 <span>$\|A\|&lt;1$</span><!-- Has MathJax -->, 則 <span>$(I-A)$</span><!-- Has MathJax --> 可逆且<br><span>$$\begin{align}
 (I-A)^{-1}=\sum_{k=0}^\infty A^k
-\end{align}$$</span><!-- Has MathJax --> 上式稱為 <strong>Neumann 無窮級數</strong><br>注意到這裡的 norm 可以是 Frobenius norm, 或是 operator norm (當然包含了 $p=2$ 的 spectral norm)</p>
+\end{align}$$</span><!-- Has MathJax --> 上式稱為 <strong>Neumann 無窮級數</strong><br>注意到這裡的 norm 可以是 Frobenius norm, 或是 operator norm (當然包含了 <span>$p=2$</span><!-- Has MathJax --> 的 spectral norm)</p>
 <blockquote>
 <p>在筆者過往的經驗中, 遇過幾次需要用上 Neumann 無窮級數 (9) 來逼近或求解, 例如我們在這篇文章中 “<a href="https://bobondemon.github.io/2024/11/12/%E7%AD%86%E8%A8%98-Langevin-Dynamics-%E5%92%8C-Fokker-Planck-Equation-%E6%8E%A8%E5%B0%8E/">筆記 Langevin Dynamics 和 Fokker-Planck Equation 推導</a>” 式 (9) 下面描述的推導就有用到.</p>
 </blockquote>
 <p>首先先證明 <span>$(I-A)$</span><!-- Has MathJax --> 可逆, 令 <span>$x\neq0$</span><!-- Has MathJax -->, 考慮 <span>$(I-A)x=0$</span><!-- Has MathJax -->:<br><span>$$\begin{aligned}
 x=Ax &amp;\Longrightarrow \|x\|=\|Ax\|\leq\|A\|\cdot\|x\|\\
 &amp;\Longrightarrow \|A\|\geq 1
-\end{aligned}$$</span><!-- Has MathJax --> 與已知條件 <span>$\|A\|&lt;1$</span><!-- Has MathJax --> 矛盾, 因此 <span>$(I-A)x=0$</span><!-- Has MathJax --> 只有 <span>$x=0$</span><!-- Has MathJax --> 解, 所以 <span>$(I-A)$</span><!-- Has MathJax --> 可逆<br>接著證明 Neumann 無窮級數的形式, 令<br><span>$S_{\color{orange}{n}}=\sum_{k=0}^{\color{orange}{n}} A^k$</span><!-- Has MathJax --> 先證明 $S_n$ 為收斂數列, 即證明其為<a href="https://www.notion.so/Cauchy-Sequence-b623a219a0a443df8aeb4b1774ec3da1?pvs=21" target="_blank" rel="external">歌西列</a>, 設 $p&gt;q$<br><span>$$\begin{aligned}
+\end{aligned}$$</span><!-- Has MathJax --> 與已知條件 <span>$\|A\|&lt;1$</span><!-- Has MathJax --> 矛盾, 因此 <span>$(I-A)x=0$</span><!-- Has MathJax --> 只有 <span>$x=0$</span><!-- Has MathJax --> 解, 所以 <span>$(I-A)$</span><!-- Has MathJax --> 可逆<br>接著證明 Neumann 無窮級數的形式, 令<br><span>$$S_{\color{orange}{n}}=\sum_{k=0}^{\color{orange}{n}} A^k$$</span><!-- Has MathJax --> 先證明 <span>$S_n$</span><!-- Has MathJax --> 為收斂數列, 即證明其為<a href="https://www.notion.so/Cauchy-Sequence-b623a219a0a443df8aeb4b1774ec3da1?pvs=21" target="_blank" rel="external">歌西列</a>, 設 <span>$p&gt;q$</span><!-- Has MathJax --><br><span>$$\begin{aligned}
 \|S_q-S_q\|=\left\|\sum_{k=q+1}^p A^k\right\| \leq \sum_{k=q+1}^p \|A\|^k
-\end{aligned}$$</span><!-- Has MathJax --> 因為 <span>$\|A\|&lt;1$</span><!-- Has MathJax -->, 所以 <span>$\|S_p-S_q\|\rightarrow0$</span><!-- Has MathJax -->, as <span>$p,q\longrightarrow\infty$</span><!-- Has MathJax -->. $S_n$ 為收斂數列<br>觀察 <span>$(I-A)S_n$</span><!-- Has MathJax -->:<br><span>$$\begin{aligned}
+\end{aligned}$$</span><!-- Has MathJax --> 因為 <span>$\|A\|&lt;1$</span><!-- Has MathJax -->, 所以 <span>$\|S_p-S_q\|\rightarrow0$</span><!-- Has MathJax -->, as <span>$p,q\longrightarrow\infty$</span><!-- Has MathJax -->. <span>$S_n$</span><!-- Has MathJax --> 為收斂數列<br>觀察 <span>$(I-A)S_n$</span><!-- Has MathJax -->:<br><span>$$\begin{aligned}
 (I-A)S_n=(I-A)\sum_{k=0}^n A^k=I-A^{n+1} \\
 \Longrightarrow S_n=(I-A)^{-1}(I-A^{n+1})
-\end{aligned}$$</span><!-- Has MathJax --> 由 $S_n$ 為收斂數列知 <span>$I-A^{n+1}$</span><!-- Has MathJax --> 也必收斂, 同樣加上 <span>$\|A\|&lt;1$</span><!-- Has MathJax --> 的條件則很容易得到收斂結果為 $I$.<br>因此 <span>$S_n=(I-A)^{-1}$</span><!-- Has MathJax -->.</p>
+\end{aligned}$$</span><!-- Has MathJax --> 由 <span>$S_n$</span><!-- Has MathJax --> 為收斂數列知 <span>$I-A^{n+1}$</span><!-- Has MathJax --> 也必收斂, 同樣加上 <span>$\|A\|&lt;1$</span><!-- Has MathJax --> 的條件則很容易得到收斂結果為 <span>$I$</span><!-- Has MathJax -->.<br>因此 <span>$S_n=(I-A)^{-1}$</span><!-- Has MathJax -->.</p>
 
       
     </div>

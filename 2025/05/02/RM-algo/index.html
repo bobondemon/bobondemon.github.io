@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="SGD,Stochastic Gradient Descent,Robbins-Monro Algorithm,Dvoretzky's Convergence Theorem," />
+  <meta name="keywords" content="Stochastic Gradient Descent,SGD,Robbins-Monro Algorithm,Dvoretzky's Convergence Theorem," />
 
 
 
@@ -100,7 +100,7 @@ $$\begin{align*}
 \quad w_{k+1}=w_k-\alpha_k\nabla_wf(w_k,x_k)
 \end{align*}$$ 其中 $f$ 是要 minimized 的目標函數, $x_k$, $w_k$ 是 $k$-th iteration 的 data 和 weight.以前在學的時候都會">
 <meta property="og:image" content="https://bobondemon.github.io/2025/05/02/RM-algo/image.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.826Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.197Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Robbins-Monro Algorithm 和 Dvoretzky's Convergence Theorem 筆記">
 <meta name="twitter:description" content="Stochastic Gradient Descent (SGD) 算法:
@@ -381,46 +381,49 @@ $$\begin{align*}
       
         <hr>
 <p>Stochastic Gradient Descent (SGD) 算法:</p>
-<span>$$\begin{align*}
+<p><span>$$\begin{align*}
 \quad w_{k+1}=w_k-\alpha_k\nabla_wf(w_k,x_k)
-\end{align*}$$</span><!-- Has MathJax --> 其中 $f$ 是要 minimized 的目標函數, $x_k$, $w_k$ 是 $k$-th iteration 的 data 和 weight.<br>以前在學的時候都會提到 step size $\alpha_k$ 有這樣一個神奇的條件:<br><span>$$\sum_{k=1}^\infty \alpha_k^2&lt;\infty,\quad \sum_{k=1}^\infty \alpha_k=\infty;$$</span><!-- Has MathJax --> 左邊的條件希望 step size 要愈來愈小, 而右邊的條件又說也不能太小.<br>聽起來就有點神奇, 不知道藏了什麼秘密在裡面.<br>直到許多年後, 在我學赵世钰老師的 <a href="https://www.youtube.com/watch?v=LCckI8egBvo&amp;list=PLEhdbSEZZbDYwsXT1NeBZbmPCbIIqlgLS&amp;index=24" target="_blank" rel="external">RL 課程第 6 章</a>的時候才解開了以前不懂的地方.<br><br>鄭重介紹 Robbins-Monro (RM) 算法!<br><br>RM 可說十分重要, 除了可以證明 SGD 是 RM 算法的一個 special case. (因此只要保證滿足 RM 收斂的條件, SGD 就會收斂)<br>同時 RL (強化學習) 裡經典的 Temporal Difference (TD), Q-Learning 等的方法也依賴 RM 算法的觀念.<br>所以 RM 算法可說是 RL 的基石之一! 知道 RM 算法還是相當有好處的.<br>以下特別筆記赵世钰老師的 <a href="https://www.youtube.com/watch?v=LCckI8egBvo&amp;list=PLEhdbSEZZbDYwsXT1NeBZbmPCbIIqlgLS&amp;index=24" target="_blank" rel="external">RL 課程第 6 章</a> 內容.<br><br><a id="more"></a>
+\end{align*}$$</span><!-- Has MathJax --> 其中 <span>$f$</span><!-- Has MathJax --> 是要 minimized 的目標函數, <span>$x_k$</span><!-- Has MathJax -->, <span>$w_k$</span><!-- Has MathJax --> 是 <span>$k$</span><!-- Has MathJax -->-th iteration 的 data 和 weight.<br>以前在學的時候都會提到 step size <span>$\alpha_k$</span><!-- Has MathJax --> 有這樣一個神奇的條件:<br><span>$$\sum_{k=1}^\infty \alpha_k^2&lt;\infty,\quad \sum_{k=1}^\infty \alpha_k=\infty;$$</span><!-- Has MathJax --> 左邊的條件希望 step size 要愈來愈小, 而右邊的條件又說也不能太小.<br>聽起來就有點神奇, 不知道藏了什麼秘密在裡面.<br>直到許多年後, 在我學赵世钰老師的 <a href="https://www.youtube.com/watch?v=LCckI8egBvo&amp;list=PLEhdbSEZZbDYwsXT1NeBZbmPCbIIqlgLS&amp;index=24" target="_blank" rel="external">RL 課程第 6 章</a>的時候才解開了以前不懂的地方.</p>
+<p>鄭重介紹 Robbins-Monro (RM) 算法!</p>
+<p>RM 可說十分重要, 除了可以證明 SGD 是 RM 算法的一個 special case. (因此只要保證滿足 RM 收斂的條件, SGD 就會收斂)<br>同時 RL (強化學習) 裡經典的 Temporal Difference (TD), Q-Learning 等的方法也依賴 RM 算法的觀念.<br>所以 RM 算法可說是 RL 的基石之一! 知道 RM 算法還是相當有好處的.<br>以下特別筆記赵世钰老師的 <a href="https://www.youtube.com/watch?v=LCckI8egBvo&amp;list=PLEhdbSEZZbDYwsXT1NeBZbmPCbIIqlgLS&amp;index=24" target="_blank" rel="external">RL 課程第 6 章</a> 內容.</p>
+<a id="more"></a>
 <hr>
-<h2 id="Robbins-Monro-Algorithm-and-Theorem"><a href="#Robbins-Monro-Algorithm-and-Theorem" class="headerlink" title="Robbins-Monro Algorithm and Theorem"></a>Robbins-Monro Algorithm and Theorem</h2><p>一句話描述 RM 算法可以解什麼問題: 在<strong><em>不知道函式長相</em></strong>且觀測值具有<strong><em>誤差</em></strong>情況下, 解 <strong><em>root finding</em></strong> problem<br>(當然有一些前提條件要滿足)<br>具體來說我們要找 $w$ s.t. $g(w)=0$, 但我們只能觀測到有誤差的值 $\tilde{g}(w,\eta)=g(w)+\eta$:<br><img src="/2025/05/02/RM-algo/image.png" width="75%" height="75%"></p>
-<p><strong><em>(這個誤差 random variable $\eta$ 是精髓)</em></strong></p>
-<p>由於很多時候 $g(w)$ 會是真實期望值, 但由於我們只能觀測到有誤差的 sample 值<br>這種觀測 sample 與真實期望值之間的差, 就是 random variable $\eta$, 因此就能套進 RM 算法框架中.</p>
+<h2 id="Robbins-Monro-Algorithm-and-Theorem"><a href="#Robbins-Monro-Algorithm-and-Theorem" class="headerlink" title="Robbins-Monro Algorithm and Theorem"></a>Robbins-Monro Algorithm and Theorem</h2><p>一句話描述 RM 算法可以解什麼問題: 在<strong><em>不知道函式長相</em></strong>且觀測值具有<strong><em>誤差</em></strong>情況下, 解 <strong><em>root finding</em></strong> problem<br>(當然有一些前提條件要滿足)<br>具體來說我們要找 <span>$w$</span><!-- Has MathJax --> s.t. <span>$g(w)=0$</span><!-- Has MathJax -->, 但我們只能觀測到有誤差的值 <span>$\tilde{g}(w,\eta)=g(w)+\eta$</span><!-- Has MathJax -->:<br><img src="/2025/05/02/RM-algo/image.png" width="75%" height="75%"></p>
+<p><strong><em>(這個誤差 random variable <span>$\eta$</span><!-- Has MathJax --> 是精髓)</em></strong></p>
+<p>由於很多時候 <span>$g(w)$</span><!-- Has MathJax --> 會是真實期望值, 但由於我們只能觀測到有誤差的 sample 值<br>這種觀測 sample 與真實期望值之間的差, 就是 random variable <span>$\eta$</span><!-- Has MathJax -->, 因此就能套進 RM 算法框架中.</p>
 <p>SGD 和 RL 中的 TD, Q-Learning 就是這麼套用的.</p>
 <h3 id="Robbins-Monro-Algorithm"><a href="#Robbins-Monro-Algorithm" class="headerlink" title="Robbins-Monro Algorithm"></a>Robbins-Monro Algorithm</h3><p>RM 算法流程為:<br><span>$$\begin{align}
 {\color{orange}{w_{k+1}=w_k-a_k\tilde{g}(w_k,\eta_k)}},\quad k=1,2,3,...
-\end{align}$$</span><!-- Has MathJax --> 其中 $a_k\geq 0$ 且有一些條件要滿足, $\eta_k$ 是觀測 noise 也同樣有一些條件要滿足, 見下面 RM theorem</p>
-<h3 id="Robbins-Monro-Theorem"><a href="#Robbins-Monro-Theorem" class="headerlink" title="Robbins-Monro Theorem"></a>Robbins-Monro Theorem</h3><p>對 RM algorithm (1) 來說, 如果滿足:<br>&emsp; 1. <span>$0\leq c_1\leq\nabla_wg(w)\leq c_2,\quad \forall w;$</span><!-- Has MathJax --> (函式 $g$ 為單調遞增)<br>&emsp; 2. <span>$\sum_{k=1}^\infty a_k=\infty$</span><!-- Has MathJax --> and <span>$\sum_{k=1}^\infty a_k^2&lt;\infty;$</span><!-- Has MathJax --><br>&emsp; 3. <span>$\mathbb{E}[\eta_k|\mathcal{H}_k]=0$</span><!-- Has MathJax --> and <span>$\mathbb{E}[\eta_k^2|\mathcal{H}_k]&lt;\infty;$</span><!-- Has MathJax --> </p>
-<p>其中 <span>$\mathcal{H}_k=\{w_k,w_{k-1},...\}$</span><!-- Has MathJax --> 表示過往的紀錄 (稱 <a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/#Week-7-4-5-Integrals-of-the-type-%E2%88%AB-X-t-dW-t">filtration</a>)<br>則 $w_k$ <a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/#Self-Study-Convergence-of-random-variables">almost surely (a.s.) converges</a> 到 root $w^\ast$, where $g(w^\ast)=0$.<br>分析:</p>
+\end{align}$$</span><!-- Has MathJax --> 其中 <span>$a_k\geq 0$</span><!-- Has MathJax --> 且有一些條件要滿足, <span>$\eta_k$</span><!-- Has MathJax --> 是觀測 noise 也同樣有一些條件要滿足, 見下面 RM theorem</p>
+<h3 id="Robbins-Monro-Theorem"><a href="#Robbins-Monro-Theorem" class="headerlink" title="Robbins-Monro Theorem"></a>Robbins-Monro Theorem</h3><p>對 RM algorithm (1) 來說, 如果滿足:<br>&emsp; 1. <span>$0\leq c_1\leq\nabla_wg(w)\leq c_2,\quad \forall w;$</span><!-- Has MathJax --> (函式 <span>$g$</span><!-- Has MathJax --> 為單調遞增)<br>&emsp; 2. <span>$\sum_{k=1}^\infty a_k=\infty$</span><!-- Has MathJax --> and <span>$\sum_{k=1}^\infty a_k^2&lt;\infty;$</span><!-- Has MathJax --><br>&emsp; 3. <span>$\mathbb{E}[\eta_k|\mathcal{H}_k]=0$</span><!-- Has MathJax --> and <span>$\mathbb{E}[\eta_k^2|\mathcal{H}_k]&lt;\infty;$</span><!-- Has MathJax --> </p>
+<p>其中 <span>$\mathcal{H}_k=\{w_k,w_{k-1},...\}$</span><!-- Has MathJax --> 表示過往的紀錄 (稱 <a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/#Week-7-4-5-Integrals-of-the-type-%E2%88%AB-X-t-dW-t">filtration</a>)<br>則 <span>$w_k$</span><!-- Has MathJax --> <a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/#Self-Study-Convergence-of-random-variables">almost surely (a.s.) converges</a> 到 root <span>$w^\ast$</span><!-- Has MathJax -->, where <span>$g(w^\ast)=0$</span><!-- Has MathJax -->.<br>分析:</p>
 <ul>
-<li>第 1 個條件在最佳化問題 (optimize 函式 $f(w)$) 的時候, 由於我們設定 $g(w)=\nabla_w f(w)$ 所以變成要求 $\nabla_w^2 f(w)$ 必須是正定矩陣, 即 $f$ 是 strictly convex function.</li>
-<li>第 2 個條件很有趣, 首先如果滿足 $\sum_{k=1}^\infty a_k^2&lt;\infty$, 表示 $a_k\longrightarrow 0$ for $k\longrightarrow\infty$ (反證法即可知), 說明希望 $a_k$ 確實要愈來愈小, 這位什麼重要呢? 我們分析一下<br>  因為 <span>$w_{k+1}-w_k=-a_k\tilde{g}(w_k,\eta_k)$</span><!-- Has MathJax -->, 如果 $\tilde{g}$ is bounded 則<br>  <span>$$\because a_k\xrightarrow[k\rightarrow\infty]{} 0, \quad \therefore a_k\tilde{g}\xrightarrow[k\rightarrow\infty]{} 0;\quad\Longrightarrow (w_{k+1}-w_k)\xrightarrow[k\rightarrow\infty]{} 0$$</span><!-- Has MathJax --> 不然的話 <span>$w_{k+1}-w_k$</span><!-- Has MathJax --> 會震盪.<br>  再來 <span>$\sum_{k=1}^\infty a_k=\infty$</span><!-- Has MathJax --> 則希望 $a_k$ 不要過小, 這樣有什麼好處呢? 我們觀察 (1)<br>  <span>$$\begin{align*}
-(1)\Longrightarrow w_{k+1}-w_k=-a_k\tilde{g}(w_k,\eta_k) \\
-\Longrightarrow\sum_{k=1}^\infty(w_{k+1}-w_k)=-\sum_{k=1}^\infty a_k\tilde{g}(w_k,\eta_k) \\
-\Longrightarrow w_\infty-w_1=-\sum_{k=1}^\infty a_k\tilde{g}(w_k,\eta_k)
-\end{align*}$$</span><!-- Has MathJax --> 如果 <span>$\sum_{k=1}^\infty a_k&lt;\infty$</span><!-- Has MathJax --> 加上 $\tilde g$ 是 bounded, 則 <span>$w_\infty-w_1&lt;\infty$</span><!-- Has MathJax --> 是 bounded, 這樣會讓我們的 initial $w_1$ 沒辦法隨意選擇</li>
+<li>第 1 個條件在最佳化問題 (optimize 函式 <span>$f(w)$</span><!-- Has MathJax -->) 的時候, 由於我們設定 <span>$g(w)=\nabla_w f(w)$</span><!-- Has MathJax --> 所以變成要求 <span>$\nabla_w^2 f(w)$</span><!-- Has MathJax --> 必須是正定矩陣, 即 <span>$f$</span><!-- Has MathJax --> 是 strictly convex function.</li>
+<li>第 2 個條件很有趣, 首先如果滿足 <span>$\sum_{k=1}^\infty a_k^2&lt;\infty$</span><!-- Has MathJax -->, 表示 <span>$a_k\longrightarrow 0$</span><!-- Has MathJax --> for <span>$k\longrightarrow\infty$</span><!-- Has MathJax --> (反證法即可知), 說明希望 <span>$a_k$</span><!-- Has MathJax --> 確實要愈來愈小, 這位什麼重要呢? 我們分析一下<br>  因為 <span>$w_{k+1}-w_k=-a_k\tilde{g}(w_k,\eta_k)$</span><!-- Has MathJax -->, 如果 <span>$\tilde{g}$</span><!-- Has MathJax --> is bounded 則<br>  <span>$$\because a_k\xrightarrow[k\rightarrow\infty]{} 0, \quad \therefore a_k\tilde{g}\xrightarrow[k\rightarrow\infty]{} 0;\quad\Longrightarrow (w_{k+1}-w_k)\xrightarrow[k\rightarrow\infty]{} 0$$</span><!-- Has MathJax --><br>不然的話 <span>$w_{k+1}-w_k$</span><!-- Has MathJax --> 會震盪.<br>  再來 <span>$\sum_{k=1}^\infty a_k=\infty$</span><!-- Has MathJax --> 則希望 <span>$a_k$</span><!-- Has MathJax --> 不要過小, 這樣有什麼好處呢? 我們觀察 (1)<br>  <span>$$\begin{align*}
+    (1)\Longrightarrow w_{k+1}-w_k=-a_k\tilde{g}(w_k,\eta_k) \\
+    \Longrightarrow\sum_{k=1}^\infty(w_{k+1}-w_k)=-\sum_{k=1}^\infty a_k\tilde{g}(w_k,\eta_k) \\
+    \Longrightarrow w_\infty-w_1=-\sum_{k=1}^\infty a_k\tilde{g}(w_k,\eta_k)
+    \end{align*}$$</span><!-- Has MathJax --><br>如果 <span>$\sum_{k=1}^\infty a_k&lt;\infty$</span><!-- Has MathJax --> 加上 <span>$\tilde g$</span><!-- Has MathJax --> 是 bounded, 則 <span>$w_\infty-w_1&lt;\infty$</span><!-- Has MathJax --> 是 bounded, 這樣會讓我們的 initial <span>$w_1$</span><!-- Has MathJax --> 沒辦法隨意選擇</li>
 <li>第 3 個條件, 一般來說 <span>$\{\eta_k\}$</span><!-- Has MathJax --> 是 i.i.d. 滿足 <span>$\mathbb{E}[\eta_k]=0$</span><!-- Has MathJax --> 和 <span>$\mathbb{E}[\eta_k^2]&lt;\infty$</span><!-- Has MathJax --></li>
 </ul>
 <p>RM theorem 的證明要使用下段介紹的 Dvoretzky’s convergence theorem</p>
 <h2 id="Dvoretzky’s-Convergence-Theorem"><a href="#Dvoretzky’s-Convergence-Theorem" class="headerlink" title="Dvoretzky’s Convergence Theorem"></a>Dvoretzky’s Convergence Theorem</h2><p>考慮如下的 stochastic process<br><span>$$\begin{align}
 {\color{orange}{\Delta_{k+1}=(1-\alpha_k)\Delta_k+\beta_k\eta_k}}, \quad k=1,2,3,...
-\end{align}$$</span><!-- Has MathJax --> 其中 <span>$\{\alpha_k\}_{k=1}^\infty$</span><!-- Has MathJax -->, <span>$\{\beta_k\}_{k=1}^\infty$</span><!-- Has MathJax -->, 和 <span>$\{\eta_k\}_{k=1}^\infty$</span><!-- Has MathJax --> 也都是 stochastic sequences, 且 <span>$\alpha_k\geq0,\beta_k\geq0$</span><!-- Has MathJax --> for all $k$. 則<br><span>$$\Delta_k\xrightarrow[]{a.s.}0,\quad k\rightarrow\infty$$</span><!-- Has MathJax --> 如果滿足以下條件:<br>&emsp; 1. <span>$\sum_{k=1}^\infty \alpha_k=\infty$</span><!-- Has MathJax -->, <span>$\sum_{k=1}^\infty \alpha_k^2&lt;\infty$</span><!-- Has MathJax -->, and <span>$\sum_{k=1}^\infty \beta_k^2&lt;\infty$</span><!-- Has MathJax --> uniformly almost surely;<br>&emsp; 2. <span>$\mathbb{E}[\eta_k|\mathcal{H}_k]=0$</span><!-- Has MathJax --> and <span>$\mathbb{E}[\eta_k^2|\mathcal{H}_k]\leq C;$</span><!-- Has MathJax --><br>其中 <span>$\mathcal{H}_k=\{\Delta_k,\Delta_{k-1},..., \eta_{k-1},...,\alpha_{k-1},...,\beta_{k-1},...\}$</span><!-- Has MathJax --> 表示過往的紀錄 (稱 <a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/#Week-7-4-5-Integrals-of-the-type-%E2%88%AB-X-t-dW-t">filtration</a>).</p>
+\end{align}$$</span><!-- Has MathJax --> 其中 <span>$\{\alpha_k\}_{k=1}^\infty$</span><!-- Has MathJax -->, <span>$\{\beta_k\}_{k=1}^\infty$</span><!-- Has MathJax -->, 和 <span>$\{\eta_k\}_{k=1}^\infty$</span><!-- Has MathJax --> 也都是 stochastic sequences, 且 <span>$\alpha_k\geq0,\beta_k\geq0$</span><!-- Has MathJax --> for all <span>$k$</span><!-- Has MathJax -->. 則<br><span>$$\Delta_k\xrightarrow[]{a.s.}0,\quad k\rightarrow\infty$$</span><!-- Has MathJax --> 如果滿足以下條件:<br>&emsp; 1. <span>$\sum_{k=1}^\infty \alpha_k=\infty$</span><!-- Has MathJax -->, <span>$\sum_{k=1}^\infty \alpha_k^2&lt;\infty$</span><!-- Has MathJax -->, and <span>$\sum_{k=1}^\infty \beta_k^2&lt;\infty$</span><!-- Has MathJax --> uniformly almost surely;<br>&emsp; 2. <span>$\mathbb{E}[\eta_k|\mathcal{H}_k]=0$</span><!-- Has MathJax --> and <span>$\mathbb{E}[\eta_k^2|\mathcal{H}_k]\leq C;$</span><!-- Has MathJax --><br>其中 <span>$\mathcal{H}_k=\{\Delta_k,\Delta_{k-1},..., \eta_{k-1},...,\alpha_{k-1},...,\beta_{k-1},...\}$</span><!-- Has MathJax --> 表示過往的紀錄 (稱 <a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/#Week-7-4-5-Integrals-of-the-type-%E2%88%AB-X-t-dW-t">filtration</a>).</p>
 <p>證明請自行看課本: Book-Mathematical-Foundation-of-Reinforcement-Learning, [<a href="https://github.com/MathFoundationRL/Book-Mathematical-Foundation-of-Reinforcement-Learning/blob/main/3%20-%20Chapter%206%20Stochastic%20Approximation.pdf" target="_blank" rel="external">3 - Chapter 6 Stochastic Approximation.pdf</a>]</p>
-<h3 id="用-Dvoretzky’s-Convergence-Theorem-證明-Robbins-Monro-Theorem"><a href="#用-Dvoretzky’s-Convergence-Theorem-證明-Robbins-Monro-Theorem" class="headerlink" title="用 Dvoretzky’s Convergence Theorem 證明 Robbins-Monro Theorem"></a>用 Dvoretzky’s Convergence Theorem 證明 Robbins-Monro Theorem</h3><p>令 $w^\ast$ 為 root, i.e. $g(w^\ast)=0$. 改寫一下 RM algo. (1)<br><span>$$\begin{align*}
+<h3 id="用-Dvoretzky’s-Convergence-Theorem-證明-Robbins-Monro-Theorem"><a href="#用-Dvoretzky’s-Convergence-Theorem-證明-Robbins-Monro-Theorem" class="headerlink" title="用 Dvoretzky’s Convergence Theorem 證明 Robbins-Monro Theorem"></a>用 Dvoretzky’s Convergence Theorem 證明 Robbins-Monro Theorem</h3><p>令 <span>$w^\ast$</span><!-- Has MathJax --> 為 root, i.e. <span>$g(w^\ast)=0$</span><!-- Has MathJax -->. 改寫一下 RM algo. (1)<br><span>$$\begin{align*}
 w_{k+1}=w_k-a_k(g(w_k)+\eta_k) \\
 \Longrightarrow w_{k+1}-w^\ast=w_k-w^\ast-a_k( {\color{green}{g(w_k)-g(w^\ast)}} +\eta_k)
 \end{align*}$$</span><!-- Has MathJax --> 綠色的地方使用 mean value theorem, 即 <span>$g(w_k)-g(w^\ast)=\nabla_w g(w_k&apos;)(w_k-w^\ast)$</span><!-- Has MathJax -->, 並令 <span>$\Delta_k=w_k-w^\ast$</span><!-- Has MathJax --> 代回去得到:<br><span>$$\begin{align*}
 \Longrightarrow \Delta_{k+1}=\Delta_k-a_k(\nabla_w g(w_k&apos;)\Delta_k+\eta_k) \\
 \Longrightarrow \Delta_{k+1}=(1-\underbrace{a_k\nabla_w g(w_k&apos;)}_{\doteq\alpha_k})\Delta_k + \underbrace{a_k}_{\doteq\beta_k} (-\eta_k)
-\end{align*}$$</span><!-- Has MathJax --> 很容易看到從 RM thoerem 要求的條件能滿足 Dvoretzky’s convergence theorem 的要求條件, 因此 $\Delta_k\longrightarrow0$, as $k\longrightarrow\infty$.<br>即 $w_k\longrightarrow w^\ast$, as $k\longrightarrow\infty$.</p>
+\end{align*}$$</span><!-- Has MathJax --> 很容易看到從 RM thoerem 要求的條件能滿足 Dvoretzky’s convergence theorem 的要求條件, 因此 <span>$\Delta_k\longrightarrow0$</span><!-- Has MathJax -->, as <span>$k\longrightarrow\infty$</span><!-- Has MathJax -->.<br>即 <span>$w_k\longrightarrow w^\ast$</span><!-- Has MathJax -->, as <span>$k\longrightarrow\infty$</span><!-- Has MathJax -->.</p>
 <hr>
 <h2 id="SGD-是-RM-Algorithm-的一個特例"><a href="#SGD-是-RM-Algorithm-的一個特例" class="headerlink" title="SGD 是 RM Algorithm 的一個特例"></a>SGD 是 RM Algorithm 的一個特例</h2><p>首先我們有 Loss function 如下:<br><span>$$\min_w J(w)=\frac{1}{n}\sum_{i=1}^nf(w,x_i)=\mathbb{E}[f(w,X)]$$</span><!-- Has MathJax --> Gradient Descent (GD) 和 SGD 算法如下:<br><span>$$\begin{align*}
 \text{GD:}\quad w_{k+1}
 =w_k-\alpha_k\mathbb{E}[\nabla_wf(w_k,X)]\\
 \text{SGD}:\quad w_{k+1}=w_k-\alpha_k\nabla_wf(w_k,x_k)
-\end{align*}$$</span><!-- Has MathJax --> GD 計算 gradient 的時候要對所有的 data 計算後取期望, 而 SGD 只取一個 sample 的 gradient.<br>定義 $g(w)$:<br><span>$$g(w)\doteq\mathbb{E}[\nabla_wf(w,X)]$$</span><!-- Has MathJax --> 則當 $w^\ast$ 為 root 時, 滿足 <span>$g(w^\ast)=0\Longrightarrow \mathbb{E}[\nabla_wf(w,X)]=0$</span><!-- Has MathJax -->, gradient 為 0 表示達到 critical point. (解了最佳化問題)<br>而真正觀測值為 SGD 的 gradient:<br><span>$$\tilde{g}(w)=\nabla_wf(w,x)=g(w)+\underbrace{[\nabla_wf(w,x)-\mathbb{E}[\nabla_wf(w,X)]]}_{\doteq \eta}$$</span><!-- Has MathJax --> 套用 RM 算法可以發現正好是 SGD 算法:<br><span>$$\begin{align*}
+\end{align*}$$</span><!-- Has MathJax --> GD 計算 gradient 的時候要對所有的 data 計算後取期望, 而 SGD 只取一個 sample 的 gradient.<br>定義 <span>$g(w)$</span><!-- Has MathJax -->:<br><span>$$g(w)\doteq\mathbb{E}[\nabla_wf(w,X)]$$</span><!-- Has MathJax --> 則當 <span>$w^\ast$</span><!-- Has MathJax --> 為 root 時, 滿足 <span>$g(w^\ast)=0\Longrightarrow \mathbb{E}[\nabla_wf(w,X)]=0$</span><!-- Has MathJax -->, gradient 為 0 表示達到 critical point. (解了最佳化問題)<br>而真正觀測值為 SGD 的 gradient:<br><span>$$\tilde{g}(w)=\nabla_wf(w,x)=g(w)+\underbrace{[\nabla_wf(w,x)-\mathbb{E}[\nabla_wf(w,X)]]}_{\doteq \eta}$$</span><!-- Has MathJax --> 套用 RM 算法可以發現正好是 SGD 算法:<br><span>$$\begin{align*}
 \text{RM algo}\quad w_{k+1}=w_k-\alpha_k\tilde{g}(w_k,\eta_k) \\
 \text{SGD algo}\quad=w_k-\alpha_k\nabla_wf(w,x)
 \end{align*}$$</span><!-- Has MathJax --> 因此 RM 算法的收斂性和條件可以直接延伸過去給 SGD.</p>
@@ -472,9 +475,9 @@ w_{k+1}=w_k-a_k(g(w_k)+\eta_k) \\
       
         <div class="post-tags">
           
-            <a href="/tags/SGD/" rel="tag"># SGD</a>
-          
             <a href="/tags/Stochastic-Gradient-Descent/" rel="tag"># Stochastic Gradient Descent</a>
+          
+            <a href="/tags/SGD/" rel="tag"># SGD</a>
           
             <a href="/tags/Robbins-Monro-Algorithm/" rel="tag"># Robbins-Monro Algorithm</a>
           

@@ -102,7 +102,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 4.png">
 <meta property="og:image" content="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 5.png">
 <meta property="og:image" content="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 6.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.816Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.149Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Score Matching 系列 (一) Non-normalized 模型估計">
 <meta name="twitter:description" content="這是一篇論文筆記: “Estimation of Non-Normalized Statistical Models by Score Matching”, 其實推薦直接讀論文, 數學式很清楚, 表達也明確, 只是想順著自己的說法做一下筆記
@@ -381,38 +381,37 @@
       
         <hr>
 <p>這是一篇論文筆記: “Estimation of Non-Normalized Statistical Models by Score Matching”, 其實推薦直接讀論文, 數學式很清楚, 表達也明確, 只是想順著自己的說法做一下筆記</p>
-<h2 id="動機介紹"><a href="#動機介紹" class="headerlink" title="動機介紹"></a>動機介紹</h2><p>在 Machine Learning 中, 我們常常希望用參數 $\theta$ 估出來的 pdf <span>$p(.;\theta)$</span><!-- Has MathJax --> 能跟真實 data (training data) 的 pdf <span>$p_x(.)$</span><!-- Has MathJax --> 愈像愈好.<br>由於是 pdf <span>$p(.;\theta)$</span><!-- Has MathJax -->, 必須滿足機率形式, i.e. 積分所有 outcomes 等於 1, 因此引入一個 normalization term $Z(\theta)$<br><span>$$p(\xi;\theta)=\frac{1}{Z(\theta)}q(\xi;\theta)$$</span><!-- Has MathJax --><br>其中 <span>$\xi\in\mathbb{R}^n$</span><!-- Has MathJax --> 為一個 data point<br>假設我們有 $T$ 個 observations <span>$\{x_1,...,x_T\}$</span><!-- Has MathJax -->, 套用 empirical expecation 並對 likelihood estimation 找出最佳 $\theta$ (MLE):<br><span>$$\theta_{mle}=\arg\max_\theta \sum_{t=1}^T \log p(x_t;\theta)$$</span><!-- Has MathJax --><br>計算 gradient, 會發現由於存在 $Z(\theta)$ 變得很難計算, 導致 gradient-based optimization 也很困難.</p>
-<p>山不轉路轉, 如果我們能換個想法:<br><a id="more"></a><br>不要求找到的 $\theta$ 對每個 data points $x_t$ 使其 <span>$p(x_t;\theta)$</span><!-- Has MathJax --> 跟真實機率分佈的結果很接近, i.e. <span>$p(x_t;\theta)\approx p_x(x_t)$</span><!-- Has MathJax --><br>改成希望使其<br><span>$$\begin{align}
+<h2 id="動機介紹"><a href="#動機介紹" class="headerlink" title="動機介紹"></a>動機介紹</h2><p>在 Machine Learning 中, 我們常常希望用參數 <span>$\theta$</span><!-- Has MathJax --> 估出來的 pdf <span>$p(.;\theta)$</span><!-- Has MathJax --> 能跟真實 data (training data) 的 pdf <span>$p_x(.)$</span><!-- Has MathJax --> 愈像愈好.<br>由於是 pdf <span>$p(.;\theta)$</span><!-- Has MathJax -->, 必須滿足機率形式, i.e. 積分所有 outcomes 等於 1, 因此引入一個 normalization term <span>$Z(\theta)$</span><!-- Has MathJax --><br><span>$$p(\xi;\theta)=\frac{1}{Z(\theta)}q(\xi;\theta)$$</span><!-- Has MathJax --> 其中 <span>$\xi\in\mathbb{R}^n$</span><!-- Has MathJax --> 為一個 data point<br>假設我們有 <span>$T$</span><!-- Has MathJax --> 個 observations <span>$\{x_1,...,x_T\}$</span><!-- Has MathJax -->, 套用 empirical expecation 並對 likelihood estimation 找出最佳 <span>$\theta$</span><!-- Has MathJax --> (MLE):<br><span>$$\theta_{mle}=\arg\max_\theta \sum_{t=1}^T \log p(x_t;\theta)$$</span><!-- Has MathJax --> 計算 gradient, 會發現由於存在 <span>$Z(\theta)$</span><!-- Has MathJax --> 變得很難計算, 導致 gradient-based optimization 也很困難.</p>
+<p>山不轉路轉, 如果我們能換個想法:<br><a id="more"></a><br>不要求找到的 <span>$\theta$</span><!-- Has MathJax --> 對每個 data points <span>$x_t$</span><!-- Has MathJax --> 使其 <span>$p(x_t;\theta)$</span><!-- Has MathJax --> 跟真實機率分佈的結果很接近, i.e. <span>$p(x_t;\theta)\approx p_x(x_t)$</span><!-- Has MathJax --><br>改成希望使其<br><span>$$\begin{align}
 \nabla_x\log p_x(x_t) \approx
 \nabla_x\log p(x_t;\theta) 
 {\color{orange}{=\nabla_x\log q(x_t;\theta)}}
-\end{align}$$</span><!-- Has MathJax --><br>意思是希望每個 data points 他們的 (log) gradient 都跟真實分布的 (log) gradient 接近<br>可以想像兩個 functions 的<em>變化</em>一致的話, 它們的長相應該會很接近 (只差在scale不同)<br>以下圖舉例來說 (該圖引用自 <a href="https://yang-song.github.io/blog/2021/score/" target="_blank" rel="external">Yang Song: Generative Modeling by Estimating Gradients of the Data Distribution</a>), vector field 箭號表示那些 (log) gradients, 而 contours 表示一個 mixture of two Gaussians<br>我們要求 vector field 一致<br><img src="/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled.png" width="50%" height="50%"><br>藉由這樣找 $\theta$ 的方法, 我們其實找到的是 non-normalized distribution $q(.;\theta)$.</p>
+\end{align}$$</span><!-- Has MathJax --> 意思是希望每個 data points 他們的 (log) gradient 都跟真實分布的 (log) gradient 接近<br>可以想像兩個 functions 的<em>變化</em>一致的話, 它們的長相應該會很接近 (只差在scale不同)<br>以下圖舉例來說 (該圖引用自 <a href="https://yang-song.github.io/blog/2021/score/" target="_blank" rel="external">Yang Song: Generative Modeling by Estimating Gradients of the Data Distribution</a>), vector field 箭號表示那些 (log) gradients, 而 contours 表示一個 mixture of two Gaussians<br>我們要求 vector field 一致<br><img src="/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled.png" width="50%" height="50%"><br>藉由這樣找 <span>$\theta$</span><!-- Has MathJax --> 的方法, 我們其實找到的是 non-normalized distribution <span>$q(.;\theta)$</span><!-- Has MathJax -->.</p>
 <h2 id="直觀的-Objective-Function-Explicit-Score-Matching"><a href="#直觀的-Objective-Function-Explicit-Score-Matching" class="headerlink" title="直觀的 Objective Function (Explicit Score Matching)"></a>直觀的 Objective Function (Explicit Score Matching)</h2><hr>
-<p>我們使用 MSE loss 來計算式 (1), 利用此 loss 找最佳 $\theta$ 的方法稱為 Score Matching<br>定義 score function, 它其實就是 gradient of the log-density with respect to the data vector:</p>
+<p>我們使用 MSE loss 來計算式 (1), 利用此 loss 找最佳 <span>$\theta$</span><!-- Has MathJax --> 的方法稱為 Score Matching<br>定義 score function, 它其實就是 gradient of the log-density with respect to the data vector:</p>
 <ul>
-<li>Data pdf 的 score function:  <span>$\psi_x(\xi)=\nabla_\xi\log p_x(\xi) \in \mathbb{R}^n$</span><!-- Has MathJax --></li>
-<li>Model pdf 的 score function:  <span>$$\psi(\xi;\theta)=
-\left(
-\begin{array}{c}
-\frac{\partial\log p(\xi;\theta)}{\partial\xi_1} \\
-\vdots\\
-\frac{\partial\log p(\xi;\theta)}{\partial\xi_n}
-\end{array}
-\right)
-=\left(
-\begin{array}{c}
-\psi_1(\xi;\theta) \\
-\vdots \\
-\psi_n(\xi;\theta)
-\end{array}
-\right)
-= \nabla_\xi\log p(\xi;\theta)
-=\color{orange}{\nabla_\xi\log q(\xi;\theta)}$$</span><!-- Has MathJax -->
-</li>
+<li>Data pdf 的 score function:<br>  <span>$$\psi_x(\xi)=\nabla_\xi\log p_x(\xi) \in \mathbb{R}^n$$</span><!-- Has MathJax --></li>
+<li>Model pdf 的 score function:<br>  <span>$$\psi(\xi;\theta)=
+    \left(
+    \begin{array}{c}
+    \frac{\partial\log p(\xi;\theta)}{\partial\xi_1} \\
+    \vdots\\
+    \frac{\partial\log p(\xi;\theta)}{\partial\xi_n}
+    \end{array}
+    \right)
+    =\left(
+    \begin{array}{c}
+    \psi_1(\xi;\theta) \\
+    \vdots \\
+    \psi_n(\xi;\theta)
+    \end{array}
+    \right)
+    = \nabla_\xi\log p(\xi;\theta)
+    =\color{orange}{\nabla_\xi\log q(\xi;\theta)}$$</span><!-- Has MathJax --></li>
 </ul>
 <p>因此 objective function 就是這兩個 score functions 的 MSE (又稱為 Fisher Divergence: <a href="https://arxiv.org/abs/1205.2629" target="_blank" rel="external">Interpretation and Generalization of Score Matching</a>):<br><span>$$\begin{align}
 J(\theta)=\frac{1}{2}\int_{\xi\in\mathbb{R}^n} p_x(\xi) \| \psi(\xi;\theta)-\psi_x(\xi) \|^2 d\xi
-\end{align}$$</span><!-- Has MathJax --><br>而 score matching estimator 的參數就是<br><span>$$\hat{\theta}=\arg\min_\theta J(\theta)$$</span><!-- Has MathJax --><br>要算期望值需要知道真實資料的 pdf $p_x(.)$, 雖然我們無法得到, 但可以根據 training data 去計算 empirical 期望值.<br>例如我們有 $T$ 個 observations <span>$\{x_1,...,x_T\}$</span><!-- Has MathJax -->, 則 empirical expectation 為<br><span>$$\tilde{J}(\theta)=\frac{1}{T}\sum_{t=1}^T \| \psi(x_t;\theta) - \psi(x_t) \|^2$$</span><!-- Has MathJax --><br>不過 (2) 最麻煩的是我們不知道真實資料的 score function <span>$\psi_x(.)$</span><!-- Has MathJax -->, 論文的定理說明了在某些簡單的條件下, 可以避免掉計算這項.</p>
+\end{align}$$</span><!-- Has MathJax --> 而 score matching estimator 的參數就是<br><span>$$\hat{\theta}=\arg\min_\theta J(\theta)$$</span><!-- Has MathJax --> 要算期望值需要知道真實資料的 pdf <span>$p_x(.)$</span><!-- Has MathJax -->, 雖然我們無法得到, 但可以根據 training data 去計算 empirical 期望值.<br>例如我們有 <span>$T$</span><!-- Has MathJax --> 個 observations <span>$\{x_1,...,x_T\}$</span><!-- Has MathJax -->, 則 empirical expectation 為<br><span>$$\tilde{J}(\theta)=\frac{1}{T}\sum_{t=1}^T \| \psi(x_t;\theta) - \psi(x_t) \|^2$$</span><!-- Has MathJax --> 不過 (2) 最麻煩的是我們不知道真實資料的 score function <span>$\psi_x(.)$</span><!-- Has MathJax -->, 論文的定理說明了在某些簡單的條件下, 可以避免掉計算這項.</p>
 <blockquote>
 <p>條件為: 除了 pdf 可微, 1st/2nd moment 存在, 一個比較特殊的條件為 (但也容易滿足):<br>    <span>$$p_x(\xi)\psi(\xi;\theta)\xrightarrow[\|\xi\|\rightarrow \infty]{}0$$</span><!-- Has MathJax --></p>
 </blockquote>
@@ -425,40 +424,45 @@ J(\theta)=\frac{1}{2}\int_{\xi\in\mathbb{R}^n} p_x(\xi) \| \psi(\xi;\theta)-\psi
 \frac{1}{2}\|\psi(\xi;\theta)\|^2
 {\color{orange}
 {- \psi_x(\xi)^T\psi(\xi;\theta)}}
-\right]d\xi + const$$</span><!-- Has MathJax --><br>將向量的內積展開, 改寫橘色部分積分如下:<br><span>$$-\sum_{i=1}^n \int p_x(\xi)\psi_{x,i}(\xi)\psi_i(\xi;\theta)d\xi \\
+\right]d\xi + const$$</span><!-- Has MathJax --> 將向量的內積展開, 改寫橘色部分積分如下:</p>
+<span>$$-\sum_{i=1}^n \int p_x(\xi)\psi_{x,i}(\xi)\psi_i(\xi;\theta)d\xi \\
 \text{by def. of score function  }= -\sum_{i=1}^n \int p_x(\xi) \frac{\partial \log p_x(\xi)}{\partial \xi_i} \psi_i(\xi;\theta) d\xi \\
 = -\sum_{i=1}^n \int \frac{p_x(\xi)}{p_x(\xi)} \frac{\partial p_x(\xi)}{\partial \xi_i} \psi_i(\xi;\theta) d\xi = \sum_{i=1}^n
 {\color{green}{
--\int \frac{\partial p_x(\xi)}{\partial \xi_i} \psi_i(\xi;\theta) d\xi}}$$</span><!-- Has MathJax --></p>
-<p>使用分部積分 (為簡化notation, 只看第一維的變數 $\xi_1$)<br><img src="/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 2.png" width="80%" height="80%"><br>改寫綠色部分變成<br><img src="/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 3.png" width="80%" height="80%"><br>只要假設<br><span>$$p_x(\xi)\psi(\xi;\theta)\xrightarrow[\|\xi\|\rightarrow \infty]{}0$$</span><!-- Has MathJax --><br>則最後只剩下<br><span>$$-\int\frac{\partial p_x(\xi)}{\partial\xi_i}\psi_i(\xi;\theta)d\xi = \int\frac{\partial\psi_i(\xi;\theta)}{\partial\xi_i}p_x(\xi)d\xi$$</span><!-- Has MathJax --><br>將此結果一路代回去 (需要一點耐心而以), 就可以得到式 (3) 了, 重複一下式 (3) 如下:<br><span>$$\begin{align}
+-\int \frac{\partial p_x(\xi)}{\partial \xi_i} \psi_i(\xi;\theta) d\xi}}$$</span><!-- Has MathJax -->
+
+<p>使用分部積分 (為簡化notation, 只看第一維的變數 <span>$\xi_1$</span><!-- Has MathJax -->)<br><img src="/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 2.png" width="80%" height="80%"><br>改寫綠色部分變成<br><img src="/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 3.png" width="80%" height="80%"><br>只要假設<br><span>$$p_x(\xi)\psi(\xi;\theta)\xrightarrow[\|\xi\|\rightarrow \infty]{}0$$</span><!-- Has MathJax --> 則最後只剩下<br><span>$$-\int\frac{\partial p_x(\xi)}{\partial\xi_i}\psi_i(\xi;\theta)d\xi = \int\frac{\partial\psi_i(\xi;\theta)}{\partial\xi_i}p_x(\xi)d\xi$$</span><!-- Has MathJax --> 將此結果一路代回去 (需要一點耐心而以), 就可以得到式 (3) 了, 重複一下式 (3) 如下:<br><span>$$\begin{align}
 J(\theta)=\int_{\xi\in\mathbb{R}^n}p_x(\xi)\sum_{i=1}^n\left[
 \partial_i\psi_i(\xi;\theta)+\frac{1}{2}\psi_i(\xi;\theta)^2
 \right]d\xi + const
-\end{align}$$</span><!-- Has MathJax --><br>Optimize 這個目標函式就容易得多了, 只要使用 empirical expecation 就可以:<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> Optimize 這個目標函式就容易得多了, 只要使用 empirical expecation 就可以:</p>
+<span>$$\begin{align}
 \tilde{J}(\theta)=\frac{1}{T}\sum_{t=1}^T\sum_{i=1}^n\left[
 \partial_i\psi_i(x_t;\theta)+\frac{1}{2}\psi_i(x_t;\theta)^2
 \right] + const
-\end{align}$$</span><!-- Has MathJax --></p>
+\end{align}$$</span><!-- Has MathJax -->
+
+
 <h2 id="最佳解的存在唯一性"><a href="#最佳解的存在唯一性" class="headerlink" title="最佳解的存在唯一性"></a>最佳解的存在唯一性</h2><hr>
 <p><img src="/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 4.png" width="80%" height="80%"><br>證明:<br>對照式 (2) 的目標函數:<br><span>$$\begin{align}
 J(\theta)=\frac{1}{2}\int_{\xi\in\mathbb{R}^n} p_x(\xi) \| \psi(\xi;\theta)-\psi_x(\xi) \|^2 d\xi
-\end{align}$$</span><!-- Has MathJax --><br><img src="/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 5.png" width="80%" height="80%"><br>只要我們的 parameter space 夠大能夠包含真實的 pdf, 當目標函式達到最小, i.e. $=0$, 則解就是真實的 pdf</p>
+\end{align}$$</span><!-- Has MathJax --><br><img src="/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 5.png" width="80%" height="80%"><br>只要我們的 parameter space 夠大能夠包含真實的 pdf, 當目標函式達到最小, i.e. <span>$=0$</span><!-- Has MathJax -->, 則解就是真實的 pdf</p>
 <h2 id="討論"><a href="#討論" class="headerlink" title="討論"></a>討論</h2><hr>
 <p>總結最後的 objective function:<br><span>$$J(\theta)=\int_{\xi\in\mathbb{R}^n}p_x(\xi)\sum_{i=1}^n\left[
 \partial_i\psi_i(\xi;\theta)+\frac{1}{2}\psi_i(\xi;\theta)^2
-\right]d\xi$$</span><!-- Has MathJax --><br>簡化改寫一下<br><span>$$\begin{align}
+\right]d\xi$$</span><!-- Has MathJax --> 簡化改寫一下<br><span>$$\begin{align}
 J(\theta)=\mathbb{E}_{p_x(\xi)}\left[
 tr(\nabla_\xi\psi(\xi;\theta))+\frac{1}{2}\|\psi(\xi;\theta)\|_2^2
 \right]
-\end{align}$$</span><!-- Has MathJax --><br>其中 <span>$\psi(\xi;\theta):\mathbb{R}^n\rightarrow \mathbb{R}^n$</span><!-- Has MathJax -->, 實務上我們就用一個 NN 參數為 $\theta$ 表示, 因此原本需要二階導數, 變成只需要一階導數在 loss 中. 雖然這樣做比較有效率, 但 <a href="https://arxiv.org/abs/1805.08306" target="_blank" rel="external">Deep Energy Estimator Networks</a> 指出會不 robust.</p>
+\end{align}$$</span><!-- Has MathJax --> 其中 <span>$\psi(\xi;\theta):\mathbb{R}^n\rightarrow \mathbb{R}^n$</span><!-- Has MathJax -->, 實務上我們就用一個 NN 參數為 <span>$\theta$</span><!-- Has MathJax --> 表示, 因此原本需要二階導數, 變成只需要一階導數在 loss 中. 雖然這樣做比較有效率, 但 <a href="https://arxiv.org/abs/1805.08306" target="_blank" rel="external">Deep Energy Estimator Networks</a> 指出會不 robust.</p>
 <blockquote>
-<p>後續在這篇文章 “<a href="http://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf" target="_blank" rel="external">A Connection Between Score Matching and Denoising Autoencoders</a>”, 作者提出 Denoising Score Matching (DSM) 目標函式, 可以不需要將 gradient 也納入 loss 中.<br>其想法就是將每個 data $x$ 根據 Gaussian pdf 做些擾動, 所以一個副作用是永遠學不到最準的 data pdf (除非沒有擾動), 但可藉由加入的擾動愈小, 讓估計愈真實</p>
+<p>後續在這篇文章 “<a href="http://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf" target="_blank" rel="external">A Connection Between Score Matching and Denoising Autoencoders</a>”, 作者提出 Denoising Score Matching (DSM) 目標函式, 可以不需要將 gradient 也納入 loss 中.<br>其想法就是將每個 data <span>$x$</span><!-- Has MathJax --> 根據 Gaussian pdf 做些擾動, 所以一個副作用是永遠學不到最準的 data pdf (除非沒有擾動), 但可藉由加入的擾動愈小, 讓估計愈真實</p>
 </blockquote>
-<p>Score matching 的作法是 2005 年, 而作者 Aapo Hyv¨arinen 其實也是 Noise Contrastive Estimation (NCE) 的作者. (參考之前的 <a href="https://bobondemon.github.io/2021/06/05/Noise-Contrastive-Estimation-NCE-%E7%AD%86%E8%A8%98/">NCE 筆記</a>)<br>NCE 也是在做一樣的事情: 想辦法避開 $Z(\theta)$ 來估計真實資料的 pdf. 但發表在 2010 年.</p>
+<p>Score matching 的作法是 2005 年, 而作者 Aapo Hyv¨arinen 其實也是 Noise Contrastive Estimation (NCE) 的作者. (參考之前的 <a href="https://bobondemon.github.io/2021/06/05/Noise-Contrastive-Estimation-NCE-%E7%AD%86%E8%A8%98/">NCE 筆記</a>)<br>NCE 也是在做一樣的事情: 想辦法避開 <span>$Z(\theta)$</span><!-- Has MathJax --> 來估計真實資料的 pdf. 但發表在 2010 年.</p>
 <blockquote>
 <p>這一問題, probabilistic model flexibility 與 tractability 的 trade-off, 在 Machine Learning 是被探討很久的問題, 這篇 <a href="https://arxiv.org/abs/1503.03585" target="_blank" rel="external">Deep Unsupervised Learning using Nonequilibrium Thermodynamics</a>, (Diffusion Probabilistic Model 開始的重要文章) 的 introduction 描述一些主要方法, 可以盡量滿足 flexibility 情況下, 又能 tractable.<br><img src="/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 6.png" width="50%" height="50%"></p>
 </blockquote>
-<p>Score matching 可以應用在 <a href="https://en.wikipedia.org/wiki/Metropolis-adjusted_Langevin_algorithm" target="_blank" rel="external">Langevin dynamics</a>, 透過只使用 score function $\nabla_x\log p(x)$ 就可以用 MCMC 取 samples, 而這一步驟在 <a href="https://lilianweng.github.io/lil-log/2021/07/11/diffusion-models.html" target="_blank" rel="external">Diffusion Probabilistic Model</a> 中扮演著重要的角色<br>同時 NCE 在 Self-supervised Learning 同樣也是關鍵, 衍生了 infoNCE, CPC, … 這一派的 SSL 方法</p>
+<p>Score matching 可以應用在 <a href="https://en.wikipedia.org/wiki/Metropolis-adjusted_Langevin_algorithm" target="_blank" rel="external">Langevin dynamics</a>, 透過只使用 score function <span>$\nabla_x\log p(x)$</span><!-- Has MathJax --> 就可以用 MCMC 取 samples, 而這一步驟在 <a href="https://lilianweng.github.io/lil-log/2021/07/11/diffusion-models.html" target="_blank" rel="external">Diffusion Probabilistic Model</a> 中扮演著重要的角色<br>同時 NCE 在 Self-supervised Learning 同樣也是關鍵, 衍生了 infoNCE, CPC, … 這一派的 SSL 方法</p>
 <p>👏真神人也👏</p>
 
       

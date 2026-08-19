@@ -104,7 +104,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2019/06/18/SphereFace-paper-study-and-implementation-notes/psi.png">
 <meta property="og:image" content="https://bobondemon.github.io/2019/06/18/SphereFace-paper-study-and-implementation-notes/asoftmax-implement.png">
 <meta property="og:image" content="https://bobondemon.github.io/2019/06/18/SphereFace-paper-study-and-implementation-notes/psi_m4.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.828Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.206Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SphereFace Paper Study and Implementation Notes">
 <meta name="twitter:description" content="SphereFace: Deep Hypersphere Embedding for Face Recognition 使得訓練出來的 embeddings 可以很好的使用 cosine similarity 做 verification/identification. 可以先網路上搜尋一下其他人的筆記和討論, 當然直接看論文最好.一般來說我們對訓練集的每個人用 classification 的">
@@ -394,18 +394,20 @@
 <span>$$\begin{align}
 (W_1 - W_2)x+b_1 - b_2=0
 \end{align}$$</span><!-- Has MathJax -->
+
 <hr>
-<h3 id="M-Softmax-Loss"><a href="#M-Softmax-Loss" class="headerlink" title="M-Softmax Loss"></a>M-Softmax Loss</h3><p>如果我們將 $W_j$ 的 norm 限制為 1, 且去掉 biases, $b_j=0$, 則原來的 softmax loss 變成如下:</p>
+<h3 id="M-Softmax-Loss"><a href="#M-Softmax-Loss" class="headerlink" title="M-Softmax Loss"></a>M-Softmax Loss</h3><p>如果我們將 <span>$W_j$</span><!-- Has MathJax --> 的 norm 限制為 1, 且去掉 biases, <span>$b_j=0$</span><!-- Has MathJax -->, 則原來的 softmax loss 變成如下:</p>
 <p><img src="/2019/06/18/SphereFace-paper-study-and-implementation-notes/msoftmaxloss.png" width="50%" height="50%"></p>
 <p>Decision boundary 以兩類來看如下:</p>
 <span>$$\begin{align}
 \parallel x \parallel (\cos \theta_1 - \cos \theta_2)=0 \Rightarrow \cos \theta_1 = \cos \theta_2
 \end{align}$$</span><!-- Has MathJax -->
+
 <p>我們可以發現 decision boundary 完全由夾角來決定了!</p>
 <p>論文使用 toy example 來說明 M-softmax loss 造成的現象:</p>
 <p><img src="/2019/06/18/SphereFace-paper-study-and-implementation-notes/decisionbd_msoftmax.png" width="100%" height="100%"></p>
 <hr>
-<h3 id="A-Softmax-Loss"><a href="#A-Softmax-Loss" class="headerlink" title="A-Softmax Loss"></a>A-Softmax Loss</h3><p>以兩類來說明, M-softmax loss 將 $x$ 分類成 class 1 的條件為 $\cos \theta_1 &gt; \cos \theta_2$, 也就是 $\theta_1 &lt; \theta_2$. A-softmax loss 則讓這個條件更嚴格, 它希望 $m$ 倍的 $\theta_1$ 都還小於 $\theta_2$, 因此條件為 $\cos m\theta_1 &gt; \cos \theta_2$. 論文中以幾何的方式說明很清楚:</p>
+<h3 id="A-Softmax-Loss"><a href="#A-Softmax-Loss" class="headerlink" title="A-Softmax Loss"></a>A-Softmax Loss</h3><p>以兩類來說明, M-softmax loss 將 <span>$x$</span><!-- Has MathJax --> 分類成 class 1 的條件為 <span>$\cos \theta_1 &gt; \cos \theta_2$</span><!-- Has MathJax -->, 也就是 <span>$\theta_1 &lt; \theta_2$</span><!-- Has MathJax -->. A-softmax loss 則讓這個條件更嚴格, 它希望 <span>$m$</span><!-- Has MathJax --> 倍的 <span>$\theta_1$</span><!-- Has MathJax --> 都還小於 <span>$\theta_2$</span><!-- Has MathJax -->, 因此條件為 <span>$\cos m\theta_1 &gt; \cos \theta_2$</span><!-- Has MathJax -->. 論文中以幾何的方式說明很清楚:</p>
 <p><img src="/2019/06/18/SphereFace-paper-study-and-implementation-notes/geometry.png" width="60%" height="60%"></p>
 <p>因此 A-softmax loss 如下:</p>
 <p><img src="/2019/06/18/SphereFace-paper-study-and-implementation-notes/asoftmaxloss1.png" width="70%" height="70%"></p>
@@ -415,36 +417,39 @@
 <blockquote>
 <p>這種 within class 靠近, between class 拉遠就如同 LDA 的概念. A-softmax 也能造成這種效果且是在 angular 的 measure 下. 而常見的情形都是針對 euclidean distance, 例如使用 triplet loss (推薦這篇 <a href="http://lawlite.me/2018/10/16/Triplet-Loss%E5%8E%9F%E7%90%86%E5%8F%8A%E5%85%B6%E5%AE%9E%E7%8E%B0/" target="_blank" rel="external">blog</a> 說明具體且 tensorflow 實現非常厲害).</p>
 </blockquote>
-<p>原則上我們希望與 class $i$ 的夾角 $\theta_i$ 愈小, 所算出來的 logits 也就是 $\cos\theta_i$ 要愈大, 所以放大 $m$ 倍的夾角所算出來的 logits, $\cos m\theta_i$ 必須要變小.<br>但由於 $\cos$ 是 periodic function, 一旦 $m\theta_i$ 超過 $2\pi$ 就反而可能使得 logits 變大, 這就適得其反了. 精確來說 $\cos m\theta_i &lt; \cos\theta_i$ 只會在 $\theta_i$ 屬於 $[0,\pi/m]$ 區間範圍內成立. 因此我們必須對 A-softmax loss 作如下改動:</p>
+<p>原則上我們希望與 class <span>$i$</span><!-- Has MathJax --> 的夾角 <span>$\theta_i$</span><!-- Has MathJax --> 愈小, 所算出來的 logits 也就是 <span>$\cos\theta_i$</span><!-- Has MathJax --> 要愈大, 所以放大 <span>$m$</span><!-- Has MathJax --> 倍的夾角所算出來的 logits, <span>$\cos m\theta_i$</span><!-- Has MathJax --> 必須要變小.<br>但由於 <span>$\cos$</span><!-- Has MathJax --> 是 periodic function, 一旦 <span>$m\theta_i$</span><!-- Has MathJax --> 超過 <span>$2\pi$</span><!-- Has MathJax --> 就反而可能使得 logits 變大, 這就適得其反了. 精確來說 <span>$\cos m\theta_i &lt; \cos\theta_i$</span><!-- Has MathJax --> 只會在 <span>$\theta_i$</span><!-- Has MathJax --> 屬於 <span>$[0,\pi/m]$</span><!-- Has MathJax --> 區間範圍內成立. 因此我們必須對 A-softmax loss 作如下改動:</p>
 <p><img src="/2019/06/18/SphereFace-paper-study-and-implementation-notes/asoftmaxloss2.png" width="70%" height="70%"> 其中</p>
 <span>$$\begin{align}
 \psi(\theta)=(-1)^k \cos(m\theta)-2k\\
 \mbox{where  }\theta\in[\frac{k\pi}{m},\frac{(k+1)\pi}{m}]\mbox{  and  }k\in[0,m-1]
 \end{align}$$</span><!-- Has MathJax -->
-<p>我們將 $\psi$ 畫出來:</p>
+
+<p>我們將 <span>$\psi$</span><!-- Has MathJax --> 畫出來:</p>
 <p><img src="/2019/06/18/SphereFace-paper-study-and-implementation-notes/psi.png" width="50%" height="50%"></p>
 <p>兩個觀察:</p>
 <ol>
-<li>首先 $\psi$ 的確會隨著角度變大而變小, 這符合我們要的 logits 的行為.</li>
-<li>再來要計算出正確的 $\psi(\theta)$ 必須要先知道 $k$, 也就是需要知道 $\theta$ 落在哪個區間才行.</li>
+<li>首先 <span>$\psi$</span><!-- Has MathJax --> 的確會隨著角度變大而變小, 這符合我們要的 logits 的行為.</li>
+<li>再來要計算出正確的 <span>$\psi(\theta)$</span><!-- Has MathJax --> 必須要先知道 <span>$k$</span><!-- Has MathJax -->, 也就是需要知道 <span>$\theta$</span><!-- Has MathJax --> 落在哪個區間才行.</li>
 </ol>
 <p>第二點可能比較棘手, 我們思考一下怎麼在 tensorflow 的 graph 中實現 ….</p>
 <p>hmm…. 好像有點麻煩</p>
 <hr>
-<h3 id="Tensorflow-Implementation-A-softmax-Loss"><a href="#Tensorflow-Implementation-A-softmax-Loss" class="headerlink" title="Tensorflow Implementation A-softmax Loss"></a>Tensorflow Implementation A-softmax Loss</h3><p>其實網路上就很多 tensorflow 的實現了, 不看還好, 一看才發現 A-softmax loss 的 $\psi$ 實現步驟如下:</p>
+<h3 id="Tensorflow-Implementation-A-softmax-Loss"><a href="#Tensorflow-Implementation-A-softmax-Loss" class="headerlink" title="Tensorflow Implementation A-softmax Loss"></a>Tensorflow Implementation A-softmax Loss</h3><p>其實網路上就很多 tensorflow 的實現了, 不看還好, 一看才發現 A-softmax loss 的 <span>$\psi$</span><!-- Has MathJax --> 實現步驟如下:</p>
 <p><img src="/2019/06/18/SphereFace-paper-study-and-implementation-notes/asoftmax-implement.png" width="70%" height="70%"></p>
-<p>這什麼操作?! 怎麼跟原來理解的 (3) and (4) 長相差這麼多! 網路上幾乎大家都直接拿來用, 也沒什麼說明. 不過我們仔細分析一下, 還是能發現端倪.<br>首先注意到這樣的實現是<strong>基於 $m=4$ 做的</strong>. (論文的實驗最後在這個設定有不錯的效果) 因此將 $m=4$ 套入 (3)(4) 得:</p>
+<p>這什麼操作?! 怎麼跟原來理解的 (3) and (4) 長相差這麼多! 網路上幾乎大家都直接拿來用, 也沒什麼說明. 不過我們仔細分析一下, 還是能發現端倪.<br>首先注意到這樣的實現是<strong>基於 <span>$m=4$</span><!-- Has MathJax --> 做的</strong>. (論文的實驗最後在這個設定有不錯的效果) 因此將 <span>$m=4$</span><!-- Has MathJax --> 套入 (3)(4) 得:</p>
 <span>$$\begin{align}
 \psi(\theta)=(-1)^k \cos(\color{red}{4}\theta)-2k\\
 \mbox{where  }\theta\in[\frac{k\pi}{\color{red}{4}},\frac{(k+1)\pi}{\color{red}{4}}]\mbox{  and  }k\in[0,\color{red}{3}]
 \end{align}$$</span><!-- Has MathJax -->
+
 <p>接著我們作如下分析:</p>
 <p><img src="/2019/06/18/SphereFace-paper-study-and-implementation-notes/psi_m4.png" width="90%" height="90%"></p>
-<p>發現 $s3=(-1)^k$ 和 $s4=-2k$, 因此</p>
+<p>發現 <span>$s3=(-1)^k$</span><!-- Has MathJax --> 和 <span>$s4=-2k$</span><!-- Has MathJax -->, 因此</p>
 <span>$$\begin{align}
 \psi(\theta)=\color{green}{(-1)^k} \cos(4\theta)\color{blue}{-2k} = \color{green}{s3}[1-8\cos^2\theta +8\cos^4\theta]\color{blue}{+s4}
 \end{align}$$</span><!-- Has MathJax -->
-<p>而 $\cos\theta$ 則因為 weights $W$ 的 norm 限制為 1, 所以只需要 $Wx$ 再除以 $x$ 的 norm 即可. 到這裡最麻煩的實作問題分析完畢, 依樣畫葫蘆也可以做出 $m=2$, $m=3$.</p>
+
+<p>而 <span>$\cos\theta$</span><!-- Has MathJax --> 則因為 weights <span>$W$</span><!-- Has MathJax --> 的 norm 限制為 1, 所以只需要 <span>$Wx$</span><!-- Has MathJax --> 再除以 <span>$x$</span><!-- Has MathJax --> 的 norm 即可. 到這裡最麻煩的實作問題分析完畢, 依樣畫葫蘆也可以做出 <span>$m=2$</span><!-- Has MathJax -->, <span>$m=3$</span><!-- Has MathJax -->.</p>
 <hr>
 <h3 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h3><p>Take home messages:</p>
 <ul>

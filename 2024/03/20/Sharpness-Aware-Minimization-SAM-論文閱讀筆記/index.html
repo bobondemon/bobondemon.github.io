@@ -94,7 +94,7 @@
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="直接看 SAM 怎麼 update parameters, 論文的 figure 2: 目前的 weight $w_t$ 的 gradient step 為 $-\eta\nabla L(w_t)$, update 後會跑到 $w_{t+1}$.SAM 會考慮 $w_t$ locally loss 最大的那個位置 ($w_{adv}$), 用該位置的 gradient descent vecto">
 <meta property="og:image" content="https://bobondemon.github.io/2024/03/20/Sharpness-Aware-Minimization-SAM-論文閱讀筆記/Untitled.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.827Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.202Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Sharpness-Aware Minimization (SAM) 論文閱讀筆記">
 <meta name="twitter:description" content="直接看 SAM 怎麼 update parameters, 論文的 figure 2: 目前的 weight $w_t$ 的 gradient step 為 $-\eta\nabla L(w_t)$, update 後會跑到 $w_{t+1}$.SAM 會考慮 $w_t$ locally loss 最大的那個位置 ($w_{adv}$), 用該位置的 gradient descent vecto">
@@ -371,13 +371,13 @@
 
       
         <hr>
-<p>直接看 SAM 怎麼 update parameters, 論文的 figure 2:<br><img src="/2024/03/20/Sharpness-Aware-Minimization-SAM-論文閱讀筆記/Untitled.png" width="50%" height="50%"> 目前的 weight $w_t$ 的 gradient step 為 <span>$-\eta\nabla L(w_t)$</span><!-- Has MathJax -->, update 後會跑到 <span>$w_{t+1}$</span><!-- Has MathJax -->.<br>SAM 會考慮 $w_t$ locally loss 最大的那個位置 (<span>$w_{adv}$</span><!-- Has MathJax -->), 用該位置的 gradient descent vector <span>$-\eta\nabla L(w_{adv})$</span><!-- Has MathJax -->, 當作 weight $w_t$ 的 gradient step, 因此才會跑到 <span>$w_{t+1}^{SAM}$</span><!-- Has MathJax -->.<br>先把 SAM 的 objective function 主要目的點出來, SAM 相當於<u><strong>希望找出來的 $w$ 其 locally 最大的 loss 都要很小</strong></u>, 直覺上就是<u><strong>希望 $w$ 附近都很平坦</strong></u>, 有點類似 <a href="https://www.wikiwand.com/en/Support_vector_machine" target="_blank" rel="external">Support Vector Machine (SVM)</a> 的想法, 最小化最大的 loss.</p>
+<p>直接看 SAM 怎麼 update parameters, 論文的 figure 2:<br><img src="/2024/03/20/Sharpness-Aware-Minimization-SAM-論文閱讀筆記/Untitled.png" width="50%" height="50%"> 目前的 weight <span>$w_t$</span><!-- Has MathJax --> 的 gradient step 為 <span>$-\eta\nabla L(w_t)$</span><!-- Has MathJax -->, update 後會跑到 <span>$w_{t+1}$</span><!-- Has MathJax -->.<br>SAM 會考慮 <span>$w_t$</span><!-- Has MathJax --> locally loss 最大的那個位置 (<span>$w_{adv}$</span><!-- Has MathJax -->), 用該位置的 gradient descent vector <span>$-\eta\nabla L(w_{adv})$</span><!-- Has MathJax -->, 當作 weight <span>$w_t$</span><!-- Has MathJax --> 的 gradient step, 因此才會跑到 <span>$w_{t+1}^{SAM}$</span><!-- Has MathJax -->.<br>先把 SAM 的 objective function 主要目的點出來, SAM 相當於<u><strong>希望找出來的 <span>$w$</span><!-- Has MathJax --> 其 locally 最大的 loss 都要很小</strong></u>, 直覺上就是<u><strong>希望 <span>$w$</span><!-- Has MathJax --> 附近都很平坦</strong></u>, 有點類似 <a href="https://www.wikiwand.com/en/Support_vector_machine" target="_blank" rel="external">Support Vector Machine (SVM)</a> 的想法, 最小化最大的 loss.</p>
 <p>以下數學推導… 數學多請服用</p>
 <a id="more"></a>
 <p>數學描述為:<br><span>$$\begin{align}
 \min_w L_S^{SAM}(w)+\lambda\|w\|_2^2 \\
 \text{where}\qquad L_S^{SAM}(w)\triangleq \max_{\|\varepsilon\|_p\leq\rho}L_S(w+\varepsilon)
-\end{align}$$</span><!-- Has MathJax --> 其中 $S$ 表示 training dataset, $L_S^{SAM}(w)$ 定義成 locally loss 最大的值, 其中 locally 定義為小於 $\rho$ ($p$-norm) 的球內.<br>多加 $\lambda||w||_2^2$ 正則項則是由 PAC (Probably Approximately Correct) Bayesian Generalization Bound (論文的 Appendix A.1) 理論推導過來的.<br>式 (2) 的 $L_S^{SAM}(w)$ 其近似的最佳解 $\hat\varepsilon$, 有一個有效率的 closed form 解. 利用 first-order Taylor expansion + <a href="https://bobondemon.notion.site/Minkowski-Inequality-c4d28fd21e1e48648acfa6e7a6b65320" target="_blank" rel="external">dual norm property</a> 推導.</p>
+\end{align}$$</span><!-- Has MathJax --> 其中 <span>$S$</span><!-- Has MathJax --> 表示 training dataset, <span>$L_S^{SAM}(w)$</span><!-- Has MathJax --> 定義成 locally loss 最大的值, 其中 locally 定義為小於 <span>$\rho$</span><!-- Has MathJax --> (<span>$p$</span><!-- Has MathJax -->-norm) 的球內.<br>多加 <span>$\lambda\||w\||_2^2$</span><!-- Has MathJax --> 正則項則是由 PAC (Probably Approximately Correct) Bayesian Generalization Bound (論文的 Appendix A.1) 理論推導過來的.<br>式 (2) 的 <span>$L_S^{SAM}(w)$</span><!-- Has MathJax --> 其近似的最佳解 <span>$\hat\varepsilon$</span><!-- Has MathJax -->, 有一個有效率的 closed form 解. 利用 first-order Taylor expansion + <a href="https://bobondemon.notion.site/Minkowski-Inequality-c4d28fd21e1e48648acfa6e7a6b65320" target="_blank" rel="external">dual norm property</a> 推導.</p>
 <p><span>$$\begin{align}
 \varepsilon^\ast(w)\triangleq \arg\max_{\|\varepsilon\|_p\leq\rho}L_S(w+\varepsilon) \\
 \approx \arg\max_{\|\varepsilon\|_p\leq\rho} L_S(w) + \varepsilon^T\nabla_w L_S(w) \\
@@ -385,11 +385,11 @@
 \end{align}$$</span><!-- Has MathJax --> 式 (5) 有 closed form solution (<a href="https://bobondemon.notion.site/Minkowski-Inequality-c4d28fd21e1e48648acfa6e7a6b65320" target="_blank" rel="external">dual norm property</a>):</p>
 <p><span>$$\begin{align}
 \hat{\varepsilon}(w)=\frac{\rho\cdot\text{sign}(\nabla_w L_S(w))}{\left(\|\nabla_w L_S(w)\|_q^q\right)^{1/p}}|\nabla_w L_S(w)|^{q-1}
-\end{align}$$</span><!-- Has MathJax --> 其中 $1/q+1/p=1$, $|\cdot|^{q-1}$ 表示 element-wise 的絕對值和 power.</p>
+\end{align}$$</span><!-- Has MathJax --> 其中 <span>$1/q+1/p=1$</span><!-- Has MathJax -->, <span>$|\cdot|^{q-1}$</span><!-- Has MathJax --> 表示 element-wise 的絕對值和 power.</p>
 <blockquote>
-<p>💡 $p$, $q$ 互為 conjugate number, 以 $p=q=2$ 來說 (6) 變成 $\hat\varepsilon(w)=\rho\cdot\nabla_w L_S(w)/|\nabla_w L_S(w)|_2$. 所以只是 $\nabla_w L_S(w)$ 的一個 positive scaling 而已, (其 negative scaling 是原來的 gradient descent direction).</p>
+<p>💡 <span>$p$</span><!-- Has MathJax -->, <span>$q$</span><!-- Has MathJax --> 互為 conjugate number, 以 <span>$p=q=2$</span><!-- Has MathJax --> 來說 (6) 變成 <span>$\hat\varepsilon(w)=\rho\cdot\nabla_w L_S(w)/\|\nabla_w L_S(w)\|_2$</span><!-- Has MathJax -->. 所以只是 <span>$\nabla_w L_S(w)$</span><!-- Has MathJax --> 的一個 positive scaling 而已, (其 negative scaling 是原來的 gradient descent direction).</p>
 </blockquote>
-<p>所以 (1) 所需要的 gradient, $\nabla_w L_S^{SAM}(w)$ 為:</p>
+<p>所以 (1) 所需要的 gradient, <span>$\nabla_w L_S^{SAM}(w)$</span><!-- Has MathJax --> 為:</p>
 <p><span>$$\begin{align}
 \nabla_w L_S^{SAM}(w)\approx \nabla_w L_S(w+\hat\varepsilon(w)) \\
 \text{(by chain rule) } =\frac{d(w+\hat\varepsilon(w))}{dw}\left.\nabla_w L_S(w)\right|_{w+\hat\varepsilon(w)} \\
@@ -397,7 +397,7 @@
 = \left.\nabla_w L_S(w)\right|_{w+\hat\varepsilon(w)} + \frac{d \hat\varepsilon(w)}{dw}\left.\nabla_w L_S(w)\right|_{w+\hat\varepsilon(w)} \\
 \approx \left.\nabla_w L_S(w)\right|_{w+\hat\varepsilon(w)}
 \end{align}$$</span><!-- Has MathJax --> 式 (10) 到 (11) 忽略二次微分項. 論文實驗了如果把這個二次微分項也考慮進去效果反而變差?!</p>
-<p>從 (11) 的式子來看 Figure 2 就能了解, $w_t$ 要用的 gradient 是 <span>$w_{adv}\triangleq w+\hat\varepsilon(w)$</span><!-- Has MathJax --> 這點的 gradient.<br>對於 SAM 來說, 一次的 weight update iteration <strong>會跑兩次 backward</strong>, 因此論文跟原來的 SGD 對比時, 會讓 SGD iteration 數變兩倍來比較.<br>SAM 的 hyper-parameter 只有 $\rho$ (the neighborhood size), 論文裡用 $10\%$ of training data 當 validation set 做 search $\{0.01, 0.02, 0.05, 0.1, 0.2, 0.5\}$.<br>另外如果用 Data parallelism 的話, i.e. 一個大 batch 會平分成多個 sub-batch 給每個 accelarator, sub-batch 的 SAM gradients 最後在做 all-reduce (平均) 當 final SAM gradient.<br>實驗結果表明, 對於原來的 SGD or 有 momentum 的 optimizer (或有多加 regularization 的 loss), 如果<strong>多用了 SAM 幾乎都穩定的更好!</strong></p>
+<p>從 (11) 的式子來看 Figure 2 就能了解, <span>$w_t$</span><!-- Has MathJax --> 要用的 gradient 是 <span>$w_{adv}\triangleq w+\hat\varepsilon(w)$</span><!-- Has MathJax --> 這點的 gradient.<br>對於 SAM 來說, 一次的 weight update iteration <strong>會跑兩次 backward</strong>, 因此論文跟原來的 SGD 對比時, 會讓 SGD iteration 數變兩倍來比較.<br>SAM 的 hyper-parameter 只有 <span>$\rho$</span><!-- Has MathJax --> (the neighborhood size), 論文裡用 <span>$10\%$</span><!-- Has MathJax --> of training data 當 validation set 做 search <span>$\\{0.01, 0.02, 0.05, 0.1, 0.2, 0.5\\}$</span><!-- Has MathJax -->.<br>另外如果用 Data parallelism 的話, i.e. 一個大 batch 會平分成多個 sub-batch 給每個 accelarator, sub-batch 的 SAM gradients 最後在做 all-reduce (平均) 當 final SAM gradient.<br>實驗結果表明, 對於原來的 SGD or 有 momentum 的 optimizer (或有多加 regularization 的 loss), 如果<strong>多用了 SAM 幾乎都穩定的更好!</strong></p>
 <p>最後, 其實 SAM 是這篇論文推導的一個特例 “Penalizing Gradient Norm for Efficiently Improving Generalization in Deep Learning [<a href="https://arxiv.org/abs/2202.03599" target="_blank" rel="external">arxiv</a>]”. 也十分精采, 用另一種角度來看怎麼找較 flatten 的 optimal point.</p>
 <h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><hr>
 <ol>

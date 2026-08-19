@@ -366,16 +366,16 @@
       
         
           <hr>
-<p>NN 在做 quantization 時採用的是非對稱的方式, real ($r$) 和 quantized ($q$) values 對應關係如下:</p>
+<p>NN 在做 quantization 時採用的是非對稱的方式, real (<span>$r$</span><!-- Has MathJax -->) 和 quantized (<span>$q$</span><!-- Has MathJax -->) values 對應關係如下:</p>
 <p><img src="/2020/10/03/Quantization-的那些事/asymmetric_quantization_def.png" width="40%" height="40%" align="center"></p>
-<p>其中 zero point $Z$ 會跟 $q$ 相同 type, 例如 <code>int8</code>, 而 scaling value $S$ 則會跟 $r$ 相同, 例如 <code>float</code>. 以 <code>uint3</code> (0~7) 做 quantization, 如下圖所示:</p>
+<p>其中 zero point <span>$Z$</span><!-- Has MathJax --> 會跟 <span>$q$</span><!-- Has MathJax --> 相同 type, 例如 <code>int8</code>, 而 scaling value <span>$S$</span><!-- Has MathJax --> 則會跟 <span>$r$</span><!-- Has MathJax --> 相同, 例如 <code>float</code>. 以 <code>uint3</code> (0~7) 做 quantization, 如下圖所示:</p>
 <p><img src="/2020/10/03/Quantization-的那些事/uint3_exp.png" width="75%" height="75%" align="center"></p>
 <p>本篇討論以下兩點:</p>
 <ol>
-<li>同一個 real 值如何在不同的 $Z$/$S$ 做轉換, e.g.: $q_1$ with ($Z_1$/$S_1$) 如何對應到 $q_2$ with ($Z_2$/$S_2$)</li>
+<li>同一個 real 值如何在不同的 <span>$Z$</span><!-- Has MathJax -->/<span>$S$</span><!-- Has MathJax --> 做轉換, e.g.: <span>$q_1$</span><!-- Has MathJax --> with (<span>$Z_1$</span><!-- Has MathJax -->/<span>$S_1$</span><!-- Has MathJax -->) 如何對應到 <span>$q_2$</span><!-- Has MathJax --> with (<span>$Z_2$</span><!-- Has MathJax -->/<span>$S_2$</span><!-- Has MathJax -->)</li>
 <li>PyTorch 的 Quantization Aware Training (QAT) 討論</li>
 </ol>
-<p>在不同 $Z$/$S$ 轉換有兩個常見理由: 在做 NN 的 quantization 時候, 每個 layer 的 output domain 都不同, 這導致了使用不同的 $Z$/$S$. 又或者丟給 NN 做 inference 之前, mfcc/mfb 需要先轉換到 NN input 的 $Z$/$S$ quantized domain 上.</p>
+<p>在不同 <span>$Z$</span><!-- Has MathJax -->/<span>$S$</span><!-- Has MathJax --> 轉換有兩個常見理由: 在做 NN 的 quantization 時候, 每個 layer 的 output domain 都不同, 這導致了使用不同的 <span>$Z$</span><!-- Has MathJax -->/<span>$S$</span><!-- Has MathJax -->. 又或者丟給 NN 做 inference 之前, mfcc/mfb 需要先轉換到 NN input 的 <span>$Z$</span><!-- Has MathJax -->/<span>$S$</span><!-- Has MathJax --> quantized domain 上.</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2020/10/03/Quantization-的那些事/#more" rel="contents">
@@ -671,8 +671,8 @@
       
         
           <hr>
-<p>CTC model 是一個 decoder 部分為簡單的 (independent) linear classifer 的 seq2seq model. 因此 input frame 有 $T$ 個, 就會有 $T$ 個 output distribution vectors.</p>
-<p>正常來說 (ex: ASR) output token 數量 $N&lt;T$, 所以會有 alignment 問題. 以往的 alignment (HMM) 強迫每個 frame index 都需對應到一個 phone’s state, 但 CTC 允許對應到 “空” 的 state (null or blank). 這讓 CTC 的 alignment 比 HMM 更有彈性.</p>
+<p>CTC model 是一個 decoder 部分為簡單的 (independent) linear classifer 的 seq2seq model. 因此 input frame 有 <span>$T$</span><!-- Has MathJax --> 個, 就會有 <span>$T$</span><!-- Has MathJax --> 個 output distribution vectors.</p>
+<p>正常來說 (ex: ASR) output token 數量 <span>$N&lt;T$</span><!-- Has MathJax -->, 所以會有 alignment 問題. 以往的 alignment (HMM) 強迫每個 frame index 都需對應到一個 phone’s state, 但 CTC 允許對應到 “空” 的 state (null or blank). 這讓 CTC 的 alignment 比 HMM 更有彈性.</p>
 <blockquote>
 <p>RNN-T 是另一種比 CTC 更有彈性的 alignment 表達方式.</p>
 </blockquote>
@@ -983,9 +983,10 @@
 Div\left(P_d\|P_G\right) = \max_D\left[ E_{x\sim P_d} D(x) - E_{x\sim P_G}f^*(D(x)) \right] \\
 G^*=\arg\min_G{Div\left(P_d\|P_G\right)} + reg(G) \\
 \end{align}$$</span><!-- Has MathJax -->
-<p>其中 $P_d$ 為 real data pdf, $P_G$ 為 generator 產生的 data pdf. $f^*$ 帶入不同的定義會產生不同的 divergence, 這之後會再說明.</p>
-<p>式 (1) 定義了 $P_G$ 與 $P_d$ 的 divergence, 其中這個 divergence 的值為藉由解這個最佳化問題求得的.</p>
-<p>式 (2) 表示要找的 $G$ 就是 divergence 最小的那個. Divergence 最小 ($=0$) 同時也表示 $P_G=P_d$ (生成器鍊成). 如果同時考慮 regularization term, $reg(G)$, 則會有很多變化產生, 如 ADDA, infoGAN, VAE-GAN…</p>
+
+<p>其中 <span>$P_d$</span><!-- Has MathJax --> 為 real data pdf, <span>$P_G$</span><!-- Has MathJax --> 為 generator 產生的 data pdf. <span>$f^*$</span><!-- Has MathJax --> 帶入不同的定義會產生不同的 divergence, 這之後會再說明.</p>
+<p>式 (1) 定義了 <span>$P_G$</span><!-- Has MathJax --> 與 <span>$P_d$</span><!-- Has MathJax --> 的 divergence, 其中這個 divergence 的值為藉由解這個最佳化問題求得的.</p>
+<p>式 (2) 表示要找的 <span>$G$</span><!-- Has MathJax --> 就是 divergence 最小的那個. Divergence 最小 (<span>$=0$</span><!-- Has MathJax -->) 同時也表示 <span>$P_G=P_d$</span><!-- Has MathJax --> (生成器鍊成). 如果同時考慮 regularization term, <span>$reg(G)$</span><!-- Has MathJax -->, 則會有很多變化產生, 如 ADDA, infoGAN, VAE-GAN…</p>
 <p>我們接著來看 MMGAN, NSGAN, f-GAN, WGAN, ADDA, infoGAN, VAE-GAN 這些怎麼 fit 進這個框架.</p>
           <!--noindex-->
           <div class="post-button text-center">
@@ -1136,10 +1137,10 @@ G^*=\arg\min_G{Div\left(P_d\|P_G\right)} + reg(G) \\
           <hr>
 <p>整理下 entropy 的一些東西, 不然久沒看老是忘記.</p>
 <ul>
-<li>Entropy of a r.v. $X$: $H(X)$</li>
-<li>Conditional Entropy of $Y$ given $X$: $H(Y|X)$</li>
-<li>Cross(Relative) Entropy of two pdf, $p$ and $q$: $D(p\Vert q)$</li>
-<li>Mutual Information of two r.v.s: $I(X;Y)$</li>
+<li>Entropy of a r.v. <span>$X$</span><!-- Has MathJax -->: <span>$H(X)$</span><!-- Has MathJax --></li>
+<li>Conditional Entropy of <span>$Y$</span><!-- Has MathJax --> given <span>$X$</span><!-- Has MathJax -->: <span>$H(Y|X)$</span><!-- Has MathJax --></li>
+<li>Cross(Relative) Entropy of two pdf, <span>$p$</span><!-- Has MathJax --> and <span>$q$</span><!-- Has MathJax -->: <span>$D(p\Vert q)$</span><!-- Has MathJax --></li>
+<li>Mutual Information of two r.v.s: <span>$I(X;Y)$</span><!-- Has MathJax --></li>
 </ul>
 <p>文章會明確定義每一項, 然後在推導它們之間關係的同時會解釋其物理意義.</p>
 <p>最後其實就可以整理成類似集合關係的圖 (<a href="https://en.wikipedia.org/wiki/Mutual_information">wiki</a>)</p>
@@ -1291,16 +1292,15 @@ G^*=\arg\min_G{Div\left(P_d\|P_G\right)} + reg(G) \\
       
         
           <hr>
-<p>筆記 covariance matrix $R$ 的 determinant 意義以及他的 bound. 這是在讀 <a href="https://ieeexplore.ieee.org/document/1323087">Time-delay estimation via linear interpolation and cross correlation</a> 時的 appendix 證明. 覺得有用就筆記下來.</p>
-<p>開門見山, $det(R)$ 可以想成 volumn (等於所有 eigenvalues 相乘), 然後 upper bound 就是所有對角項元素相乘.</p>
-<span>$$\begin{align}
+<p>筆記 covariance matrix <span>$R$</span><!-- Has MathJax --> 的 determinant 意義以及他的 bound. 這是在讀 <a href="https://ieeexplore.ieee.org/document/1323087">Time-delay estimation via linear interpolation and cross correlation</a> 時的 appendix 證明. 覺得有用就筆記下來.</p>
+<p>開門見山, <span>$det(R)$</span><!-- Has MathJax --> 可以想成 volumn (等於所有 eigenvalues 相乘), 然後 upper bound 就是所有對角項元素相乘.</p>
+<p><span>$$\begin{align}
 det(R)=\prod_i \lambda_i \leq \prod_i r_{ii}
-\end{align}$$</span><!-- Has MathJax -->
-<p>$\lambda_i$ 是 i-th eingenvalue.</p>
+\end{align}$$</span><!-- Has MathJax --><br><span>$\lambda_i$</span><!-- Has MathJax --> 是 i-th eingenvalue.</p>
 <blockquote>
-<p>事實上只要 $R$ 是 <strong>square matrix</strong>, 則 $|det(R)|$ 等於用每個 row vector 做出來的 “平行六面體” 的體積 [<a href="http://textbooks.math.gatech.edu/ila/determinants-volumes.html">ref</a>]</p>
+<p>事實上只要 <span>$R$</span><!-- Has MathJax --> 是 <strong>square matrix</strong>, 則 <span>$|det(R)|$</span><!-- Has MathJax --> 等於用每個 row vector 做出來的 “平行六面體” 的體積 [<a href="http://textbooks.math.gatech.edu/ila/determinants-volumes.html">ref</a>]</p>
 </blockquote>
-<p>以下筆記論文中證明 $det(R)$ 的 upper bound, 從這個 bound 我們也能看出物理意義.</p>
+<p>以下筆記論文中證明 <span>$det(R)$</span><!-- Has MathJax --> 的 upper bound, 從這個 bound 我們也能看出物理意義.</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2019/07/15/Determinant-of-Covariance-Matrix/#more" rel="contents">
@@ -1448,7 +1448,7 @@ det(R)=\prod_i \lambda_i \leq \prod_i r_{ii}
       
         
           <hr>
-<p>NN 做分類最後一層通常使用 softmax loss, 但如果類別數量很大會導致計算 softmax 的 cost 太高, 這樣會讓訓練變得很慢. 假如總共的 class 數量是 10000 個, candidate sampling 的想法就是對於一個 input $x$ 採樣出一個 subset (當然需要包含正確的 label), 譬如只用 50 個 classes, 扣掉正確的那個 class, 剩下的 49 個 classes 從 9999 個採樣出來. 然後計算 softmax 只在那 50 個計算. 那麼問題來了, 這樣的採樣方式最終訓練出來的 logits 會是對的嗎? 它與未採樣前 (full set) 的 logtis 有何對應關係?</p>
+<p>NN 做分類最後一層通常使用 softmax loss, 但如果類別數量很大會導致計算 softmax 的 cost 太高, 這樣會讓訓練變得很慢. 假如總共的 class 數量是 10000 個, candidate sampling 的想法就是對於一個 input <span>$x$</span><!-- Has MathJax --> 採樣出一個 subset (當然需要包含正確的 label), 譬如只用 50 個 classes, 扣掉正確的那個 class, 剩下的 49 個 classes 從 9999 個採樣出來. 然後計算 softmax 只在那 50 個計算. 那麼問題來了, 這樣的採樣方式最終訓練出來的 logits 會是對的嗎? 它與未採樣前 (full set) 的 logtis 有何對應關係?</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2019/07/02/TF-Notes-Candidate-Sampling/#more" rel="contents">

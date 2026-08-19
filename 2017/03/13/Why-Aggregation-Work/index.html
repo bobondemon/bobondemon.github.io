@@ -94,7 +94,7 @@
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="為何三個臭皮匠會勝過一個諸葛亮?在 ML 中有一類的演算法稱為 Aggregation Methods，這方法的運作方式其實我們可能從小就接觸到了。有沒有遇過一種情況就是，當一群人遇到一個不知道最好答案的時候，最直接的方式就是大家的答案取平均。聽起來很直覺，但心裡老覺得怪怪的，因為根本不知道到底可不可靠。Aggregation methods 就是這樣的運作模式，這邊就給個結論，它很可靠!">
 <meta property="og:image" content="https://bobondemon.github.io/2017/03/13/Why-Aggregation-Work/cover.jpg">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.833Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.239Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Why-Aggregation-Work">
 <meta name="twitter:description" content="為何三個臭皮匠會勝過一個諸葛亮?在 ML 中有一類的演算法稱為 Aggregation Methods，這方法的運作方式其實我們可能從小就接觸到了。有沒有遇過一種情況就是，當一群人遇到一個不知道最好答案的時候，最直接的方式就是大家的答案取平均。聽起來很直覺，但心裡老覺得怪怪的，因為根本不知道到底可不可靠。Aggregation methods 就是這樣的運作模式，這邊就給個結論，它很可靠!">
@@ -385,14 +385,20 @@
 <p>這邊要特別說的是衡量一個方法 \(g\) 的錯誤率，是針對所有的 input \(x\)，也就是<strong>針對 \(X\) domain 來算期望平方誤差</strong></p>
 <hr>
 <h3 id="運算簡單但有點神奇的推導"><a href="#運算簡單但有點神奇的推導" class="headerlink" title="運算簡單但有點神奇的推導"></a>運算簡單但有點神奇的推導</h3><ol>
-<li><p>我們先針對 <strong>一個固定的 x</strong>，來看看臭皮匠們統合的意見是否真的會得到較好的結果，由於input已經固定，所以下面會忽略 x 的 term<br>首先是 <strong>“臭皮匠們各自的平方錯誤率” 的平均值</strong><br>$$avg_t((g_t-f)^2)$$<br>將平方拆開後得<br>$$=avg_t(g_t^2-2g_tf+f^2)$$<br>將 <em>avg</em> 移入並用 <em>G=avg(gt)</em> 定義得到<br>$$=avg_t(g_t^2)-2Gf+f^2$$<br>再做如下的簡單代數運算<br>$$=avg_t(g_t^2)-G^2+(G-f)^2 \\<br>=avg_t(g_t^2)-2G^2+G^2+(G-f)^2 \\<br>=avg_t(g_t^2-2g_tG+G^2)+(G-f)^2 \\<br>=avg_t((g_t-G)^2)+(G-f)^2$$</p>
+<li><p>我們先針對 <strong>一個固定的 x</strong>，來看看臭皮匠們統合的意見是否真的會得到較好的結果，由於input已經固定，所以下面會忽略 x 的 term<br>首先是 <strong>“臭皮匠們各自的平方錯誤率” 的平均值</strong><br><span>$$avg_t((g_t-f)^2)$$</span><!-- Has MathJax --> 將平方拆開後得<br><span>$$=avg_t(g_t^2-2g_tf+f^2)$$</span><!-- Has MathJax --> 將 <em>avg</em> 移入並用 <em>G=avg(gt)</em> 定義得到<br><span>$$=avg_t(g_t^2)-2Gf+f^2$$</span><!-- Has MathJax --> 再做如下的簡單代數運算</p>
+<span>$$=avg_t(g_t^2)-G^2+(G-f)^2 \\
+=avg_t(g_t^2)-2G^2+G^2+(G-f)^2 \\
+=avg_t(g_t^2-2g_tG+G^2)+(G-f)^2 \\
+=avg_t((g_t-G)^2)+(G-f)^2$$</span><!-- Has MathJax -->
 </li>
-<li><p>目前為止是針對 <strong>一個特定的輸入 x</strong>，而我們需要知道的是對 <strong>整個 domain X</strong> 的錯誤率<br>因此真正要計算的是這個目標錯誤率<br>$$avg_t(Error(g_t))=avg_t(E_x[(g_t(x)-f(x))^2])$$<br>將 <em>Expection for all x</em> 代入進去剛剛上面針對一個 <em>x</em> 的結果，得到如下式子<br>\begin{eqnarray}=avg_t(E_x[(g_t(x)-G(x))^2])+E_x[(G(x)-f(x))^2] \\<br>=avg_t(E_x[(g_t(x)-G(x))^2])+Error(G) \\<br>\geq Error(G) \end{eqnarray}</p>
+<li><p>目前為止是針對 <strong>一個特定的輸入 x</strong>，而我們需要知道的是對 <strong>整個 domain X</strong> 的錯誤率<br>因此真正要計算的是這個目標錯誤率<br><span>$$avg_t(Error(g_t))=avg_t(E_x[(g_t(x)-f(x))^2])$$</span><!-- Has MathJax --> 將 <em>Expection for all x</em> 代入進去剛剛上面針對一個 <em>x</em> 的結果，得到如下式子<br>\begin{eqnarray}=avg_t(E_x[(g_t(x)-G(x))^2])+E_x[(G(x)-f(x))^2] \\<br>=avg_t(E_x[(g_t(x)-G(x))^2])+Error(G) \\<br>\geq Error(G) \end{eqnarray}</p>
 </li>
 </ol>
 <hr>
 <h3 id="怎麼解釋"><a href="#怎麼解釋" class="headerlink" title="怎麼解釋?"></a>怎麼解釋?</h3><p>重複一下最後的重要式子:</p>
-<p>$$avg_t(Error(g_t)) = avg_t(E_x[(g_t(x)-G(x))^2])+Error(G) \\<br>\geq Error(G)$$</p>
+<span>$$avg_t(Error(g_t)) = avg_t(E_x[(g_t(x)-G(x))^2])+Error(G) \\
+\geq Error(G)$$</span><!-- Has MathJax -->
+
 <ol>
 <li><p>最直接的結論就是: <strong>“統合出來的結果”的錯誤率 會比 “各自決定”的平均錯誤率 還要低</strong></p>
 </li>

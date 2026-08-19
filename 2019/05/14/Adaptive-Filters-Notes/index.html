@@ -101,7 +101,7 @@ Motivation直接使用 wiki. AEC 要解決的是如下的情形">
 <meta property="og:image" content="https://bobondemon.github.io/2019/05/14/Adaptive-Filters-Notes/NewtonUpdate.png">
 <meta property="og:image" content="https://bobondemon.github.io/2019/05/14/Adaptive-Filters-Notes/tNLMS.png">
 <meta property="og:image" content="https://bobondemon.github.io/2019/05/14/Adaptive-Filters-Notes/EMSE.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.811Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.131Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Adaptive Filters 簡介 (1) Time Domain">
 <meta name="twitter:description" content="粗略筆記 time domain adaptive filters, frequency domain adaptive filters 會在下一篇筆記. 應用以 Acoustic Echo Cancellation (AEC) 來說明.
@@ -390,22 +390,23 @@ d(n)=y(n)+v(n) \\
 \hat{y}(n)=\hat{h}(n)\ast x(n)\\
 e(n)=d(n)-\hat{y}(n)
 \end{align}$$</span><!-- Has MathJax -->
-<p>目的是找到 $\hat{h}$ 滿足下式:</p>
+
+<p>目的是找到 <span>$\hat{h}$</span><!-- Has MathJax --> 滿足下式:</p>
 <p><span>$$\begin{align}
 \hat{y}(n)\approx y(n)\Rightarrow e(n)\approx v(n)
-\end{align}$$</span><!-- Has MathJax --> 對於第 $n$ 個 sample 點來說, 我們通常使用過去(含自己) $p$ 個 samples. 下面小寫粗體表示 vector, 大寫粗體表示 matrix.</p>
+\end{align}$$</span><!-- Has MathJax --> 對於第 <span>$n$</span><!-- Has MathJax --> 個 sample 點來說, 我們通常使用過去(含自己) <span>$p$</span><!-- Has MathJax --> 個 samples. 下面小寫粗體表示 vector, 大寫粗體表示 matrix.</p>
 <h3 id="Optimal-Solution"><a href="#Optimal-Solution" class="headerlink" title="Optimal Solution"></a>Optimal Solution</h3><p>也就是 Wiener solution.<br><img src="/2019/05/14/Adaptive-Filters-Notes/Wiener1.png" width="70%" height="70%"></p>
-<p>但在真實世界中, 不管 reference signal ($x(n)$) or desired signal ($d(n)$) 都是 non-stationary 的. 最直接且暴力的想法就是每隔一段時間重新算一次 Wiener solution. 不過想當然爾這是行不通的. 因此就必須採用 Stochastic update 方式.</p>
+<p>但在真實世界中, 不管 reference signal (<span>$x(n)$</span><!-- Has MathJax -->) or desired signal (<span>$d(n)$</span><!-- Has MathJax -->) 都是 non-stationary 的. 最直接且暴力的想法就是每隔一段時間重新算一次 Wiener solution. 不過想當然爾這是行不通的. 因此就必須採用 Stochastic update 方式.</p>
 <h3 id="Stochastic-Update"><a href="#Stochastic-Update" class="headerlink" title="Stochastic Update"></a>Stochastic Update</h3><p><img src="/2019/05/14/Adaptive-Filters-Notes/tLMS.png" width="60%" height="60%"></p>
 <p>上面紅色的式子就是典型的 LMS algorithm.</p>
 <p>另外我們知道 optimization 還可以使用 second-moment, 也就是使用二階導函數 (Hessian Matrix). 這就是 Newton’s method:</p>
 <p><img src="/2019/05/14/Adaptive-Filters-Notes/NewtonUpdate.png" width="60%" height="60%"></p>
-<p>針對 <span>$\mathbf{R}_{xx} \mbox{  ,  } \mathbf{R}_{xd}$</span><!-- Has MathJax --> 使用不同的 approximation 方式就會得到不同演算法, 例如:</p>
+<p>針對 <span>$$\mathbf{R}_{xx} \mbox{  ,  } \mathbf{R}_{xd}$$</span><!-- Has MathJax --><br>使用不同的 approximation 方式就會得到不同演算法, 例如:</p>
 <p><img src="/2019/05/14/Adaptive-Filters-Notes/tNLMS.png" width="60%" height="60%"></p>
 <p>上面紅色的式子就是典型的 NLMS algorithm.</p>
 <p>用這樣的方式還可推出 e-NLMS, leaky-LMS, RLS 等等…</p>
 <blockquote>
-<p>實作上 NLMS 在 reference signal $x(n)$ 很小的時候, 由於公式上分母會除以 $x^Hx$, 而分子只有一次方 $x$, 因此除下來會導致 gradient 容易變大, 所以發散. 這是 NLMS 實作上要考慮的情形.</p>
+<p>實作上 NLMS 在 reference signal <span>$x(n)$</span><!-- Has MathJax --> 很小的時候, 由於公式上分母會除以 <span>$x^Hx$</span><!-- Has MathJax -->, 而分子只有一次方 <span>$x$</span><!-- Has MathJax -->, 因此除下來會導致 gradient 容易變大, 所以發散. 這是 NLMS 實作上要考慮的情形.</p>
 </blockquote>
 <h3 id="Misadjustment"><a href="#Misadjustment" class="headerlink" title="Misadjustment"></a>Misadjustment</h3><p>我們知道最佳解為 Wiener solution, 但由於我們採用 stochastic gradient 方式, 也就是說 update 的 gradient 本身存在誤差, 這些 gradient 的 variance 就直接影響了最終收斂的效果跟 Wiener solution 的收斂結果之間的差距. 此差距我們稱 misadjustment 或稱 Excess Meam Square Error</p>
 <p>直接擷取 <a href="https://onlinelibrary.wiley.com/doi/book/10.1002/9780470374122" target="_blank" rel="external">Ali Sayed, Adaptive Filters</a> p230 的定義:</p>

@@ -112,7 +112,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/F.png">
 <meta property="og:image" content="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Q.png">
 <meta property="og:image" content="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Jaccobian.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.819Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.164Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Notes for Kalman Filter and Extended KF">
 <meta name="twitter:description" content="Udacity term2 (Sensor Fusion, Localization, and Control) 的第一個 Project 就是用 KF and EKF 將 Lidar and Radar 的資訊做 fusion 並且可以 tracking。由於 KF/EKF 的數學符號很多，因此想筆記一下方便日後回想，所以主要以我自己看的角度，可能有些地方會沒有明確說明。本篇的筆記來源是
@@ -403,6 +403,7 @@
 x_k = F_kx_{k-1}+\nu_k \\
 z_k = H_kx_k+\omega_k
 \end{align}$$</span><!-- Has MathJax -->
+
 <p>\(x_k\) 是在時間點 \(t\) 的 states，也是我們希望能夠估計出來的(但是無法直接觀察到)。而 states 滿足 <strong>線性的一次遞迴</strong> 關係，也就是式子(1)。 \(\nu_k\sim\mathcal{N}(0,Q_k)\) 是 state nose。<br>\(z_k\) 是在時間點 \(t\) 的 observations，透過 \(H_k\) 將 states 轉換到 observations。 \(\omega_k\sim\mathcal{N}(0,R_k)\) 是 sensor noise，而 \(R_k\) 基本上會由製造廠商提供。基本上兩個 noises 都跟所有人都 independent。</p>
 <hr>
 <h3 id="Prediction-Stage"><a href="#Prediction-Stage" class="headerlink" title="Prediction Stage"></a>Prediction Stage</h3><p>整個 KF/EKF 都是基於 Gaussian distribution。因此假設我們有 \(k-1\) 時間點的 state 估計，所以我們知道 \(x_{k}\sim\mathcal{N}(\hat{x}_k,P_k)\) 會變成如下的一個 Gaussian:</p>
@@ -410,34 +411,39 @@ z_k = H_kx_k+\omega_k
 \hat{x}_{k}=F_k\hat{x}_{k-1} \\
 P_k = F_kP_{k-1}F_k^T+Q_k
 \end{align}$$</span><!-- Has MathJax -->
+
 <p><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/formula_3_4.png" width="50%" height="50%"></p>
 <p>式(3)and(4)即為 <strong>Prediction Stage</strong>。<br>又因為我們知道 observation 跟 state 之間的關係為透過 \(H_k\) 轉換，在完全沒有 sensor noise 情況下，所以可以得知 prediction 的觀察值為:</p>
 <span>$$\begin{align}
 z_{expected}\sim\mathcal{N}(\mu_{expected},\Sigma_{expected}) \\
 \mathcal{N}\left( \begin{array}{c} \vec{\mu}_{expected}=H_k\hat{x}_{k}, &amp; \Sigma_{expected} = H_kP_kH_k^T \end{array} \right)
 \end{align}$$</span><!-- Has MathJax -->
+
 <p><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/formula_5_6.png" width="80%" height="80%"></p>
 <hr>
 <h3 id="Update-Stage"><a href="#Update-Stage" class="headerlink" title="Update Stage"></a>Update Stage</h3><p>我們令實際上的觀察值為 \(z_k\sim\mathcal{N}(\vec{z}_k,R_k)\)，將觀察值的 Gaussian 和 predict 的 Gaussian 畫出如下:</p>
 <p><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/update_1.png" width="50%" height="50%"></p>
 <p>而將兩個 Gaussian pdfs 相乘的話:<br><span>$$\begin{align} 
 \mathcal{N}(x,\mu_0,\Sigma_0)\cdot\mathcal{N}(x,\mu_1,\Sigma_1)=\mathcal{N}(x,\mu&apos;,\Sigma&apos;) \\
-\end{align}$$</span><!-- Has MathJax --><br>仍然會得到另一個 Gaussian:<br><span>$$\begin{align} 
+\end{align}$$</span><!-- Has MathJax --> 仍然會得到另一個 Gaussian:</p>
+<span>$$\begin{align} 
 K=\Sigma_0(\Sigma_0+\Sigma_1)^{-1} \\
 \mu&apos;=\mu_0+K(\mu_1-\mu_0) \\
 \Sigma&apos;=\Sigma_0-K\Sigma_0
-\end{align}$$</span><!-- Has MathJax --></p>
+\end{align}$$</span><!-- Has MathJax -->
+
 <p>\(K\) 稱為 <strong>Kalman Gain</strong>。由式(10)可知，update 後的 covariance matrix 會愈來愈小，表示我們對於 prediction 的觀察值會愈來愈確定。另外由(9)可知，Kalman Gain 控制著要相信哪邊多一點。<br>把估測的觀察值 pdf 和實際觀察值的 pdf，即 \(z_k\sim\mathcal{N}(\vec{z}_k,R_k)\) 和式(5)兩個 pdfs 代入到式 (8)~(10) 得到如下:</p>
-<span>$$\begin{align} 
+<p><span>$$\begin{align} 
 H_k\hat{x}_k&apos;=H_k\hat{x}_k+K(\vec{z}_k-H_k\hat{x}_k) \\
 H_kP_k&apos;H_k^T=H_kP_kH_k^T-KH_kP_kH_k^T \\
 K=H_kP_kH_k^T(H_kP_kH_k^T+R_k)^{-1}
-\end{align}$$</span><!-- Has MathJax -->
-<p>把 (11)~(13) 開頭的 \(H_k\) 去掉，並且把 (12) and (13) 結尾的 \(H_k^T\) 去掉變成<br><span>$$\begin{align} 
+\end{align}$$</span><!-- Has MathJax --> 把 (11)~(13) 開頭的 \(H_k\) 去掉，並且把 (12) and (13) 結尾的 \(H_k^T\) 去掉變成</p>
+<span>$$\begin{align} 
 \hat{x}_k&apos;=\hat{x}_k+K(\vec{z}_k-H_k\hat{x}_k) \\
 P_k&apos;=P_k-KH_kP_k \\
 K=P_kH_k^T(H_kP_kH_k^T+R_k)^{-1}
-\end{align}$$</span><!-- Has MathJax --></p>
+\end{align}$$</span><!-- Has MathJax -->
+
 <p>(14)~(16)就是 KF 的 <strong>Update Stage</strong>! 新的 states 估計值就被我們得到，然後這個值就可以被當成下一次 loop 的初始值。</p>
 <hr>
 <h3 id="KF-Flow"><a href="#KF-Flow" class="headerlink" title="KF Flow"></a>KF Flow</h3><p>擷取<a href="http://www.bzarg.com/p/how-a-kalman-filter-works-in-pictures/" target="_blank" rel="external">網站</a>上的圖片:</p>
@@ -447,14 +453,13 @@ K=P_kH_k^T(H_kP_kH_k^T+R_k)^{-1}
 <ul>
 <li>\(F_k\) 會根據兩次 sensor data 之間的時間間隔 \(\vartriangle t\) 來表示:<br><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/F.png" width="30%" height="30%"></li>
 <li>另外我們將 <strong>加速度考慮為一個 mean = 0, covariance matrix = Q 的一個 random noise</strong> 的話，式 (1) and (4) 必須做修改。<br><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/acc1.png" width="80%" height="80%"><br><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/acc2.png" width="80%" height="80%"><br>其中 \(Q_v\) 使用者自己設定調整，所以 state noise 的 covariance matrix 為<br><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Q.png" width="50%" height="50%"></li>
-<li>Lidar 只會觀察到位置，因此 Lidar 的 \(H\) 為:<span>$$H_{lidar}=
+<li>Lidar 只會觀察到位置，因此 Lidar 的 \(H\) 為:<br><span>$$H_{lidar}=
 \left(
 \begin{array}{clr}
 1 &amp; 0 &amp; 0 &amp; 0 \\
 0 &amp; 1 &amp; 0 &amp; 0
 \end{array}
-\right)$$</span><!-- Has MathJax -->
-Radar 就比較特別了，它觀察到的是以 <strong>polar coordinate</strong> 來表示。<br><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/radar_polar.png" width="80%" height="80%"><br>所以它的 states 和 observation 之間的關係無法用一個 matrix \(H\) 來代表，是如下的 non-linear 式子:<span>$$\begin{align}
+\right)$$</span><!-- Has MathJax --> Radar 就比較特別了，它觀察到的是以 <strong>polar coordinate</strong> 來表示。<br><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/radar_polar.png" width="80%" height="80%"><br>所以它的 states 和 observation 之間的關係無法用一個 matrix \(H\) 來代表，是如下的 non-linear 式子:<br><span>$$\begin{align}
 h(x)=
 \left(
 \begin{array}{clr}
@@ -471,8 +476,7 @@ h(x)=
 \frac{p_xv_x+p_yv_y}{\sqrt{p_x^2+p_y^2}}
 \end{array}
 \right)
-\end{align}$$</span><!-- Has MathJax -->
-為了讓它符合 state-space model 的線性式子，只好使用 Taylor 展開式，只使用 Jaccobian matrix 針對 \(h\) 去展開，而這個就是 <strong>Extended KF</strong>。</li>
+\end{align}$$</span><!-- Has MathJax --> 為了讓它符合 state-space model 的線性式子，只好使用 Taylor 展開式，只使用 Jaccobian matrix 針對 \(h\) 去展開，而這個就是 <strong>Extended KF</strong>。</li>
 </ul>
 <hr>
 <h3 id="EKF"><a href="#EKF" class="headerlink" title="EKF"></a>EKF</h3><p>稍微改寫一下 Update Stage:<br><span>$$\begin{align}
@@ -481,33 +485,32 @@ S=H_kP_kH_k^T+R_k \\
 \hat{x}_k&apos;=\hat{x}_k+Ky \\
 P_k&apos;=P_k-KH_kP_k \\
 K=P_kH_k^TS^{-1}
-\end{align}$$</span><!-- Has MathJax --><br>在 EKF 中，由於我們使用 Taylor 展開式去逼近 \(h\)，因此上述的 \(H_k\) 必須使用如下式子計算:<br><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Jaccobian.png" width="80%" height="80%"><br>但是，這邊還有一個 tricky 的地方! 就是 <strong>式(18)直接使用式(17) \(h\) 的 non-linear function 計算!</strong><br>回想一下我們將 \(h\) 做 linearlization 的目的: 就是式(5),(6)下的那張圖的轉換。如果 Gaussian pdf 經過 nonlinear 轉換後會變成 “非Gaussian”，因此只好做線性逼近。<br>既然線性轉換的 pdf 都已經是逼近了，不如就將 mean 使用最精確的值，因此 \(y\) 就直接使用式(17)計算。所以式(18)要改成:<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 在 EKF 中，由於我們使用 Taylor 展開式去逼近 \(h\)，因此上述的 \(H_k\) 必須使用如下式子計算:<br><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Jaccobian.png" width="80%" height="80%"><br>但是，這邊還有一個 tricky 的地方! 就是 <strong>式(18)直接使用式(17) \(h\) 的 non-linear function 計算!</strong><br>回想一下我們將 \(h\) 做 linearlization 的目的: 就是式(5),(6)下的那張圖的轉換。如果 Gaussian pdf 經過 nonlinear 轉換後會變成 “非Gaussian”，因此只好做線性逼近。<br>既然線性轉換的 pdf 都已經是逼近了，不如就將 mean 使用最精確的值，因此 \(y\) 就直接使用式(17)計算。所以式(18)要改成:</p>
+<span>$$\begin{align}
 y=(\vec{z}_k-h(\hat{x}_k))
-\end{align}$$</span><!-- Has MathJax --></p>
+\end{align}$$</span><!-- Has MathJax -->
+
 <hr>
 <h3 id="總結-Lidar-and-Radar-Fusion"><a href="#總結-Lidar-and-Radar-Fusion" class="headerlink" title="總結 Lidar and Radar Fusion"></a>總結 Lidar and Radar Fusion</h3><p><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/fusion_flow.png" width="100%" height="100%"></p>
 <ul>
-<li><strong>[Predict]</strong><span>$$\hat{x}_{k}=F_k\hat{x}_{k-1} \\
-P_k = F_kP_{k-1}F_k^T+Q$$</span><!-- Has MathJax -->
-where<br><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/F.png" width="30%" height="30%"><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Q.png" width="50%" height="50%"></li>
-<li><strong>[Lidar Update]</strong><span>$$y=(\vec{z}_k-H_{lidar}\hat{x}_k) \\
+<li><strong>[Predict]</strong><br><span>$$\hat{x}_{k}=F_k\hat{x}_{k-1} \\
+P_k = F_kP_{k-1}F_k^T+Q$$</span><!-- Has MathJax --> where<br><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/F.png" width="30%" height="30%"><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Q.png" width="50%" height="50%"></li>
+<li><strong>[Lidar Update]</strong><br><span>$$y=(\vec{z}_k-H_{lidar}\hat{x}_k) \\
 S=H_{lidar}P_kH_{lidar}^T+R_k \\
 \hat{x}_k&apos;=\hat{x}_k+Ky \\
 P_k&apos;=P_k-KH_{lidar}P_k \\
-K=P_kH_{lidar}^TS^{-1}$$</span><!-- Has MathJax -->
-where \(R_k\) sensor noise covariance matrix 由廠商提供, and <span>$$H_{lidar}=
+K=P_kH_{lidar}^TS^{-1}$$</span><!-- Has MathJax --> where \(R_k\) sensor noise covariance matrix 由廠商提供, and<br><span>$$H_{lidar}=
 \left(
 \begin{array}{clr}
 1 &amp; 0 &amp; 0 &amp; 0 \\
 0 &amp; 1 &amp; 0 &amp; 0
 \end{array}
 \right)$$</span><!-- Has MathJax --></li>
-<li><strong>[Radar Update]</strong><span>$$y=(\vec{z}_k-h(\hat{x}_k)) \\
+<li><strong>[Radar Update]</strong><br><span>$$y=(\vec{z}_k-h(\hat{x}_k)) \\
 S=H_kP_kH_k^T+R_k \\
 \hat{x}_k&apos;=\hat{x}_k+Ky \\
 P_k&apos;=P_k-KH_kP_k \\
-K=P_kH_k^TS^{-1}$$</span><!-- Has MathJax -->
-where \(R_k\) sensor noise covariance matrix 由廠商提供, and <span>$$h(x)=
+K=P_kH_k^TS^{-1}$$</span><!-- Has MathJax --> where \(R_k\) sensor noise covariance matrix 由廠商提供, and<br><span>$$h(x)=
 \left(
 \begin{array}{clr}
 \rho \\
@@ -522,8 +525,7 @@ where \(R_k\) sensor noise covariance matrix 由廠商提供, and <span>$$h(x)=
 \arctan(p_y/p_x) \\
 \frac{p_xv_x+p_yv_y}{\sqrt{p_x^2+p_y^2}}
 \end{array}
-\right)$$</span><!-- Has MathJax -->
-<img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Jaccobian.png" width="50%" height="50%"></li>
+\right)$$</span><!-- Has MathJax --><br><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Jaccobian.png" width="50%" height="50%"></li>
 </ul>
 <hr>
 <h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>

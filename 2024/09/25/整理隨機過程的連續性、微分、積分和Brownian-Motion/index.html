@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Stochastic Processes,Brownian Motion,Stochastic Convergences,Stochastic Continuity,Stochastic Integration," />
+  <meta name="keywords" content="Stochastic Processes,Stochastic Integration,Stochastic Convergences,Stochastic Continuity,Brownian Motion," />
 
 
 
@@ -107,7 +107,7 @@ Week 2: Poisson Processes
 Week3: Markov Chains
 Week 4: Gaussian Processes
 Week 5: Stationarity an">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.835Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.251Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="整理隨機過程的連續性、微分、積分和Brownian Motion">
 <meta name="twitter:description" content="Coursera Stochastic Processes 課程筆記, 共十篇:
@@ -408,53 +408,61 @@ Week 5: Stationarity an">
 <a id="more"></a>
 <hr>
 <h2 id="隨機過程的連續性-Week-6-4"><a href="#隨機過程的連續性-Week-6-4" class="headerlink" title="隨機過程的連續性 [Week 6.4]"></a>隨機過程的連續性 [<a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/#Week-6-4-Continuity-in-the-mean-squared-sense">Week 6.4</a>]</h2><p><strong>[Continuity in the probability sense Def]:</strong></p>
-<span>$$X_t\xrightarrow[t\rightarrow t_0]{p}X_{t_0} \Longleftrightarrow \mathcal{P}(|X_t-X_{t_0}|&gt;\varepsilon)\xrightarrow[t\rightarrow t_0]{}0, \qquad \forall\varepsilon&gt;0$$</span><!-- Has MathJax --> Converges in mean-squared sense 確保了 converges in probability, 且 in m.sq. sense 比較容易確認, 因此以下著重在 in m.sq. sense<br><br><strong>[Continuity in the mean-squared sense Def]:</strong><br><span>$$X_t\xrightarrow[t\rightarrow t_0]{L^2}X_{t_0} \Longleftrightarrow \mathbb{E}(X_t-X_{t_0})^2\xrightarrow[t\rightarrow t_0]{}0$$</span><!-- Has MathJax -->
-<p><strong>[Proposition, Continuity of Stochastic Process]: (充分條件)</strong><br>$X_t$ stochastic process and <span>$\mathbb{E}X_t=0$</span><!-- Has MathJax --><br>&emsp;1. If $K(t,s)$ is continuous at $(t_0, t_0)$, then $X_t$ is continuous in the m.sq. sense at $t=t_0$<br>&emsp;2. If $X_t$ is continuous in the m.sq. sense at $t=t_0,s_0$, then $K(t,s)$ is continuous at $(t_0,s_0)$</p>
+<p><span>$$X_t\xrightarrow[t\rightarrow t_0]{p}X_{t_0} \Longleftrightarrow \mathcal{P}(|X_t-X_{t_0}|&gt;\varepsilon)\xrightarrow[t\rightarrow t_0]{}0, \qquad \forall\varepsilon&gt;0$$</span><!-- Has MathJax --> Converges in mean-squared sense 確保了 converges in probability, 且 in m.sq. sense 比較容易確認, 因此以下著重在 in m.sq. sense</p>
+<p><strong>[Continuity in the mean-squared sense Def]:</strong></p>
+<span>$$X_t\xrightarrow[t\rightarrow t_0]{L^2}X_{t_0} \Longleftrightarrow \mathbb{E}(X_t-X_{t_0})^2\xrightarrow[t\rightarrow t_0]{}0$$</span><!-- Has MathJax -->
+
+<p><strong>[Proposition, Continuity of Stochastic Process]: (充分條件)</strong><br><span>$X_t$</span><!-- Has MathJax --> stochastic process and <span>$\mathbb{E}X_t=0$</span><!-- Has MathJax --><br>&emsp;1. If <span>$K(t,s)$</span><!-- Has MathJax --> is continuous at <span>$(t_0, t_0)$</span><!-- Has MathJax -->, then <span>$X_t$</span><!-- Has MathJax --> is continuous in the m.sq. sense at <span>$t=t_0$</span><!-- Has MathJax --><br>&emsp;2. If <span>$X_t$</span><!-- Has MathJax --> is continuous in the m.sq. sense at <span>$t=t_0,s_0$</span><!-- Has MathJax -->, then <span>$K(t,s)$</span><!-- Has MathJax --> is continuous at <span>$(t_0,s_0)$</span><!-- Has MathJax --></p>
 <blockquote>
 <p>💡 有關不同的收斂種類, e.g. in mean-squared sense, in probability sense, in distribution sense and almost surely, 請參考 [<a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/#Self-Study-Convergence-of-random-variables">Week 6 Self Study</a>]</p>
 </blockquote>
 <hr>
-<h2 id="隨機過程的微分-Week-6-3"><a href="#隨機過程的微分-Week-6-3" class="headerlink" title="隨機過程的微分 [Week 6.3]"></a>隨機過程的微分 [<a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/#Week-6-3-Definition-of-a-stochastic-derivative">Week 6.3</a>]</h2><p><strong>[Stochastic Derivative Def]:</strong><br>We say that a random process $X_t$ is differentiable at $t=t_0$ if the following limit <strong><em>converges in m.sq. sense</em></strong> to some random variable $\eta$<br><span>$$\frac{X_{t+h}-X_t}{h} \xrightarrow[h\rightarrow0]{L^2}\eta:=X_{t_0}&apos;$$</span><!-- Has MathJax --> equivalently we can write as follows<br><span>$$\mathbb{E}\left[\left(\frac{X_{t+h}-X_t}{h}-\eta\right)^2\right] \xrightarrow[h\rightarrow0]{}0$$</span><!-- Has MathJax --></p>
-<p><strong>[Proposition, Differentiability of Stochastic Process]: (充要條件)</strong><br>Let $X_t$ is a stochastic process and <span>$\mathbb{E}X_t^2&lt;\infty$</span><!-- Has MathJax -->. Then $X_t$ is differentiable at $t=t_0$ <strong><em>if and only if</em></strong></p>
+<h2 id="隨機過程的微分-Week-6-3"><a href="#隨機過程的微分-Week-6-3" class="headerlink" title="隨機過程的微分 [Week 6.3]"></a>隨機過程的微分 [<a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/#Week-6-3-Definition-of-a-stochastic-derivative">Week 6.3</a>]</h2><p><strong>[Stochastic Derivative Def]:</strong><br>We say that a random process <span>$X_t$</span><!-- Has MathJax --> is differentiable at <span>$t=t_0$</span><!-- Has MathJax --> if the following limit <strong><em>converges in m.sq. sense</em></strong> to some random variable <span>$\eta$</span><!-- Has MathJax --><br><span>$$\frac{X_{t+h}-X_t}{h} \xrightarrow[h\rightarrow0]{L^2}\eta:=X_{t_0}&apos;$$</span><!-- Has MathJax --> equivalently we can write as follows</p>
+<span>$$\mathbb{E}\left[\left(\frac{X_{t+h}-X_t}{h}-\eta\right)^2\right] \xrightarrow[h\rightarrow0]{}0$$</span><!-- Has MathJax -->
+
+<p><strong>[Proposition, Differentiability of Stochastic Process]: (充要條件)</strong><br>Let <span>$X_t$</span><!-- Has MathJax --> is a stochastic process and <span>$\mathbb{E}X_t^2&lt;\infty$</span><!-- Has MathJax -->. Then <span>$X_t$</span><!-- Has MathJax --> is differentiable at <span>$t=t_0$</span><!-- Has MathJax --> <strong><em>if and only if</em></strong></p>
 <span>$$\begin{align}
 \exists\frac{dm(t)}{dt}\text{, at }t=t_0 \\
 \exists\frac{\partial}{\partial t\partial s}K(t,s)\text{, at }(t_0,t_0) \\
 \end{align}$$</span><!-- Has MathJax -->
+
 <blockquote>
-<p>💡 mean and covariance functions 在 $t_0$ 都是 differentiable</p>
+<p>💡 mean and covariance functions 在 <span>$t_0$</span><!-- Has MathJax --> 都是 differentiable</p>
 </blockquote>
 <hr>
-<h2 id="隨機過程的積分-Week7"><a href="#隨機過程的積分-Week7" class="headerlink" title="隨機過程的積分 [Week7]"></a>隨機過程的積分 [<a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/">Week7</a>]</h2><p>四種 types 的 stochastic integration, where $X_t,H_t$ are stochastic processes, <span>$f(t)\in L^2([a,b])$</span><!-- Has MathJax --> is a deterministic function, $W_t$ is a Brownian motion, and $a,b\in\mathbb{R}$</p>
+<h2 id="隨機過程的積分-Week7"><a href="#隨機過程的積分-Week7" class="headerlink" title="隨機過程的積分 [Week7]"></a>隨機過程的積分 [<a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/">Week7</a>]</h2><p>四種 types 的 stochastic integration, where <span>$X_t,H_t$</span><!-- Has MathJax --> are stochastic processes, <span>$f(t)\in L^2([a,b])$</span><!-- Has MathJax --> is a deterministic function, <span>$W_t$</span><!-- Has MathJax --> is a Brownian motion, and <span>$a,b\in\mathbb{R}$</span><!-- Has MathJax --></p>
 <span>$$\begin{align}
 \int_a^b X_t dt \\
 \int_a^b f(t)dW_t \\
 \int_a^b X_t dW_t \\
 \int_a^b X_t dH_t \\
 \end{align}$$</span><!-- Has MathJax -->
+
 <blockquote>
 <p>💡 在 stochastic integral 跟以往的 integral 很不一樣的一點是, 我們發現 integral 的結果仍然是一個 random variable 閱讀以下內容時可以看出這一點</p>
 </blockquote>
 <p>只列出最簡單的積分形式, 其餘請參考<a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/">Week7筆記</a></p>
-<p><strong>[Stochastic Integrals of Simplest Type $∫ X_t dt$]:</strong><br>Given a Stochastic process <span>$X_t:\Omega\times\mathbb{R}_+\rightarrow\mathbb{R}$</span><!-- Has MathJax --><br>Given partition <span>$\Delta:a=t_0\leq t_1\leq ...\leq t_n=b$</span><!-- Has MathJax -->, <span>$|\Delta|=\max\{t_k-t_{k-1}\},k=1,...,n$</span><!-- Has MathJax --><br>If the following expectation converges to some value $A$ in mean square sense:</p>
-<span>$$\mathbb{E}\left[
+<p><strong>[Stochastic Integrals of Simplest Type <span>$&int; X_t dt$</span><!-- Has MathJax -->]:</strong><br>Given a Stochastic process <span>$X_t:\Omega\times\mathbb{R}_+\rightarrow\mathbb{R}$</span><!-- Has MathJax --><br>Given partition <span>$\Delta:a=t_0\leq t_1\leq ...\leq t_n=b$</span><!-- Has MathJax -->, <span>$|\Delta|=\max\{t_k-t_{k-1}\},k=1,...,n$</span><!-- Has MathJax --><br>If the following expectation converges to some value <span>$A$</span><!-- Has MathJax --> in mean square sense:</p>
+<p><span>$$\mathbb{E}\left[
 \left(
 A - \sum_{k=1}^n X_{t_{k-1}}(t_k-t_{k-1})
 \right)^2
 \right]
-\xrightarrow[|\Delta|\longrightarrow0]{} 0$$</span><!-- Has MathJax --> Then we denote(define) the converged value $A$ as:<br><span>$$\int_a^b X_t dt$$</span><!-- Has MathJax -->
+\xrightarrow[|\Delta|\longrightarrow0]{} 0$$</span><!-- Has MathJax --> Then we denote(define) the converged value <span>$A$</span><!-- Has MathJax --> as:</p>
+<span>$$\int_a^b X_t dt$$</span><!-- Has MathJax -->
+
 <p><strong>[Existence of the Simplest Type of Stochastic Integral]: (充分條件)</strong></p>
-<span>$X_t:\mathbb{E}[X_t^2]&lt;\infty$</span><!-- Has MathJax -->, if<br>&emsp;1. $m(t)$ continuous<br>&emsp;2. $K(t,s)$ continuous<br>Then the stochastic integral exists<br><span>$$\int_a^b X_tdt&lt;\infty$$</span><!-- Has MathJax --> 有上述定理好處如下:<br>We assume integral is taken in an bounded interval $[a,b]$<br>&emsp;1. Expectation of stochastic integral:<br>&emsp;&emsp;<span>$$\mathbb{E}\left[ \int X_tdt \right] = \int \mathbb{E}[X_t]dt$$</span><!-- Has MathJax -->
-<p>&emsp;2. Expectation of squared stochastic integral:<br>&emsp;&emsp;<span>$$\mathbb{E}\left[
+<p><span>$X_t:\mathbb{E}[X_t^2]&lt;\infty$</span><!-- Has MathJax -->, if<br>&emsp;1. <span>$m(t)$</span><!-- Has MathJax --> continuous<br>&emsp;2. <span>$K(t,s)$</span><!-- Has MathJax --> continuous<br>Then the stochastic integral exists<br><span>$$\int_a^b X_tdt&lt;\infty$$</span><!-- Has MathJax --> 有上述定理好處如下:<br>We assume integral is taken in an bounded interval <span>$[a,b]$</span><!-- Has MathJax --><br>&emsp;1. Expectation of stochastic integral:<br>&emsp;&emsp;<span>$$\mathbb{E}\left[ \int X_tdt \right] = \int \mathbb{E}[X_t]dt$$</span><!-- Has MathJax --><br>&emsp;2. Expectation of squared stochastic integral:<br>&emsp;&emsp;<span>$$\mathbb{E}\left[
 \left(\int X_t dt\right)^2
 \right] = \int\int\mathbb{E}[X_tX_s]dtds$$</span><!-- Has MathJax --><br>&emsp;3. Variance of stochastic integral:<br>&emsp;&emsp;<span>$$Var\left[
 \int X_t dt
 \right] = \int_a^b\int_a^b K(t,s) dtds$$</span><!-- Has MathJax --></p>
 <hr>
-<h2 id="總結隨機過程的連續、微分、積分的條件"><a href="#總結隨機過程的連續、微分、積分的條件" class="headerlink" title="總結隨機過程的連續、微分、積分的條件"></a>總結隨機過程的連續、微分、積分的條件</h2><p>Differentiability 要關注 $m(t)$ and $K(t,s)$ 的微分性 (充要條件)<br>而 continuity 則是, 若$m(t)=0$, 且 $K(t_0,t_0)$ 連續, 則 $X_{t_0}$ 連續 (充分條件)<br>另外對於 simplest type of stochastic integral <span>$\int X_tdx$</span><!-- Has MathJax --> 來說, 關注的是 $m(t)$ and $K(t,s)$ 的連續性, 連續的話則 <span>$\int X_tdx$</span><!-- Has MathJax --> 存在 (充分條件)</p>
+<h2 id="總結隨機過程的連續、微分、積分的條件"><a href="#總結隨機過程的連續、微分、積分的條件" class="headerlink" title="總結隨機過程的連續、微分、積分的條件"></a>總結隨機過程的連續、微分、積分的條件</h2><p>Differentiability 要關注 <span>$m(t)$</span><!-- Has MathJax --> and <span>$K(t,s)$</span><!-- Has MathJax --> 的微分性 (充要條件)<br>而 continuity 則是, 若<span>$m(t)=0$</span><!-- Has MathJax -->, 且 <span>$K(t_0,t_0)$</span><!-- Has MathJax --> 連續, 則 <span>$X_{t_0}$</span><!-- Has MathJax --> 連續 (充分條件)<br>另外對於 simplest type of stochastic integral <span>$\int X_tdx$</span><!-- Has MathJax --> 來說, 關注的是 <span>$m(t)$</span><!-- Has MathJax --> and <span>$K(t,s)$</span><!-- Has MathJax --> 的連續性, 連續的話則 <span>$\int X_tdx$</span><!-- Has MathJax --> 存在 (充分條件)</p>
 <hr>
-<h2 id="Brownian-Motion-Week4-6"><a href="#Brownian-Motion-Week4-6" class="headerlink" title="Brownian Motion [Week4.6]"></a>Brownian Motion [<a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/#Week-4-6-Two-definitions-of-a-Brownian-motion">Week4.6</a>]</h2><p>Brownian Motion 又稱 Wiener process<br><strong>[Brownian Motion Def1]:</strong><br>&emsp;We say that $B_t$ is Brownian motion if and only if<br>&emsp;$B_t$ is a <a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/#Week-4-4-5-Definition-of-a-Gaussian-process-Covariance-function">Gaussin process</a> with $m(t)=0$ and $K(t,s)=\min(t,s)$</p>
-<p><strong>[Brownian Motion Def2]:</strong><br>&emsp;We say that $B_t$ is Brownian motion if and only if<br>&emsp;$(0)$ $B_0=0$ almost surely (a.s.)<br>&emsp;$(1)$ $B_t$ is independent increaments, i.e.<br>&emsp;&emsp;<span>$\forall t_0&lt;t_1&lt;...&lt;t_n$</span><!-- Has MathJax -->, we have <span>$B_{t_1}-B_{t_0}, ..., B_{t_n}-B_{t_{n-1}}$</span><!-- Has MathJax --> are independent<br>&emsp;$(2)$ <span>$B_t-B_s\sim\mathcal{N}(0,t-s)$</span><!-- Has MathJax -->, $\forall t&gt;s\geq0$</p>
-<p>由 Def2 (2) 知<br><span>$$B_{t+\Delta t}-B_t\sim\mathcal{N}(0,\Delta t)$$</span><!-- Has MathJax --> 寫成 $dB_t$ 的離散近似形式變成<br><span>$$B_{t+\Delta t}-B_t=\sqrt{\Delta t}\cdot \varepsilon$$</span><!-- Has MathJax -->, where <span>$\varepsilon\sim\mathcal{N(0,1)}$</span><!-- Has MathJax --><br>注意到 $dB_t/dt$ 照隨機微分的定義為:<br><span>$$\lim_{h\rightarrow0}\frac{B_{t+h}-B_t}{h}$$</span><!-- Has MathJax --> 但上式 limit 不存在<br>因為在 $t_0$ 上面提到的 Stochasitc differentiable 的充要條件為 mean and covariance functions 在 $t_0$ 都是 differentiable<br>而我們知道 Brownian motion 的 <a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/#Week-6-3-Definition-of-a-stochastic-derivative"><span>$K(t,s)=\min(t,s)$</span><!-- Has MathJax --> 是不連續的</a>, 所以微分不存在</p>
+<h2 id="Brownian-Motion-Week4-6"><a href="#Brownian-Motion-Week4-6" class="headerlink" title="Brownian Motion [Week4.6]"></a>Brownian Motion [<a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/#Week-4-6-Two-definitions-of-a-Brownian-motion">Week4.6</a>]</h2><p>Brownian Motion 又稱 Wiener process<br><strong>[Brownian Motion Def1]:</strong><br>&emsp;We say that <span>$B_t$</span><!-- Has MathJax --> is Brownian motion if and only if<br>&emsp;<span>$B_t$</span><!-- Has MathJax --> is a <a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-4-Gaussian-Processes/#Week-4-4-5-Definition-of-a-Gaussian-process-Covariance-function">Gaussin process</a> with <span>$m(t)=0$</span><!-- Has MathJax --> and <span>$K(t,s)=\min(t,s)$</span><!-- Has MathJax --></p>
+<p><strong>[Brownian Motion Def2]:</strong><br>&emsp;We say that <span>$B_t$</span><!-- Has MathJax --> is Brownian motion if and only if<br>&emsp;<span>$(0)$</span><!-- Has MathJax --> <span>$B_0=0$</span><!-- Has MathJax --> almost surely (a.s.)<br>&emsp;<span>$(1)$</span><!-- Has MathJax --> <span>$B_t$</span><!-- Has MathJax --> is independent increaments, i.e.<br>&emsp;&emsp;<span>$\forall t_0&lt;t_1&lt;...&lt;t_n$</span><!-- Has MathJax -->, we have <span>$B_{t_1}-B_{t_0}, ..., B_{t_n}-B_{t_{n-1}}$</span><!-- Has MathJax --> are independent<br>&emsp;<span>$(2)$</span><!-- Has MathJax --> <span>$B_t-B_s\sim\mathcal{N}(0,t-s)$</span><!-- Has MathJax -->, <span>$\forall t&gt;s\geq0$</span><!-- Has MathJax --></p>
+<p>由 Def2 (2) 知<br><span>$$B_{t+\Delta t}-B_t\sim\mathcal{N}(0,\Delta t)$$</span><!-- Has MathJax --> 寫成 <span>$dB_t$</span><!-- Has MathJax --> 的離散近似形式變成<br><span>$$B_{t+\Delta t}-B_t=\sqrt{\Delta t}\cdot \varepsilon$$</span><!-- Has MathJax --> , where <span>$\varepsilon\sim\mathcal{N(0,1)}$</span><!-- Has MathJax --><br>注意到 <span>$dB_t/dt$</span><!-- Has MathJax --> 照隨機微分的定義為:<br><span>$$\lim_{h\rightarrow0}\frac{B_{t+h}-B_t}{h}$$</span><!-- Has MathJax --> 但上式 limit 不存在<br>因為在 <span>$t_0$</span><!-- Has MathJax --> 上面提到的 Stochasitc differentiable 的充要條件為 mean and covariance functions 在 <span>$t_0$</span><!-- Has MathJax --> 都是 differentiable<br>而我們知道 Brownian motion 的 <a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/#Week-6-3-Definition-of-a-stochastic-derivative"><span>$K(t,s)=\min(t,s)$</span><!-- Has MathJax --> 是不連續的</a>, 所以微分不存在</p>
 
       
     </div>
@@ -501,13 +509,13 @@ A - \sum_{k=1}^n X_{t_{k-1}}(t_k-t_{k-1})
           
             <a href="/tags/Stochastic-Processes/" rel="tag"># Stochastic Processes</a>
           
-            <a href="/tags/Brownian-Motion/" rel="tag"># Brownian Motion</a>
+            <a href="/tags/Stochastic-Integration/" rel="tag"># Stochastic Integration</a>
           
             <a href="/tags/Stochastic-Convergences/" rel="tag"># Stochastic Convergences</a>
           
             <a href="/tags/Stochastic-Continuity/" rel="tag"># Stochastic Continuity</a>
           
-            <a href="/tags/Stochastic-Integration/" rel="tag"># Stochastic Integration</a>
+            <a href="/tags/Brownian-Motion/" rel="tag"># Brownian Motion</a>
           
         </div>
       

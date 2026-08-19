@@ -382,11 +382,11 @@
 <p>從一開始決定上課後，經過了半年終於來到 Udacity Term2 最後一個 Project 了。只能說盡量讓自己把每一個做的 project 都寫一篇 blog 記錄，但這陣子時間真的不夠用，所以這篇就從 high level 的角度瀏覽一下內容。</p>
 <a id="more"></a>
 <hr>
-<h3 id="目的"><a href="#目的" class="headerlink" title="目的"></a>目的</h3><p>我們用上圖來說明目的，MPC 要做的事情，就是給定一個指定的 reference trajectory (黃色的曲線，通常用一個 3rd polynomail 表示)，我們經由 motion model 來計算出最佳的控制 ($(\delta,a)$分別表示車子輪子的角度跟加速度)，最佳的意思就是這樣的控制會產生出一個 predicted trajectory (綠色的曲線) 使得跟 reference trajectory <strong>cost 最小</strong>。<br>這就等於將問題轉換成一個 <strong>nonlinear constraint optimization problem</strong> 了。<br>另外剛才提到的控制項 $(\delta,a)$，其中的 $\delta$ 為下圖的 Wheel Orientation 角度:<br><img src="/2017/06/28/ModelPredictiveControl/delta.png" width="60%" height="60%"><br>而 $a$ 表示加速度，正值是踩油門，負值是踩煞車。這邊我們當然假設油門和煞車同時只會有一個存在啦，開車技術沒這麼好。</p>
+<h3 id="目的"><a href="#目的" class="headerlink" title="目的"></a>目的</h3><p>我們用上圖來說明目的，MPC 要做的事情，就是給定一個指定的 reference trajectory (黃色的曲線，通常用一個 3rd polynomail 表示)，我們經由 motion model 來計算出最佳的控制 (<span>$(\delta,a)$</span><!-- Has MathJax -->分別表示車子輪子的角度跟加速度)，最佳的意思就是這樣的控制會產生出一個 predicted trajectory (綠色的曲線) 使得跟 reference trajectory <strong>cost 最小</strong>。<br>這就等於將問題轉換成一個 <strong>nonlinear constraint optimization problem</strong> 了。<br>另外剛才提到的控制項 <span>$(\delta,a)$</span><!-- Has MathJax -->，其中的 <span>$\delta$</span><!-- Has MathJax --> 為下圖的 Wheel Orientation 角度:<br><img src="/2017/06/28/ModelPredictiveControl/delta.png" width="60%" height="60%"><br>而 <span>$a$</span><!-- Has MathJax --> 表示加速度，正值是踩油門，負值是踩煞車。這邊我們當然假設油門和煞車同時只會有一個存在啦，開車技術沒這麼好。</p>
 <hr>
 <h3 id="Motion-Model"><a href="#Motion-Model" class="headerlink" title="Motion Model"></a>Motion Model</h3><p><img src="/2017/06/28/ModelPredictiveControl/GKM.png" width="60%" height="60%"></p>
-<p>這 6 個 states $(x,y,\psi,v,cte,e\psi)$ 分別表示 (車子x座標, 車子x座標, 車子heading角度, 車子速度, Cross Track Error, Error of 車子角度)<br>CTE 或稱 XTE 是 reference position 跟 actual position 之間的誤差<br><img src="/2017/06/28/ModelPredictiveControl/XTE.png" width="60%" height="60%"></p>
-<p>同理 $e\psi$ 就是 reference 的角度跟實際角度的差值了，注意到，由於 reference trajectory 可能是一個 3rd polynomail，我們可以算切線來求得 reference 的角度。</p>
+<p>這 6 個 states <span>$(x,y,\psi,v,cte,e\psi)$</span><!-- Has MathJax --> 分別表示 (車子x座標, 車子x座標, 車子heading角度, 車子速度, Cross Track Error, Error of 車子角度)<br>CTE 或稱 XTE 是 reference position 跟 actual position 之間的誤差<br><img src="/2017/06/28/ModelPredictiveControl/XTE.png" width="60%" height="60%"></p>
+<p>同理 <span>$e\psi$</span><!-- Has MathJax --> 就是 reference 的角度跟實際角度的差值了，注意到，由於 reference trajectory 可能是一個 3rd polynomail，我們可以算切線來求得 reference 的角度。</p>
 <hr>
 <h3 id="Tools-of-Nonlinear-Constraint-Opt"><a href="#Tools-of-Nonlinear-Constraint-Opt" class="headerlink" title="Tools of Nonlinear Constraint Opt"></a>Tools of Nonlinear Constraint Opt</h3><p>兩個主要的 tool:</p>
 <ol>

@@ -125,7 +125,7 @@ Data Parallel: GPUs 跑不同的 batches, 但跑同一個完整的模型
 <meta property="og:image" content="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_done.png">
 <meta property="og:image" content="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/lightning_example.png">
 <meta property="og:image" content="https://bobondemon.github.io/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_reduce_example_results.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.814Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.140Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Distributed Data Parallel and Its Pytorch Example">
 <meta name="twitter:description" content="訓練時候的平行化可分為:
@@ -449,20 +449,23 @@ Data Parallel: GPUs 跑不同的 batches, 但跑同一個完整的模型
 <li>Asynchronous: 每個 device 算完自己的 batch 後即可直接 update</li>
 </ul>
 <p>可以想像非同步的化可以更新的比較有效率, 但可能效果會不如同步的方式.<br>Asynchronous 會遇到的狀況是算完 gradient 後要 update parameters 時, parameters 已經被其他 process update 過了, 那為什麼還可以 work?</p>
-<h4 id="Asynchronous-狀況-1"><a href="#Asynchronous-狀況-1" class="headerlink" title="Asynchronous 狀況 1"></a>Asynchronous 狀況 1</h4><p>範例假設兩個 GPU (1&amp;2) 其參數空間都在 $\theta_a$.</p>
-<p>Step 1. 假設 GPU2 先算完 $\Delta P_2(\theta_a)$ 並且 update 到 $\theta_b$:</p>
+<h4 id="Asynchronous-狀況-1"><a href="#Asynchronous-狀況-1" class="headerlink" title="Asynchronous 狀況 1"></a>Asynchronous 狀況 1</h4><p>範例假設兩個 GPU (1&amp;2) 其參數空間都在 <span>$\theta_a$</span><!-- Has MathJax -->.</p>
+<p>Step 1. 假設 GPU2 先算完 <span>$\Delta P_2(\theta_a)$</span><!-- Has MathJax --> 並且 update 到 <span>$\theta_b$</span><!-- Has MathJax -->:</p>
 <span>$$\begin{align}
 \theta_b = \theta_a + \Delta P_2(\theta_a)
 \end{align}$$</span><!-- Has MathJax -->
-<p>Step2. 這時候 GPU1 算完 gradient 了, 由於當時算 gradient 是基於 $\theta_a$, 因此 gradient 為 $\Delta P_1(\theta_a)$, 但是要 update 的時候由於已經被 GPU2 更新到 $\theta_b$ 了, 所以會更新到 $\theta_c$:</p>
+
+<p>Step2. 這時候 GPU1 算完 gradient 了, 由於當時算 gradient 是基於 <span>$\theta_a$</span><!-- Has MathJax -->, 因此 gradient 為 <span>$\Delta P_1(\theta_a)$</span><!-- Has MathJax -->, 但是要 update 的時候由於已經被 GPU2 更新到 <span>$\theta_b$</span><!-- Has MathJax --> 了, 所以會更新到 <span>$\theta_c$</span><!-- Has MathJax -->:</p>
 <span>$$\begin{align}
 \theta_c = \theta_b + \Delta P_1(\theta_a)
 \end{align}$$</span><!-- Has MathJax -->
+
 <p><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/Async_case1.png" width="30%" height="30%" align="center"></p>
 <p>這裡讀者可能會疑問, 計算 gradient 與 update 時根據的參數是不同, 這樣 update 會不會出問題? 以上面這個例子來說, 還剛好沒事. 原因是其實等同於 synchronous update:</p>
 <span>$$\begin{align}
 \theta_c = \theta_a + \left[ \Delta P_2(\theta_a) + \Delta P_1(\theta_a) \right]
 \end{align}$$</span><!-- Has MathJax -->
+
 <p>那可能會繼續問, 這只是剛好, 如果一個 GPU 比另一個慢很多, 會怎樣? 我們看看 case 2</p>
 <h4 id="Asynchronous-狀況-2"><a href="#Asynchronous-狀況-2" class="headerlink" title="Asynchronous 狀況 2"></a>Asynchronous 狀況 2</h4><p>GPU2 太快了… 已經 update 好幾輪</p>
 <p><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/Async_case2.png" width="60%" height="60%" align="center"></p>
@@ -484,15 +487,15 @@ Data Parallel: GPUs 跑不同的 batches, 但跑同一個完整的模型
 <li>GPU 0 全部都拿到 GPU 1~4 的 Gradients 後, 更新 parameters</li>
 <li>GPU 0 把 model 發送給 GPU 1~4</li>
 </ol>
-<p>假設有 $N$ 個 GPU, 通信一次花費時間 $K$, 則 PS 方法成本為:</p>
+<p>假設有 <span>$N$</span><!-- Has MathJax --> 個 GPU, 通信一次花費時間 <span>$K$</span><!-- Has MathJax -->, 則 PS 方法成本為:</p>
 <ul>
-<li>Gradients passing: $(N-1)K$</li>
-<li>Model passing: $(N-1)K$</li>
+<li>Gradients passing: <span>$(N-1)K$</span><!-- Has MathJax --></li>
+<li>Model passing: <span>$(N-1)K$</span><!-- Has MathJax --></li>
 </ul>
-<p>Total $2K(\color{orange}{N}-1)$, <strong>跟 GPU 數量正比</strong></p>
+<p>Total <span>$2K(\color{orange}{N}-1)$</span><!-- Has MathJax -->, <strong>跟 GPU 數量正比</strong></p>
 <p>Ring Allreduce 比較多圖, 特別拉出一個 section 說明</p>
 <hr>
-<h3 id="Ring-Allreduce-的-Synchronous-Update"><a href="#Ring-Allreduce-的-Synchronous-Update" class="headerlink" title="Ring Allreduce 的 Synchronous Update"></a>Ring Allreduce 的 Synchronous Update</h3><p>每一個 GPU 都分別有一個傳送和接收的對象 GPU, 分配起來正好形成一個環. 假設每個 GPUs 都算好 gradients 了, 並且我們將 gradients 分成跟 GPU 數量一樣的 $N$ 個 chunks:</p>
+<h3 id="Ring-Allreduce-的-Synchronous-Update"><a href="#Ring-Allreduce-的-Synchronous-Update" class="headerlink" title="Ring Allreduce 的 Synchronous Update"></a>Ring Allreduce 的 Synchronous Update</h3><p>每一個 GPU 都分別有一個傳送和接收的對象 GPU, 分配起來正好形成一個環. 假設每個 GPUs 都算好 gradients 了, 並且我們將 gradients 分成跟 GPU 數量一樣的 <span>$N$</span><!-- Has MathJax --> 個 chunks:</p>
 <p><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/chunks.png" width="100%" height="100%" align="center"></p>
 <p>這方法分兩步驟:</p>
 <ol>
@@ -500,18 +503,18 @@ Data Parallel: GPUs 跑不同的 batches, 但跑同一個完整的模型
 <li>All Gather</li>
 </ol>
 <h4 id="1-Scatter-Reduce"><a href="#1-Scatter-Reduce" class="headerlink" title="1. Scatter Reduce"></a>1. Scatter Reduce</h4><p><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/scatter_reduce_itr1.png" width="70%" height="70%" align="center"><br><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/scatter_reduce_itr2.png" width="70%" height="70%" align="center"><br><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/scatter_reduce_itr3.png" width="70%" height="70%" align="center"><br><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/scatter_reduce_itr4.png" width="70%" height="70%" align="center"><br><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/scatter_reduce_done.png" width="70%" height="70%" align="center"></p>
-<p>做完 $N-1$ 次 iteration 後可以發現每張 GPU 都會有一個是完整的 chunk.</p>
+<p>做完 <span>$N-1$</span><!-- Has MathJax --> 次 iteration 後可以發現每張 GPU 都會有一個是完整的 chunk.</p>
 <h4 id="2-All-Gather"><a href="#2-All-Gather" class="headerlink" title="2. All Gather"></a>2. All Gather</h4><p><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_itr1.png" width="70%" height="70%" align="center"><br><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_itr2.png" width="70%" height="70%" align="center"><br><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_itr3.png" width="70%" height="70%" align="center"><br><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_itr4.png" width="70%" height="70%" align="center"><br><img src="/2020/12/20/Distributed-Data-Parallel-and-Its-Pytorch-Example/all_gather_done.png" width="70%" height="70%" align="center"></p>
-<p>做完 $N-1$ 次 iteration 後可以發現每張 GPU 都拿到所有完整的 chunk.</p>
+<p>做完 <span>$N-1$</span><!-- Has MathJax --> 次 iteration 後可以發現每張 GPU 都拿到所有完整的 chunk.</p>
 <p>All Gather 流程跟 Scatter Reduce 是一樣, 只是將累加行為變成取代而已.</p>
 <h4 id="成本"><a href="#成本" class="headerlink" title="成本"></a>成本</h4><p>每個 GPUs 都得到統合後的 gradients, 因此 各個 GPU 上的 model 可以各自 update (gradients 相同, 所以 update 後的 models 也相同)</p>
-<p>假設有 $N$ 個 GPU,則成本為:</p>
+<p>假設有 <span>$N$</span><!-- Has MathJax --> 個 GPU,則成本為:</p>
 <ul>
-<li>通信一次花費時間 $K/N$ (因為我們分成 $N$ 個 chunks 同時傳輸)</li>
-<li>Scatter reduce:  $(N-1)K/N$</li>
-<li>All gather: $(N-1)K/N$</li>
+<li>通信一次花費時間 <span>$K/N$</span><!-- Has MathJax --> (因為我們分成 <span>$N$</span><!-- Has MathJax --> 個 chunks 同時傳輸)</li>
+<li>Scatter reduce:  <span>$(N-1)K/N$</span><!-- Has MathJax --></li>
+<li>All gather: <span>$(N-1)K/N$</span><!-- Has MathJax --></li>
 </ul>
-<p>Total $2K(\color{orange}{N}-1)/\color{orange}{N}$, <strong>跟 GPU 數量無關</strong></p>
+<p>Total <span>$2K(\color{orange}{N}-1)/\color{orange}{N}$</span><!-- Has MathJax -->, <strong>跟 GPU 數量無關</strong></p>
 <hr>
 <h3 id="PyTorch-Model-with-DDP"><a href="#PyTorch-Model-with-DDP" class="headerlink" title="PyTorch: Model with DDP"></a>PyTorch: Model with DDP</h3><p>還記得最開頭的範例嗎? 我們做到了把每個 GPU 都分配不同的 batches, 但還不會將各自計算 gradients 統合然後 update.</p>
 <p>其實我們只需要針對上面範例的 minimal_distributed_data_example.py 做點修改就可以.</p>

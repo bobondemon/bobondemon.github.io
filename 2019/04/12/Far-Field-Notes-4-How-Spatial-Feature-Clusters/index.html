@@ -96,7 +96,7 @@
 <meta property="og:description" content="這是 far field 筆記系列第四篇, 寫這篇是因為做 CGMM-MVDR 時, 很好奇為何 spatial features 聚類的結果可以對應不同方向的聲源. 因此記錄下自己的一點想法.
 假設我們有 $M$ 個麥克風, 則在 stft (short-time fourier transform) 上來說, $\mathbf{f}_{\omega,t}$ 表示一個頻率 $\omega$,">
 <meta property="og:image" content="https://bobondemon.github.io/2019/04/12/Far-Field-Notes-4-How-Spatial-Feature-Clusters/CircularlySymmetricGaussian.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.817Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.155Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Far Field Notes (4) How Spatial Feature Clusters">
 <meta name="twitter:description" content="這是 far field 筆記系列第四篇, 寫這篇是因為做 CGMM-MVDR 時, 很好奇為何 spatial features 聚類的結果可以對應不同方向的聲源. 因此記錄下自己的一點想法.
@@ -375,7 +375,7 @@
       
         <hr>
 <p>這是 far field 筆記系列第四篇, 寫這篇是因為做 CGMM-MVDR 時, 很好奇為何 spatial features 聚類的結果可以對應不同方向的聲源. 因此記錄下自己的一點想法.</p>
-<p>假設我們有 $M$ 個麥克風, 則在 stft (short-time fourier transform) 上來說, $\mathbf{f}_{\omega,t}$ 表示一個頻率 $\omega$, 時間 $t$ 的 $M$ 維向量. 對於某一個 $\theta$ 方向的 narrowband 訊號, ideally 我們可以這麼表示</p>
+<p>假設我們有 <span>$M$</span><!-- Has MathJax --> 個麥克風, 則在 stft (short-time fourier transform) 上來說, <span>$\mathbf{f}_{\omega,t}$</span><!-- Has MathJax --> 表示一個頻率 <span>$\omega$</span><!-- Has MathJax -->, 時間 <span>$t$</span><!-- Has MathJax --> 的 <span>$M$</span><!-- Has MathJax --> 維向量. 對於某一個 <span>$\theta$</span><!-- Has MathJax --> 方向的 narrowband 訊號, ideally 我們可以這麼表示</p>
 <span>$$\begin{align}
 \mathbf{f}_{\omega,t}^{\theta}=f(\omega)\mathbf{\upsilon}(\theta)=f(\omega)
 \left[
@@ -387,15 +387,16 @@ e^{-j\omega\tau_{M-1}}
 \end{array}
 \right]
 \end{align}$$</span><!-- Has MathJax -->
+
 <a id="more"></a>
-<p>$\tau_i$ 表示由 $\theta$ 產生的第 $i$ 個 mic 的 time delay. 因此 <strong>spatial feature 每個維度之間的 phase offset 關係是固定的</strong>, 由 $\mathbf{\upsilon}(\theta)$ 決定. 所有如果有兩個方向 $\theta_1$ and $\theta_2$ 的聲源, phase offset 關係各自是 $\mathbf{\upsilon}(\theta_1)$ 和 $\mathbf{\upsilon}(\theta_2)$. 問題是要用什麼樣的 cluster 能對相同 phase offset 關係的 complex vector 聚類在一起, 而對不同 phase offset 關係能分開呢?</p>
+<p><span>$\tau_i$</span><!-- Has MathJax --> 表示由 <span>$\theta$</span><!-- Has MathJax --> 產生的第 <span>$i$</span><!-- Has MathJax --> 個 mic 的 time delay. 因此 <strong>spatial feature 每個維度之間的 phase offset 關係是固定的</strong>, 由 <span>$\mathbf{\upsilon}(\theta)$</span><!-- Has MathJax --> 決定. 所有如果有兩個方向 <span>$\theta_1$</span><!-- Has MathJax --> and <span>$\theta_2$</span><!-- Has MathJax --> 的聲源, phase offset 關係各自是 <span>$\mathbf{\upsilon}(\theta_1)$</span><!-- Has MathJax --> 和 <span>$\mathbf{\upsilon}(\theta_2)$</span><!-- Has MathJax -->. 問題是要用什麼樣的 cluster 能對相同 phase offset 關係的 complex vector 聚類在一起, 而對不同 phase offset 關係能分開呢?</p>
 <p>關鍵的答案就是 <strong><a href="https://www.ee.iitb.ac.in/~sarva/courses/EE703/2013/Slides/CircularlySymmetricGaussian.pdf" target="_blank" rel="external">Circularly Symmetric Gaussian Distribution</a></strong></p>
 <hr>
 <h3 id="Circularly-Symmetric-Gaussian-Distribution"><a href="#Circularly-Symmetric-Gaussian-Distribution" class="headerlink" title="Circularly Symmetric Gaussian Distribution"></a>Circularly Symmetric Gaussian Distribution</h3><p>直接引用 slides 裡的一段定義</p>
 <blockquote>
-<p>A complex Gaussian random vector $Z$ is circularly symmetric if $e^{j\phi}Z$ has the same distribution as $Z$ for all real $\phi$.</p>
+<p>A complex Gaussian random vector <span>$Z$</span><!-- Has MathJax --> is circularly symmetric if <span>$e^{j\phi}Z$</span><!-- Has MathJax --> has the same distribution as <span>$Z$</span><!-- Has MathJax --> for all real <span>$\phi$</span><!-- Has MathJax -->.</p>
 </blockquote>
-<p>意思就是如果我們乘上固定的 phase offset $\phi$ (聲源有 time delay), 這相當於不改變維度之間的 phase offset 關係 (不改變聲源方向 $\theta$), 這樣的話它們會是同一個機率分佈, 而這種特性完全符合我們的需求!</p>
+<p>意思就是如果我們乘上固定的 phase offset <span>$\phi$</span><!-- Has MathJax --> (聲源有 time delay), 這相當於不改變維度之間的 phase offset 關係 (不改變聲源方向 <span>$\theta$</span><!-- Has MathJax -->), 這樣的話它們會是同一個機率分佈, 而這種特性完全符合我們的需求!</p>
 <p>我們直接擷取 slide 中的 Circularly Symmetric Gaussian Distribution 的定義:</p>
 <p><img src="/2019/04/12/Far-Field-Notes-4-How-Spatial-Feature-Clusters/CircularlySymmetricGaussian.png" width="80%" height="70%"></p>
 <p>詳細請見 [1] 的 slides.</p>

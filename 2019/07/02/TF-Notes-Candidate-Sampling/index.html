@@ -93,7 +93,7 @@
 <meta property="og:url" content="https://bobondemon.github.io/2019/07/02/TF-Notes-Candidate-Sampling/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="NN 做分類最後一層通常使用 softmax loss, 但如果類別數量很大會導致計算 softmax 的 cost 太高, 這樣會讓訓練變得很慢. 假如總共的 class 數量是 10000 個, candidate sampling 的想法就是對於一個 input $x$ 採樣出一個 subset (當然需要包含正確的 label), 譬如只用 50 個 classes, 扣掉正確的那個 c">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.830Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.231Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="TF Notes (6), Candidate Sampling, Sampled Softmax Loss">
 <meta name="twitter:description" content="NN 做分類最後一層通常使用 softmax loss, 但如果類別數量很大會導致計算 softmax 的 cost 太高, 這樣會讓訓練變得很慢. 假如總共的 class 數量是 10000 個, candidate sampling 的想法就是對於一個 input $x$ 採樣出一個 subset (當然需要包含正確的 label), 譬如只用 50 個 classes, 扣掉正確的那個 c">
@@ -369,55 +369,60 @@
 
       
         <hr>
-<p>NN 做分類最後一層通常使用 softmax loss, 但如果類別數量很大會導致計算 softmax 的 cost 太高, 這樣會讓訓練變得很慢. 假如總共的 class 數量是 10000 個, candidate sampling 的想法就是對於一個 input $x$ 採樣出一個 subset (當然需要包含正確的 label), 譬如只用 50 個 classes, 扣掉正確的那個 class, 剩下的 49 個 classes 從 9999 個採樣出來. 然後計算 softmax 只在那 50 個計算. 那麼問題來了, 這樣的採樣方式最終訓練出來的 logits 會是對的嗎? 它與未採樣前 (full set) 的 logtis 有何對應關係?</p>
+<p>NN 做分類最後一層通常使用 softmax loss, 但如果類別數量很大會導致計算 softmax 的 cost 太高, 這樣會讓訓練變得很慢. 假如總共的 class 數量是 10000 個, candidate sampling 的想法就是對於一個 input <span>$x$</span><!-- Has MathJax --> 採樣出一個 subset (當然需要包含正確的 label), 譬如只用 50 個 classes, 扣掉正確的那個 class, 剩下的 49 個 classes 從 9999 個採樣出來. 然後計算 softmax 只在那 50 個計算. 那麼問題來了, 這樣的採樣方式最終訓練出來的 logits 會是對的嗎? 它與未採樣前 (full set) 的 logtis 有何對應關係?</p>
 <a id="more"></a>
 <p>採用 candidate sampling 方式的 softmax loss 在 tensorflow 中已經直接有 op 了, 參考 <a href="https://www.tensorflow.org/api_docs/python/tf/nn/sampled_softmax_loss" target="_blank" rel="external">tf.nn.sampled_softmax_loss</a>. <a href="https://www.tensorflow.org/extras/candidate_sampling.pdf" target="_blank" rel="external">文檔</a>裡最終推導得到如下的一個式子:</p>
 <span>$$\begin{align}
 \log(P(y|x_i,C_i))=\log(P(y|x_i))-\log(Q(y|x_i))+K&apos;(x_i,C_i)
 \end{align}$$</span><!-- Has MathJax -->
-<p>推導過程自行看文檔就可以, 重要的是了解式子的物理意義.<br>$C_i$ 是對 input $x_i$ 採樣出的 subset, 包含了 <em>一個正確的類別標籤</em> 和 <em>其他採樣出的類別 $S_i$</em>. $Q(y|x_i)$ 是基於 input $x_i$, label $y$ 被選中成為 $S_i$ 的機率. $K’$ 是跟 $y$ 無關的, 所以對於式子來說是 constant. 注意到式子的變數是 $y$ 代表了是 softmax 的哪一個 output node.</p>
-<p>式 (1) 的解釋為: <u>“在 candidate set $C_i$ 下的 logits 結果”</u> 等於 <u>“在 full set 下的 logtis 結果減去 $\log Q(y|x_i)$”</u>, $K’$ 會直接被 $\log P(y|x_i)$ 吸收, 因為 logits 加上 constant 對於 softmax 來說會分子分母消掉, 所以不影響.</p>
-<p>以下我們順便複習一下, 為什麼 logits 可以寫成 “$\mbox{const}+\log P(y|x)$” 這種形式. (包含複習 Entropy, cross-entropy, softmax loss)</p>
+
+<p>推導過程自行看文檔就可以, 重要的是了解式子的物理意義.<br><span>$C_i$</span><!-- Has MathJax --> 是對 input <span>$x_i$</span><!-- Has MathJax --> 採樣出的 subset, 包含了 <em>一個正確的類別標籤</em> 和 <em>其他採樣出的類別 <span>$S_i$</span><!-- Has MathJax --></em>. <span>$Q(y\|x_i)$</span><!-- Has MathJax --> 是基於 input <span>$x_i$</span><!-- Has MathJax -->, label <span>$y$</span><!-- Has MathJax --> 被選中成為 <span>$S_i$</span><!-- Has MathJax --> 的機率. <span>$K&apos;$</span><!-- Has MathJax --> 是跟 <span>$y$</span><!-- Has MathJax --> 無關的, 所以對於式子來說是 constant. 注意到式子的變數是 <span>$y$</span><!-- Has MathJax --> 代表了是 softmax 的哪一個 output node.</p>
+<p>式 (1) 的解釋為: <u>“在 candidate set <span>$C_i$</span><!-- Has MathJax --> 下的 logits 結果”</u> 等於 <u>“在 full set 下的 logtis 結果減去 <span>$\log Q(y\|x_i)$</span><!-- Has MathJax -->”</u>, <span>$K&apos;$</span><!-- Has MathJax --> 會直接被 <span>$\log P(y\|x_i)$</span><!-- Has MathJax --> 吸收, 因為 logits 加上 constant 對於 softmax 來說會分子分母消掉, 所以不影響.</p>
+<p>以下我們順便複習一下, 為什麼 logits 可以寫成 “<span>$\mbox{const}+\log P(y\|x)$</span><!-- Has MathJax -->” 這種形式. (包含複習 Entropy, cross-entropy, softmax loss)</p>
 <hr>
 <h3 id="Entropy-定義"><a href="#Entropy-定義" class="headerlink" title="Entropy 定義"></a>Entropy 定義</h3><span>$$\begin{align}
 \sum_i{q(x_i)\log{\frac{1}{q(x_i)}}}
 \end{align}$$</span><!-- Has MathJax -->
-<p>對於 input $x_i$, 其機率為 $q(x_i)$, 若我們使用 $\log{\frac{1}{q(x_i)}}$ 這麼多 bits 的數量來 encode 它的話, 則上面的 entropy 代表了 encode 所有 input 所需要的平均 bits 數, 而這個數是<strong>最小</strong>的.</p>
+
+<p>對於 input <span>$x_i$</span><!-- Has MathJax -->, 其機率為 <span>$q(x_i)$</span><!-- Has MathJax -->, 若我們使用 <span>$\log{\frac{1}{q(x_i)}}$</span><!-- Has MathJax --> 這麼多 bits 的數量來 encode 它的話, 則上面的 entropy 代表了 encode 所有 input 所需要的平均 bits 數, 而這個數是<strong>最小</strong>的.</p>
 <hr>
-<h3 id="用錯誤的-encoding-方式"><a href="#用錯誤的-encoding-方式" class="headerlink" title="用錯誤的 encoding 方式"></a>用錯誤的 encoding 方式</h3><p>我們假設用 $\log{\frac{1}{p(x_i)}}$ 這麼多 bits 的數量來 encode 的話, 則平均 encode bits 數為:</p>
-<span>$$\begin{align}
+<h3 id="用錯誤的-encoding-方式"><a href="#用錯誤的-encoding-方式" class="headerlink" title="用錯誤的 encoding 方式"></a>用錯誤的 encoding 方式</h3><p>我們假設用 <span>$\log{\frac{1}{p(x_i)}}$</span><!-- Has MathJax --> 這麼多 bits 的數量來 encode 的話, 則平均 encode bits 數為:</p>
+<p><span>$$\begin{align}
 \sum_i{q(x_i)\log{\frac{1}{p(x_i)}}}
-\end{align}$$</span><!-- Has MathJax -->
-<p>這個數量一定會比 entropy 來的大, 而大出來的值就是我們使用錯誤的 encoding 造成的代價 (cross-entropoy).</p>
+\end{align}$$</span><!-- Has MathJax --> 這個數量一定會比 entropy 來的大, 而大出來的值就是我們使用錯誤的 encoding 造成的代價 (cross-entropoy).</p>
 <hr>
 <h3 id="Cross-entropy"><a href="#Cross-entropy" class="headerlink" title="Cross-entropy"></a>Cross-entropy</h3><p>如上面所說, 錯誤的 encoding 方式造成的代價如下:</p>
 <span>$$\begin{align}
 \mbox{Xent}(p,q)\triangleq\sum_i{q(x_i)\log{\frac{1}{p(x_i)}}} - \sum_i{q(x_i)\log{\frac{1}{q(x_i)}}} \\
 =\sum_i{q(x_i)\log{\frac{q(x_i)}{p(x_i)}}} \\
 \end{align}$$</span><!-- Has MathJax -->
+
 <hr>
-<h3 id="Sparse-softmax-loss"><a href="#Sparse-softmax-loss" class="headerlink" title="Sparse softmax loss"></a>Sparse softmax loss</h3><p>最常見的情形為當只有 $q(x_j)=1$ 而其他 $x\neq x_j$ 時 $q(x)=0$ 的話 ($q$ 變成 one-hot), 上面的 corss-entropy 變成:</p>
+<h3 id="Sparse-softmax-loss"><a href="#Sparse-softmax-loss" class="headerlink" title="Sparse softmax loss"></a>Sparse softmax loss</h3><p>最常見的情形為當只有 <span>$q(x_j)=1$</span><!-- Has MathJax --> 而其他 <span>$x\neq x_j$</span><!-- Has MathJax --> 時 <span>$q(x)=0$</span><!-- Has MathJax --> 的話 (<span>$q$</span><!-- Has MathJax --> 變成 one-hot), 上面的 corss-entropy 變成:</p>
 <span>$$\begin{align}
 \mbox{SparseSoftmaxLoss}\triangleq\mbox{Xent}(p,q\mbox{ is one-hot})=-\log p(x_j) \\
 =-\log\frac{e^{z_j}}{\sum_i{e^{z_i}}}=-\log e^{z_j} + \log\sum_i{e^{z_i}} \\
 =-z_j + \log\sum_i{e^{z_i}}
 \end{align}$$</span><!-- Has MathJax -->
-<p>其中 $z_i$ 表示 i-th logtis, 參考 <a href="https://www.tensorflow.org/api_docs/python/tf/nn/sparse_softmax_cross_entropy_with_logits" target="_blank" rel="external">tf.nn.sparse_softmax_cross_entropy_with_logits</a></p>
+
+<p>其中 <span>$z_i$</span><!-- Has MathJax --> 表示 i-th logtis, 參考 <a href="https://www.tensorflow.org/api_docs/python/tf/nn/sparse_softmax_cross_entropy_with_logits" target="_blank" rel="external">tf.nn.sparse_softmax_cross_entropy_with_logits</a></p>
 <hr>
-<h3 id="Logits-的解釋"><a href="#Logits-的解釋" class="headerlink" title="Logits 的解釋"></a>Logits 的解釋</h3><p>j-th logtis $z_j$ 可解釋為 “const + class $j$ 的 log probability”.</p>
+<h3 id="Logits-的解釋"><a href="#Logits-的解釋" class="headerlink" title="Logits 的解釋"></a>Logits 的解釋</h3><p>j-th logtis <span>$z_j$</span><!-- Has MathJax --> 可解釋為 “const + class <span>$j$</span><!-- Has MathJax --> 的 log probability”.</p>
 <span>$$\begin{align}
 z_j = \mbox{cosnt} + \log p(j)
 \end{align}$$</span><!-- Has MathJax -->
-<p>為什麼呢? 這是因為 logtis 經過 softmax 後會變成機率, 我們假設經過 softmax 後 node $j$ 的機率為 $p’(j)$, 計算一下這個值:</p>
+
+<p>為什麼呢? 這是因為 logtis 經過 softmax 後會變成機率, 我們假設經過 softmax 後 node <span>$j$</span><!-- Has MathJax --> 的機率為 <span>$p&apos;(j)$</span><!-- Has MathJax -->, 計算一下這個值:</p>
 <span>$$\begin{align}
 p&apos;(j)=\frac{e^{z_j}}{\sum_i e^{z_i}} \\
 =\frac{e^{\log p(j)}e^{\mbox{const}}}{e^{\mbox{const}}\sum_i e^{\log p(i)}} \\
 =\frac{p(j)}{\sum_i p(i)} \\
 =p(j)
 \end{align}$$</span><!-- Has MathJax -->
+
 <p>這時候我們再回去對照開始的式 (1), 就能清楚的解釋 candidate sampling 的 logtis 和 full set 的 logits 之間的關係了.</p>
 <hr>
-<h3 id="Sampled-softmax-loss"><a href="#Sampled-softmax-loss" class="headerlink" title="Sampled softmax loss"></a>Sampled softmax loss</h3><p>由式 (1) 我們已經知道 candidate sampling 的 logtis 和 full set 的 logits 之間的關係. 因此在訓練的時候, 正常 forward propagation 到 logits 時, 這時候的 logits 是 full set 的. 但由於我們計算 softmax 只會在 candidate set 上. 因此要把 full set logits 減去 $\log Q(y|x_i)$, 減完後才會是正確的 candiadtes logits.</p>
+<h3 id="Sampled-softmax-loss"><a href="#Sampled-softmax-loss" class="headerlink" title="Sampled softmax loss"></a>Sampled softmax loss</h3><p>由式 (1) 我們已經知道 candidate sampling 的 logtis 和 full set 的 logits 之間的關係. 因此在訓練的時候, 正常 forward propagation 到 logits 時, 這時候的 logits 是 full set 的. 但由於我們計算 softmax 只會在 candidate set 上. 因此要把 full set logits 減去 <span>$\log Q(y\|x_i)$</span><!-- Has MathJax -->, 減完後才會是正確的 candiadtes logits.</p>
 <p>對於 inference 部分, 則完全照舊, 因為原本 forward propagation 的結果就是 full set logits 了. 這也是 tf 官網範例這麼寫的原因:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> mode == <span class="string">"train"</span>:</div><div class="line">  loss = tf.nn.sampled_softmax_loss(</div><div class="line">      weights=weights,</div><div class="line">      biases=biases,</div><div class="line">      labels=labels,</div><div class="line">      inputs=inputs,</div><div class="line">      ...,</div><div class="line">      partition_strategy=<span class="string">"div"</span>)</div><div class="line"><span class="keyword">elif</span> mode == <span class="string">"eval"</span>:</div><div class="line">  logits = tf.matmul(inputs, tf.transpose(weights))</div><div class="line">  logits = tf.nn.bias_add(logits, biases)</div><div class="line">  labels_one_hot = tf.one_hot(labels, n_classes)</div><div class="line">  loss = tf.nn.softmax_cross_entropy_with_logits(</div><div class="line">      labels=labels_one_hot,</div><div class="line">      logits=logits)</div></pre></td></tr></table></figure>
 <hr>

@@ -99,7 +99,7 @@
 圖片來自 wiki, 我也好想要這個裝飾燈. 就這麼一個 Baye’s Rule, 撐起了統計機器學習的基石!">
 <meta property="og:image" content="https://bobondemon.github.io/2018/12/20/Bayesian-Learning-Notes/cover.jpg">
 <meta property="og:image" content="https://bobondemon.github.io/2018/12/20/Bayesian-Learning-Notes/summary.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.812Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.133Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Bayesian Learning Notes">
 <meta name="twitter:description" content="枉費我學習 ML 這麼久, 最近才完整了解 Bayesian learning 大架構, 以及與 MLE, MAP, Variational Inference, Sampling 之間的關聯. 這才終於有了見樹又見林的港覺阿! 筆記整理如下 …
@@ -383,60 +383,68 @@
 <p>圖片來自 <a href="https://en.wikipedia.org/wiki/Bayes%27_theorem" target="_blank" rel="external">wiki</a>, 我也好想要這個裝飾燈. 就這麼一個 Baye’s Rule, 撐起了統計機器學習的基石!</p>
 <a id="more"></a>
 <hr>
-<h3 id="Bayesian-Learning"><a href="#Bayesian-Learning" class="headerlink" title="Bayesian Learning"></a>Bayesian Learning</h3><p>給定訓練集 ($X,Y$) 和一個 probabilistic classifier $p(y|x,\theta)$, 同時定義好 prior distribution $p(\theta)$.</p>
+<h3 id="Bayesian-Learning"><a href="#Bayesian-Learning" class="headerlink" title="Bayesian Learning"></a>Bayesian Learning</h3><p>給定訓練集 (<span>$X,Y$</span><!-- Has MathJax -->) 和一個 probabilistic classifier <span>$p(y\|x,\theta)$</span><!-- Has MathJax -->, 同時定義好 prior distribution <span>$p(\theta)$</span><!-- Has MathJax -->.</p>
 <p>根據 Baye’s rule, <em>Training stage</em> 如下:</p>
 <span>$$\begin{align}
 p(\theta|X,Y)=\frac{p(Y|X,\theta)p(\theta)}{\color{red}{\int p(Y|X,\theta)p(\theta)\,d\theta}}
 \end{align}$$</span><!-- Has MathJax -->
+
 <p><em>Testing stage</em> 如下:</p>
 <span>$$\begin{align}
 p(y^*|x^*,X,Y)=\color{red}{\int p(y^*|x^*,\theta)p(\theta|X,Y)\,d\theta}
 \end{align}$$</span><!-- Has MathJax -->
+
 <p>注意到關鍵的兩個紅色積分通常都是不容易算, 或根本算不出來. 此時我們有兩種選擇:</p>
 <ol>
-<li>使用 <a href="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/">Variational Inference</a> 找出一個 $q(\theta)$ 來逼近 $p(\theta|X,Y)$</li>
-<li>使用 sampling 方法. 理解一下這個積分的形式, 可以發現這是在算<strong>根據某個機率分佈$p(x)$計算$f(x)$的期望值</strong>. 因此, 如果我們直接根據 $p(x)$ sample 出 $M$ 個 $x$, 就可以用如下的平均算出近似值了.</li>
+<li>使用 <a href="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/">Variational Inference</a> 找出一個 <span>$q(\theta)$</span><!-- Has MathJax --> 來逼近 <span>$p(\theta|X,Y)$</span><!-- Has MathJax --></li>
+<li>使用 sampling 方法. 理解一下這個積分的形式, 可以發現這是在算<strong>根據某個機率分佈<span>$p(x)$</span><!-- Has MathJax -->計算<span>$f(x)$</span><!-- Has MathJax -->的期望值</strong>. 因此, 如果我們直接根據 <span>$p(x)$</span><!-- Has MathJax --> sample 出 <span>$M$</span><!-- Has MathJax --> 個 <span>$x$</span><!-- Has MathJax -->, 就可以用如下的平均算出近似值了.</li>
 </ol>
 <span>$$\begin{align}
 \int p(x)f(x) \,dx \simeq \frac{1}{M}\sum_{i=1}^M f(x_i)\mbox{,  where }x_i \sim p(x)
 \end{align}$$</span><!-- Has MathJax -->
+
 <p>我們可能會想, 是不是可以將 Bayesian learning 做些簡化來避掉上述紅色積分? 是的, MLE 和 MAP 就是簡化了完整的 Bayesian learning 過程. 下面介紹.</p>
 <hr>
 <h3 id="MLE-and-MAP"><a href="#MLE-and-MAP" class="headerlink" title="MLE and MAP"></a>MLE and MAP</h3><p>Baye’s rule (式 (1)), 在 ML 中舉足輕重, 幾乎是所有的根本. 重新列出來並用不同顏色做強調</p>
 <span>$$\begin{align}
 \color{orange}{p(\theta|X,Y)}=\frac{\color{blue}{p(Y|X,\theta)}\color{green}{p(\theta)}}{\color{red}{\int p(Y|X,\theta)p(\theta)\,d\theta}}
 \end{align}$$</span><!-- Has MathJax -->
+
 <p>橘色稱為 <strong>posterior distribution</strong>, 藍色為 <strong>likelihood</strong>, 而綠色為 <strong>prior distribution</strong>. 注意到紅色的期望值基本算不出來, 在這種情況下, 我們要怎麼得到 posterior?</p>
-<h4 id="MLE"><a href="#MLE" class="headerlink" title="MLE"></a>MLE</h4><p>MLE (Maximum Likelihood Estimation) 的想法是, 既然 posterior 算不出來, 那乾脆直接用一個 $\theta^*$ 代表整個 $p(\theta|X,Y)$ 分布算了. 至於要找哪一點呢, 就找對 likelihood 最大的那點吧! 數學這麼寫:</p>
+<h4 id="MLE"><a href="#MLE" class="headerlink" title="MLE"></a>MLE</h4><p>MLE (Maximum Likelihood Estimation) 的想法是, 既然 posterior 算不出來, 那乾脆直接用一個 <span>$\theta^*$</span><!-- Has MathJax --> 代表整個 <span>$p(\theta|X,Y)$</span><!-- Has MathJax --> 分布算了. 至於要找哪一點呢, 就找對 likelihood 最大的那點吧! 數學這麼寫:</p>
 <span>$$\begin{align}
 \theta_{MLE}=\arg\max_\theta p(Y|X,\theta)
 \end{align}$$</span><!-- Has MathJax -->
+
 <p>既然已經用一個點來代表整個 posterior 了, 因此原來的 testing (2) 就不需要積分了, testing stage 直接就是:</p>
 <span>$$\begin{align}
 p(y^*|x^*,\theta_{MLE})
 \end{align}$$</span><!-- Has MathJax -->
+
 <h4 id="MAP"><a href="#MAP" class="headerlink" title="MAP"></a>MAP</h4><p>MAP (Maximum A Posterior) estimation 跟 MLE 相同, 也使用一個點來代表整個 posterior:</p>
 <span>$$\begin{align}
 \theta_{MP}=\arg\max_\theta p(\theta|X,Y)
 \end{align}$$</span><!-- Has MathJax -->
+
 <p>意思是 MAP 直接使用 mode 來代表整個 posterior. 因此 testing stage 也如同 MLE 情形:</p>
 <span>$$\begin{align}
 p(y^*|x^*,\theta_{MP})
 \end{align}$$</span><!-- Has MathJax -->
+
 <p>不過聰明的讀者應該會覺得很疑惑, posterior 不是很難計算, 或根本算不出來, 這樣怎麼可能找的到 mode? 是的, 一般情形下是找不出來, 但有一個特殊情況叫做 <a href="https://en.wikipedia.org/wiki/Conjugate_prior" target="_blank" rel="external">conjugate prior</a>. conjugate prior 指的是 prior 與 posterior 屬於同一個 distribution family, 等於是告訴我們 posterior 是什麼樣的 distribution, 因此算不出來的紅色期望值(式(4))也根本沒必要去計算, 只不過是個 normalization constant. 因此明確知道 posterior 是什麼樣的 distribution, 找 mode 就容易多了.</p>
 <p>所以對於 MAP 來說有哪些 distribution 是互為 conjugate 變得很重要. 我們可以從 wiki 上查到明確資料. 基本上 exponential family 都是.</p>
 <hr>
-<h3 id="完全避掉紅色積分項了嗎"><a href="#完全避掉紅色積分項了嗎" class="headerlink" title="完全避掉紅色積分項了嗎?"></a>完全避掉紅色積分項了嗎?</h3><p>很多模型都具有 latent variable (一般都用 $z$ 表示) 的形式</p>
+<h3 id="完全避掉紅色積分項了嗎"><a href="#完全避掉紅色積分項了嗎" class="headerlink" title="完全避掉紅色積分項了嗎?"></a>完全避掉紅色積分項了嗎?</h3><p>很多模型都具有 latent variable (一般都用 <span>$z$</span><!-- Has MathJax --> 表示) 的形式</p>
 <blockquote>
-<p>稍微說明下, 一般說的 latent variable 會隨著 data 變大而變大, 而 parameter $\theta$ 不會. 以 GMM 為例子, latent variable 指每一個 observation 是哪一個 Gaussian 產生出來的那個 index, 而 parameter 是 Gaussian components 的 mean, var, 和 mixture weights 集合.</p>
+<p>稍微說明下, 一般說的 latent variable 會隨著 data 變大而變大, 而 parameter <span>$\theta$</span><!-- Has MathJax --> 不會. 以 GMM 為例子, latent variable 指每一個 observation 是哪一個 Gaussian 產生出來的那個 index, 而 parameter 是 Gaussian components 的 mean, var, 和 mixture weights 集合.</p>
 </blockquote>
-<p>可以使用 EM algorithm 來找出 MLE 或 MAP . 其中 E-step 為 “令 $q(z)$ 等於 $p(z|x,\theta^{odd})$”, 這又回到如同式 (1) 求 posterior 會遇到分母積分項的問題. 如果我們的 $z$ 的值有限個的 (如 GMM, $z$ 的值就是 component 的 index), $p(z|x,\theta^{odd})$ 可以直接算出來. 但複雜一點就不行了, 所以情況又變得跟原來的 Bayesian learning 一樣, 兩種選擇:</p>
+<p>可以使用 EM algorithm 來找出 MLE 或 MAP . 其中 E-step 為 “令 <span>$q(z)$</span><!-- Has MathJax --> 等於 <span>$p(z\|x,\theta^{odd})$</span><!-- Has MathJax -->”, 這又回到如同式 (1) 求 posterior 會遇到分母積分項的問題. 如果我們的 <span>$z$</span><!-- Has MathJax --> 的值有限個的 (如 GMM, <span>$z$</span><!-- Has MathJax --> 的值就是 component 的 index), <span>$p(z\|x,\theta^{odd})$</span><!-- Has MathJax --> 可以直接算出來. 但複雜一點就不行了, 所以情況又變得跟原來的 Bayesian learning 一樣, 兩種選擇:</p>
 <ol>
 <li>使用 <a href="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/">Variational Inference</a>, 這時稱為 <em>Variational EM</em>.</li>
 <li>使用 sampling 方法. Sampling 通常採用 <a href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo" target="_blank" rel="external">MCMC</a> 方式, 這時稱為 <em>MCMC EM</em>.</li>
 </ol>
 <hr>
-<h3 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h3><p>擷取自 Coursera 的 <a href="https://www.coursera.org/learn/bayesian-methods-in-machine-learning/home/welcome" target="_blank" rel="external">Bayesian Methods for Machine Learning</a> 課程投影片如下: (圖中的 $T$ 指的是 latent variable)</p>
+<h3 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h3><p>擷取自 Coursera 的 <a href="https://www.coursera.org/learn/bayesian-methods-in-machine-learning/home/welcome" target="_blank" rel="external">Bayesian Methods for Machine Learning</a> 課程投影片如下: (圖中的 <span>$T$</span><!-- Has MathJax --> 指的是 latent variable)</p>
 <p><img src="/2018/12/20/Bayesian-Learning-Notes/summary.png" width="80%" height="80%"></p>
 
       

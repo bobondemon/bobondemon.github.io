@@ -372,7 +372,7 @@ J=s_{\text max}^2{4^{-B}\over 3}
 <blockquote>
 <p>這裡要特別說明一下, 這邊的 quantization error 沒有考慮超過最大最小值造成的 clipping error. 將 clipping error 一起考慮是開頭說的那篇<a href="https://arxiv.org/abs/2206.06501">論文</a>會探討的情況.</p>
 </blockquote>
-<p>這樣的 quantization error 分析在傳統訊號處理可以看到, 例如 analog 訊號經過 ADC 變成 digital 訊號後會有 quantization 損失. 如果 quantization bit 增加 1 bit 則 SNR 增加約 6dB. 又如果採用 nonlinear quantization 則對音量較低的情況其 SNR 提昇會比 linear quantization 好. Nonlinear quantization 又分 $\mu$-law (北美 and 日本) 和 A-law (歐洲 and 其他). 這些內容在下面的筆記都會解釋. Let’s go~</p>
+<p>這樣的 quantization error 分析在傳統訊號處理可以看到, 例如 analog 訊號經過 ADC 變成 digital 訊號後會有 quantization 損失. 如果 quantization bit 增加 1 bit 則 SNR 增加約 6dB. 又如果採用 nonlinear quantization 則對音量較低的情況其 SNR 提昇會比 linear quantization 好. Nonlinear quantization 又分 <span>$\mu$</span><!-- Has MathJax -->-law (北美 and 日本) 和 A-law (歐洲 and 其他). 這些內容在下面的筆記都會解釋. Let’s go~</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2023/10/28/Quantization-Error-Case-without-Clipping/#more" rel="contents">
@@ -531,6 +531,7 @@ J=s_{\text max}^2{4^{-B}\over 3}
 \hline \text{LoRAPrune} &amp; \text{Yes} &amp; \text{Yes} \\
 \hline
 \end{array}$$</span><!-- Has MathJax -->
+
 <p>以下會先介紹 first-order Taylor importance 的 pruning 方法, 再來介紹 LoRA, 最後說明如何取兩者之優點得出此篇的方法: LoRAPrune</p>
           <!--noindex-->
           <div class="post-button text-center">
@@ -683,15 +684,15 @@ J=s_{\text max}^2{4^{-B}\over 3}
 <p><img src="/2023/02/24/Movement-Pruning-Adaptive-Sparsity-by-Fine-Tuning-筆記/train_large_then_compress.png" width="75%" height="75%"></p>
 <p>同樣的小 model size, 從頭訓練還不如先用大的 model size 做出好效果, 再壓縮到需要的大小<br>所以 pruning 不僅能壓小 model size, 同樣對 performance 可能也是個好策略</p>
 <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><hr>
-<p>使用單純的 absolutely magnitude pruning 對於在 SSL model 不好. 因為原來的 weight 是對 SSL 的 loss 計算的, 並不能保證後來的 fine tune (down stream task loss) 有一樣的重要性關聯.<br>例如傳統上的 magnitude pruning 作法, 如這一篇 2015 NIPS 文章 [<a href="https://arxiv.org/abs/1506.02626">Learning both Weights and Connections for Efficient Neural Networks</a>] (cited 5xxx) 作法很簡單:<br>&emsp;先對 model train 到收斂, 然後 prune, 接著繼續訓練 (prune 的 weight 就 fix 為 $0$), 然侯再多 prune … iterative 下去到需要的 prune 數量<br>但作者認為, 只靠 magnitude 大小判斷效果不好, 因為在 fine tune 過程中, <strong>如果某一個 weight 雖然 magnitude 很大, 但 gradient update 後傾向把 magnitude 變小, 就表示它重要性應該降低才對, 這是本篇的精華思想</strong></p>
+<p>使用單純的 absolutely magnitude pruning 對於在 SSL model 不好. 因為原來的 weight 是對 SSL 的 loss 計算的, 並不能保證後來的 fine tune (down stream task loss) 有一樣的重要性關聯.<br>例如傳統上的 magnitude pruning 作法, 如這一篇 2015 NIPS 文章 [<a href="https://arxiv.org/abs/1506.02626">Learning both Weights and Connections for Efficient Neural Networks</a>] (cited 5xxx) 作法很簡單:<br>&emsp;先對 model train 到收斂, 然後 prune, 接著繼續訓練 (prune 的 weight 就 fix 為 <span>$0$</span><!-- Has MathJax -->), 然侯再多 prune … iterative 下去到需要的 prune 數量<br>但作者認為, 只靠 magnitude 大小判斷效果不好, 因為在 fine tune 過程中, <strong>如果某一個 weight 雖然 magnitude 很大, 但 gradient update 後傾向把 magnitude 變小, 就表示它重要性應該降低才對, 這是本篇的精華思想</strong></p>
 <blockquote>
 <p>因此我們先定義重要性就是代表 weight 的 magnitude 會變大還是變小, 變大就是重要性大, 反之</p>
 </blockquote>
-<p>因此作者對每一個參數都引入一個 score, 命為 $S$, 希望能代表 weight 的重要性. 而在 fine-tune 的過程, 除了對 weight $W$ update 之外, score $S$  也會 update<br>如果 score $S$ 正好能反映 weight 的 gradient 傾向, 即 $S$ 愈大剛好表示該對應的 weight 在 fine-tune 過程會傾向讓 magnitude 變大, 反之亦然, 那這樣的 $S$ 正好就是我們要找的.</p>
+<p>因此作者對每一個參數都引入一個 score, 命為 <span>$S$</span><!-- Has MathJax -->, 希望能代表 weight 的重要性. 而在 fine-tune 的過程, 除了對 weight <span>$W$</span><!-- Has MathJax --> update 之外, score <span>$S$</span><!-- Has MathJax -->  也會 update<br>如果 score <span>$S$</span><!-- Has MathJax --> 正好能反映 weight 的 gradient 傾向, 即 <span>$S$</span><!-- Has MathJax --> 愈大剛好表示該對應的 weight 在 fine-tune 過程會傾向讓 magnitude 變大, 反之亦然, 那這樣的 <span>$S$</span><!-- Has MathJax --> 正好就是我們要找的.</p>
 <p>要這麼做的話, 我們還需要回答兩個問題:</p>
 <ol>
-<li>怎麼引入 score $S$?</li>
-<li>Score $S$ 正好能代表重要性? 換句話說能反映 weight 在 fine tune 過程的 magnitude 傾向嗎?</li>
+<li>怎麼引入 score <span>$S$</span><!-- Has MathJax -->?</li>
+<li>Score <span>$S$</span><!-- Has MathJax --> 正好能代表重要性? 換句話說能反映 weight 在 fine tune 過程的 magnitude 傾向嗎?</li>
 </ol>
           <!--noindex-->
           <div class="post-button text-center">
@@ -842,12 +843,13 @@ J=s_{\text max}^2{4^{-B}\over 3}
           <hr>
 <p>這是一篇論文<strong><em><a href="https://arxiv.org/abs/1712.01312">Learning Sparse Neural Networks through L0 Regularization</a></em></strong> 的詳細筆記<strong><em>,</em></strong> 同時自己實作做實驗 [<a href="https://github.com/bobondemon/l0_regularization_practice">My Github</a>]<br>主要以詳解每個部分並自己能回憶起為目的, 所以或許不是很好閱讀</p>
 <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><hr>
-<p>NN model 參數 $\theta$, 我們希望<strong>非$0$的個數</strong>愈少愈好, i.e. $|\theta|_0$ 愈小愈好, 所以會加如下的 regularization term:<br><span>$$\mathcal{L}_C^0(\theta)=\|\theta\|_0=\sum_{j=1}^{|\theta|}\mathbb{I}[\theta_j\neq0]$$</span><!-- Has MathJax --> 所以 Loss 為:</p>
+<p>NN model 參數 <span>$\theta$</span><!-- Has MathJax -->, 我們希望<strong>非<span>$0$</span><!-- Has MathJax -->的個數</strong>愈少愈好, i.e. <span>$\|\theta\|_0$</span><!-- Has MathJax --> 愈小愈好, 所以會加如下的 regularization term:<br><span>$$\mathcal{L}_C^0(\theta)=\|\theta\|_0=\sum_{j=1}^{|\theta|}\mathbb{I}[\theta_j\neq0]$$</span><!-- Has MathJax --> 所以 Loss 為:</p>
 <span>$$\mathcal{L}_E(\theta)=\frac{1}{N}\left(
 \sum_{i=1}^N\mathcal{L}(NN(x_i;\theta),y_i)
 \right) \\
 \mathcal{L}(\theta)=\mathcal{L}_E(\theta)+\mathcal{L}_C^0(\theta)$$</span><!-- Has MathJax -->
-<p>但實務上我們怎麼實現 $\theta$ 非 $0$ 呢?<br>一種方式為使用一個 mask random variable <span>$Z=\{Z_1,...,Z_{|\theta|}\}$</span><!-- Has MathJax --> (~Bernoulli distribution, 參數 <span>$q=\{q_1,...,q_{|\theta|}\}$</span><!-- Has MathJax -->), 因此 Loss 改寫如下: (注意到 $\mathcal{L}_C^0$ 可以有 closed form 並且與 $\theta$ 無關了)</p>
+
+<p>但實務上我們怎麼實現 <span>$\theta$</span><!-- Has MathJax --> 非 <span>$0$</span><!-- Has MathJax --> 呢?<br>一種方式為使用一個 mask random variable <span>$Z=\{Z_1,...,Z_{|\theta|}\}$</span><!-- Has MathJax --> (~Bernoulli distribution, 參數 <span>$q=\{q_1,...,q_{|\theta|}\}$</span><!-- Has MathJax -->), 因此 Loss 改寫如下: (注意到 <span>$\mathcal{L}_C^0$</span><!-- Has MathJax --> 可以有 closed form 並且與 <span>$\theta$</span><!-- Has MathJax --> 無關了)</p>
 <span>$$\begin{align}
 \mathcal{L}_C^0(\theta, q)=\mathbb{E}_{Z\sim\text{Bernoulli}(q)}\left[
 \sum_{j=1}^{|\theta|}\mathbb{I}[\theta_j\odot Z_j\neq0]
@@ -861,11 +863,12 @@ J=s_{\text max}^2{4^{-B}\over 3}
 \right] \\
 \mathcal{L}(\theta,q)=\mathcal{L}_E(\theta,q)+\lambda\mathcal{L}_C^0(q)
 \end{align}$$</span><!-- Has MathJax -->
-<p>現在最大的麻煩是 entropy loss $\mathcal{L}_E$, 原因是 Bernoulli 採樣沒辦法對 $q$ 微分, 因為 <span>$\nabla_q\mathcal{L}_E(\theta,q)$</span><!-- Has MathJax --> 在計算期望值時, 採樣的機率分佈也跟 $q$ 有關</p>
+
+<p>現在最大的麻煩是 entropy loss <span>$\mathcal{L}_E$</span><!-- Has MathJax -->, 原因是 Bernoulli 採樣沒辦法對 <span>$q$</span><!-- Has MathJax --> 微分, 因為 <span>$\nabla_q\mathcal{L}_E(\theta,q)$</span><!-- Has MathJax --> 在計算期望值時, 採樣的機率分佈也跟 <span>$q$</span><!-- Has MathJax --> 有關</p>
 <blockquote>
 <p>參考 <strong><a href="https://bobondemon.github.io/2021/08/07/Gumbel-Max-Trick/">Gumbel-Max Trick</a></strong> 開頭的介紹說明</p>
 </blockquote>
-<p>好消息是, 可以藉由 reparameterization (Gumbel Softmax) 方法使得採樣從一個與 $q$ 無關的 r.v. 採樣 (所以可以微分了), 因此也就能在 NN 訓練使用 backpropagation.<br>以下依序說明: (參考這篇 <strong>[<a href="https://www.zybuluo.com/pearl3344/note/1221157">L0 norm稀疏性: hard concrete门变量</a></strong>] 整理的順序, 但補足一些內容以及參考論文的東西)<br>Gumbel max trick $\Rightarrow$ Gumbel softmax trick (so called concrete distribution)<br>$\Rightarrow$ Binary Concrete distribution $\Rightarrow$ Hard (Binary) Concrete distribution $\Rightarrow$ L0 regularization<br>最後補上對 GoogleNet 架構加上 $L0$ regularization 在 CIFAR10 上的模型壓縮實驗</p>
+<p>好消息是, 可以藉由 reparameterization (Gumbel Softmax) 方法使得採樣從一個與 <span>$q$</span><!-- Has MathJax --> 無關的 r.v. 採樣 (所以可以微分了), 因此也就能在 NN 訓練使用 backpropagation.<br>以下依序說明: (參考這篇 <strong>[<a href="https://www.zybuluo.com/pearl3344/note/1221157">L0 norm稀疏性: hard concrete门变量</a></strong>] 整理的順序, 但補足一些內容以及參考論文的東西)<br>Gumbel max trick <span>$\Rightarrow$</span><!-- Has MathJax --> Gumbel softmax trick (so called concrete distribution)<br><span>$\Rightarrow$</span><!-- Has MathJax --> Binary Concrete distribution <span>$\Rightarrow$</span><!-- Has MathJax --> Hard (Binary) Concrete distribution <span>$\Rightarrow$</span><!-- Has MathJax --> L0 regularization<br>最後補上對 GoogleNet 架構加上 <span>$L0$</span><!-- Has MathJax --> regularization 在 CIFAR10 上的模型壓縮實驗</p>
 <p>文長…</p>
           <!--noindex-->
           <div class="post-button text-center">
@@ -1014,16 +1017,17 @@ J=s_{\text max}^2{4^{-B}\over 3}
       
         
           <hr>
-<p>在上一篇 <a href="https://bobondemon.github.io/2022/11/19/%E6%90%9E%E6%87%82-Quantization-Aware-Training-%E4%B8%AD%E7%9A%84-Fake-Quantization/">搞懂 Quantization Aware Training 中的 Fake Quantization</a> 我們討論了 fake quantization 以及 QAT<br>提到了 <code>observer</code> 負責計算 zero point and scale $(z,s)$, 一般來說只需要透過統計觀測值的 min/max 範圍就能給定, 所以也不需要參與 backward 計算</p>
-<p>直觀上我們希望找到的 zero/scale 使得 quantization error 盡量小, 但其實如果能對任務的 loss 優化, 應該才是最佳的<br>這就必須讓 $(z,s)$ 參與到 backward 的計算, 這種可以計算 gradient 並更新的做法稱為 learnable quantization parameters</p>
+<p>在上一篇 <a href="https://bobondemon.github.io/2022/11/19/%E6%90%9E%E6%87%82-Quantization-Aware-Training-%E4%B8%AD%E7%9A%84-Fake-Quantization/">搞懂 Quantization Aware Training 中的 Fake Quantization</a> 我們討論了 fake quantization 以及 QAT<br>提到了 <code>observer</code> 負責計算 zero point and scale <span>$(z,s)$</span><!-- Has MathJax -->, 一般來說只需要透過統計觀測值的 min/max 範圍就能給定, 所以也不需要參與 backward 計算</p>
+<p>直觀上我們希望找到的 zero/scale 使得 quantization error 盡量小, 但其實如果能對任務的 loss 優化, 應該才是最佳的<br>這就必須讓 <span>$(z,s)$</span><!-- Has MathJax --> 參與到 backward 的計算, 這種可以計算 gradient 並更新的做法稱為 learnable quantization parameters</p>
 <p>本文主要參考這兩篇論文:<br>&emsp;1. LSQ: <a href="https://arxiv.org/abs/1902.08153">Learned Step Size Quantization</a><br>&emsp;2. LSQ+: <a href="https://arxiv.org/abs/2004.09576">Improving low-bit quantization through learnable offsets and better initialization</a></p>
 <blockquote>
 <p>LSQ 只討論 updating scale, 而 LSQ+ 擴展到 zero point 也能學習, 本文只推導關鍵的 gradients 不說明論文裡的實驗結果</p>
 </blockquote>
-<p>很快定義一下 notations:<br>&emsp;- $v$: full precision input value<br>&emsp;- $s$: quantizer step size (scale)<br>&emsp;- $z$: zero point (offset)<br>&emsp;- <span>$Q_P,Q_N$</span><!-- Has MathJax -->: the number of positive and negative quantization levels<br>&emsp;&emsp;e.g.: for $b$ bits, unsigned <span>$Q_N=0,Q_P=2^b-1$</span><!-- Has MathJax -->, for signed <span>$Q_N=2^{b-1},Q_P=2^{b-1}-1$</span><!-- Has MathJax --><br>&emsp;- <span>$\lfloor x \rceil$</span><!-- Has MathJax -->: round $x$ to nearest integer<br>將 $v$ quantize 到 $\bar{v}$ (1), 再將 $\bar{v}$ dequantize 回 $\hat{v}$ (2), 而 $v-\hat{v}$ 就是 precision loss<br><span>$$\begin{align}
+<p>很快定義一下 notations:<br>&emsp;- <span>$v$</span><!-- Has MathJax -->: full precision input value<br>&emsp;- <span>$s$</span><!-- Has MathJax -->: quantizer step size (scale)<br>&emsp;- <span>$z$</span><!-- Has MathJax -->: zero point (offset)<br>&emsp;- <span>$Q_P,Q_N$</span><!-- Has MathJax -->: the number of positive and negative quantization levels<br>&emsp;&emsp;e.g.: for <span>$b$</span><!-- Has MathJax --> bits, unsigned <span>$Q_N=0,Q_P=2^b-1$</span><!-- Has MathJax -->, for signed <span>$Q_N=2^{b-1},Q_P=2^{b-1}-1$</span><!-- Has MathJax --><br>&emsp;- <span>$\lfloor x \rceil$</span><!-- Has MathJax -->: round <span>$x$</span><!-- Has MathJax --> to nearest integer<br>將 <span>$v$</span><!-- Has MathJax --> quantize 到 <span>$\bar{v}$</span><!-- Has MathJax --> (1), 再將 <span>$\bar{v}$</span><!-- Has MathJax --> dequantize 回 <span>$\hat{v}$</span><!-- Has MathJax --> (2), 而 <span>$v-\hat{v}$</span><!-- Has MathJax --> 就是 precision loss</p>
+<span>$$\begin{align}
 \bar{v}={clip(\lfloor v/s \rceil+z,-Q_N,Q_P)} \\
 \hat{v}=(\bar{v}-z)\times s\\
-\end{align}$$</span><!-- Has MathJax --></p>
+\end{align}$$</span><!-- Has MathJax -->
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/#more" rel="contents">
@@ -1173,11 +1177,11 @@ J=s_{\text max}^2{4^{-B}\over 3}
           <hr>
 <p>看完本文會知道什麼是 fake quantization 以及跟 QAT (Quantization Aware Training) 的關聯<br>同時了解 pytorch 的 <a href="https://github.com/pytorch/pytorch/blob/master/torch/ao/quantization/fake_quantize.py#L114"><code>torch.ao.quantization.fake_quantize.FakeQuantize</code></a> 這個 class 做了什麼</p>
 <h2 id="Fake-quantization-是什麼"><a href="#Fake-quantization-是什麼" class="headerlink" title="Fake quantization 是什麼?"></a>Fake quantization 是什麼?</h2><hr>
-<p>我們知道給定 zero ($z$) and scale ($s$) 情況下, float 數值 $r$ 和 integer 數值 $q$ 的關係如下:</p>
-<span>$$\begin{align}
+<p>我們知道給定 zero (<span>$z$</span><!-- Has MathJax -->) and scale (<span>$s$</span><!-- Has MathJax -->) 情況下, float 數值 <span>$r$</span><!-- Has MathJax --> 和 integer 數值 <span>$q$</span><!-- Has MathJax --> 的關係如下:</p>
+<p><span>$$\begin{align}
 r=s(q-z) \\
 q=\text{round_to_int}(r/s)+z
-\end{align}$$</span><!-- Has MathJax --> 其中 $s$ 為 scale value 也是 float, 而 $z$ 為 zero point 也是 integer, 例如 <code>int8</code><br>Fake quantization 主要概念就是用 256 個 float 點 (e.g. 用 <code>int8</code>) 來表示所有 float values, 因此一個 float value 就使用256點中最近的一點 float 來替換<br>則原來的 floating training 流程都不用變, 同時也能模擬因為 quantization 造成的精度損失, 這種訓練方式稱做 Quantization Aware Training (QAT) (See <a href="https://bobondemon.github.io/2020/10/03/Quantization-%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B/">Quantization 的那些事</a>)<br>
+\end{align}$$</span><!-- Has MathJax --> 其中 <span>$s$</span><!-- Has MathJax --> 為 scale value 也是 float, 而 <span>$z$</span><!-- Has MathJax --> 為 zero point 也是 integer, 例如 <code>int8</code><br>Fake quantization 主要概念就是用 256 個 float 點 (e.g. 用 <code>int8</code>) 來表示所有 float values, 因此一個 float value 就使用256點中最近的一點 float 來替換<br>則原來的 floating training 流程都不用變, 同時也能模擬因為 quantization 造成的精度損失, 這種訓練方式稱做 Quantization Aware Training (QAT) (See <a href="https://bobondemon.github.io/2020/10/03/Quantization-%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B/">Quantization 的那些事</a>)<br></p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2022/11/19/搞懂-Quantization-Aware-Training-中的-Fake-Quantization/#more" rel="contents">
@@ -1325,12 +1329,12 @@ q=\text{round_to_int}(r/s)+z
       
         
           <hr>
-<p>使用 SGD 做優化時, 如果 ill-conditioned of Hessian matrix, i.e. $\sigma_1/\sigma_n$ 最大最小的 eigenvalues 之比值, 會使得收斂效率不彰<br>(ref <a href="https://trond.hjorteland.com/thesis/node26.html">zig-zag</a>).</p>
+<p>使用 SGD 做優化時, 如果 ill-conditioned of Hessian matrix, i.e. <span>$\sigma_1/\sigma_n$</span><!-- Has MathJax --> 最大最小的 eigenvalues 之比值, 會使得收斂效率不彰<br>(ref <a href="https://trond.hjorteland.com/thesis/node26.html">zig-zag</a>).</p>
 <blockquote>
 <p>可以想成 loss function 的曲面愈不像正圓則愈 ill-conditioned (愈扁平).</p>
 </blockquote>
-<p>希望藉由 re-parameterization 來將 ill-conditioned 狀況降低.<br>一般來說 NN 的 layer 可以這麼寫:<br><span>$$y=\phi(w^Tx+b)$$</span><!-- Has MathJax --> 把 weight vector $w$ 重新改寫如下:</p>
-<span>$$w={g\over\|v\|}v\quad\quad(\star)$$</span><!-- Has MathJax --> WN 就是將 $w$ 拆成用 unit vector $v/||v||$ 和 magnitude $g$ 兩個 variables 來表示<br><br>
+<p>希望藉由 re-parameterization 來將 ill-conditioned 狀況降低.<br>一般來說 NN 的 layer 可以這麼寫:<br><span>$$y=\phi(w^Tx+b)$$</span><!-- Has MathJax --> 把 weight vector <span>$w$</span><!-- Has MathJax --> 重新改寫如下:</p>
+<p><span>$$w={g\over\|v\|}v\quad\quad(\star)$$</span><!-- Has MathJax --> WN 就是將 <span>$w$</span><!-- Has MathJax --> 拆成用 unit vector <span>$v/\||v\||$</span><!-- Has MathJax --> 和 magnitude <span>$g$</span><!-- Has MathJax --> 兩個 variables 來表示</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2022/09/26/Weight-Normalization-的筆記/#more" rel="contents">
@@ -1777,7 +1781,7 @@ q=\text{round_to_int}(r/s)+z
       
         
           <hr>
-<p>如果對於 Differential Equation 完全沒概念, 建議先看以下兩分鐘的影片<br>&emsp;- <a href="https://www.youtube.com/watch?v=6cBBBMJZCv4">Solving Differential Equations vs. Solving Algebraic Equations</a><br>主要筆記了 Prof. Jeffrey Chasnov 在 Coursera 的兩門課 <strong>針對 numerical solution 解 ODE 的內容</strong>:<br>&emsp;1. <a href="https://www.coursera.org/learn/differential-equations-engineers#syllabus">Differential Equations for Engineers</a><br>&emsp;2. <a href="https://www.coursera.org/learn/numerical-methods-engineers?specialization=mathematics-engineers">Numerical Methods for Engineers</a><br>本文介紹:<br>&emsp;1️⃣  <strong>Introduction to ODE</strong>: linear? ordinary? n-th order?<br>&emsp;2️⃣  <strong>Euler Method</strong>: 雖然簡單, 但 error 很大<br>&emsp;3️⃣  <strong>Modified Euler Method</strong>: error <span>$O(\Delta t^3)$</span><!-- Has MathJax -->, 比 Euler method 小了一個 order<br>&emsp;4️⃣  <strong>Runge Kutta Methods</strong>: Modified Euler 方法是 Second-order RK 的一個特例<br>&emsp;5️⃣  <strong>Higher-order Runge-Kutta Methods</strong>: $n$-th order RK 的 error 為 <span>$O(\Delta t^{n+1})$</span><!-- Has MathJax --><br>&emsp;6️⃣  <strong>Higher-order ODEs and Systems</strong>: 以上都只介紹 first-order ODE 逼近法, 那 higher-order ODE 怎解?</p>
+<p>如果對於 Differential Equation 完全沒概念, 建議先看以下兩分鐘的影片<br>&emsp;- <a href="https://www.youtube.com/watch?v=6cBBBMJZCv4">Solving Differential Equations vs. Solving Algebraic Equations</a><br>主要筆記了 Prof. Jeffrey Chasnov 在 Coursera 的兩門課 <strong>針對 numerical solution 解 ODE 的內容</strong>:<br>&emsp;1. <a href="https://www.coursera.org/learn/differential-equations-engineers#syllabus">Differential Equations for Engineers</a><br>&emsp;2. <a href="https://www.coursera.org/learn/numerical-methods-engineers?specialization=mathematics-engineers">Numerical Methods for Engineers</a><br>本文介紹:<br>&emsp;1️⃣  <strong>Introduction to ODE</strong>: linear? ordinary? n-th order?<br>&emsp;2️⃣  <strong>Euler Method</strong>: 雖然簡單, 但 error 很大<br>&emsp;3️⃣  <strong>Modified Euler Method</strong>: error <span>$O(\Delta t^3)$</span><!-- Has MathJax -->, 比 Euler method 小了一個 order<br>&emsp;4️⃣  <strong>Runge Kutta Methods</strong>: Modified Euler 方法是 Second-order RK 的一個特例<br>&emsp;5️⃣  <strong>Higher-order Runge-Kutta Methods</strong>: <span>$n$</span><!-- Has MathJax -->-th order RK 的 error 為 <span>$O(\Delta t^{n+1})$</span><!-- Has MathJax --><br>&emsp;6️⃣  <strong>Higher-order ODEs and Systems</strong>: 以上都只介紹 first-order ODE 逼近法, 那 higher-order ODE 怎解?</p>
 <blockquote>
 <p>👏 那兩門課的講義教授很佛心得都有附上:<br>Lecture notes: <a href="https://www.math.hkust.edu.hk/~machas/differential-equations-for-engineers.pdf">Differential Equations for Engineers</a><br>Lecture notes: <a href="https://www.math.hkust.edu.hk/~machas/numerical-methods-for-engineers.pdf">Numerical Methods for Engineers</a></p>
 </blockquote>

@@ -97,7 +97,7 @@
 上一篇最後雖然使用 fixed beamformer 得到了 response-invariant beamformer, 但這個方法限制是 filter 一旦設計好就寫死了, 沒辦法自">
 <meta property="og:image" content="https://bobondemon.github.io/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/frost-structure.png">
 <meta property="og:image" content="https://bobondemon.github.io/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/varOrder.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.816Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.152Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Far Field Notes (2) LCMV filter and Frost's algorithm">
 <meta name="twitter:description" content="這是 far field 筆記系列第二篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 Microphone Array Signal Processing Ch4 和 Frost’s algorithm
@@ -384,23 +384,26 @@
 <p><img src="/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/frost-structure.png" width="80%" height="80%"></p>
 <p>本文以 filter-and-sum 來筆記, 另外 signal model 以下推導將會使用 anechoic model, <a href="https://bobondemon.github.io/2019/02/26/Far-Field-Notes-1-Beampattern/">第一篇</a>有定義可回去查閱. 同時本文接下來的 notation 會與圖中的不同. 上圖只是用來顯示 filter-and-sum 架構.</p>
 <hr>
-<h3 id="Notations"><a href="#Notations" class="headerlink" title="Notations"></a>Notations</h3><p>一些 notations 我們先定義起來. $N$ 是麥克風數量, $L$ 是 filter tap 數量, 我們 aligned 好的 anechoic model 如下:<br><span>$$\begin{align}
+<h3 id="Notations"><a href="#Notations" class="headerlink" title="Notations"></a>Notations</h3><p>一些 notations 我們先定義起來. <span>$N$</span><!-- Has MathJax --> 是麥克風數量, <span>$L$</span><!-- Has MathJax --> 是 filter tap 數量, 我們 aligned 好的 anechoic model 如下:<br><span>$$\begin{align}
 \mathbf{y}(k)=s(k)\mathbf{\alpha}+\mathbf{v}(k)
-\end{align}$$</span><!-- Has MathJax -->其中<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 其中<br><span>$$\begin{align}
 \mathbf{y}(k)=[y_1(k),...,y_N(k)]^T \\
 \mathbf{v}(k)=[v_1(k),...,v_N(k)]^T \\
 \mathbf{\alpha}=[\alpha_1,\alpha_2,...,\alpha_N]^T
-\end{align}$$</span><!-- Has MathJax --> $s(k)$ 是時間 $k$ 的聲源訊號, $\alpha$ 是 $N\times 1$ 的 attenuation factors, $\mathbf{v}(k)$ 是時間 $k$ 的 $N\times 1$ noise 訊號向量, 因此 $\mathbf{y}(k)$ 是時間 $k$ 的 $N\times 1$ 麥克風收到的訊號向量. 注意到由於我們先 align 好 delay 了, 所以原先的 anechoic model 可以簡化成上面的表達.</p>
-<p>考慮到 filter-and-sum 架構, 我們將整個 $N$ 個 mic 每個 mic 都有 $L$ 個值以下圖(圖片來源:<a href="http://www.labbookpages.co.uk/audio/beamforming/frost.html" target="_blank" rel="external">ref</a>)的順序串成一個 $NL$ vector<br><img src="/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/varOrder.png" width="30%" height="30%"><br>因此我們得到這些向量<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --><br><span>$s(k)$</span><!-- Has MathJax --> 是時間 <span>$k$</span><!-- Has MathJax --> 的聲源訊號, <span>$\alpha$</span><!-- Has MathJax --> 是 <span>$N\times 1$</span><!-- Has MathJax --> 的 attenuation factors, <span>$\mathbf{v}(k)$</span><!-- Has MathJax --> 是時間 <span>$k$</span><!-- Has MathJax --> 的 <span>$N\times 1$</span><!-- Has MathJax --> noise 訊號向量, 因此 <span>$\mathbf{y}(k)$</span><!-- Has MathJax --> 是時間 <span>$k$</span><!-- Has MathJax --> 的 <span>$N\times 1$</span><!-- Has MathJax --> 麥克風收到的訊號向量. 注意到由於我們先 align 好 delay 了, 所以原先的 anechoic model 可以簡化成上面的表達.</p>
+<p>考慮到 filter-and-sum 架構, 我們將整個 <span>$N$</span><!-- Has MathJax --> 個 mic 每個 mic 都有 <span>$L$</span><!-- Has MathJax --> 個值以下圖(圖片來源:<a href="http://www.labbookpages.co.uk/audio/beamforming/frost.html" target="_blank" rel="external">ref</a>)的順序串成一個 <span>$NL$</span><!-- Has MathJax --> vector<br><img src="/2019/03/02/Far-Field-Notes-2-LCMV-and-Frost/varOrder.png" width="30%" height="30%"><br>因此我們得到這些向量<br><span>$$\begin{align}
 \mathbf{y}_{NL}(k)=[\mathbf{y}^T(k), \mathbf{y}^T(k-1), ..., \mathbf{y}^T(k-L+1)]^T \\
 \mathbf{x}_{NL}(k)=[s(k)\mathbf{\alpha}^T, s(k-1)\mathbf{\alpha}^T, ..., s(k-L+1)\mathbf{\alpha}^T]^T \\
 \mathbf{v}_{NL}(k)=[\mathbf{v}^T(k), \mathbf{v}^T(k-1), \mathbf{v}^T(k-L+1)]^T
-\end{align}$$</span><!-- Has MathJax -->所以整體的 signal model 改寫 (1) 後可得:<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 所以整體的 signal model 改寫 (1) 後可得:</p>
+<span>$$\begin{align}
 \mathbf{y}_{NL}(k)=\mathbf{x}_{NL}(k) + \mathbf{v}_{NL}(k)
-\end{align}$$</span><!-- Has MathJax --></p>
-<p>Filter-and-sum 的 filter $\mathbf{h}$ 也用這個順序定義如下, 因此是一個長度為 $NL$ 的向量<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax -->
+
+<p>Filter-and-sum 的 filter <span>$\mathbf{h}$</span><!-- Has MathJax --> 也用這個順序定義如下, 因此是一個長度為 <span>$NL$</span><!-- Has MathJax --> 的向量<br><span>$$\begin{align}
 \mathbf{h}=[\mathbf{h}_0^T, \mathbf{h}_1^T, \mathbf{h}_{L-1}^T]^T
-\end{align}$$</span><!-- Has MathJax --><br>最後整個 beamformer 的輸出 $z(k)$ 就可以這麼寫<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 最後整個 beamformer 的輸出 <span>$z(k)$</span><!-- Has MathJax --> 就可以這麼寫</p>
+<span>$$\begin{align}
 z(k)=\mathbf{h}^T\mathbf{y}_{NL}(k) =
 \color{orange}{
 \mathbf{h}^T\mathbf{x}_{NL}(k)
@@ -408,12 +411,12 @@ z(k)=\mathbf{h}^T\mathbf{y}_{NL}(k) =
 \color{blue}{
 \mathbf{h}^T\mathbf{v}_{NL}(k)
 }
-\end{align}$$</span><!-- Has MathJax --></p>
+\end{align}$$</span><!-- Has MathJax -->
+
 <hr>
-<h3 id="Problem-Definition"><a href="#Problem-Definition" class="headerlink" title="Problem Definition"></a>Problem Definition</h3><p>LCMV 的主要想法就圍繞在 (10) 的橘色和藍色兩個部分上面: <strong>我們希望橘色部分能夠還原出原始訊號 $s(k)$ 且藍色部分能夠愈小愈好 (代表著 noise 愈小愈好)</strong>.</p>
+<h3 id="Problem-Definition"><a href="#Problem-Definition" class="headerlink" title="Problem Definition"></a>Problem Definition</h3><p>LCMV 的主要想法就圍繞在 (10) 的橘色和藍色兩個部分上面: <strong>我們希望橘色部分能夠還原出原始訊號 <span>$s(k)$</span><!-- Has MathJax --> 且藍色部分能夠愈小愈好 (代表著 noise 愈小愈好)</strong>.</p>
 <ol>
-<li><p>首先我們將橘色部分作如下推導:</p>
-<span>$$\begin{align}
+<li><p>首先我們將橘色部分作如下推導:<br><span>$$\begin{align}
 \color{orange}{
 \mathbf{h}^T\mathbf{x}_{NL}(k)
 }
@@ -449,9 +452,7 @@ u_{L-1}\cdot s(k-L+1)
 \right]
 }
 \right)
-\end{align}$$</span><!-- Has MathJax -->
-<p>(12) 為引入的條件, 藉由這樣的條件來還原原始訊號.<br><strong>$u$ ($L$長度的向量) 定義了我們希望在時間 $k$ 的還原結果, 是原始訊號的權重和</strong><br>定義一個 matrix (size of $NL\times L$) 如下:</p>
-<span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> (12) 為引入的條件, 藉由這樣的條件來還原原始訊號.<br><strong><span>$u$</span><!-- Has MathJax --> (<span>$L$</span><!-- Has MathJax -->長度的向量) 定義了我們希望在時間 <span>$k$</span><!-- Has MathJax --> 的還原結果, 是原始訊號的權重和</strong><br>定義一個 matrix (size of <span>$NL\times L$</span><!-- Has MathJax -->) 如下:<br><span>$$\begin{align}
 \mathbf{C}_{\mathbf{\alpha}}=
 \left[
 \begin{array}{clr}
@@ -466,23 +467,22 @@ u_{L-1}\cdot s(k-L+1)
 \mathbf{c}_{\alpha,0} &amp; \mathbf{c}_{\alpha,1} &amp; \cdots &amp; \mathbf{c}_{\alpha,L-1} \\
 \end{array}
 \right]
-\end{align}$$</span><!-- Has MathJax -->
-<p>觀察 (11) and (12) 並利用 $\mathbf{C_{\alpha}}$ 可以將 constraint 明確寫出如下:</p>
+\end{align}$$</span><!-- Has MathJax --> 觀察 (11) and (12) 並利用 <span>$\mathbf{C_{\alpha}}$</span><!-- Has MathJax --> 可以將 constraint 明確寫出如下:</p>
 <span>$$\begin{align}
 \mathbf{C_{\alpha}}^T\mathbf{h}=\mathbf{\mathbf{u}}
 \end{align}$$</span><!-- Has MathJax -->
 </li>
-<li><p>藍色部分代表最後的 noise 成分, 希望愈小愈好<br>計算藍色部分的能量為</p>
-<span>$$\begin{align}
+<li><p>藍色部分代表最後的 noise 成分, 希望愈小愈好<br>計算藍色部分的能量為<br><span>$$\begin{align}
 \mathbf{h}^T \mathbb{E} \left[ \mathbf{v}_{NL}(k)\mathbf{v}_{NL}^T(k) \right] \mathbf{h}=\mathbf{h}^T\mathbf{R}_{\mathbf{v},\mathbf{v}}\mathbf{h}
-\end{align}$$</span><!-- Has MathJax -->
-<p>但關鍵是我們無法得知實際的 noise signal, 我們有的只有 observation $\mathbf{y}_{NL}(k)$, 那該怎麼辦呢?<br>LCMV 很厲害的一點是, 由於上面剛提到的 constraints, 導致橘色部分的能量是 constant, 因此以下兩個問題是等價的</p>
+\end{align}$$</span><!-- Has MathJax --> 但關鍵是我們無法得知實際的 noise signal, 我們有的只有 observation <span>$\mathbf{y}_{NL}(k)$</span><!-- Has MathJax -->, 那該怎麼辦呢?<br>LCMV 很厲害的一點是, 由於上面剛提到的 constraints, 導致橘色部分的能量是 constant, 因此以下兩個問題是等價的</p>
 <span>$$\begin{align}
 \min_{\mathbf{h}}{ \mathbf{h}^T\mathbf{R}_{\mathbf{v},\mathbf{v}}\mathbf{h} } \equiv \min_{\mathbf{h}}{ \mathbf{h}^T\mathbf{R}_{\mathbf{y},\mathbf{y}}\mathbf{h} }
 \end{align}$$</span><!-- Has MathJax -->
+
 </li>
 </ol>
-<p>到這裡我們可以寫出完整的最佳化問題<br><span>$$\begin{align}
+<p>到這裡我們可以寫出完整的最佳化問題</p>
+<span>$$\begin{align}
 \begin{array}{clr}
 \color{blue}{
 \min_{\mathbf{h}}{ \mathbf{h}^T\mathbf{R}_{\mathbf{y},\mathbf{y}}\mathbf{h} }
@@ -491,47 +491,52 @@ u_{L-1}\cdot s(k-L+1)
 \mbox{subject to  }\mathbf{C_{\alpha}}^T\mathbf{h}=\mathbf{\mathbf{u}}
 }
 \end{array}
-\end{align}$$</span><!-- Has MathJax --></p>
+\end{align}$$</span><!-- Has MathJax -->
+
 <hr>
-<h3 id="Optimal-Solution"><a href="#Optimal-Solution" class="headerlink" title="Optimal Solution"></a>Optimal Solution</h3><p>要解問題 (17), 基本上使用 Lagrange function 求解就可以, 解如下:<br><span>$$\begin{align}
+<h3 id="Optimal-Solution"><a href="#Optimal-Solution" class="headerlink" title="Optimal Solution"></a>Optimal Solution</h3><p>要解問題 (17), 基本上使用 Lagrange function 求解就可以, 解如下:</p>
+<span>$$\begin{align}
 \mathbf{h}=\mathbf{R}_{\mathbf{y},\mathbf{y}}^{-1}\mathbf{C_{\alpha}}
 \left(
 \mathbf{C_{\alpha}}^T  \mathbf{R}_{\mathbf{y},\mathbf{y}}^{-1}  \mathbf{C_{\alpha}}
 \right)^{-1}
 \mathbf{u}
-\end{align}$$</span><!-- Has MathJax --></p>
-<p>但是重點來了, 以上這些推導全部都假設是 stationary, 實際情況一定是 non-stationary 怎麼辦? 最直覺的想法就是, 我們每隔一段時間就用 (18) 重新算一下 $\mathbf{h}$. 但很明顯這非常沒效率 (covariance估計, inverse運算) 根本不可行. 因此必須改成 iteratively update $\mathbf{h}$ 的方式.<br><strong><a href="http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=1450747" target="_blank" rel="external">Frost’s algorithm</a> 的一個重要貢獻也就是在這, 使用 stochastic gradient descent 方式 update $\mathbf{h}$!</strong></p>
+\end{align}$$</span><!-- Has MathJax -->
+
+<p>但是重點來了, 以上這些推導全部都假設是 stationary, 實際情況一定是 non-stationary 怎麼辦? 最直覺的想法就是, 我們每隔一段時間就用 (18) 重新算一下 <span>$\mathbf{h}$</span><!-- Has MathJax -->. 但很明顯這非常沒效率 (covariance估計, inverse運算) 根本不可行. 因此必須改成 iteratively update <span>$\mathbf{h}$</span><!-- Has MathJax --> 的方式.<br><strong><a href="http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=1450747" target="_blank" rel="external">Frost’s algorithm</a> 的一個重要貢獻也就是在這, 使用 stochastic gradient descent 方式 update <span>$\mathbf{h}$</span><!-- Has MathJax -->!</strong></p>
 <hr>
 <h3 id="Frost’s-Algorithm"><a href="#Frost’s-Algorithm" class="headerlink" title="Frost’s Algorithm"></a>Frost’s Algorithm</h3><p>問題 (17) 的 Lagrange function 如下:<br><span>$$\begin{align}
 \mathcal{L}(\mathbf{h},\mathbf{\lambda}) = \frac{1}{2} \mathbf{h}^T\mathbf{R}_{\mathbf{y},\mathbf{y}}\mathbf{h} + \mathbf{\lambda}^T(\mathbf{C_{\alpha}}^T\mathbf{h}-\mathbf{\mathbf{u}})
-\end{align}$$</span><!-- Has MathJax -->因此 gradient 如下:<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 因此 gradient 如下:<br><span>$$\begin{align}
 \nabla_{\mathbf{h}}\mathcal{L} = \mathbf{R}_{\mathbf{y},\mathbf{y}}\mathbf{h} + \mathbf{C_{\alpha}}\mathbf{\lambda}
-\end{align}$$</span><!-- Has MathJax -->gradient descent update 式子如下:<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> gradient descent update 式子如下:<br><span>$$\begin{align}
 \mathbf{h}_{t+1} = \mathbf{h}_{t} - \mu \left( \mathbf{R}_{\mathbf{y},\mathbf{y}}\mathbf{h}_t + \mathbf{C_{\alpha}}\mathbf{\lambda}_t \right)
-\end{align}$$</span><!-- Has MathJax -->由於有 constraint, 必須滿足 update 後仍然滿足條件, 因此:<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 由於有 constraint, 必須滿足 update 後仍然滿足條件, 因此:<br><span>$$\begin{align}
 \mathbf{u}=\mathbf{C_{\alpha}}^T\mathbf{h}_{t+1}
-\end{align}$$</span><!-- Has MathJax -->將(21)帶入(22)整理得到$\lambda_t$, 接著再將$\lambda_t$帶回(21)得到結果如下, 並不困難只是一些代數運算:<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 將(21)帶入(22)整理得到<span>$\lambda_t$</span><!-- Has MathJax -->, 接著再將<span>$\lambda_t$</span><!-- Has MathJax -->帶回(21)得到結果如下, 並不困難只是一些代數運算:<br><span>$$\begin{align}
 \mathbf{h}_{t+1} = \mathbf{h}_{t} - \mu \left[ \mathbf{I} - \mathbf{C}(\mathbf{C}^T\mathbf{C})^{-1}\mathbf{C}^T \right] \mathbf{R}_{\mathbf{y},\mathbf{y}} \mathbf{h}_{t} + \mathbf{C}(\mathbf{C}^T\mathbf{C})^{-1} \left[ \mathbf{u}-\mathbf{C}^T\mathbf{h}_t \right]
-\end{align}$$</span><!-- Has MathJax -->定義兩個 matrix $\mathbf{A}$, $\mathbf{B}$ 如下 (注意到這兩個 matrix 是事先計算好的):<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 定義兩個 matrix <span>$\mathbf{A}$</span><!-- Has MathJax -->, <span>$\mathbf{B}$</span><!-- Has MathJax --> 如下 (注意到這兩個 matrix 是事先計算好的):<br><span>$$\begin{align}
 \mathbf{A} \triangleq \mathbf{C}(\mathbf{C}^T\mathbf{C})^{-1}\mathbf{u} \\
 \mathbf{B} \triangleq \mathbf{I} - \mathbf{C}(\mathbf{C}^T\mathbf{C})^{-1}\mathbf{C}^T
-\end{align}$$</span><!-- Has MathJax -->因此可以改寫(23)如下:<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 因此可以改寫(23)如下:<br><span>$$\begin{align}
 \mathbf{h}_{t+1} = \mathbf{B}[\mathbf{h}_t - \mu \mathbf{R}_{\mathbf{y},\mathbf{y}} \mathbf{h}_t] + \mathbf{A}
-\end{align}$$</span><!-- Has MathJax -->由於使用 stochastic 方式, 因此 expectation 使用最新的一次 sample 即可:<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 由於使用 stochastic 方式, 因此 expectation 使用最新的一次 sample 即可:<br><span>$$\begin{align}
 \mathbf{R}_{\mathbf{y},\mathbf{y}} = \mathbb{E} \left[ \mathbf{y}_{NL}(t)\mathbf{y}_{NL}^T(t) \right]
 \thickapprox
 \color{green}{
 \mathbf{y}_{NL}(t)\mathbf{y}_{NL}^T(t)
 }
-\end{align}$$</span><!-- Has MathJax -->將(27)帶入(26)並用(10)替換一下, 我們得到最終的 update 式子:<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 將(27)帶入(26)並用(10)替換一下, 我們得到最終的 update 式子:<br><span>$$\begin{align}
 \color{red}{
 \mathbf{h}_{t+1} = \mathbf{B}[\mathbf{h}_t - \mu z(t)\mathbf{y}_{NL}(t)] + \mathbf{A}
 }
-\end{align}$$</span><!-- Has MathJax -->由於 $\mathbf{A}$ 和 $\mathbf{B}$ 是固定的, 跟原來的 optimal 解比較 (18), 可以明顯知道速度上會快非常多.<br>另外 $\mathbf{h}_0$ 只需要選擇一個 trivial 的 feasible point 即可:<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 由於 <span>$\mathbf{A}$</span><!-- Has MathJax --> 和 <span>$\mathbf{B}$</span><!-- Has MathJax --> 是固定的, 跟原來的 optimal 解比較 (18), 可以明顯知道速度上會快非常多.<br>另外 <span>$\mathbf{h}_0$</span><!-- Has MathJax --> 只需要選擇一個 trivial 的 feasible point 即可:</p>
+<span>$$\begin{align}
 \mathbf{h}_{0} = \mathbf{A}
-\end{align}$$</span><!-- Has MathJax --></p>
+\end{align}$$</span><!-- Has MathJax -->
+
 <hr>
-<h3 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h3><p>本篇記錄了 filter-and-sum 架構的 beamformer, LCMV 的問題和其最佳解. LCMV 可以針對給定的一個方向, 找出 filter $\mathbf{h}$ 使得抽取看的方向的訊號同時壓抑其他方向的訊號.<br>實作上直接套用最佳解太慢不可行, 而 Frost’s algorithm 提供了一個 stochastic gradeint update 方法更新 $\mathbf{h}$, 這使得 real-time system 變得可行.</p>
+<h3 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h3><p>本篇記錄了 filter-and-sum 架構的 beamformer, LCMV 的問題和其最佳解. LCMV 可以針對給定的一個方向, 找出 filter <span>$\mathbf{h}$</span><!-- Has MathJax --> 使得抽取看的方向的訊號同時壓抑其他方向的訊號.<br>實作上直接套用最佳解太慢不可行, 而 Frost’s algorithm 提供了一個 stochastic gradeint update 方法更新 <span>$\mathbf{h}$</span><!-- Has MathJax -->, 這使得 real-time system 變得可行.</p>
 <hr>
 <h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
 <li><a href="https://www.springer.com/in/book/9783540786115" target="_blank" rel="external">Microphone Array Signal Processing</a> by Jocab Benesty</li>

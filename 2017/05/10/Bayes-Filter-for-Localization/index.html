@@ -104,7 +104,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2017/05/10/Bayes-Filter-for-Localization/ObservationModelSimplified.png">
 <meta property="og:image" content="https://bobondemon.github.io/2017/05/10/Bayes-Filter-for-Localization/BayesFilterSummary.png">
 <meta property="og:image" content="https://bobondemon.github.io/2017/05/10/Bayes-Filter-for-Localization/ParticleFilter.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.812Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.132Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="統一的框架 Bayes Filter">
 <meta name="twitter:description" content="Bayes Filter Introduction前幾篇討論了很多 Kalman Filter 以及它相關的變形，如: EKF and UKF。這些方法我們都可以放在 Bayes Filter 的框架下來看，這麼做的話，KF 就只是其中一個特例了 (都是高斯分布的情形)。而如果我們只考慮幾個離散點的機率，並用蒙地卡羅法來模擬取樣的話，這種實作方式就會是 Particle Filter 。所以掌握">
@@ -388,29 +388,31 @@
 </ul>
 <p><img src="/2017/05/10/Bayes-Filter-for-Localization/cover.png" width="100%" height="100%"></p>
 <a id="more"></a>
-<p>發現了嗎? 在上圖右 KF 的兩個步驟: Measurement Update 和 State Prediction 實際上就是上圖左邊的兩個數學式關係。搭配下圖文字一起看，Measurement Update 理解為得到一個觀察值 $z$ 後，我們用 <strong>Bayes Rule</strong> 可以估測出 state $x$ 的<strong>事後機率</strong> $P(x|z)$，而該事後機率經由 motion model (eg. <a href="https://bobondemon.github.io/2017/04/11/CTRV-Motion-Model/">CTRV</a>) 可以估測出下一個時間點的 x 機率分佈 $P(x’)$ (此步驟為 State Prediction)。得到新的 $P(x’)$ 就可以當成<strong>下一個時間點的事前機率</strong>，所以 Bayes rule 就可以接著下去重複此 loop。<br><img src="/2017/05/10/Bayes-Filter-for-Localization/BayesFilterIntro.png" width="80%" height="80%"></p>
+<p>發現了嗎? 在上圖右 KF 的兩個步驟: Measurement Update 和 State Prediction 實際上就是上圖左邊的兩個數學式關係。搭配下圖文字一起看，Measurement Update 理解為得到一個觀察值 <span>$z$</span><!-- Has MathJax --> 後，我們用 <strong>Bayes Rule</strong> 可以估測出 state <span>$x$</span><!-- Has MathJax --> 的<strong>事後機率</strong> <span>$P(x|z)$</span><!-- Has MathJax -->，而該事後機率經由 motion model (eg. <a href="https://bobondemon.github.io/2017/04/11/CTRV-Motion-Model/">CTRV</a>) 可以估測出下一個時間點的 x 機率分佈 <span>$P(x&apos;)$</span><!-- Has MathJax --> (此步驟為 State Prediction)。得到新的 <span>$P(x&apos;)$</span><!-- Has MathJax --> 就可以當成<strong>下一個時間點的事前機率</strong>，所以 Bayes rule 就可以接著下去重複此 loop。<br><img src="/2017/05/10/Bayes-Filter-for-Localization/BayesFilterIntro.png" width="80%" height="80%"></p>
 <h4 id="與-Maximum-a-Posteriori-MAP-Adaptation-的關係"><a href="#與-Maximum-a-Posteriori-MAP-Adaptation-的關係" class="headerlink" title="與 Maximum a Posteriori (MAP) Adaptation 的關係"></a>與 Maximum a Posteriori (MAP) Adaptation 的關係</h4><p>事實上，這樣的框架也跟 MAP Adaptation 息息相關! 例如當事前機率是某些特別的機率分佈 (exponential family)，經由 Bayes rule 得到的事後機率，它的機率分佈會跟事前機率是同一類型的，(例如都是 Gaussian)。而這樣的選擇我們稱為 <a href="https://en.wikipedia.org/wiki/Conjugate_prior" target="_blank" rel="external">conjugate prior</a>。<strong>由於 “事後” 與 “事前” 機率是同一種類型的機率分佈，因此把 “事後機率” 在當成下一次資料來臨時的 “事前機率” 也就很自然了!</strong> 這就是 MAP Adaptation 的核心概念，與 Bayes filter 一模一樣阿!</p>
 <hr>
 <h3 id="Localization-詳細定義"><a href="#Localization-詳細定義" class="headerlink" title="Localization 詳細定義"></a>Localization 詳細定義</h3><p>好的，我們來針對 Localization 詳細解釋吧，名詞定義如下:</p>
 <p><img src="/2017/05/10/Bayes-Filter-for-Localization/variables.png" width="70%" height="70%"></p>
-<p>觀測值 (time 1~t)、控制 (time 1~t)、和地圖 $m$ 都是假設已知，我們所不知的(要估測的)是目前 time t 的狀態值 $x$。<br>舉例來說，一個一維的地圖如下:<br><img src="/2017/05/10/Bayes-Filter-for-Localization/1d-feature-map.png" width="50%" height="50%"><br>而觀測值 $z_{1:t}$ 如下:<br><img src="/2017/05/10/Bayes-Filter-for-Localization/observation-vector.png" width="50%" height="50%"><br>可以知道每一個時間點的觀測值是一個 dimension 為 k 的向量。</p>
-<p>整個 Localization 的目的就是要計算對於位置 $x$ 我們有多少信心度，嚴謹地說，我們就是要計算如下:<br><span>$$\begin{align} 
+<p>觀測值 (time 1~t)、控制 (time 1~t)、和地圖 <span>$m$</span><!-- Has MathJax --> 都是假設已知，我們所不知的(要估測的)是目前 time t 的狀態值 <span>$x$</span><!-- Has MathJax -->。<br>舉例來說，一個一維的地圖如下:<br><img src="/2017/05/10/Bayes-Filter-for-Localization/1d-feature-map.png" width="50%" height="50%"><br>而觀測值 <span>$z_{1:t}$</span><!-- Has MathJax --> 如下:<br><img src="/2017/05/10/Bayes-Filter-for-Localization/observation-vector.png" width="50%" height="50%"><br>可以知道每一個時間點的觀測值是一個 dimension 為 k 的向量。</p>
+<p>整個 Localization 的目的就是要計算對於位置 <span>$x$</span><!-- Has MathJax --> 我們有多少信心度，嚴謹地說，我們就是要計算如下:</p>
+<span>$$\begin{align} 
 bel(x_t)=p(x_t|z_{1:t},u_{1:t},m)
-\end{align}$$</span><!-- Has MathJax --></p>
-<p>意思是在已知目前所有的觀測值、控制、和地圖的情況下，位置 $x_t$ 的機率是多少，看數學式子的話，這不就正好就是 <strong>事後機率</strong> 嗎? 所以上面的 Bayes filter 架構就有發揮的空間了。另外一提的是，如果將地圖 $m$ 也當成未知的話，就是 <a href="https://en.wikipedia.org/wiki/Simultaneous_localization_and_mapping" target="_blank" rel="external">SLAM</a> 演算法了。(還沒有機會去讀這個演算法)<br>下圖是一個一維的示意圖:<br><img src="/2017/05/10/Bayes-Filter-for-Localization/believe.png" width="50%" height="50%"><br>但是要計算這樣的事後機率，必須要考慮從一開始到目前時間點的所有觀測值和控制，這樣的資料量實在太大，計算會非常沒有效率。因此，如果能只考慮目前的觀測值和控制，並用上一個時間的的事後機率就能推算出來的話，勢必會非常有效率。簡單來講，我們希望用遞迴的方式: 考慮 $bel(x_{t-1})$ 和目前的觀測值 $z_t$ 和控制 $u_t$ 就能推算 $bel(x)$。<br>這就必須要簡化上面 $bel(x_t)$ 原始的定義了，要如何達到呢? 需借助 First-order Markov Assumption 。</p>
+\end{align}$$</span><!-- Has MathJax -->
+
+<p>意思是在已知目前所有的觀測值、控制、和地圖的情況下，位置 <span>$x_t$</span><!-- Has MathJax --> 的機率是多少，看數學式子的話，這不就正好就是 <strong>事後機率</strong> 嗎? 所以上面的 Bayes filter 架構就有發揮的空間了。另外一提的是，如果將地圖 <span>$m$</span><!-- Has MathJax --> 也當成未知的話，就是 <a href="https://en.wikipedia.org/wiki/Simultaneous_localization_and_mapping" target="_blank" rel="external">SLAM</a> 演算法了。(還沒有機會去讀這個演算法)<br>下圖是一個一維的示意圖:<br><img src="/2017/05/10/Bayes-Filter-for-Localization/believe.png" width="50%" height="50%"><br>但是要計算這樣的事後機率，必須要考慮從一開始到目前時間點的所有觀測值和控制，這樣的資料量實在太大，計算會非常沒有效率。因此，如果能只考慮目前的觀測值和控制，並用上一個時間的的事後機率就能推算出來的話，勢必會非常有效率。簡單來講，我們希望用遞迴的方式: 考慮 <span>$bel(x_{t-1})$</span><!-- Has MathJax --> 和目前的觀測值 <span>$z_t$</span><!-- Has MathJax --> 和控制 <span>$u_t$</span><!-- Has MathJax --> 就能推算 <span>$bel(x)$</span><!-- Has MathJax -->。<br>這就必須要簡化上面 <span>$bel(x_t)$</span><!-- Has MathJax --> 原始的定義了，要如何達到呢? 需借助 First-order Markov Assumption 。</p>
 <hr>
 <h3 id="First-order-Markov-Assumption-簡化-believe"><a href="#First-order-Markov-Assumption-簡化-believe" class="headerlink" title="First-order Markov Assumption 簡化 believe"></a>First-order Markov Assumption 簡化 believe</h3><p><img src="/2017/05/10/Bayes-Filter-for-Localization/localization-bayes-rule.png" width="100%" height="100%"></p>
-<p>假設目前的時間點為 $t$，我們知道要計算的 believe $bel(x_t)$ 代表事後機率，再套用 Bayes rule 之後，可以得到上面的表示。</p>
+<p>假設目前的時間點為 <span>$t$</span><!-- Has MathJax -->，我們知道要計算的 believe <span>$bel(x_t)$</span><!-- Has MathJax --> 代表事後機率，再套用 Bayes rule 之後，可以得到上面的表示。</p>
 <ul>
-<li>事後機率 (Believe): 特別把時間點 t 的觀測值從原先定義拉出來，這是要強調我們在得到最新的觀測值 $z_t$ 後，希望去計算最新的 believe</li>
-<li>事前機率 (Motion Model): 稱為 Motion Model 是因為假設我們目前在時間點 $t-1$，接著拿到下一次的控制 $u_t$ 後，我們希望估測出下一次的狀態值 $x_t$ 是什麼。有看過前幾篇的讀者應該馬上就能想到，可以利用 <a href="https://bobondemon.github.io/2017/04/11/CTRV-Motion-Model/">CTRV</a> 之類的 motion model 去計算。</li>
+<li>事後機率 (Believe): 特別把時間點 t 的觀測值從原先定義拉出來，這是要強調我們在得到最新的觀測值 <span>$z_t$</span><!-- Has MathJax --> 後，希望去計算最新的 believe</li>
+<li>事前機率 (Motion Model): 稱為 Motion Model 是因為假設我們目前在時間點 <span>$t-1$</span><!-- Has MathJax -->，接著拿到下一次的控制 <span>$u_t$</span><!-- Has MathJax --> 後，我們希望估測出下一次的狀態值 <span>$x_t$</span><!-- Has MathJax --> 是什麼。有看過前幾篇的讀者應該馬上就能想到，可以利用 <a href="https://bobondemon.github.io/2017/04/11/CTRV-Motion-Model/">CTRV</a> 之類的 motion model 去計算。</li>
 <li>觀測值機率 (Observation Model): 這個是要計算當下的觀測值的機率分佈，這部分通常就是經由 sensor data 得到後，我們假設是高斯分布來計算。</li>
 </ul>
 <h4 id="Motion-Model-遞迴"><a href="#Motion-Model-遞迴" class="headerlink" title="Motion Model 遞迴"></a>Motion Model 遞迴</h4><p><img src="/2017/05/10/Bayes-Filter-for-Localization/MotionModelRecursion.png" width="100%" height="100%"></p>
 <p>我們發現到，最後一行的結果，對照本文第一張圖的 State Prediction 式子是一樣的意思，差別只在一個是連續一個是離散。另一個差別是，此式子明顯寫出<strong>可以用上一次的事後機率做遞迴</strong>，所以第一張圖的 Measurement Update 藍色箭頭就這麼來的。</p>
 <h4 id="Observation-Model-簡化"><a href="#Observation-Model-簡化" class="headerlink" title="Observation Model 簡化"></a>Observation Model 簡化</h4><p><img src="/2017/05/10/Bayes-Filter-for-Localization/ObservationModelSimplified.png" width="100%" height="100%"></p>
 <hr>
-<h3 id="Bayes-Filter-Summary"><a href="#Bayes-Filter-Summary" class="headerlink" title="Bayes Filter Summary"></a>Bayes Filter Summary</h3><p>重新整理一下經由 “Motion Model 遞迴” 和 “Observation Model 簡化” 過後的事後機率 $bel(x_t)$，結果如下圖左。 (下圖右只是列出本文最開始的 Bayes Filter 式子來做對照)。結論是我們花了那麼大的力氣，用上了 1st Markov Assumption 去處理 Localization 的遞迴式子和簡化，結果不意外地就如同開始的 Bayes Filter 一樣。</p>
+<h3 id="Bayes-Filter-Summary"><a href="#Bayes-Filter-Summary" class="headerlink" title="Bayes Filter Summary"></a>Bayes Filter Summary</h3><p>重新整理一下經由 “Motion Model 遞迴” 和 “Observation Model 簡化” 過後的事後機率 <span>$bel(x_t)$</span><!-- Has MathJax -->，結果如下圖左。 (下圖右只是列出本文最開始的 Bayes Filter 式子來做對照)。結論是我們花了那麼大的力氣，用上了 1st Markov Assumption 去處理 Localization 的遞迴式子和簡化，結果不意外地就如同開始的 Bayes Filter 一樣。</p>
 <p><img src="/2017/05/10/Bayes-Filter-for-Localization/BayesFilterSummary.png" width="100%" height="100%"></p>
 <p>另外，實作上如果所有的 pdf 都是高斯分布的話，結果就是 Kalman Filter。而如果透過 sampling 離散的狀態位置的話，結果就會是 Particle Filter。這部分就先不多說明了。(附上課程一張截圖)</p>
 <p><img src="/2017/05/10/Bayes-Filter-for-Localization/ParticleFilter.png" width="50%" height="50%"></p>

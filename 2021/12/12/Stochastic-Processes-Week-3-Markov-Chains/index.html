@@ -123,7 +123,7 @@ Week 5: Stationari">
 <meta property="og:image" content="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 9.png">
 <meta property="og:image" content="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 10.png">
 <meta property="og:image" content="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 11.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.829Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.214Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Stochastic Processes Week 3 Markov Chains">
 <meta name="twitter:description" content="Coursera Stochastic Processes 課程筆記, 共十篇:
@@ -422,12 +422,14 @@ Week 5: Stationari">
 </ul>
 <a id="more"></a>
 <hr>
-<h2 id="Week-3-1-Definition-of-a-Markov-chain-Some-examples"><a href="#Week-3-1-Definition-of-a-Markov-chain-Some-examples" class="headerlink" title="Week 3.1: Definition of a Markov chain. Some examples"></a>Week 3.1: Definition of a Markov chain. Some examples</h2><p><strong>[Markov Chain Def]:</strong><br>&emsp;令 State space $\mathcal{S}$ which is countable. 則 $S_n$, $n=0,1,2,…$ 稱為 Markov chain 需滿足 Markov property 如下:<br>&emsp;<span>$\mathcal{P}\{S_n=j | S_{n-1}=i_{n-1},...,S_0=i_0\} = \mathcal{P}\{S_n=j | S_{n-1}=i_{n-1}\}$</span><!-- Has MathJax --><br>&emsp;其中 <span>$i_0,...,i_{n-1},j\in\mathcal{S}$</span><!-- Has MathJax -->, and <span>$\mathcal{P}\{S_{n-1}=i_{n-1},...,S_0=i_0\}\neq0$</span><!-- Has MathJax --></p>
-<p>如果滿足 Markov property, 則我們發現:<br><span>$$\mathcal{P}\{S_n=i_n,S_{n-1}=i_{n-1},...,S_0=i_0\} \\
+<h2 id="Week-3-1-Definition-of-a-Markov-chain-Some-examples"><a href="#Week-3-1-Definition-of-a-Markov-chain-Some-examples" class="headerlink" title="Week 3.1: Definition of a Markov chain. Some examples"></a>Week 3.1: Definition of a Markov chain. Some examples</h2><p><strong>[Markov Chain Def]:</strong><br>&emsp;令 State space <span>$\mathcal{S}$</span><!-- Has MathJax --> which is countable. 則 <span>$S_n$</span><!-- Has MathJax -->, <span>$n=0,1,2,...$</span><!-- Has MathJax --> 稱為 Markov chain 需滿足 Markov property 如下:<br>&emsp;<span>$\mathcal{P}\{S_n=j | S_{n-1}=i_{n-1},...,S_0=i_0\} = \mathcal{P}\{S_n=j | S_{n-1}=i_{n-1}\}$</span><!-- Has MathJax --><br>&emsp;其中 <span>$i_0,...,i_{n-1},j\in\mathcal{S}$</span><!-- Has MathJax -->, and <span>$\mathcal{P}\{S_{n-1}=i_{n-1},...,S_0=i_0\}\neq0$</span><!-- Has MathJax --></p>
+<p>如果滿足 Markov property, 則我們發現:</p>
+<span>$$\mathcal{P}\{S_n=i_n,S_{n-1}=i_{n-1},...,S_0=i_0\} \\
 = \mathcal{P}\{ S_n=i_n | S_{n-1}=i_{n-1},...,S_0=i_0 \}\cdot \mathcal{P}\{ S_{n-1}=i_{n-1},...,S_0=i_0 \} \\
 = \mathcal{P}\{ S_n=i_n | S_{n-1}=i_{n-1} \}\cdot \mathcal{P}\{ S_{n-1}=i_{n-1},...,S_0=i_0 \} \\
 =...\\
-= \mathcal{P}\{ S_n=i_n | S_{n-1}=i_{n-1} \} \mathcal{P}\{ S_{n-1}=i_{n-1} | S_{n-2}=i_{n-2} \} ... \mathcal{P}\{ S_1=i_1 | S_0=i_0 \} \mathcal{P}\{S_0=i_0\}$$</span><!-- Has MathJax --></p>
+= \mathcal{P}\{ S_n=i_n | S_{n-1}=i_{n-1} \} \mathcal{P}\{ S_{n-1}=i_{n-1} | S_{n-2}=i_{n-2} \} ... \mathcal{P}\{ S_1=i_1 | S_0=i_0 \} \mathcal{P}\{S_0=i_0\}$$</span><!-- Has MathJax -->
+
 <p>所以是 pairwise independent</p>
 <blockquote>
 <p>Any renewal process is also a Markov chain</p>
@@ -440,15 +442,15 @@ p, &amp; j=i_{n-1}+1 \\
 \end{array}
 \right.$$</span><!-- Has MathJax --><br>&emsp;發現只會跟前一個 state 有關</p>
 <blockquote>
-<p>注意到 random walk 不是 renewal process, 因為 $\xi$ 可以產生負的值. 而在 renewal process, $\xi$ 為 inter-arrival time $\geq0$</p>
+<p>注意到 random walk 不是 renewal process, 因為 <span>$\xi$</span><!-- Has MathJax --> 可以產生負的值. 而在 renewal process, <span>$\xi$</span><!-- Has MathJax --> 為 inter-arrival time <span>$\geq0$</span><!-- Has MathJax --></p>
 </blockquote>
-<p><strong>[Taxis in the airport Example]:</strong><br>&emsp;$1$ taxi at $n$ moment, $n=1,2,3,…$<br>&emsp;如果當下沒有乘客, taxi 就離開. 如果有乘客, taxi 當場載走一名並馬上就離開.<br>&emsp;$X_k$: # people waiting for taxi at time $k$<br>&emsp;$Y_k$: # people arriving at time $k$<br>&emsp;現在說明 $X_k$ 是 Markov chain<br>&emsp;<span>$$X_k=Y_k+(X_{k-1}-1)_+= \left\{
+<p><strong>[Taxis in the airport Example]:</strong><br>&emsp;<span>$1$</span><!-- Has MathJax --> taxi at <span>$n$</span><!-- Has MathJax --> moment, <span>$n=1,2,3,...$</span><!-- Has MathJax --><br>&emsp;如果當下沒有乘客, taxi 就離開. 如果有乘客, taxi 當場載走一名並馬上就離開.<br>&emsp;<span>$X_k$</span><!-- Has MathJax -->: # people waiting for taxi at time <span>$k$</span><!-- Has MathJax --><br>&emsp;<span>$Y_k$</span><!-- Has MathJax -->: # people arriving at time <span>$k$</span><!-- Has MathJax --><br>&emsp;現在說明 <span>$X_k$</span><!-- Has MathJax --> 是 Markov chain<br>&emsp;<span>$$X_k=Y_k+(X_{k-1}-1)_+= \left\{
 \begin{array}{rl}
 Y_k, &amp; \text{if }X_{k-1}=0 \\
 Y_k+X_{k-1}-1, &amp; \text{if }X_{k-1}\geq0 \\
 \end{array}
-\right.$$</span><!-- Has MathJax --><br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 1.png" width="40%" height="40%"><br>&emsp;所以 $X_k$ 只跟 <span>$X_{k-1}$</span><!-- Has MathJax --> 有關</p>
-<p><strong>[Example]:</strong><br>&emsp;考慮以下 $X_n$, for some fixed $m\in\mathbb{N}$<br>&emsp;<span>$\mathcal{P}\{ X_n | X_{n-1},...,X_0 \} = \mathcal{P}\{ X_n | X_{n-1},...,X_{n-m} \}$</span><!-- Has MathJax --><br>&emsp;當下的 state 跟前 $m$ 個 states 有關, 而原本 Markov property 是只能與前 $1$ 個 state 有關.<br>&emsp;我們定義 $S_n$ (a vector of $X_n$) 如下:<br>&emsp;<span>$S_n=(X_n,...,X_{n-m+1}),\text{ where } n=m-1,m,...$</span><!-- Has MathJax --><br>&emsp;則我們發現:<br>&emsp;<span>$$\mathcal{P}\{ X_n | X_{n-1},...,X_0 \} = \frac{\mathcal{P}\{ X_n,X_{n-1},...,X_0\}}{\mathcal{P}\{ X_{n-1},...,X_0\}} \\
+\right.$$</span><!-- Has MathJax --><br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 1.png" width="40%" height="40%"><br>&emsp;所以 <span>$X_k$</span><!-- Has MathJax --> 只跟 <span>$X_{k-1}$</span><!-- Has MathJax --> 有關</p>
+<p><strong>[Example]:</strong><br>&emsp;考慮以下 <span>$X_n$</span><!-- Has MathJax -->, for some fixed <span>$m\in\mathbb{N}$</span><!-- Has MathJax --><br>&emsp;<span>$$\mathcal{P}\{ X_n | X_{n-1},...,X_0 \} = \mathcal{P}\{ X_n | X_{n-1},...,X_{n-m} \}$$</span><!-- Has MathJax --><br>&emsp;當下的 state 跟前 <span>$m$</span><!-- Has MathJax --> 個 states 有關, 而原本 Markov property 是只能與前 <span>$1$</span><!-- Has MathJax --> 個 state 有關.<br>&emsp;我們定義 <span>$S_n$</span><!-- Has MathJax --> (a vector of <span>$X_n$</span><!-- Has MathJax -->) 如下:<br>&emsp;<span>$$S_n=(X_n,...,X_{n-m+1}),\text{ where } n=m-1,m,...$$</span><!-- Has MathJax --><br>&emsp;則我們發現:<br>&emsp;<span>$$\mathcal{P}\{ X_n | X_{n-1},...,X_0 \} = \frac{\mathcal{P}\{ X_n,X_{n-1},...,X_0\}}{\mathcal{P}\{ X_{n-1},...,X_0\}} \\
 = \frac
 {
 \mathcal{P}\{ (X_n,...,X_{n-m+1}), (X_{n-1},...,X_{n-m}),...,(X_{m-1},...,X_0) \}
@@ -470,83 +472,87 @@ Y_k+X_{k-1}-1, &amp; \text{if }X_{k-1}\geq0 \\
 } \\
 = \frac
 {\mathcal{P}\{S_n,S_{n-1}\}}
-{\mathcal{P}\{S_{n-1}\}} = \mathcal{P}\{S_n | S_{n-1}\}\ldots(\square)$$</span><!-- Has MathJax --><br>&emsp;因為 $X_n$ 是 Markov chain, 所以 $(\star)=(\square)$, 得知 $S_n$ 為 Markov chain</p>
+{\mathcal{P}\{S_{n-1}\}} = \mathcal{P}\{S_n | S_{n-1}\}\ldots(\square)$$</span><!-- Has MathJax --><br>&emsp;因為 <span>$X_n$</span><!-- Has MathJax --> 是 Markov chain, 所以 <span>$(\star)=(\square)$</span><!-- Has MathJax -->, 得知 <span>$S_n$</span><!-- Has MathJax --> 為 Markov chain</p>
 <hr>
 <h2 id="Week-3-2-Matrix-representation-of-a-Markov-chain-Transition-matrix-Chapman-Kolmogorov-equation"><a href="#Week-3-2-Matrix-representation-of-a-Markov-chain-Transition-matrix-Chapman-Kolmogorov-equation" class="headerlink" title="Week 3.2: Matrix representation of a Markov chain. Transition matrix. Chapman-Kolmogorov equation"></a>Week 3.2: Matrix representation of a Markov chain. Transition matrix. Chapman-Kolmogorov equation</h2><p><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 2.png" width="100%" height="100%"><br>Matrix representation 如課程上圖的說明, 這裡很容易看上圖即可.</p>
-<p><strong>[Thm]:</strong><br>&emsp;Define <span>$p_{ij}^{(m)} = \mathcal{P}\{X_{n+m}=j | X_n=i\}$</span><!-- Has MathJax -->, 即 step $n$ 時在 state $i$, 且走了 $m$ steps, i.e. step $n+m$, 時在 state $j$ 的機率.<br>&emsp;並定義 <span>$P^{(m)}=\left( p_{ij}^{(m)} \right)$</span><!-- Has MathJax --> 表示 m-step 的 transition matrix. 則我們有:<br>&emsp;<span>$P^{(m)}= P^m=\underbrace{PP\cdots P}_{m\text{-times}}$</span><!-- Has MathJax --></p>
+<p><strong>[Thm]:</strong><br>&emsp;Define <span>$p_{ij}^{(m)} = \mathcal{P}\{X_{n+m}=j | X_n=i\}$</span><!-- Has MathJax -->, 即 step <span>$n$</span><!-- Has MathJax --> 時在 state <span>$i$</span><!-- Has MathJax -->, 且走了 <span>$m$</span><!-- Has MathJax --> steps, i.e. step <span>$n+m$</span><!-- Has MathJax -->, 時在 state <span>$j$</span><!-- Has MathJax --> 的機率.<br>&emsp;並定義 <span>$P^{(m)}=\left( p_{ij}^{(m)} \right)$</span><!-- Has MathJax --> 表示 m-step 的 transition matrix. 則我們有:<br>&emsp;<span>$$P^{(m)}= P^m=\underbrace{PP\cdots P}_{m\text{-times}}$$</span><!-- Has MathJax --></p>
 <p><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 3.png" width="100%" height="100%"><br>定義了 stationary distribution <span>$\vec\pi^*=\vec\pi^*P$</span><!-- Has MathJax --></p>
 <hr>
-<h2 id="Week-3-3-5-Graphic-representation-Classification-of-states"><a href="#Week-3-3-5-Graphic-representation-Classification-of-states" class="headerlink" title="Week 3.3-5: Graphic representation. Classification of states"></a>Week 3.3-5: Graphic representation. Classification of states</h2><p><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 4.png" width="100%" height="100%"><br>定義了 $i\rightarrow j$ 表示有一條 walk (多條 arcs 連結) from $i$ to $j$. 稱 $j$ is accesible from $i$<br>定義了 $i\leftrightarrow j$ 表示有一條雙向 walk 連結 $i$ and $j$. 稱 $i$ and $j$ communicate</p>
-<p><strong>[Equivalence Relation Def]:</strong><br>&emsp;給定 set $A$, 若有一個 binary operation $\sim$ 滿足以下關係則稱 $\sim$ 為 equivalence relation:<br>&emsp;<span>$$\begin{array}{rl}
+<h2 id="Week-3-3-5-Graphic-representation-Classification-of-states"><a href="#Week-3-3-5-Graphic-representation-Classification-of-states" class="headerlink" title="Week 3.3-5: Graphic representation. Classification of states"></a>Week 3.3-5: Graphic representation. Classification of states</h2><p><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 4.png" width="100%" height="100%"><br>定義了 <span>$i\rightarrow j$</span><!-- Has MathJax --> 表示有一條 walk (多條 arcs 連結) from <span>$i$</span><!-- Has MathJax --> to <span>$j$</span><!-- Has MathJax -->. 稱 <span>$j$</span><!-- Has MathJax --> is accesible from <span>$i$</span><!-- Has MathJax --><br>定義了 <span>$i\leftrightarrow j$</span><!-- Has MathJax --> 表示有一條雙向 walk 連結 <span>$i$</span><!-- Has MathJax --> and <span>$j$</span><!-- Has MathJax -->. 稱 <span>$i$</span><!-- Has MathJax --> and <span>$j$</span><!-- Has MathJax --> communicate</p>
+<p><strong>[Equivalence Relation Def]:</strong><br>&emsp;給定 set <span>$A$</span><!-- Has MathJax -->, 若有一個 binary operation <span>$\sim$</span><!-- Has MathJax --> 滿足以下關係則稱 <span>$\sim$</span><!-- Has MathJax --> 為 equivalence relation:<br>&emsp;<span>$$\begin{array}{rl}
 a\sim a, a\in A &amp; \text{reflectivity} \\
 a\sim b\Rightarrow b\sim a, \forall a,b\in A &amp; \text{symmetry} \\
 a\sim b, b\sim c \Rightarrow a\sim c &amp; \text{transtivity}
 \end{array}$$</span><!-- Has MathJax --></p>
-<p>給定 set $A$ 和它的一個 equivalence relation $\sim$, 則我們可以定義出 <a href="https://en.wikipedia.org/wiki/Equivalence_class" target="_blank" rel="external">equivalence class</a></p>
+<p>給定 set <span>$A$</span><!-- Has MathJax --> 和它的一個 equivalence relation <span>$\sim$</span><!-- Has MathJax -->, 則我們可以定義出 <a href="https://en.wikipedia.org/wiki/Equivalence_class" target="_blank" rel="external">equivalence class</a></p>
 <blockquote>
-<p>The equivalence class of an element $a$ is often denoted $[a]$ or $[a]_\sim$ and is defined as the set ${ x\in A: a\sim x}$ of elements that are related to $a$ by $\sim$.</p>
+<p>The equivalence class of an element <span>$a$</span><!-- Has MathJax --> is often denoted <span>$[a]$</span><!-- Has MathJax --> or <span>$[a]_\sim$</span><!-- Has MathJax --> and is defined as the set <span>$\{ x\in A: a\sim x\}$</span><!-- Has MathJax --> of elements that are related to <span>$a$</span><!-- Has MathJax --> by <span>$\sim$</span><!-- Has MathJax -->.</p>
 </blockquote>
 <p><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 5.png" width="80%" height="80%"></p>
-<p>我們對 Markov chain 的圖可以定義一個 equivalence relation (by communicate $\leftrightarrow$)</p>
-<p>$B_1,B_2,…$ 為 states 的 equivalence classes by definition below<br><span>$$\forall j\in B_i, \forall k \in \mathcal{S} \left\{
+<p>我們對 Markov chain 的圖可以定義一個 equivalence relation (by communicate <span>$\leftrightarrow$</span><!-- Has MathJax -->)</p>
+<p><span>$B_1,B_2,...$</span><!-- Has MathJax --> 為 states 的 equivalence classes by definition below<br><span>$$\forall j\in B_i, \forall k \in \mathcal{S} \left\{
 \begin{array}{rl}
 k\in B_i, &amp;k\leftrightarrow j \\
 k \notin B_i, &amp; k \nleftrightarrow j
 \end{array}
-\right.$$</span><!-- Has MathJax --><br>簡單講就是拿兩個 states $j$ and $k$ 出來, 如果他們 $\leftrightarrow$ 則屬於同一個 set. 這樣會使得 state space $\mathcal{S}$ 形成 equivalence classes</p>
+\right.$$</span><!-- Has MathJax --> 簡單講就是拿兩個 states <span>$j$</span><!-- Has MathJax --> and <span>$k$</span><!-- Has MathJax --> 出來, 如果他們 <span>$\leftrightarrow$</span><!-- Has MathJax --> 則屬於同一個 set. 這樣會使得 state space <span>$\mathcal{S}$</span><!-- Has MathJax --> 形成 equivalence classes</p>
 <blockquote>
-<p>課程裡的 state $4$ 只有 out going arcs, 所以 $4 \nleftrightarrow 4$, 因此不應該有一個 equivalence class <span>$\{4\}$</span><!-- Has MathJax --> 才對啊 ? 我猜應該要多補上這條: 自己跟自己一定屬於同一個 equivalence class.</p>
+<p>課程裡的 state <span>$4$</span><!-- Has MathJax --> 只有 out going arcs, 所以 <span>$4 \nleftrightarrow 4$</span><!-- Has MathJax -->, 因此不應該有一個 equivalence class <span>$\{4\}$</span><!-- Has MathJax --> 才對啊 ? 我猜應該要多補上這條: 自己跟自己一定屬於同一個 equivalence class.</p>
 </blockquote>
 <p><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 6.png" width="50%" height="50%"></p>
-<p><strong>[Recurrent and Transient Def]:</strong><br>&emsp;$i$ is recurrent if <span>$\forall j:i\rightarrow j \Rightarrow j\rightarrow i$</span><!-- Has MathJax --><br>&emsp;$i$ is transient if <span>$\exist j: i\rightarrow j, j\nrightarrow i$</span><!-- Has MathJax --></p>
+<p><strong>[Recurrent and Transient Def]:</strong><br>&emsp;<span>$i$</span><!-- Has MathJax --> is recurrent if <span>$\forall j:i\rightarrow j \Rightarrow j\rightarrow i$</span><!-- Has MathJax --><br>&emsp;<span>$i$</span><!-- Has MathJax --> is transient if <span>$\exist j: i\rightarrow j, j\nrightarrow i$</span><!-- Has MathJax --></p>
 <blockquote>
-<p>我們說一個 state $i$ 是 recurrent 必須滿足對”所有”其他 states 都滿足 “如果 $i$ 到的了該 state, 那該 state 也到的了 $i$”<br>而 transient 只需滿足 “存在” 一個 state 使得 $i$ 到的了但回不來</p>
+<p>我們說一個 state <span>$i$</span><!-- Has MathJax --> 是 recurrent 必須滿足對”所有”其他 states 都滿足 “如果 <span>$i$</span><!-- Has MathJax --> 到的了該 state, 那該 state 也到的了 <span>$i$</span><!-- Has MathJax -->”<br>而 transient 只需滿足 “存在” 一個 state 使得 <span>$i$</span><!-- Has MathJax --> 到的了但回不來</p>
 </blockquote>
 <p><strong>[Thm, Nodes are ALL Recurrent or ALL Transient in An Equivalence Class]:</strong><br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 7.png" width="60%" height="60%"></p>
-<p>因此 equivalence classes:<br><span>$$\begin{array}{rl}
+<p>因此 equivalence classes:</p>
+<span>$$\begin{array}{rl}
 \{1\}, &amp; \text{transient} \\
 \{2,3\}, &amp; \text{recurrent} \\
 \{4\}, &amp; \text{transient} \\
 \{5,6\}, &amp; \text{transient}
-\end{array}$$</span><!-- Has MathJax --></p>
+\end{array}$$</span><!-- Has MathJax -->
+
 <blockquote>
 <p>其實我們可以把 equivalence class 想成是一個 state 就可以. 然後如果有出去的 arc 就是 transient. 反之沒有出去的 arcs 就會是 recurrent.</p>
 </blockquote>
-<p><strong>[Period of a State $i$ Def]:</strong><br>&emsp;給定一個 Markov chain (discrete time and countable state space $\mathcal{S}$), 定義 peroid of a state $i$:<br>&emsp;<span>$d(i):=GCD\{n:p_{ii}^{(n)}\neq0\}$</span><!-- Has MathJax --><br>&emsp;其中 $GCD$ 為 greates common divisor, 若 $d(i)=1$ 我們稱 $i$ 為 aperiodic</p>
+<p><strong>[Period of a State <span>$i$</span><!-- Has MathJax --> Def]:</strong><br>&emsp;給定一個 Markov chain (discrete time and countable state space <span>$\mathcal{S}$</span><!-- Has MathJax -->), 定義 peroid of a state <span>$i$</span><!-- Has MathJax -->:<br>&emsp;<span>$$d(i):=GCD\{n:p_{ii}^{(n)}\neq0\}$$</span><!-- Has MathJax --><br>&emsp;其中 <span>$GCD$</span><!-- Has MathJax --> 為 greates common divisor, 若 <span>$d(i)=1$</span><!-- Has MathJax --> 我們稱 <span>$i$</span><!-- Has MathJax --> 為 aperiodic</p>
 <blockquote>
-<p>假設 $n$ 為走回自己要花的步數, 所有那些 $n$ 的最大公因數就是 period</p>
+<p>假設 <span>$n$</span><!-- Has MathJax --> 為走回自己要花的步數, 所有那些 <span>$n$</span><!-- Has MathJax --> 的最大公因數就是 period</p>
 </blockquote>
-<p><strong>[範例]: 同樣用課程的圖</strong><br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 6.png" width="50%" height="50%"><br>&emsp;$d(1)=1$<br>&emsp;$d(2)=d(3)=2$<br>&emsp;$d(4)=1$, 走不回自己 period 定義為 $1$<br>&emsp;$d(5)=GCD{2,3,…}=1$, 其中 $2$ 是因為 $5\rightarrow6\rightarrow5$, $3$ 是因為 $5\rightarrow6\rightarrow6\rightarrow5$<br>&emsp;$d(6)=1$</p>
+<p><strong>[範例]: 同樣用課程的圖</strong><br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 6.png" width="50%" height="50%"><br>&emsp;<span>$d(1)=1$</span><!-- Has MathJax --><br>&emsp;<span>$d(2)=d(3)=2$</span><!-- Has MathJax --><br>&emsp;<span>$d(4)=1$</span><!-- Has MathJax -->, 走不回自己 period 定義為 <span>$1$</span><!-- Has MathJax --><br>&emsp;<span>$d(5)=GCD\{2,3,...\}=1$</span><!-- Has MathJax -->, 其中 <span>$2$</span><!-- Has MathJax --> 是因為 <span>$5\rightarrow6\rightarrow5$</span><!-- Has MathJax -->, <span>$3$</span><!-- Has MathJax --> 是因為 <span>$5\rightarrow6\rightarrow6\rightarrow5$</span><!-- Has MathJax --><br>&emsp;<span>$d(6)=1$</span><!-- Has MathJax --></p>
 <blockquote>
-<p>$a\vdots b$ 表示 $a$ 能被 $b$ 整除</p>
+<p><span>$a\vdots b$</span><!-- Has MathJax --> 表示 <span>$a$</span><!-- Has MathJax --> 能被 <span>$b$</span><!-- Has MathJax --> 整除</p>
 </blockquote>
-<p><strong>[Thm]: All elements in 1 equivalence class have the same period</strong><br>[Proof]:<br>&emsp;選定 states $i$ and $j$ 在同一個 equivalence class, 並令 $i\rightarrow j$ 走 $n$ 步, $j\rightarrow i$ 走 $m$ 步.<br>&emsp;假定 for some $k$ 滿足:<br>&emsp;<span>$p_{jj}^{(k)}\neq 0 \Longrightarrow k\vdots d(j) \ldots (\star)$</span><!-- Has MathJax --><br>&emsp;表示 $j\rightarrow j$ 可以走 $k$ 步, 因此 $k$ 一定會被 $d(j)$ 整除.<br>&emsp;如圖:<br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Proof_of_period_in_equivalence_class.drawio.png" width="50%" height="50%"><br>&emsp;我們有如下的關係:<br>&emsp;<span>$$\left.
+<p><strong>[Thm]: All elements in 1 equivalence class have the same period</strong><br>[Proof]:<br>&emsp;選定 states <span>$i$</span><!-- Has MathJax --> and <span>$j$</span><!-- Has MathJax --> 在同一個 equivalence class, 並令 <span>$i\rightarrow j$</span><!-- Has MathJax --> 走 <span>$n$</span><!-- Has MathJax --> 步, <span>$j\rightarrow i$</span><!-- Has MathJax --> 走 <span>$m$</span><!-- Has MathJax --> 步.<br>&emsp;假定 for some <span>$k$</span><!-- Has MathJax --> 滿足:<br>&emsp;<span>$$p_{jj}^{(k)}\neq 0 \Longrightarrow k\vdots d(j) \ldots (\star)$$</span><!-- Has MathJax --><br>&emsp;表示 <span>$j\rightarrow j$</span><!-- Has MathJax --> 可以走 <span>$k$</span><!-- Has MathJax --> 步, 因此 <span>$k$</span><!-- Has MathJax --> 一定會被 <span>$d(j)$</span><!-- Has MathJax --> 整除.<br>&emsp;如圖:<br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Proof_of_period_in_equivalence_class.drawio.png" width="50%" height="50%"><br>&emsp;我們有如下的關係:<br>&emsp;<span>$$\left.
 \begin{array}{r}
 p_{ii}^{(n+m)}\neq0 \Longrightarrow (n+m) \vdots d(i) \\
 p_{jj}^{(k)}\neq0 \Longrightarrow p_{ii}^{(n+m+k)}\neq0 \Longrightarrow (n+m+k) \vdots d(i) 
 \end{array}
-\right\} \Longrightarrow k\vdots d(i)$$</span><!-- Has MathJax --><br>&emsp;因為 $j$ 可以走 $k$ 步回到自己, 所以 $i$ 可以走 $n+m+k$ 步也回到自己. 得到 $k$ 可以被 $d(i)$ 整除的結論.<br>&emsp;因此對所有可能的 $k$ (那些滿足 $(\star)$ 的 $k$) 我們都可以得到被 $d(i)$ 整除的結論.<br>&emsp;表示 $d(i)$ 是這些所有可能的 $k$ 的 “公因數”<br>&emsp;根據定義, $d(j)$ 是這些所有可能的 $k$ 的 “最大公因數”<br>&emsp;因此 $d(j)\geq d(i)$<br>&emsp;同樣的流程我們 $i$ and $j$ 的腳色互換, 也可以得到 $d(i)\geq d(j)$<br>&emsp;得到結論 $d(i)=d(j)$<br>&emsp;Q.E.D.<br>&emsp;課程的說明我覺得有點問題, 以下為課程的解釋:</p>
+\right\} \Longrightarrow k\vdots d(i)$$</span><!-- Has MathJax --><br>&emsp;因為 <span>$j$</span><!-- Has MathJax --> 可以走 <span>$k$</span><!-- Has MathJax --> 步回到自己, 所以 <span>$i$</span><!-- Has MathJax --> 可以走 <span>$n+m+k$</span><!-- Has MathJax --> 步也回到自己. 得到 <span>$k$</span><!-- Has MathJax --> 可以被 <span>$d(i)$</span><!-- Has MathJax --> 整除的結論.<br>&emsp;因此對所有可能的 <span>$k$</span><!-- Has MathJax --> (那些滿足 <span>$(\star)$</span><!-- Has MathJax --> 的 <span>$k$</span><!-- Has MathJax -->) 我們都可以得到被 <span>$d(i)$</span><!-- Has MathJax --> 整除的結論.<br>&emsp;表示 <span>$d(i)$</span><!-- Has MathJax --> 是這些所有可能的 <span>$k$</span><!-- Has MathJax --> 的 “公因數”<br>&emsp;根據定義, <span>$d(j)$</span><!-- Has MathJax --> 是這些所有可能的 <span>$k$</span><!-- Has MathJax --> 的 “最大公因數”<br>&emsp;因此 <span>$d(j)\geq d(i)$</span><!-- Has MathJax --><br>&emsp;同樣的流程我們 <span>$i$</span><!-- Has MathJax --> and <span>$j$</span><!-- Has MathJax --> 的腳色互換, 也可以得到 <span>$d(i)\geq d(j)$</span><!-- Has MathJax --><br>&emsp;得到結論 <span>$d(i)=d(j)$</span><!-- Has MathJax --><br>&emsp;Q.E.D.<br>&emsp;課程的說明我覺得有點問題, 以下為課程的解釋:</p>
 <blockquote>
-<p>注意到 $d(i)$ 是”某一個” $k$ 的因數, 但是 $d(j)$ 是所有可能的 $k$ 的最大公因數. 因此 $d(i)$ 一定可以被 $d(j)$ 整除 <strong>(??)</strong> :<br>$$d(i) \vdots d(j)$$<br>同樣的流程我們 $i$ and $j$ 的腳色互換, 也可以得到 $d(j)$ 會被 $d(i)$ 整除<br>得到結論 $d(i)=d(j)$</p>
+<p>注意到 <span>$d(i)$</span><!-- Has MathJax --> 是”某一個” <span>$k$</span><!-- Has MathJax --> 的因數, 但是 <span>$d(j)$</span><!-- Has MathJax --> 是所有可能的 <span>$k$</span><!-- Has MathJax --> 的最大公因數. 因此 <span>$d(i)$</span><!-- Has MathJax --> 一定可以被 <span>$d(j)$</span><!-- Has MathJax --> 整除 <strong>(??)</strong> :<br><span>$$d(i) \vdots d(j)$$</span><!-- Has MathJax --><br>同樣的流程我們 <span>$i$</span><!-- Has MathJax --> and <span>$j$</span><!-- Has MathJax --> 的腳色互換, 也可以得到 <span>$d(j)$</span><!-- Has MathJax --> 會被 <span>$d(i)$</span><!-- Has MathJax --> 整除<br>得到結論 <span>$d(i)=d(j)$</span><!-- Has MathJax --></p>
 </blockquote>
 <hr>
-<h2 id="Week-3-6-7-Ergodic-chains-Ergodic-theorem"><a href="#Week-3-6-7-Ergodic-chains-Ergodic-theorem" class="headerlink" title="Week 3.6-7: Ergodic chains. Ergodic theorem"></a>Week 3.6-7: Ergodic chains. Ergodic theorem</h2><p><strong>[Ergodic Markov Chain using Graphic Representation]:</strong><br>&emsp;我們說一個 Markov chain is ergodic, 需滿足以下條件<br>&emsp;1. 只有一個 class of equivalence<br>&emsp;2. 所有 nodes are recurrent<br>&emsp;3. $d(i)=1,\forall i\in\mathcal{S}$. 所有 nodes are aperiodic</p>
-<p><strong>[Example]:</strong><br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Ergodic_Markov_Chain.drawio.png" width="50%" height="50%"><br>&emsp;如果只有實線的 arcs, 則滿足 1. 只有一個 equivalence class, 2. 所有 nodes are recurrent. 但是 $d(i)=6$.<br>&emsp;但如果包含虛線的 arc 則 <span>$d(i)=GCD(\{5,6\})=1$</span><!-- Has MathJax --><br>&emsp;算出 equivalence class 裡的一個 node, 就等於算出了全部 nodes</p>
-<p><strong>[Thm of Connection between Graphic and Matrix Representation in Ergodic Markov Chain]:</strong><br>&emsp;Markov chain is ergodic (defined in graphic representation)<br>&emsp;<span>$\Longleftrightarrow \exists m\in \mathbb{N}:p_{ij}^{(m)}\neq0, \forall i,j \in \mathcal{S} \ldots (\star)$</span><!-- Has MathJax --></p>
-<p>我們舉個例子 $(\star)$ 條件不成立.<br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Not_Ergodic_Markov_Chain.drawio.png" width="50%" height="50%"></p>
-<p>我們發現<br><span>$$\left\{m=5,11,17,...:p_{ij}^{(m)}\neq0\right\} \\
-\left\{m=1,7,13,...:p_{ji}^{(m)}\neq0\right\}$$</span><!-- Has MathJax --></p>
-<p>不存在一個 $m$ 能同時滿足所有 nodes</p>
-<p>利用以上定理我們可以寫出 matrix representation for ergodic Markov chain<br><strong>[Ergodic Markov Chain using Matrix Representation]:</strong><br>&emsp;我們稱一個 Markov chain 是 ergodic, 如果滿足:<br>&emsp;<span>$p_{ij}^{(m)}\neq0, \forall i,j \in \mathcal{S}, \forall m\geq(M-1)^2+1$</span><!-- Has MathJax --><br>&emsp;其中 $M$ 是 states 數量, i.e. $|\mathcal{S}|$</p>
+<h2 id="Week-3-6-7-Ergodic-chains-Ergodic-theorem"><a href="#Week-3-6-7-Ergodic-chains-Ergodic-theorem" class="headerlink" title="Week 3.6-7: Ergodic chains. Ergodic theorem"></a>Week 3.6-7: Ergodic chains. Ergodic theorem</h2><p><strong>[Ergodic Markov Chain using Graphic Representation]:</strong><br>&emsp;我們說一個 Markov chain is ergodic, 需滿足以下條件<br>&emsp;1. 只有一個 class of equivalence<br>&emsp;2. 所有 nodes are recurrent<br>&emsp;3. <span>$d(i)=1,\forall i\in\mathcal{S}$</span><!-- Has MathJax -->. 所有 nodes are aperiodic</p>
+<p><strong>[Example]:</strong><br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Ergodic_Markov_Chain.drawio.png" width="50%" height="50%"><br>&emsp;如果只有實線的 arcs, 則滿足 1. 只有一個 equivalence class, 2. 所有 nodes are recurrent. 但是 <span>$d(i)=6$</span><!-- Has MathJax -->.<br>&emsp;但如果包含虛線的 arc 則 <span>$d(i)=GCD(\{5,6\})=1$</span><!-- Has MathJax --><br>&emsp;算出 equivalence class 裡的一個 node, 就等於算出了全部 nodes</p>
+<p><strong>[Thm of Connection between Graphic and Matrix Representation in Ergodic Markov Chain]:</strong><br>&emsp;Markov chain is ergodic (defined in graphic representation)<br>&emsp;<span>$$\Longleftrightarrow \exists m\in \mathbb{N}:p_{ij}^{(m)}\neq0, \forall i,j \in \mathcal{S} \ldots (\star)$$</span><!-- Has MathJax --></p>
+<p>我們舉個例子 <span>$(\star)$</span><!-- Has MathJax --> 條件不成立.<br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Not_Ergodic_Markov_Chain.drawio.png" width="50%" height="50%"></p>
+<p>我們發現</p>
+<span>$$\left\{m=5,11,17,...:p_{ij}^{(m)}\neq0\right\} \\
+\left\{m=1,7,13,...:p_{ji}^{(m)}\neq0\right\}$$</span><!-- Has MathJax -->
+
+<p>不存在一個 <span>$m$</span><!-- Has MathJax --> 能同時滿足所有 nodes</p>
+<p>利用以上定理我們可以寫出 matrix representation for ergodic Markov chain<br><strong>[Ergodic Markov Chain using Matrix Representation]:</strong><br>&emsp;我們稱一個 Markov chain 是 ergodic, 如果滿足:<br>&emsp;<span>$$p_{ij}^{(m)}\neq0, \forall i,j \in \mathcal{S}, \forall m\geq(M-1)^2+1$$</span><!-- Has MathJax --><br>&emsp;其中 <span>$M$</span><!-- Has MathJax --> 是 states 數量, i.e. <span>$|\mathcal{S}|$</span><!-- Has MathJax --></p>
 <p>課程試題:<br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 8.png" width="70%" height="70%"><br>將 graph 圖畫出來, 可以發現滿足 graphic representation of ergodic Markov chain 的三個條件</p>
 <blockquote>
-<p>用 matrix 的定義目前還不知道怎麼驗證 $\forall m\geq26$ 都滿足</p>
+<p>用 matrix 的定義目前還不知道怎麼驗證 <span>$\forall m\geq26$</span><!-- Has MathJax --> 都滿足</p>
 </blockquote>
-<p><strong>[Ergodic Theorem]:</strong><br>&emsp;令 $X_t$ 為一個 ergodic Markov chain, (i.e. 1-class equivalence, recurrent, and aperiodic.), 則極限值存在:<br>&emsp;<span>$\exists \lim_{n\rightarrow\infty}p_{ij}^{(n)} = \pi_j^* &gt; 0$</span><!-- Has MathJax --><br>&emsp;注意到已經跟出發點的 state $i$ 無關了, 且 strictly positive. 另外 $\vec\pi$ 的定義如下:<br>&emsp;<span>$\vec{\pi}^* = (\vec{\pi}_1^*,...,\vec{\pi}_M^*), \text{ with } \sum_{j=1}^M \pi_j^* = 1$</span><!-- Has MathJax --></p>
+<p><strong>[Ergodic Theorem]:</strong><br>&emsp;令 <span>$X_t$</span><!-- Has MathJax --> 為一個 ergodic Markov chain, (i.e. 1-class equivalence, recurrent, and aperiodic.), 則極限值存在:<br>&emsp;<span>$$\exists \lim_{n\rightarrow\infty}p_{ij}^{(n)} = \pi_j^* &gt; 0$$</span><!-- Has MathJax --><br>&emsp;注意到已經跟出發點的 state <span>$i$</span><!-- Has MathJax --> 無關了, 且 strictly positive. 另外 <span>$\vec\pi$</span><!-- Has MathJax --> 的定義如下:<br>&emsp;<span>$$\vec{\pi}^* = (\vec{\pi}_1^*,...,\vec{\pi}_M^*), \text{ with } \sum_{j=1}^M \pi_j^* = 1$$</span><!-- Has MathJax --></p>
 <blockquote>
-<p>$i$ transition $n$ 步到 $j$ 的機率, 當 $n\rightarrow\infty$ 時會收斂, 並且 $&gt;0$</p>
+<p><span>$i$</span><!-- Has MathJax --> transition <span>$n$</span><!-- Has MathJax --> 步到 <span>$j$</span><!-- Has MathJax --> 的機率, 當 <span>$n\rightarrow\infty$</span><!-- Has MathJax --> 時會收斂, 並且 <span>$&gt;0$</span><!-- Has MathJax --></p>
 </blockquote>
-<p><strong>[Corollary]:</strong><br>&emsp;令 $X_t$ 為一個 ergodic Markov chain, 則 Ergodic theorem 成立, 則我們有:<br>&emsp;1. <span>$\vec{\pi}^*$</span><!-- Has MathJax --> is stationary distribution, i.e. <span>$\vec{\pi}^*=\vec{\pi}^*P$</span><!-- Has MathJax --><br>&emsp;2. <span>$\lim_{n\rightarrow\infty}\mathcal{P}\{X_n=j\}=\pi_j^*$</span><!-- Has MathJax --><br>[Proof]:<br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 9.png" width="50%" height="50%"><br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 10.png" width="50%" height="50%"></p>
+<p><strong>[Corollary]:</strong><br>&emsp;令 <span>$X_t$</span><!-- Has MathJax --> 為一個 ergodic Markov chain, 則 Ergodic theorem 成立, 則我們有:<br>&emsp;1. <span>$\vec{\pi}^*$</span><!-- Has MathJax --> is stationary distribution, i.e. <span>$\vec{\pi}^*=\vec{\pi}^*P$</span><!-- Has MathJax --><br>&emsp;2. <span>$\lim_{n\rightarrow\infty}\mathcal{P}\{X_n=j\}=\pi_j^*$</span><!-- Has MathJax --><br>[Proof]:<br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 9.png" width="50%" height="50%"><br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 10.png" width="50%" height="50%"></p>
 <p>[Example]:<br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 11.png" width="50%" height="50%"></p>
 <hr>
 <h2 id="Applications-of-the-Markov-Chains"><a href="#Applications-of-the-Markov-Chains" class="headerlink" title="Applications of the Markov Chains"></a>Applications of the Markov Chains</h2><p><a href="Week3%20Markov%20Chains%207e26d98fdcb440eca7bee84970e442b2/Applications_of_the_Markov_Chains.pdf">Applications of the Markov Chains.pdf</a></p>

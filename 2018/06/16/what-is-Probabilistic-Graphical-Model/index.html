@@ -130,7 +130,7 @@ What is P">
 <meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic27.png">
 <meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic28.png">
 <meta property="og:image" content="https://bobondemon.github.io/2018/06/16/what-is-Probabilistic-Graphical-Model/pic29.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.834Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.242Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="(what is) Probabilistic Graphical Models">
 <meta name="twitter:description" content="本篇主要介紹什麼是 PGM, 以及一個很重要的應用 Part-of-Speech tagging. PGM 的部分主要圍繞在 “它是什麼?” 也就是 Koller 課程的 Representation. Inference 不討論, 因為自己也沒讀很深入 (汗), 而 Learning 就相當於 ML 裡的 training, 會在介紹 POS 時推導一下.
@@ -433,26 +433,29 @@ What is P">
 <p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/BN_MN_examples.png" width="60%" height="60%"></p>
 <p>注意 BN 除了 directed 之外, 還需要 acyclic. 有了圖之後, 怎麼跟 distribution 產生連結的? 下面我們分別介紹 BN and MN.</p>
 <hr>
-<h3 id="What-is-Bayesian-Network-BN"><a href="#What-is-Bayesian-Network-BN" class="headerlink" title="What is Bayesian Network (BN)?"></a>What is Bayesian Network (BN)?</h3><p>對於一個任意的 distibution over variables $x_1,…,x_V$ 我們可以用基本的 chain rule 拆解如下:</p>
+<h3 id="What-is-Bayesian-Network-BN"><a href="#What-is-Bayesian-Network-BN" class="headerlink" title="What is Bayesian Network (BN)?"></a>What is Bayesian Network (BN)?</h3><p>對於一個任意的 distibution over variables <span>$x_1,...,x_V$</span><!-- Has MathJax --> 我們可以用基本的 chain rule 拆解如下:</p>
 <span>$$\begin{align}
 p(x_{1:V})=p(x_1)p(x_2|x_1)p(x_3|x_{1:2})...p(x_V|x_{1:V-1})
 \end{align}$$</span><!-- Has MathJax -->
+
 <p>變數的 order 可以任意排列, 舉例來說</p>
 <span>$$\begin{align}
 p(x,y,z)\\
 =p(x)p(y|x)p(z|x,y)\\
 =p(x)p(z|x)p(y|x,z)
 \end{align}$$</span><!-- Has MathJax -->
+
 <p>基於這種拆解我們可以很自然地想到, 不如把每個變數都當成 nodes, 再將 conditioning 的關係用 edges 連起來. 因此基本可以這麼表達:</p>
 <span>$$\begin{align}
 p(x_{1:V}|G)=\prod_{t=1}^{V}p(x_t|pa(x_t))
 \end{align}$$</span><!-- Has MathJax -->
-<p>其中 $pa(x_t)$ 表示 node $x_t$ 的 parent nodes. 我們用式 (3) 和 (4) 當例子就可以畫出如下的圖:</p>
+
+<p>其中 <span>$pa(x_t)$</span><!-- Has MathJax --> 表示 node <span>$x_t$</span><!-- Has MathJax --> 的 parent nodes. 我們用式 (3) 和 (4) 當例子就可以畫出如下的圖:</p>
 <p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic1.png" width="60%" height="60%"></p>
 <p>可以發現同一個 pdf 可以畫出多個 BN, 因此表達方式不是唯一.</p>
-<h4 id="Conditioning-V-S-Independency"><a href="#Conditioning-V-S-Independency" class="headerlink" title="Conditioning V.S. Independency"></a>Conditioning V.S. Independency</h4><p>接著我們可能會想, 如果我們希望對 pdf 加一些獨立條件呢, 譬如如果希望 $x \perp y$, 是不是可以直接將圖中的 $x$ 和 $y$ 的 edge 拔掉就可以了呢? 先破題, 答案是不行. 同樣以上面的例子解釋, 如果我們用拔掉 edge 的話, 圖變成:</p>
+<h4 id="Conditioning-V-S-Independency"><a href="#Conditioning-V-S-Independency" class="headerlink" title="Conditioning V.S. Independency"></a>Conditioning V.S. Independency</h4><p>接著我們可能會想, 如果我們希望對 pdf 加一些獨立條件呢, 譬如如果希望 <span>$x \perp y$</span><!-- Has MathJax -->, 是不是可以直接將圖中的 <span>$x$</span><!-- Has MathJax --> 和 <span>$y$</span><!-- Has MathJax --> 的 edge 拔掉就可以了呢? 先破題, 答案是不行. 同樣以上面的例子解釋, 如果我們用拔掉 edge 的話, 圖變成:</p>
 <p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic2.png" width="60%" height="60%"></p>
-<p>事實上這兩個圖已經各自表示不同的 distribution 了. 特別要注意在右圖中<strong>拔掉 $x$ and $y$ 的 edge 沒有造成 $x \perp y$</strong>. 解釋如下:</p>
+<p>事實上這兩個圖已經各自表示不同的 distribution 了. 特別要注意在右圖中<strong>拔掉 <span>$x$</span><!-- Has MathJax --> and <span>$y$</span><!-- Has MathJax --> 的 edge 沒有造成 <span>$x \perp y$</span><!-- Has MathJax --></strong>. 解釋如下:</p>
 <p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic3.png" width="60%" height="60%"></p>
 <p>那究竟該如何<strong>從一個圖直接看出變數之間是否獨立?</strong> 為了解答這個問題, 我們先從簡單的三個 nodes 開始</p>
 <h4 id="Flow-of-Influence"><a href="#Flow-of-Influence" class="headerlink" title="Flow of Influence"></a>Flow of Influence</h4><p>三個 nodes 的 DAG 圖本質上就分以下三類, 其中 given 的變數我們通常以實心圓表示</p>
@@ -460,29 +463,30 @@ p(x_{1:V}|G)=\prod_{t=1}^{V}p(x_t|pa(x_t))
 <p>我們就個別討論</p>
 <p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic5.png" width="60%" height="60%"><br><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic6.png" width="60%" height="60%"><br><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic7.png" width="60%" height="60%"></p>
 <p>需要特別注意的是 case 3 的 <strong>v-structure</strong>, 行為跟其他兩種相反. 一種好記的方式是, 我們假設 given 的變量是一個石頭, 而 edges 可以想成是水流, 所以 given 變量就把水流擋住, 因此會造成獨立. 唯一個例外就是 v-structure, 行為剛好相反.</p>
-<h4 id="Active-Trail-in-BN"><a href="#Active-Trail-in-BN" class="headerlink" title="Active Trail in BN"></a>Active Trail in BN</h4><p>我們可以很容易將三個 nodes 的 trail 擴展成 $V$ 個 nodes 的 trail. 因此可以很方便的觀察某條 trail 起始的 node 能否影響到最後的 node.</p>
+<h4 id="Active-Trail-in-BN"><a href="#Active-Trail-in-BN" class="headerlink" title="Active Trail in BN"></a>Active Trail in BN</h4><p>我們可以很容易將三個 nodes 的 trail 擴展成 <span>$V$</span><!-- Has MathJax --> 個 nodes 的 trail. 因此可以很方便的觀察某條 trail 起始的 node 能否影響到最後的 node.</p>
 <p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic8.png" width="60%" height="60%"></p>
-<h4 id="d-separation"><a href="#d-separation" class="headerlink" title="d-separation"></a>d-separation</h4><p>繼續擴展! 我們假設在 BN $G$ 上 node $x$ and $y$ 有 $N$ 條 trails. 我們則可以藉由檢查每條 trail 是否 active 最終就會知道 $x$ 能否影響到 $y$.</p>
+<h4 id="d-separation"><a href="#d-separation" class="headerlink" title="d-separation"></a>d-separation</h4><p>繼續擴展! 我們假設在 BN <span>$G$</span><!-- Has MathJax --> 上 node <span>$x$</span><!-- Has MathJax --> and <span>$y$</span><!-- Has MathJax --> 有 <span>$N$</span><!-- Has MathJax --> 條 trails. 我們則可以藉由檢查每條 trail 是否 active 最終就會知道 <span>$x$</span><!-- Has MathJax --> 能否影響到 <span>$y$</span><!-- Has MathJax -->.</p>
 <p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic9.png" width="60%" height="60%"></p>
-<p>需要注意的是, 這些 d-separation 條件我們都可以直接從給定的 $G$ 上直接讀出來 (對於 distribution 沒有任何假設), 為了方便我們定義以下兩個 terms</p>
+<p>需要注意的是, 這些 d-separation 條件我們都可以直接從給定的 <span>$G$</span><!-- Has MathJax --> 上直接讀出來 (對於 distribution 沒有任何假設), 為了方便我們定義以下兩個 terms</p>
 <span>$$\begin{align}
 CI(G)=\{\textbf{d-sep}(x,y|z)|x,y,z\textbf{ in }G\}\\
 CI(p)=\{(x \perp y|z)|x,y,z\textbf{ in }G\}\\
 \end{align}$$</span><!-- Has MathJax -->
-<p>$CI(G)$ 所列出的 statements 是由 d-sep 所提供, 也就是說從 $G$ 直接讀出來的, 而 $CI(p)$ 才是真的對於 distribution $p$ 來說所有條件獨立的 statements.</p>
-<p>OK, 到目前為止, 給定一個 BN $G$, 和一個 distribution $p$ (注意 $p$ 不一定可以被 $G$ 所表示), 他們之間的關係到底是什麼? 下面就要引出非常重要的定理 Factorization and Independent 的關係來說明</p>
+
+<p><span>$CI(G)$</span><!-- Has MathJax --> 所列出的 statements 是由 d-sep 所提供, 也就是說從 <span>$G$</span><!-- Has MathJax --> 直接讀出來的, 而 <span>$CI(p)$</span><!-- Has MathJax --> 才是真的對於 distribution <span>$p$</span><!-- Has MathJax --> 來說所有條件獨立的 statements.</p>
+<p>OK, 到目前為止, 給定一個 BN <span>$G$</span><!-- Has MathJax -->, 和一個 distribution <span>$p$</span><!-- Has MathJax --> (注意 <span>$p$</span><!-- Has MathJax --> 不一定可以被 <span>$G$</span><!-- Has MathJax --> 所表示), 他們之間的關係到底是什麼? 下面就要引出非常重要的定理 Factorization and Independent 的關係來說明</p>
 <h4 id="Factorization-and-Independent"><a href="#Factorization-and-Independent" class="headerlink" title="Factorization and Independent"></a>Factorization and Independent</h4><p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic10.png" width="60%" height="60%"></p>
-<p>白話文: 假設 $p$ 剛好可以寫成 $G$ 的 factorization 型式 (式 (5)), 則所有 $G$ 指出需要 $\perp$ 的 statements (根據 d-sep 所列), $p$ 都滿足</p>
+<p>白話文: 假設 <span>$p$</span><!-- Has MathJax --> 剛好可以寫成 <span>$G$</span><!-- Has MathJax --> 的 factorization 型式 (式 (5)), 則所有 <span>$G$</span><!-- Has MathJax --> 指出需要 <span>$\perp$</span><!-- Has MathJax --> 的 statements (根據 d-sep 所列), <span>$p$</span><!-- Has MathJax --> 都滿足</p>
 <p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic11.png" width="60%" height="60%"></p>
-<p>白話文: 假設所有 $G$ 指出需要 $\perp$ 的 statements (根據 d-sep 所列), $p$ 都滿足, 則 $p$ 可以寫成 $G$ 的 factorization 型式 (式 (5))</p>
+<p>白話文: 假設所有 <span>$G$</span><!-- Has MathJax --> 指出需要 <span>$\perp$</span><!-- Has MathJax --> 的 statements (根據 d-sep 所列), <span>$p$</span><!-- Has MathJax --> 都滿足, 則 <span>$p$</span><!-- Has MathJax --> 可以寫成 <span>$G$</span><!-- Has MathJax --> 的 factorization 型式 (式 (5))</p>
 <p>我們用 PRML book 裡一個具體的描述來說明 Thm1 and Thm2 之間的關係</p>
 <p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic12.png" width="60%" height="60%"></p>
-<p>給定一個 $G$, 就好像一個篩子一樣, 根據兩種方式篩選 distribution</p>
+<p>給定一個 <span>$G$</span><!-- Has MathJax -->, 就好像一個篩子一樣, 根據兩種方式篩選 distribution</p>
 <ol>
-<li>$p$ 剛好可以寫成 $G$ 的 factorization 型式 (式 (5))</li>
-<li>$G$ 指出需要 $\perp$ 的 statements (根據 d-sep 所列), 剛好 $p$ 都滿足</li>
+<li><span>$p$</span><!-- Has MathJax --> 剛好可以寫成 <span>$G$</span><!-- Has MathJax --> 的 factorization 型式 (式 (5))</li>
+<li><span>$G$</span><!-- Has MathJax --> 指出需要 <span>$\perp$</span><!-- Has MathJax --> 的 statements (根據 d-sep 所列), 剛好 <span>$p$</span><!-- Has MathJax --> 都滿足</li>
 </ol>
-<p>用上面兩種篩選方式最後篩出來的 distributions 分別稱為 $DF1$ and $DF2$ 兩個 sets. 定理告訴我們它們式同一個集合!</p>
+<p>用上面兩種篩選方式最後篩出來的 distributions 分別稱為 <span>$DF1$</span><!-- Has MathJax --> and <span>$DF2$</span><!-- Has MathJax --> 兩個 sets. 定理告訴我們它們式同一個集合!</p>
 <h4 id="Example"><a href="#Example" class="headerlink" title="Example"></a>Example</h4><p>把下圖的 joint pdf 寫出來:</p>
 <p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic13.png" width="60%" height="60%"></p>
 <p>使用式 (5) 的方式寫一下, 讀者很快就發現, 這不就是 HMM 嗎?</p>
@@ -494,21 +498,23 @@ CI(p)=\{(x \perp y|z)|x,y,z\textbf{ in }G\}\\
 <span>$$\begin{align}
 p(x)=\frac{1}{Z}\prod_{c\in\mathcal{C}}\psi_c(x_c)
 \end{align}$$</span><!-- Has MathJax -->
-<p>$\mathcal{C}$ 是 maximal cliques 的集合. 然後 $Z$ 是一個 normalization term, 目的為使之成為 distribution.</p>
+
+<p><span>$\mathcal{C}$</span><!-- Has MathJax --> 是 maximal cliques 的集合. 然後 <span>$Z$</span><!-- Has MathJax --> 是一個 normalization term, 目的為使之成為 distribution.</p>
 <span>$$\begin{align}
 Z=\sum_x\prod_{c\in\mathcal{C}}\psi_c(x_c)
 \end{align}$$</span><!-- Has MathJax -->
+
 <p>舉個例子:</p>
 <p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic16.png" width="60%" height="60%"></p>
 <p>用無向圖的方式來表達 distribution 有一個很大的好處就是判斷 Active Trail 和 separation 變得非常非常簡單! 直接看下圖的說明</p>
 <p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic17.png" width="60%" height="60%"></p>
-<p>如同在 BN 時的討論, 給定一個 MN $H$, 和一個 distribution $p$ (注意 $p$ 不一定可以被 $H$ 所表示), 他們之間的關係可以由 Factorization and Independent 的定理來說明</p>
+<p>如同在 BN 時的討論, 給定一個 MN <span>$H$</span><!-- Has MathJax -->, 和一個 distribution <span>$p$</span><!-- Has MathJax --> (注意 <span>$p$</span><!-- Has MathJax --> 不一定可以被 <span>$H$</span><!-- Has MathJax --> 所表示), 他們之間的關係可以由 Factorization and Independent 的定理來說明</p>
 <h4 id="Factorization-and-Independent-1"><a href="#Factorization-and-Independent-1" class="headerlink" title="Factorization and Independent"></a>Factorization and Independent</h4><p>我們直接擷取 <a href="https://www.cs.ubc.ca/~murphyk/" target="_blank" rel="external">Kevin Murphy</a> 書所列的定理, <a href="https://en.wikipedia.org/wiki/Hammersley%E2%80%93Clifford_theorem" target="_blank" rel="external">Hammersley-Clifford</a> 定理</p>
 <p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic18.png" width="80%" height="80%"></p>
 <p>跟 BN 一樣, <em>factorization iff independence</em>, 但有一個重要的 assumption, 就是 distribution 必須 strictly positive (如上圖紅色框的部分). 我們一樣用 PRML 篩子的觀念來具體化:</p>
 <p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic19.png" width="60%" height="60%"></p>
 <p>描述就跳過了.</p>
-<h4 id="Example-1"><a href="#Example-1" class="headerlink" title="Example"></a>Example</h4><p>由於有 $p(x)&gt;0$ 的假設在, 因此如果將 factor functions $\psi(x_c)$ 都使用 $exp$ 來定義的話, 整個 product 相乘後的 distribution 必定滿足 strictly positive. 因此 $exp$ 就不失為一種方便的 modeling 方式了</p>
+<h4 id="Example-1"><a href="#Example-1" class="headerlink" title="Example"></a>Example</h4><p>由於有 <span>$p(x)&gt;0$</span><!-- Has MathJax --> 的假設在, 因此如果將 factor functions <span>$\psi(x_c)$</span><!-- Has MathJax --> 都使用 <span>$exp$</span><!-- Has MathJax --> 來定義的話, 整個 product 相乘後的 distribution 必定滿足 strictly positive. 因此 <span>$exp$</span><!-- Has MathJax --> 就不失為一種方便的 modeling 方式了</p>
 <p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic20.png" width="60%" height="60%"></p>
 <hr>
 <h3 id="喘口氣的結論"><a href="#喘口氣的結論" class="headerlink" title="喘口氣的結論"></a>喘口氣的結論</h3><p>到這裡, 我們可以</p>
@@ -521,14 +527,14 @@ Z=\sum_x\prod_{c\in\mathcal{C}}\psi_c(x_c)
 <p>最後有關 learning 我們使用接下來的 POS tagging 當範例推導一下. 但別急, 在講 POS 之前我們得先談一個重要的東西, Conditional Random Field.</p>
 <hr>
 <h3 id="What-is-Conditional-Random-Field-CRF"><a href="#What-is-Conditional-Random-Field-CRF" class="headerlink" title="What is Conditional Random Field (CRF)?"></a>What is Conditional Random Field (CRF)?</h3><p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic21.png" width="60%" height="60%"></p>
-<p>如同上圖的說明, 基本上 CRF 仍舊是一個 MN, 最大的差別是 normalization term 如今不再是一個 constant, 而是 depends on conditioning 的變數 $x$.</p>
+<p>如同上圖的說明, 基本上 CRF 仍舊是一個 MN, 最大的差別是 normalization term 如今不再是一個 constant, 而是 depends on conditioning 的變數 <span>$x$</span><!-- Has MathJax -->.</p>
 <p>一個在 sequence labeling 常用的 CRF 模型是 Linear-Chain CRF</p>
 <p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic22.png" width="60%" height="60%"></p>
 <p>有了這些概念後我們就可以說說 POS 了</p>
 <hr>
 <h3 id="Part-of-Speech-POS-Tagging"><a href="#Part-of-Speech-POS-Tagging" class="headerlink" title="Part-of-Speech (POS) Tagging"></a>Part-of-Speech (POS) Tagging</h3><p>擷取自李宏毅教授上課投影片</p>
 <p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic23.png" width="60%" height="60%"></p>
-<p>基本上就是給定一個 word sequence $x$, 我們希望找出哪一個詞性標註的 sequence $y$ 會使得機率最大. 機率最大的那個 $y$ 就是我們要的詞性標註序列.</p>
+<p>基本上就是給定一個 word sequence <span>$x$</span><!-- Has MathJax -->, 我們希望找出哪一個詞性標註的 sequence <span>$y$</span><!-- Has MathJax --> 會使得機率最大. 機率最大的那個 <span>$y$</span><!-- Has MathJax --> 就是我們要的詞性標註序列.</p>
 <p>使用現學現賣的 PGM modeling 知識, 我們可以使用 BN or MN 的方式描述模型</p>
 <ul>
 <li>BN: Hidden Markov Model (HMM)</li>
@@ -536,12 +542,12 @@ Z=\sum_x\prod_{c\in\mathcal{C}}\psi_c(x_c)
 </ul>
 <h4 id="有向圖-HMM-方法"><a href="#有向圖-HMM-方法" class="headerlink" title="有向圖 HMM 方法"></a>有向圖 HMM 方法</h4><p>一樣擷取自李宏毅教授上課投影片</p>
 <p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic24.png" width="60%" height="60%"></p>
-<p>還記得本文前面講 BN 時的 HMM example 嗎? $y$ 就是詞性, $x$ 就是字. HMM 是在 model 給定詞性序列情形下的字序列 distribution. 了解語音辨識的童鞋門應該再熟悉不過了, 只不過這裡問題比較簡單, 在語音辨識裡, 我們不會針對每個 frame 去標註它是屬於哪一個發音的 state, 因此標註其實是 hidden 的. 但在這裡每個 word 都會有一個對應正確答案的詞性標註, 沒有 hidden 資訊, 因此也不需要 EM algorithm, 簡單的 counting 即可做完訓練. that all …</p>
+<p>還記得本文前面講 BN 時的 HMM example 嗎? <span>$y$</span><!-- Has MathJax --> 就是詞性, <span>$x$</span><!-- Has MathJax --> 就是字. HMM 是在 model 給定詞性序列情形下的字序列 distribution. 了解語音辨識的童鞋門應該再熟悉不過了, 只不過這裡問題比較簡單, 在語音辨識裡, 我們不會針對每個 frame 去標註它是屬於哪一個發音的 state, 因此標註其實是 hidden 的. 但在這裡每個 word 都會有一個對應正確答案的詞性標註, 沒有 hidden 資訊, 因此也不需要 EM algorithm, 簡單的 counting 即可做完訓練. that all …</p>
 <h4 id="無向圖-CRF-方法"><a href="#無向圖-CRF-方法" class="headerlink" title="無向圖 CRF 方法"></a>無向圖 CRF 方法</h4><p>精確說是 Linear chain CRF with log-linear model</p>
 <p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic25.png" width="60%" height="60%"></p>
-<p>我們把 log-linear model 的 factor 帶入 linear chain CRF 中, 注意其中 $\phi$ 是需要定義的特徵函數, 我們這裡先假設可以抽取出 $K$ 維. 因此可以推導如下</p>
+<p>我們把 log-linear model 的 factor 帶入 linear chain CRF 中, 注意其中 <span>$\phi$</span><!-- Has MathJax --> 是需要定義的特徵函數, 我們這裡先假設可以抽取出 <span>$K$</span><!-- Has MathJax --> 維. 因此可以推導如下</p>
 <p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic26.png" width="80%" height="80%"><br><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic27.png" width="40%" height="40%"></p>
-<p>實作上我們會針對時間 share weights, 這是因為句子都是長短不一的, 另一方面這樣做也可以大量減少參數量. 所以最後可以簡化成一個 weigth vector $w$ 和我們合併的特徵向量 $f(x,y)$ 的 log-linear model.</p>
+<p>實作上我們會針對時間 share weights, 這是因為句子都是長短不一的, 另一方面這樣做也可以大量減少參數量. 所以最後可以簡化成一個 weigth vector <span>$w$</span><!-- Has MathJax --> 和我們合併的特徵向量 <span>$f(x,y)$</span><!-- Has MathJax --> 的 log-linear model.</p>
 <h5 id="Learning"><a href="#Learning" class="headerlink" title="Learning"></a>Learning</h5><p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic28.png" width="60%" height="60%"></p>
 <p>目標函數就是在最大化 CRF 的 likelihood. 採用 gradient method. 而 gradient 的推導事實上也不困難, 只要花點耐心即可了解</p>
 <p><img src="/2018/06/16/what-is-Probabilistic-Graphical-Model/pic29.png" width="80%" height="80%"></p>

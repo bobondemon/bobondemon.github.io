@@ -374,8 +374,8 @@
 
       
         <hr>
-<p>CTC model 是一個 decoder 部分為簡單的 (independent) linear classifer 的 seq2seq model. 因此 input frame 有 $T$ 個, 就會有 $T$ 個 output distribution vectors.</p>
-<p>正常來說 (ex: ASR) output token 數量 $N&lt;T$, 所以會有 alignment 問題. 以往的 alignment (HMM) 強迫每個 frame index 都需對應到一個 phone’s state, 但 CTC 允許對應到 “空” 的 state (null or blank). 這讓 CTC 的 alignment 比 HMM 更有彈性.</p>
+<p>CTC model 是一個 decoder 部分為簡單的 (independent) linear classifer 的 seq2seq model. 因此 input frame 有 <span>$T$</span><!-- Has MathJax --> 個, 就會有 <span>$T$</span><!-- Has MathJax --> 個 output distribution vectors.</p>
+<p>正常來說 (ex: ASR) output token 數量 <span>$N&lt;T$</span><!-- Has MathJax -->, 所以會有 alignment 問題. 以往的 alignment (HMM) 強迫每個 frame index 都需對應到一個 phone’s state, 但 CTC 允許對應到 “空” 的 state (null or blank). 這讓 CTC 的 alignment 比 HMM 更有彈性.</p>
 <blockquote>
 <p>RNN-T 是另一種比 CTC 更有彈性的 alignment 表達方式.</p>
 </blockquote>

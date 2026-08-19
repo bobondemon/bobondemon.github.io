@@ -115,7 +115,7 @@ Beampattern 就是希望能得到如下圖 [ref Fig3.3] 的表示, 說明經過�
 <meta property="og:image" content="https://bobondemon.github.io/2019/02/26/Far-Field-Notes-1-Beampattern/FixedBeamformer1.png">
 <meta property="og:image" content="https://bobondemon.github.io/2019/02/26/Far-Field-Notes-1-Beampattern/FixedBeamformer_def.png">
 <meta property="og:image" content="https://bobondemon.github.io/2019/02/26/Far-Field-Notes-1-Beampattern/FixedBeamformer_sol.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.816Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.150Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Far Field Notes (1), Beampattern">
 <meta name="twitter:description" content="這是 far field 筆記系列第一篇, 主要為自己學習用, 如有錯誤還請指正. 主要參考 Optimum Array Processing Ch2 以及 Microphone Array Signal Processing Ch3.
@@ -398,24 +398,24 @@ Beampattern 就是希望能得到如下圖 [ref Fig3.3] 的表示, 說明經過�
 <p><img src="/2019/02/26/Far-Field-Notes-1-Beampattern/cover.png" width="80%" height="80%"></p>
 <a id="more"></a>
 <hr>
-<h3 id="Geometry-Settings"><a href="#Geometry-Settings" class="headerlink" title="Geometry Settings"></a>Geometry Settings</h3><p>遠場一般假設 plan wave, 和 narrow band. 實際處理語音等 broadband 時我們會採取 fft 分頻. 我們定義如下的 geometry, 其中重要的兩個角度為 $\theta$ 和 $\phi$ (如圖紅圈). $\mathbf{a}$ 表示聲源的入射單位向量. 以下符號如果是<strong>粗體</strong>表示為向量或矩陣, 否則就是 scalar.</p>
+<h3 id="Geometry-Settings"><a href="#Geometry-Settings" class="headerlink" title="Geometry Settings"></a>Geometry Settings</h3><p>遠場一般假設 plan wave, 和 narrow band. 實際處理語音等 broadband 時我們會採取 fft 分頻. 我們定義如下的 geometry, 其中重要的兩個角度為 <span>$\theta$</span><!-- Has MathJax --> 和 <span>$\phi$</span><!-- Has MathJax --> (如圖紅圈). <span>$\mathbf{a}$</span><!-- Has MathJax --> 表示聲源的入射單位向量. 以下符號如果是<strong>粗體</strong>表示為向量或矩陣, 否則就是 scalar.</p>
 <p><img src="/2019/02/26/Far-Field-Notes-1-Beampattern/geometry.png" width="80%" height="80%"></p>
 <hr>
-<h3 id="Signal-Model"><a href="#Signal-Model" class="headerlink" title="Signal Model"></a>Signal Model</h3><p>我們定義 $f(t)$ 為聲源訊號, $v_n(t)$ 為 nth mic 的噪聲源</p>
+<h3 id="Signal-Model"><a href="#Signal-Model" class="headerlink" title="Signal Model"></a>Signal Model</h3><p>我們定義 <span>$f(t)$</span><!-- Has MathJax --> 為聲源訊號, <span>$v_n(t)$</span><!-- Has MathJax --> 為 nth mic 的噪聲源</p>
 <h4 id="Anechoic-Model"><a href="#Anechoic-Model" class="headerlink" title="Anechoic Model"></a>Anechoic Model</h4><p><img src="/2019/02/26/Far-Field-Notes-1-Beampattern/AnechoicModel.png" width="60%" height="60%"></p>
 <p>我們以下的介紹都是基於 Anechoic Model, 並且先做如下的簡化</p>
 <h4 id="Reverberant-Model"><a href="#Reverberant-Model" class="headerlink" title="Reverberant Model"></a>Reverberant Model</h4><p><img src="/2019/02/26/Far-Field-Notes-1-Beampattern/ReverberantModel.png" width="50%" height="50%"></p>
-<p>相當於將 attenuation factor $\alpha$ 改成 impulse response, 所以相乘改成 convolution.</p>
+<p>相當於將 attenuation factor <span>$\alpha$</span><!-- Has MathJax --> 改成 impulse response, 所以相乘改成 convolution.</p>
 <hr>
 <h3 id="Time-Delay"><a href="#Time-Delay" class="headerlink" title="Time Delay"></a>Time Delay</h3><p>為了方便推導麥克風之間的 time delay, 我們先將 Anechoic Model 做如下簡化</p>
 <p><img src="/2019/02/26/Far-Field-Notes-1-Beampattern/IdealCase.png" width="50%" height="50%"></p>
-<p>因此對於 plan wave 假設和聲源的入射單位向量 $a$ 來說, 我們很容易就得到 time delay 如下</p>
+<p>因此對於 plan wave 假設和聲源的入射單位向量 <span>$a$</span><!-- Has MathJax --> 來說, 我們很容易就得到 time delay 如下</p>
 <p><img src="/2019/02/26/Far-Field-Notes-1-Beampattern/TimeDelay.png" width="60%" height="60%"></p>
 <h4 id="Uniform-Lineary-Array-ULA"><a href="#Uniform-Lineary-Array-ULA" class="headerlink" title="Uniform Lineary Array (ULA)"></a>Uniform Lineary Array (ULA)</h4><p><img src="/2019/02/26/Far-Field-Notes-1-Beampattern/TimeDelayULA.png" width="60%" height="60%"></p>
 <h4 id="Circular-Array"><a href="#Circular-Array" class="headerlink" title="Circular Array"></a>Circular Array</h4><p>以一個 6 mic 的 circular array 來說, 有如下的 time delay</p>
 <p><img src="/2019/02/26/Far-Field-Notes-1-Beampattern/TimeDelayCircular.png" width="50%" height="50%"></p>
 <hr>
-<h3 id="Array-Manifold-Vector"><a href="#Array-Manifold-Vector" class="headerlink" title="Array Manifold Vector"></a>Array Manifold Vector</h3><p>由於 time delay $\tau$ 在 freqeuncy $\omega$ 只是乘上 $e^{-j\omega\tau}$, 因此我們可以得到一個 compact 的表示</p>
+<h3 id="Array-Manifold-Vector"><a href="#Array-Manifold-Vector" class="headerlink" title="Array Manifold Vector"></a>Array Manifold Vector</h3><p>由於 time delay <span>$\tau$</span><!-- Has MathJax --> 在 freqeuncy <span>$\omega$</span><!-- Has MathJax --> 只是乘上 <span>$e^{-j\omega\tau}$</span><!-- Has MathJax -->, 因此我們可以得到一個 compact 的表示</p>
 <p><img src="/2019/02/26/Far-Field-Notes-1-Beampattern/ArrayManifoldVector.png" width="80%" height="80%"></p>
 <p>重複一遍這裡得到的重要式子</p>
 <span>$$\begin{align}
@@ -423,9 +423,10 @@ Beampattern 就是希望能得到如下圖 [ref Fig3.3] 的表示, 說明經過�
 \mathbf{F}(\omega,\mathbf{p})=F(\omega)\mathbf{\upsilon}_k(\mathbf{k})
 }
 \end{align}$$</span><!-- Has MathJax -->
-<p>我們稱 $\mathbf{\upsilon}_k(\mathbf{k})$ 為 <em>Array Manifold Vector</em>.</p>
+
+<p>我們稱 <span>$\mathbf{\upsilon}_k(\mathbf{k})$</span><!-- Has MathJax --> 為 <em>Array Manifold Vector</em>.</p>
 <blockquote>
-<p>要注意的是, 其實也可以用 time delay $\tau$ 來表示, 這時我們這麼寫 (如上圖灰色的部分)<br><span>$$\mathbf{\upsilon}_\tau (\mathbf{\tau})=
+<p>要注意的是, 其實也可以用 time delay <span>$\tau$</span><!-- Has MathJax --> 來表示, 這時我們這麼寫 (如上圖灰色的部分)<br><span>$$\mathbf{\upsilon}_\tau (\mathbf{\tau})=
 \left[
 \begin{array}{clr}
 e^{-j\omega\tau_0} \\
@@ -433,7 +434,7 @@ e^{-j\omega\tau_1} \\
 \vdots \\
 e^{-j\omega\tau_{N-1}}
 \end{array}
-\right]$$</span><!-- Has MathJax --><br>或甚至入射角度 $\theta$ 如果可以完全表達 $\tau$ 的話, 我們也能這麼寫 $\mathbf{\upsilon}_\theta(\mathbf{\theta})$.</p>
+\right]$$</span><!-- Has MathJax --> 或甚至入射角度 <span>$\theta$</span><!-- Has MathJax --> 如果可以完全表達 <span>$\tau$</span><!-- Has MathJax --> 的話, 我們也能這麼寫 <span>$\mathbf{\upsilon}_\theta(\mathbf{\theta})$</span><!-- Has MathJax -->.</p>
 </blockquote>
 <hr>
 <h3 id="Array-Signal-Processing"><a href="#Array-Signal-Processing" class="headerlink" title="Array Signal Processing"></a>Array Signal Processing</h3><p>早期的 array processing (narrow band) 是對每個麥克風有各自的 weights, 然後再總合起來, 這種作法叫做 weight-and-sum. 而對於 broadband 訊號來說, 相當於拆頻乘很多 narrow band, 因此在每個頻帶上, 都有 N 個麥克風的 weights. 這在時域上等價於每個麥克風都有各自的 filters, 稱 filter-and-sum. 以下介紹 filter-and-sum 和頻域的架構.</p>
@@ -447,20 +448,20 @@ e^{-j\omega\tau_{N-1}}
 <hr>
 <h3 id="Frequency-wavenumber-Response-Function"><a href="#Frequency-wavenumber-Response-Function" class="headerlink" title="Frequency-wavenumber Response Function"></a>Frequency-wavenumber Response Function</h3><p>針對 frequency domain 的 array processing, 我們可以帶入先前推得的 (1) 得到如下:</p>
 <p><img src="/2019/02/26/Far-Field-Notes-1-Beampattern/FrequencyWavenumberResponseFunction.png" width="60%" height="60%"></p>
-<p>所以 $\Upsilon(\omega,\mathbf{k})$ 物理意義就是針對 frequency $\omega$ 和 wavenumber $\mathbf{k}$ (控制了聲源入射角度 $\theta$ 等等的物理量) 的 response.</p>
+<p>所以 <span>$\Upsilon(\omega,\mathbf{k})$</span><!-- Has MathJax --> 物理意義就是針對 frequency <span>$\omega$</span><!-- Has MathJax --> 和 wavenumber <span>$\mathbf{k}$</span><!-- Has MathJax --> (控制了聲源入射角度 <span>$\theta$</span><!-- Has MathJax --> 等等的物理量) 的 response.</p>
 <hr>
-<h3 id="Beampattern"><a href="#Beampattern" class="headerlink" title="Beampattern"></a>Beampattern</h3><p>wavenumber $\mathbf{k}$ 比較抽象, 如果我們換成角度 $\theta$, $\phi$ 就會直觀很多, 而 beampattern 只是針對 $\Upsilon(\omega,\mathbf{k})$ 換成用角度而已.</p>
+<h3 id="Beampattern"><a href="#Beampattern" class="headerlink" title="Beampattern"></a>Beampattern</h3><p>wavenumber <span>$\mathbf{k}$</span><!-- Has MathJax --> 比較抽象, 如果我們換成角度 <span>$\theta$</span><!-- Has MathJax -->, <span>$\phi$</span><!-- Has MathJax --> 就會直觀很多, 而 beampattern 只是針對 <span>$\Upsilon(\omega,\mathbf{k})$</span><!-- Has MathJax --> 換成用角度而已.</p>
 <p><img src="/2019/02/26/Far-Field-Notes-1-Beampattern/Beampattern.png" width="50%" height="50%"></p>
-<p>所以 $B(\omega:\theta,\phi)$ 物理意義就是針對 frequency $\omega$ 和入射角度 $\theta$, $\phi$ 的 response.</p>
+<p>所以 <span>$B(\omega:\theta,\phi)$</span><!-- Has MathJax --> 物理意義就是針對 frequency <span>$\omega$</span><!-- Has MathJax --> 和入射角度 <span>$\theta$</span><!-- Has MathJax -->, <span>$\phi$</span><!-- Has MathJax --> 的 response.</p>
 <hr>
-<h3 id="Delay-and-sum-Beampattern"><a href="#Delay-and-sum-Beampattern" class="headerlink" title="Delay-and-sum Beampattern"></a>Delay-and-sum Beampattern</h3><p>Delay-and-sum 想法很簡單, 就是補償每個 mic 的 time delay 而已. 因此所需要的 filter $H(\omega)$ 就是 array manifold vector 的 conjugate 即可. 如下圖:</p>
+<h3 id="Delay-and-sum-Beampattern"><a href="#Delay-and-sum-Beampattern" class="headerlink" title="Delay-and-sum Beampattern"></a>Delay-and-sum Beampattern</h3><p>Delay-and-sum 想法很簡單, 就是補償每個 mic 的 time delay 而已. 因此所需要的 filter <span>$H(\omega)$</span><!-- Has MathJax --> 就是 array manifold vector 的 conjugate 即可. 如下圖:</p>
 <p><img src="/2019/02/26/Far-Field-Notes-1-Beampattern/DS-Beampattern1.png" width="80%" height="80%"></p>
 <p>但這麼做有個缺點, 就是高頻時雖然針對聲源方向的 mainlobe 變窄了, 但同時 sidelobe 卻變多了. 也就是在高頻時, 某些方向的聲源消不掉. 如下圖:</p>
 <p><img src="/2019/02/26/Far-Field-Notes-1-Beampattern/DS-Beampattern2.png" width="80%" height="80%"></p>
 <hr>
 <h3 id="Fixed-Beampattern"><a href="#Fixed-Beampattern" class="headerlink" title="Fixed Beampattern"></a>Fixed Beampattern</h3><p>為了修正上述 DS beamformer 的問題, 我們希望得到 response-invariant broadband beamformer. 希望能有下圖的結果:</p>
 <p><img src="/2019/02/26/Far-Field-Notes-1-Beampattern/FixedBeamformer1.png" width="80%" height="80%"></p>
-<p>中心思想很簡單, 針對某個頻率 $\omega$ 來求出相對應的 $H$ 使得 beampattern 會與我們 desired beampattern 有 least-sqaure 差異. 以下 $H(\omega)$ 會省略 $\omega$ 不寫</p>
+<p>中心思想很簡單, 針對某個頻率 <span>$\omega$</span><!-- Has MathJax --> 來求出相對應的 <span>$H$</span><!-- Has MathJax --> 使得 beampattern 會與我們 desired beampattern 有 least-sqaure 差異. 以下 <span>$H(\omega)$</span><!-- Has MathJax --> 會省略 <span>$\omega$</span><!-- Has MathJax --> 不寫</p>
 <p><img src="/2019/02/26/Far-Field-Notes-1-Beampattern/FixedBeamformer_def.png" width="50%" height="50%"><br><img src="/2019/02/26/Far-Field-Notes-1-Beampattern/FixedBeamformer_sol.png" width="50%" height="50%"></p>
 <hr>
 <h3 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h3><p>到這裡我們討論了遠場的 signal model, 針對 anechoic model 我們最終導出了 beampattern. 做為例子我們使用簡單的 delay-and-sum (DS) beamformer 來看它的 beampattern 長什麼樣. 可以看到在高頻時很多方向還是無法壓抑, 因此使用 least-square 方法找出每個頻率需要的 spatial filter 來逼近我們需要的 beampattern.</p>

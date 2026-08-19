@@ -96,7 +96,7 @@
 <meta property="og:description" content="這是初探最優傳輸 OT (Optimal Transport) 的第二篇, 聊一下背後的數學理論接續上一篇引導出 EMD 是什麼以及什麼情況下我們需要 EMD 而非 KL or JSD 距離後, 我們最後說到 EMD 的兩個缺點: 不夠有效率以及無法微分
 本篇我們介紹 EOT (Entorpic Optimal Transport)EOT 將 EMD 問題 relax 後, 雖然只能找到逼近解,">
 <meta property="og:image" content="https://bobondemon.github.io/2026/03/03/EMD-2/image.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.815Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.144Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="初探推土機距離和 Entropic 最優傳輸 (EOT): 數學理論篇 (2/3)">
 <meta name="twitter:description" content="這是初探最優傳輸 OT (Optimal Transport) 的第二篇, 聊一下背後的數學理論接續上一篇引導出 EMD 是什麼以及什麼情況下我們需要 EMD 而非 KL or JSD 距離後, 我們最後說到 EMD 的兩個缺點: 不夠有效率以及無法微分
@@ -383,7 +383,7 @@
 \text{s.t.} \quad &amp; \sum_{j=1}^m P_{ij} = a_i, \quad \forall i \in \{1, \dots, n\} \quad (\text{行約束}) \\
 &amp; \sum_{i=1}^n P_{ij} = b_j, \quad \forall j \in \{1, \dots, m\} \quad (\text{列約束}) \\
 &amp; P_{ij} \ge 0, \quad \forall i, j \quad (\text{非負約束})
-\end{align}$$</span><!-- Has MathJax --> 其中變量定義如下:<br>&emsp;$\circ$ <strong>來源分佈</strong>：向量 <span>$a \in \mathbb{R}^n_+$</span><!-- Has MathJax -->, 且 <span>$\sum_{i=1}^n a_i = 1$</span><!-- Has MathJax -->.<br>&emsp;$\circ$ <strong>目標分佈</strong>：向量 <span>$b \in \mathbb{R}^m_+$</span><!-- Has MathJax -->, 且 <span>$\sum_{j=1}^m b_j = 1$</span><!-- Has MathJax -->.<br>&emsp;$\circ$ <strong>代價矩陣</strong>： <span>$C \in \mathbb{R}^{n \times m}$</span><!-- Has MathJax -->, 其中 <span>$C_{ij}$</span><!-- Has MathJax --> 為從 <span>$i$</span><!-- Has MathJax --> 搬到 <span>$j$</span><!-- Has MathJax --> 的單位成本.<br>&emsp;$\circ$ <strong>傳輸矩陣（決策變量）</strong>： <span>$P \in \mathbb{R}^{n \times m}$</span><!-- Has MathJax -->, <span>$P_{ij}$</span><!-- Has MathJax --> 表示來源第 <span>$i$</span><!-- Has MathJax --> 個土堆 (<span>$a_i$</span><!-- Has MathJax -->) 要搬運多少量到目標第 <span>$j$</span><!-- Has MathJax --> 個土堆 (<span>$b_j$</span><!-- Has MathJax -->).<br>這是一個標準的 <strong><a href="https://zh.wikipedia.org/zh-tw/%E7%BA%BF%E6%80%A7%E8%A7%84%E5%88%92" target="_blank" rel="external">線性規劃</a> LP (Linear Programming)</strong> 問題, 使用 Simplex mehod 方法可求解, 但仍面臨了<strong>計算效率</strong> (相比於神經網路常用的 KL-divergence) 和<strong>不可微分</strong>兩個困難 (詳細參考前一篇文章)</p>
+\end{align}$$</span><!-- Has MathJax --> 其中變量定義如下:<br>&emsp;<span>$\circ$</span><!-- Has MathJax --> <strong>來源分佈</strong>：向量 <span>$a \in \mathbb{R}^n_+$</span><!-- Has MathJax -->, 且 <span>$\sum_{i=1}^n a_i = 1$</span><!-- Has MathJax -->.<br>&emsp;<span>$\circ$</span><!-- Has MathJax --> <strong>目標分佈</strong>：向量 <span>$b \in \mathbb{R}^m_+$</span><!-- Has MathJax -->, 且 <span>$\sum_{j=1}^m b_j = 1$</span><!-- Has MathJax -->.<br>&emsp;<span>$\circ$</span><!-- Has MathJax --> <strong>代價矩陣</strong>： <span>$C \in \mathbb{R}^{n \times m}$</span><!-- Has MathJax -->, 其中 <span>$C_{ij}$</span><!-- Has MathJax --> 為從 <span>$i$</span><!-- Has MathJax --> 搬到 <span>$j$</span><!-- Has MathJax --> 的單位成本.<br>&emsp;<span>$\circ$</span><!-- Has MathJax --> <strong>傳輸矩陣（決策變量）</strong>： <span>$P \in \mathbb{R}^{n \times m}$</span><!-- Has MathJax -->, <span>$P_{ij}$</span><!-- Has MathJax --> 表示來源第 <span>$i$</span><!-- Has MathJax --> 個土堆 (<span>$a_i$</span><!-- Has MathJax -->) 要搬運多少量到目標第 <span>$j$</span><!-- Has MathJax --> 個土堆 (<span>$b_j$</span><!-- Has MathJax -->).<br>這是一個標準的 <strong><a href="https://zh.wikipedia.org/zh-tw/%E7%BA%BF%E6%80%A7%E8%A7%84%E5%88%92" target="_blank" rel="external">線性規劃</a> LP (Linear Programming)</strong> 問題, 使用 Simplex mehod 方法可求解, 但仍面臨了<strong>計算效率</strong> (相比於神經網路常用的 KL-divergence) 和<strong>不可微分</strong>兩個困難 (詳細參考前一篇文章)</p>
 <hr>
 <h2 id="熵正則化最優傳輸-Entropic-Optimal-Transport-EOT"><a href="#熵正則化最優傳輸-Entropic-Optimal-Transport-EOT" class="headerlink" title="熵正則化最優傳輸 (Entropic Optimal Transport, EOT)"></a>熵正則化最優傳輸 (Entropic Optimal Transport, EOT)</h2><h3 id="解法：引入熵正則化"><a href="#解法：引入熵正則化" class="headerlink" title="解法：引入熵正則化"></a>解法：引入熵正則化</h3><p>為了同時解決「速度」與「可微分性」, Marco Cuturi (2013) [<a href="https://papers.nips.cc/paper/2013/file/af21d0c97db2e27e13572cbf59eb343d-Paper.pdf" target="_blank" rel="external">pdf</a>] 提出在目標函數中加入<strong>負熵正則項</strong><br>新的目標函數 (Primal Problem):<br><span>$$\begin{align}
 \min_{P \in \mathbb{R}^{n \times m}} \quad \mathcal{E}(P) = \sum_{ij} P_{ij} C_{ij} + \epsilon \sum_{ij} P_{ij} (\log P_{ij} - 1)
@@ -404,9 +404,9 @@ P_{ij} = \exp\left( \frac{\alpha_i}{\epsilon} \right) \cdot \exp\left( -\frac{C_
 \end{align}$$</span><!-- Has MathJax --> 稱 <span>$K_{ij} = e^{-C_{ij}/\epsilon}$</span><!-- Has MathJax --> 為 <strong>Gibbs Kernel</strong>, 則:<br><span>$$\begin{align}
 P^* = \text{diag}(u) \, K \, \text{diag}(v)
 \end{align}$$</span><!-- Has MathJax --> 這意味著最優傳輸矩陣 <span>$P^*$</span><!-- Has MathJax -->, 本質上就是將一個基於幾何距離計算出的核矩陣 <span>$K$</span><!-- Has MathJax -->, 經過<strong>對角縮放 (Diagonal Scaling)</strong> 後得到的.</p>
-<h3 id="Sinkhorn-演算法和收斂討論"><a href="#Sinkhorn-演算法和收斂討論" class="headerlink" title="Sinkhorn 演算法和收斂討論"></a><strong>Sinkhorn 演算法和收斂討論</strong></h3><p>為了得到 <span>$P^*$</span><!-- Has MathJax --> (最優傳輸矩陣), 我們必須解出 <span>$u$</span><!-- Has MathJax --> 和 <span>$v$</span><!-- Has MathJax -->. <strong>Sinkhorn 演算法</strong>就是醫個高效的迭代求解步驟<br>利用邊緣分佈約束: (<span>$\odot$</span><!-- Has MathJax --> 表示 elementwised 相乘)<br>&emsp;$\circ$ 行約束 (2): <span>$P \mathbf{1} = a \implies u \odot (Kv) = a$</span><!-- Has MathJax --><br>&emsp;$\circ$ 列約束 (3): <span>$P^T \mathbf{1} = b \implies v \odot (K^T u) = b$</span><!-- Has MathJax --><br>這直接導出了 <strong>Sinkhorn 演算法</strong> 的迭代步驟<br><span>$$\begin{align}
+<h3 id="Sinkhorn-演算法和收斂討論"><a href="#Sinkhorn-演算法和收斂討論" class="headerlink" title="Sinkhorn 演算法和收斂討論"></a><strong>Sinkhorn 演算法和收斂討論</strong></h3><p>為了得到 <span>$P^*$</span><!-- Has MathJax --> (最優傳輸矩陣), 我們必須解出 <span>$u$</span><!-- Has MathJax --> 和 <span>$v$</span><!-- Has MathJax -->. <strong>Sinkhorn 演算法</strong>就是醫個高效的迭代求解步驟<br>利用邊緣分佈約束: (<span>$\odot$</span><!-- Has MathJax --> 表示 elementwised 相乘)<br>&emsp;<span>$\circ$</span><!-- Has MathJax --> 行約束 (2): <span>$P \mathbf{1} = a \implies u \odot (Kv) = a$</span><!-- Has MathJax --><br>&emsp;<span>$\circ$</span><!-- Has MathJax --> 列約束 (3): <span>$P^T \mathbf{1} = b \implies v \odot (K^T u) = b$</span><!-- Has MathJax --><br>這直接導出了 <strong>Sinkhorn 演算法</strong> 的迭代步驟<br><span>$$\begin{align}
 u \leftarrow \frac{a}{Kv}, \quad v \leftarrow \frac{b}{K^T u}
-\end{align}$$</span><!-- Has MathJax --><br>要說明為什麼 (12) 會收斂, 就不得不涉及到一些 convex optimization 的知識了.</p>
+\end{align}$$</span><!-- Has MathJax --> 要說明為什麼 (12) 會收斂, 就不得不涉及到一些 convex optimization 的知識了.</p>
 <blockquote>
 <p>PS: 很好的整理 primal and dual problem: <a href="https://www.stat.cmu.edu/~ryantibs/convexopt-F15/scribes/11-dual-gen-scribed.pdf" target="_blank" rel="external">CMU lecture</a></p>
 </blockquote>
@@ -430,18 +430,17 @@ S_\epsilon(a, b) = OT_\epsilon(a, b) - \frac{1}{2} OT_\epsilon(a, a) - \frac{1}{
 &amp; \sum_i P_{ij} {\color{orange}{\leq}} b_j, \quad \forall j \quad (\text{列約束}) \\
 &amp; P_{ij} \ge 0, \quad \forall i, j \quad (\text{非負約束}) \\
 &amp; {\color{orange}{\sum_{ij}P_{ij}=m}}, \quad (\text{總質量約束})
-\end{align}$$</span><!-- Has MathJax --> 注意到與原始 OT 問題 (1)~(4) 有幾個差異, 除了 (19) 設定的搬運總質量之外<br>&emsp;$\circ$ 式 (16) 行約束的 <span>$\leq$</span><!-- Has MathJax --> 表示搬走的量不能超過 Source 擁有的, 也表示 Source 不必都要搬動, 甚至可以不保留, i.e. 當 <span>$\sum_{j}P_{ij} &lt; a_i$</span><!-- Has MathJax --> 時表示 <span>$a_i$</span><!-- Has MathJax --> 有些土 “消失了”.<br>&emsp;$\circ$ 式 (17) 列約束的 <span>$\leq$</span><!-- Has MathJax --> 表示接收的量不能超過 Target 能容納的, 也表示 Target 不必都要接收, 也可以不用接收滿指定的上限, i.e. 當 <span>$\sum_{i}P_{ij} &lt; b_j$</span><!-- Has MathJax --> 時表示 <span>$b_i$</span><!-- Has MathJax --> 沒有被填滿.<br>Partial OT 主要有兩種解法: 1. 虛擬點法 (Dummy Points) 和 2. 熵正則化迭代法 (Entropic Partial OT)<br>這邊很簡略的描述一下這兩種做法</p>
+\end{align}$$</span><!-- Has MathJax --> 注意到與原始 OT 問題 (1)~(4) 有幾個差異, 除了 (19) 設定的搬運總質量之外<br>&emsp;<span>$\circ$</span><!-- Has MathJax --> 式 (16) 行約束的 <span>$\leq$</span><!-- Has MathJax --> 表示搬走的量不能超過 Source 擁有的, 也表示 Source 不必都要搬動, 甚至可以不保留, i.e. 當 <span>$\sum_{j}P_{ij} &lt; a_i$</span><!-- Has MathJax --> 時表示 <span>$a_i$</span><!-- Has MathJax --> 有些土 “消失了”.<br>&emsp;<span>$\circ$</span><!-- Has MathJax --> 式 (17) 列約束的 <span>$\leq$</span><!-- Has MathJax --> 表示接收的量不能超過 Target 能容納的, 也表示 Target 不必都要接收, 也可以不用接收滿指定的上限, i.e. 當 <span>$\sum_{i}P_{ij} &lt; b_j$</span><!-- Has MathJax --> 時表示 <span>$b_i$</span><!-- Has MathJax --> 沒有被填滿.<br>Partial OT 主要有兩種解法: 1. 虛擬點法 (Dummy Points) 和 2. 熵正則化迭代法 (Entropic Partial OT)<br>這邊很簡略的描述一下這兩種做法</p>
 <h3 id="虛擬點法-Dummy-Points-Augmented-Matrix"><a href="#虛擬點法-Dummy-Points-Augmented-Matrix" class="headerlink" title="虛擬點法 (Dummy Points / Augmented Matrix)"></a>虛擬點法 (Dummy Points / Augmented Matrix)</h3><p>觀察 partial OT 數學問題 (15)~(19) 其實與標準的 OT 問題 (1)~(4) 非常接近<br>如果能將不等式的條件變成等式, 應該就能視為標準 OT 問題了吧<br>基於這樣的想法, 如果我們在 Source 和 Target 各增加一個 “垃圾桶 (Dummy Node)”, 用來接收那些不被傳輸的質量, 這樣就能寫成等式條件了, 因此:</p>
 <ol>
 <li><strong>擴充 Source <span>$a&apos;$</span><!-- Has MathJax -->:</strong> 在 <span>$a$</span><!-- Has MathJax --> 後面加一個虛擬點, 質量為 <span>$\sum b - m$</span><!-- Has MathJax -->. 其意義為 Target 沒收到的質量, 都由這個虛擬點給</li>
 <li><strong>擴充 Target <span>$b&apos;$</span><!-- Has MathJax -->:</strong> 在 <span>$b$</span><!-- Has MathJax --> 後面加一個虛擬點, 質量為 <span>$\sum a - m$</span><!-- Has MathJax -->, 其意義為 Source 沒送出去的質量, 都丟到這個虛擬點</li>
-<li><strong>擴充代價矩陣 <span>$C&apos;$</span><!-- Has MathJax --> 為:</strong>     <span>$$\begin{aligned}
+<li><strong>擴充代價矩陣 <span>$C&apos;$</span><!-- Has MathJax --> 為:</strong><br> <span>$$\begin{aligned}
     C&apos; = \begin{bmatrix} 
     C &amp; 0 \\ 
     0 &amp; 0 
     \end{bmatrix} \quad \text{(擴充後的代價矩陣)}
-    \end{aligned}$$</span><!-- Has MathJax -->
-<ul>
+    \end{aligned}$$</span><!-- Has MathJax --><ul>
 <li>原本的 <span>$N \times M$</span><!-- Has MathJax --> 區域維持 <span>$C_{ij}$</span><!-- Has MathJax --></li>
 <li>新增的虛擬區域 (垃圾桶), 其搬運成本設為 <strong>0 (</strong>或者某個閾值, 視需求而定)</li>
 <li>虛擬點對虛擬點 (右下角) 成本設為 0</li>
@@ -453,8 +452,8 @@ S_\epsilon(a, b) = OT_\epsilon(a, b) - \frac{1}{2} OT_\epsilon(a, a) - \frac{1}{
 \min_{P \ge 0} \langle P, C \rangle - \epsilon H(P) \quad \text{s.t. } P\mathbf{1} \le a, P^T\mathbf{1} \le b, \sum P_{ij} = m
 \end{aligned}$$</span><!-- Has MathJax --> 原先的標準 Sinkhorn 是 <span>$u = a / (Kv)$</span><!-- Has MathJax -->, 其中 <strong>Gibbs Kernel</strong>: <span>$K = e^{-C/\epsilon}$</span><!-- Has MathJax -->.<br>在 Partial OT 中, 因為是<strong>不等式 (<span>$\le$</span><!-- Has MathJax -->),</strong> 更新公式會變成:</p>
 <ol>
-<li>更新 <span>$v$</span><!-- Has MathJax --> (列): 如果需求超過了 <span>$b$</span><!-- Has MathJax --> 就 clipping, 這裡的 1 是指乘法因子的上限, 具體推導與對偶變數有關     <span>$v \leftarrow \min \left( \frac{b}{K^T u}, \ 1 \right)$</span><!-- Has MathJax --></li>
-<li>更新 <span>$u$</span><!-- Has MathJax --> (行): <span>$u \leftarrow \min \left( \frac{a}{K v}, \ 1 \right)$</span><!-- Has MathJax --></li>
+<li>更新 <span>$v$</span><!-- Has MathJax --> (列): 如果需求超過了 <span>$b$</span><!-- Has MathJax --> 就 clipping, 這裡的 1 是指乘法因子的上限, 具體推導與對偶變數有關<br> <span>$$v \leftarrow \min \left( \frac{b}{K^T u}, \ 1 \right)$$</span><!-- Has MathJax --></li>
+<li>更新 <span>$u$</span><!-- Has MathJax --> (行):<br> <span>$$u \leftarrow \min \left( \frac{a}{K v}, \ 1 \right)$$</span><!-- Has MathJax --></li>
 <li>總質量重整 (Rescaling): 上面的更新不能保證總質量為 <span>$m$</span><!-- Has MathJax -->, 需重新對 <span>$P$</span><!-- Has MathJax --> 做 scaling 縮放</li>
 </ol>
 <p>這裡仍列一下<a href="https://arxiv.org/abs/1412.5154" target="_blank" rel="external">論文</a>的 Proposition 5. 算法更新步驟:<br><img src="/2026/03/03/EMD-2/image.png" width="80%" height="80%"><br>以及 <a href="https://pythonot.github.io/index.html" target="_blank" rel="external">POT</a> 庫提供的函數為 <code>ot.partial.entropic_partial_wasserstein</code> [<a href="https://pythonot.github.io/gen_modules/ot.partial.html#ot.partial.entropic_partial_wasserstein" target="_blank" rel="external">doc</a>], [<a href="https://pythonot.github.io/_modules/ot/partial/partial_solvers.html#entropic_partial_wasserstein" target="_blank" rel="external">codes</a>]</p>

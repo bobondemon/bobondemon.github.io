@@ -104,7 +104,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2020/10/03/Quantization-的那些事/Integer_op3.png">
 <meta property="og:image" content="https://bobondemon.github.io/2020/10/03/Quantization-的那些事/fractional_multiplication.png">
 <meta property="og:image" content="https://bobondemon.github.io/2020/10/03/Quantization-的那些事/matrix_multiplication_op.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.824Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.191Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Quantization 的那些事">
 <meta name="twitter:description" content="NN 在做 quantization 時採用的是非對稱的方式, real ($r$) 和 quantized ($q$) values 對應關係如下:
@@ -383,49 +383,50 @@
 
       
         <hr>
-<p>NN 在做 quantization 時採用的是非對稱的方式, real ($r$) 和 quantized ($q$) values 對應關係如下:</p>
+<p>NN 在做 quantization 時採用的是非對稱的方式, real (<span>$r$</span><!-- Has MathJax -->) 和 quantized (<span>$q$</span><!-- Has MathJax -->) values 對應關係如下:</p>
 <p><img src="/2020/10/03/Quantization-的那些事/asymmetric_quantization_def.png" width="40%" height="40%" align="center"></p>
-<p>其中 zero point $Z$ 會跟 $q$ 相同 type, 例如 <code>int8</code>, 而 scaling value $S$ 則會跟 $r$ 相同, 例如 <code>float</code>. 以 <code>uint3</code> (0~7) 做 quantization, 如下圖所示:</p>
+<p>其中 zero point <span>$Z$</span><!-- Has MathJax --> 會跟 <span>$q$</span><!-- Has MathJax --> 相同 type, 例如 <code>int8</code>, 而 scaling value <span>$S$</span><!-- Has MathJax --> 則會跟 <span>$r$</span><!-- Has MathJax --> 相同, 例如 <code>float</code>. 以 <code>uint3</code> (0~7) 做 quantization, 如下圖所示:</p>
 <p><img src="/2020/10/03/Quantization-的那些事/uint3_exp.png" width="75%" height="75%" align="center"></p>
 <p>本篇討論以下兩點:</p>
 <ol>
-<li>同一個 real 值如何在不同的 $Z$/$S$ 做轉換, e.g.: $q_1$ with ($Z_1$/$S_1$) 如何對應到 $q_2$ with ($Z_2$/$S_2$)</li>
+<li>同一個 real 值如何在不同的 <span>$Z$</span><!-- Has MathJax -->/<span>$S$</span><!-- Has MathJax --> 做轉換, e.g.: <span>$q_1$</span><!-- Has MathJax --> with (<span>$Z_1$</span><!-- Has MathJax -->/<span>$S_1$</span><!-- Has MathJax -->) 如何對應到 <span>$q_2$</span><!-- Has MathJax --> with (<span>$Z_2$</span><!-- Has MathJax -->/<span>$S_2$</span><!-- Has MathJax -->)</li>
 <li>PyTorch 的 Quantization Aware Training (QAT) 討論</li>
 </ol>
-<p>在不同 $Z$/$S$ 轉換有兩個常見理由: 在做 NN 的 quantization 時候, 每個 layer 的 output domain 都不同, 這導致了使用不同的 $Z$/$S$. 又或者丟給 NN 做 inference 之前, mfcc/mfb 需要先轉換到 NN input 的 $Z$/$S$ quantized domain 上.</p>
+<p>在不同 <span>$Z$</span><!-- Has MathJax -->/<span>$S$</span><!-- Has MathJax --> 轉換有兩個常見理由: 在做 NN 的 quantization 時候, 每個 layer 的 output domain 都不同, 這導致了使用不同的 <span>$Z$</span><!-- Has MathJax -->/<span>$S$</span><!-- Has MathJax -->. 又或者丟給 NN 做 inference 之前, mfcc/mfb 需要先轉換到 NN input 的 <span>$Z$</span><!-- Has MathJax -->/<span>$S$</span><!-- Has MathJax --> quantized domain 上.</p>
 <a id="more"></a>
-<p>額外提一點 PyTorch 的 quantized Tensor 其實就只是比原本的 Tensor 多了 $Z$ and $S$. 例如給定 $Z$ and $S$, <code>torch.quantize_per_tensor</code> 會將一個正常的 tensor 從 $r$ 轉成 $q$, <a href="https://pytorch.org/docs/stable/generated/torch.quantize_per_tensor.html#torch.quantize_per_tensor" target="_blank" rel="external">官網範例</a>:</p>
+<p>額外提一點 PyTorch 的 quantized Tensor 其實就只是比原本的 Tensor 多了 <span>$Z$</span><!-- Has MathJax --> and <span>$S$</span><!-- Has MathJax -->. 例如給定 <span>$Z$</span><!-- Has MathJax --> and <span>$S$</span><!-- Has MathJax -->, <code>torch.quantize_per_tensor</code> 會將一個正常的 tensor 從 <span>$r$</span><!-- Has MathJax --> 轉成 <span>$q$</span><!-- Has MathJax -->, <a href="https://pytorch.org/docs/stable/generated/torch.quantize_per_tensor.html#torch.quantize_per_tensor" target="_blank" rel="external">官網範例</a>:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>torch.quantize_per_tensor(torch.tensor([<span class="number">-1.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">2.0</span>]), <span class="number">0.1</span>, <span class="number">10</span>, torch.quint8)</div><div class="line">tensor([<span class="number">-1.</span>,  <span class="number">0.</span>,  <span class="number">1.</span>,  <span class="number">2.</span>], size=(<span class="number">4</span>,), dtype=torch.quint8,</div><div class="line">       quantization_scheme=torch.per_tensor_affine, scale=<span class="number">0.1</span>, zero_point=<span class="number">10</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>torch.quantize_per_tensor(torch.tensor([<span class="number">-1.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">2.0</span>]), <span class="number">0.1</span>, <span class="number">10</span>, torch.quint8).int_repr()</div><div class="line">tensor([ <span class="number">0</span>, <span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>], dtype=torch.uint8)</div></pre></td></tr></table></figure>
 <p>以下我們都以 <code>uint8</code> 當作 quantized 的 type, real value 以 <code>float</code> (4 bytes) 為準. 而 <code>int</code> 為 4 bytes.</p>
 <hr>
-<h3 id="先使用-Float-轉換"><a href="#先使用-Float-轉換" class="headerlink" title="先使用 Float 轉換"></a>先使用 Float 轉換</h3><p>要將第一個 domain ($Z_1$/$S_1$) 的數值轉換到第二個 domain ($Z_2$/$S_2$) 最簡單的方法就是先把第一個 domain 的 $r_1$ 算出來, 再利用第二個 domain 的 $Z_2$/$S_2$ 求得 $q_2$</p>
+<h3 id="先使用-Float-轉換"><a href="#先使用-Float-轉換" class="headerlink" title="先使用 Float 轉換"></a>先使用 Float 轉換</h3><p>要將第一個 domain (<span>$Z_1$</span><!-- Has MathJax -->/<span>$S_1$</span><!-- Has MathJax -->) 的數值轉換到第二個 domain (<span>$Z_2$</span><!-- Has MathJax -->/<span>$S_2$</span><!-- Has MathJax -->) 最簡單的方法就是先把第一個 domain 的 <span>$r_1$</span><!-- Has MathJax --> 算出來, 再利用第二個 domain 的 <span>$Z_2$</span><!-- Has MathJax -->/<span>$S_2$</span><!-- Has MathJax --> 求得 <span>$q_2$</span><!-- Has MathJax --></p>
 <span>$$\begin{align}
 \color{orange}{r_1}=(float)\left( \left( (int32)q_1-Z_1 \right)*S_1 \right) \\
 q_2=\text{uint8_saturated_round}\left( \frac{\color{orange}{r_2}}{S_2}+Z_2 \right)
 \end{align}$$</span><!-- Has MathJax -->
-<p>由於 $r_2=r_1$ 因此 (2) 可計算出 $q_2$. 但這樣計算還是用到 float, 其實我們可以完全使用 integer 運算來達成.</p>
+
+<p>由於 <span>$r_2=r_1$</span><!-- Has MathJax --> 因此 (2) 可計算出 <span>$q_2$</span><!-- Has MathJax -->. 但這樣計算還是用到 float, 其實我們可以完全使用 integer 運算來達成.</p>
 <hr>
 <h3 id="純用-Integer-運算"><a href="#純用-Integer-運算" class="headerlink" title="純用 Integer 運算"></a>純用 Integer 運算</h3><p><img src="/2020/10/03/Quantization-的那些事/Integer_op1.png" width="50%" height="50%" align="center"></p>
-<p>其中 $M&gt;1.0$ 是沒有意義的, e.g. $S_1&gt;S_2$. 如下圖舉例來說, data domain 分布只會在 8 個點位置上, 使用更細的 resolution 去存沒意義.</p>
+<p>其中 <span>$M&gt;1.0$</span><!-- Has MathJax --> 是沒有意義的, e.g. <span>$S_1&gt;S_2$</span><!-- Has MathJax -->. 如下圖舉例來說, data domain 分布只會在 8 個點位置上, 使用更細的 resolution 去存沒意義.</p>
 <p><img src="/2020/10/03/Quantization-的那些事/Integer_op2.png" width="75%" height="75%" align="center"></p>
 <p><img src="/2020/10/03/Quantization-的那些事/Integer_op3.png" width="50%" height="50%" align="center"></p>
-<p>$M_0$ 很明顯可以用 Q0.31 的 int32 來保存, 所以 $M_0$ 與 $(q_1-Z_1)$ 相乘的時候使用 <strong>fractional multiplication</strong>, 最後 $2^{-n}$ 使用 shift 即可.</p>
+<p><span>$M_0$</span><!-- Has MathJax --> 很明顯可以用 Q0.31 的 int32 來保存, 所以 <span>$M_0$</span><!-- Has MathJax --> 與 <span>$(q_1-Z_1)$</span><!-- Has MathJax --> 相乘的時候使用 <strong>fractional multiplication</strong>, 最後 <span>$2^{-n}$</span><!-- Has MathJax --> 使用 shift 即可.</p>
 <p>什麼是 fractional multiplication? 一張圖表示就知道:</p>
 <p><img src="/2020/10/03/Quantization-的那些事/fractional_multiplication.png" width="50%" height="50%" align="center"></p>
 <p>最後我們要驗證的話其實可以跟上一段講的 Float 版本對比就可以.</p>
 <hr>
-<h3 id="矩陣運算的-Quantization-轉換"><a href="#矩陣運算的-Quantization-轉換" class="headerlink" title="矩陣運算的 Quantization 轉換"></a>矩陣運算的 Quantization 轉換</h3><p>其實 convolution 裡的矩陣運算只是原來的 $r_2=r_1$ 變成 $r_3=r_1r_2$ 的關係而已, 其餘都相同. 貼一張論文的內容即可.</p>
+<h3 id="矩陣運算的-Quantization-轉換"><a href="#矩陣運算的-Quantization-轉換" class="headerlink" title="矩陣運算的 Quantization 轉換"></a>矩陣運算的 Quantization 轉換</h3><p>其實 convolution 裡的矩陣運算只是原來的 <span>$r_2=r_1$</span><!-- Has MathJax --> 變成 <span>$r_3=r_1r_2$</span><!-- Has MathJax --> 的關係而已, 其餘都相同. 貼一張論文的內容即可.</p>
 <p><img src="/2020/10/03/Quantization-的那些事/matrix_multiplication_op.png" width="50%" height="50%" align="center"></p>
-<p>更多內容可以參考論文 ref [<a href="https://arxiv.org/abs/1712.05877" target="_blank" rel="external">1</a>], 例如使用 ReLU6 替代 ReLU, 因為如果我們使用 uint8 的話由於 ReLU6 將 domain 限制在 [0,6] 之間, 這樣 8 bits 可以用 $Z=0$, $S=1.0/2^5=0.03125$ 來表示. 同時最後再轉換成 quantization model 時可以直接拿掉 ReLU6 (因為直接使用 quantization 就好)</p>
+<p>更多內容可以參考論文 ref [<a href="https://arxiv.org/abs/1712.05877" target="_blank" rel="external">1</a>], 例如使用 ReLU6 替代 ReLU, 因為如果我們使用 uint8 的話由於 ReLU6 將 domain 限制在 [0,6] 之間, 這樣 8 bits 可以用 <span>$Z=0$</span><!-- Has MathJax -->, <span>$S=1.0/2^5=0.03125$</span><!-- Has MathJax --> 來表示. 同時最後再轉換成 quantization model 時可以直接拿掉 ReLU6 (因為直接使用 quantization 就好)</p>
 <hr>
 <h3 id="Symmetric-Fixed-Point"><a href="#Symmetric-Fixed-Point" class="headerlink" title="Symmetric Fixed Point"></a>Symmetric Fixed Point</h3><p>傳統上常見的 fixed point 採用的是 symmetric quantization, 例如 Q4.3 這種 int8 的表示方式 (-8.0 ~ 7.875). 但它其實只是 asymmetric quantization 的特例.</p>
-<p>Q4.3 基本上就是 $Z=0$ 和 $S=1.0/2^3=0.125$ 的 asymmetric quantization.</p>
+<p>Q4.3 基本上就是 <span>$Z=0$</span><!-- Has MathJax --> 和 <span>$S=1.0/2^3=0.125$</span><!-- Has MathJax --> 的 asymmetric quantization.</p>
 <hr>
 <h3 id="PyTorch-的-Quantization-Aware-Training-QAT-筆記"><a href="#PyTorch-的-Quantization-Aware-Training-QAT-筆記" class="headerlink" title="PyTorch 的 Quantization Aware Training (QAT) 筆記"></a>PyTorch 的 Quantization Aware Training (QAT) 筆記</h3><p><a href="https://pytorch.org/docs/stable/quantization.html" target="_blank" rel="external">PyTorch 1.7.0 quantization doc</a></p>
 <p>一開始要先對你的 NN Module 先作如下改動:</p>
 <ol>
 <li>在自己定義的 NN Module 裡, 所有用到 <code>torch.nn.functional</code> 的 op 都轉換成 <code>torch.nn.Module</code></li>
-<li>在自己定義的 NN Module 裡, <code>forward</code> 時先將 input 過 <code>QuantStub()</code>, 然後最後 output 過 <code>DeQuantStub()</code>. <code>QuantStub()</code> 會將正常的 input tensor 變成 quantized tensor (裡面包含 $Z$/$S$), 然後 <code>DeQuantStub()</code> 會將 quantized tensor 轉換成正常的 tensor.</li>
+<li>在自己定義的 NN Module 裡, <code>forward</code> 時先將 input 過 <code>QuantStub()</code>, 然後最後 output 過 <code>DeQuantStub()</code>. <code>QuantStub()</code> 會將正常的 input tensor 變成 quantized tensor (裡面包含 <span>$Z$</span><!-- Has MathJax -->/<span>$S$</span><!-- Has MathJax -->), 然後 <code>DeQuantStub()</code> 會將 quantized tensor 轉換成正常的 tensor.</li>
 <li>在自己定義的 NN Module 裡, 使用 <code>torch.quantization.fuse_modules</code> 定義你的 <code>fuse_model</code> function. 目前 PyTorch 只支援有限種 modules fusion (see function <code>fuse_known_modules</code> in <a href="https://github.com/pytorch/pytorch/blob/master/torch/quantization/fuse_modules.py" target="_blank" rel="external">fuse_modules.py</a>).</li>
 </ol>
 <p>接著 QAT 為以下幾個步驟:</p>
@@ -434,7 +435,7 @@ q_2=\text{uint8_saturated_round}\left( \frac{\color{orange}{r_2}}{S_2}+Z_2 \righ
 <li>呼叫 <code>net.fuse_model()</code>.<br>例如假設我們要 fuse <code>[&#39;conv1&#39;, &#39;bn1&#39;, &#39;relu1&#39;]</code>, PyTorch 會將第一個 Module 變成 fused Module, 剩下的兩個為 <code>Identity()</code> Module</li>
 <li>將 <code>net</code> 設定 attribute <code>qconfig</code>.<br>例如: <code>net.qconfig=</code> <code>torch.quantization.get_default_qat_qconfig(&#39;fbgemm&#39;)</code></li>
 <li>呼叫 <code>torch.quantization.prepare_qat(net, inplace=True)</code>.<br>此 function 主要幫你做兩件事情:<br> a. propagate qconfig: 對所有子 Module 設定相對應的 qconfig (因為步驟3我們只針對 root Module 設定 qconfig)<br> b. add observer/fake-quantization: observer 為簡單的 min/max 線性量化方式(或 histogram 方式等). 將圖需要 quantization 的地方安插好這些 observer/fake-quantization.</li>
-<li>執行一般 training 流程.<br>在 training 的過程中就會順便統計好對應的 min/max 等, 然後每個 tensor 的 $Z$/$S$ 也會對應得到 (通常用 moving average 方式做 smoothing).</li>
+<li>執行一般 training 流程.<br>在 training 的過程中就會順便統計好對應的 min/max 等, 然後每個 tensor 的 <span>$Z$</span><!-- Has MathJax -->/<span>$S$</span><!-- Has MathJax --> 也會對應得到 (通常用 moving average 方式做 smoothing).</li>
 <li>最後轉換成 quantized model <code>torch.quantization.convert(net, inplace=True)</code></li>
 </ol>
 <p>以上一個最小範例如下:</p>

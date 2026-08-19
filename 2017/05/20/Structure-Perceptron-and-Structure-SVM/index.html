@@ -107,7 +107,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/cutting_plane_p1.png">
 <meta property="og:image" content="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/cutting_plane_algo.png">
 <meta property="og:image" content="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/most_violate.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.830Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.230Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Structure Perceptron and Structure SVM">
 <meta name="twitter:description" content="記得當年念博的時候，對於SVM頗有愛，也覺得掌握度很高惹，就是 kernel method + convex optimization 的完美合體。直到某天看到 structureSVM，看了老半天實在不得要領，當時就放下沒再管了。多年後 (2015)，剛好台大李宏毅教授教的課程最後一堂 Project demo，有請我們部門介紹做的一些內容給學生，才看到了強大的李老師的課程內容。他所教的 st">
@@ -389,27 +389,28 @@
 <p>以下內容為筆記用，方便日後回想，來源 <strong>大都是李老師的<a href="http://speech.ee.ntu.edu.tw/~tlkagk/courses_MLSD15_2.html" target="_blank" rel="external">內容</a></strong>。</p>
 <a id="more"></a>
 <hr>
-<h3 id="A-General-Framework-Energy-based-Model"><a href="#A-General-Framework-Energy-based-Model" class="headerlink" title="A General Framework (Energy-based Model)"></a>A General Framework (Energy-based Model)</h3><p>一般來說 ML 要學習的是 $f:\mathcal{X}\rightarrow\mathcal{Y}$ 這樣的一個 mapping function，使得在學習到之後，能夠對於新的 input $x$ 求得預測的 $y=f(x)$。簡單的情況是沒問題，例如 binary classification、multi-class classification 或 regression。但是萬一要預測的是複雜得多的 output，譬如 $\mathcal{Y}$ 是一個 tree、bounding box、或 sequence，原來的架構就很難定義了。</p>
+<h3 id="A-General-Framework-Energy-based-Model"><a href="#A-General-Framework-Energy-based-Model" class="headerlink" title="A General Framework (Energy-based Model)"></a>A General Framework (Energy-based Model)</h3><p>一般來說 ML 要學習的是 <span>$f:\mathcal{X}\rightarrow\mathcal{Y}$</span><!-- Has MathJax --> 這樣的一個 mapping function，使得在學習到之後，能夠對於新的 input <span>$x$</span><!-- Has MathJax --> 求得預測的 <span>$y=f(x)$</span><!-- Has MathJax -->。簡單的情況是沒問題，例如 binary classification、multi-class classification 或 regression。但是萬一要預測的是複雜得多的 output，譬如 <span>$\mathcal{Y}$</span><!-- Has MathJax --> 是一個 tree、bounding box、或 sequence，原來的架構就很難定義了。</p>
 <p>所以將要學的問題改成如下的架構。</p>
 <ul>
-<li>Training: $F: \mathcal{X} \times \mathcal{Y} \rightarrow \mathbb{R}$</li>
-<li>Inference: Given an object $x$, $\tilde{y}=argmax_y F(x,y)$</li>
+<li>Training: <span>$F: \mathcal{X} \times \mathcal{Y} \rightarrow \mathbb{R}$</span><!-- Has MathJax --></li>
+<li>Inference: Given an object <span>$x$</span><!-- Has MathJax -->, <span>$\tilde{y}=argmax_y F(x,y)$</span><!-- Has MathJax --></li>
 </ul>
-<p>$F$ 可以想成用來計算 $(x,y)$ 的匹配度。而這樣的 function 也稱為 <a href="http://www.cs.nyu.edu/~yann/research/ebm/" target="_blank" rel="external">Energy-based model</a>。好了，定義成這樣看起來沒什麼不同，該有的問題還是在，還是沒解決。沒關係，我們繼續看下去，先把三個重要的問題列出來。</p>
+<p><span>$F$</span><!-- Has MathJax --> 可以想成用來計算 <span>$(x,y)$</span><!-- Has MathJax --> 的匹配度。而這樣的 function 也稱為 <a href="http://www.cs.nyu.edu/~yann/research/ebm/" target="_blank" rel="external">Energy-based model</a>。好了，定義成這樣看起來沒什麼不同，該有的問題還是在，還是沒解決。沒關係，我們繼續看下去，先把三個重要的問題列出來。</p>
 <ul>
-<li>Problem 1: 怎麼定義 $F(x,y)$ ?<br><img src="/2017/05/20/Structure-Perceptron-and-Structure-SVM/problem1.png" width="60%" height="60%"></li>
-<li>Problem 2: 怎麼解決 $argmax_y$ ?<br><img src="/2017/05/20/Structure-Perceptron-and-Structure-SVM/problem2.png" width="60%" height="60%"></li>
-<li>Problem 3: 怎麼訓練 $F(x,y)$ ?<br><img src="/2017/05/20/Structure-Perceptron-and-Structure-SVM/problem3.png" width="60%" height="60%"></li>
+<li>Problem 1: 怎麼定義 <span>$F(x,y)$</span><!-- Has MathJax --> ?<br><img src="/2017/05/20/Structure-Perceptron-and-Structure-SVM/problem1.png" width="60%" height="60%"></li>
+<li>Problem 2: 怎麼解決 <span>$argmax_y$</span><!-- Has MathJax --> ?<br><img src="/2017/05/20/Structure-Perceptron-and-Structure-SVM/problem2.png" width="60%" height="60%"></li>
+<li>Problem 3: 怎麼訓練 <span>$F(x,y)$</span><!-- Has MathJax --> ?<br><img src="/2017/05/20/Structure-Perceptron-and-Structure-SVM/problem3.png" width="60%" height="60%"></li>
 </ul>
-<p>這些問題在某種情況會變得很好解，什麼情況呢? <strong>若我們將 $F(x,y)$ 定義成 Linear Model (Problem 1 用 linear 定義)，我們發現訓練變得很容易 (Problem 3 好解) !!</strong> 疑?! Problem 2呢? 先當作已解吧，ㄎㄎ。</p>
+<p>這些問題在某種情況會變得很好解，什麼情況呢? <strong>若我們將 <span>$F(x,y)$</span><!-- Has MathJax --> 定義成 Linear Model (Problem 1 用 linear 定義)，我們發現訓練變得很容易 (Problem 3 好解) !!</strong> 疑?! Problem 2呢? 先當作已解吧，ㄎㄎ。</p>
 <hr>
-<h3 id="Linear-Model-of-F-x-y-w-cdot-phi-x-y"><a href="#Linear-Model-of-F-x-y-w-cdot-phi-x-y" class="headerlink" title="Linear Model of $F(x,y)=w\cdot \phi(x,y)$"></a>Linear Model of $F(x,y)=w\cdot \phi(x,y)$</h3><p>我們<strong>先假裝 Problem 2 已解</strong> (Problem 2 要能解 depends on 問題的domain，和feature的定義)，我們來看一下要怎麼訓練這樣的 linear model。<br>首先用李老師課程的範例 (辨識初音) 的例子舉例，其中 $y$ 是一個 bounding box:<br><img src="/2017/05/20/Structure-Perceptron-and-Structure-SVM/example_of_problem3.png" width="60%" height="60%"><br>這個例子有兩個 training pairs: $(x^1,\hat{y}^1)$ 和 $(x^2,\hat{y}^2)$，我們希望求得一個 $w$ 使得紅色的圓圈投影到 $w$ 上後要大於所有藍色的圓圈。同理，紅色的星星要大於所有藍色的星星。<br>其實我們仔細想想，這問題跟 perceptron learning 非常類似，perceptron learning 在做的是 binary classification，而如果把每一筆 training data $(x^i,\hat{y}^i)$ 和 $(x^i,y:y\neq\hat{y}^i)$ 當作是 positive and negative classes，剛好就是一個 bineary classification problem (雖然不同筆 training data 會有各自的 positive and negative 資料，但不影響整個問題)<br>所以如果有解 (linear separable)，則我們可以使用 <em>Structure Perceptron</em> 在有限步驟內求解。</p>
+<h3 id="Linear-Model-of-<span>$F(x,y)=w\cdot \phi(x,y)$</span><!-- Has MathJax -->"><a href="#Linear-Model-of-<span>$F(x,y)=w\cdot \phi(x,y)$</span><!-- Has MathJax -->" class="headerlink" title="Linear Model of <span>$F(x,y)=w\cdot \phi(x,y)$</span><!-- Has MathJax -->"></a>Linear Model of <span>$F(x,y)=w\cdot \phi(x,y)$</span><!-- Has MathJax --></h3><p>我們<strong>先假裝 Problem 2 已解</strong> (Problem 2 要能解 depends on 問題的domain，和feature的定義)，我們來看一下要怎麼訓練這樣的 linear model。<br>首先用李老師課程的範例 (辨識初音) 的例子舉例，其中 <span>$y$</span><!-- Has MathJax --> 是一個 bounding box:<br><img src="/2017/05/20/Structure-Perceptron-and-Structure-SVM/example_of_problem3.png" width="60%" height="60%"><br>這個例子有兩個 training pairs: <span>$(x^1,\hat{y}^1)$</span><!-- Has MathJax --> 和 <span>$(x^2,\hat{y}^2)$</span><!-- Has MathJax -->，我們希望求得一個 <span>$w$</span><!-- Has MathJax --> 使得紅色的圓圈投影到 <span>$w$</span><!-- Has MathJax --> 上後要大於所有藍色的圓圈。同理，紅色的星星要大於所有藍色的星星。<br>其實我們仔細想想，這問題跟 perceptron learning 非常類似，perceptron learning 在做的是 binary classification，而如果把每一筆 training data <span>$(x^i,\hat{y}^i)$</span><!-- Has MathJax --> 和 <span>$(x^i,y:y\neq\hat{y}^i)$</span><!-- Has MathJax --> 當作是 positive and negative classes，剛好就是一個 bineary classification problem (雖然不同筆 training data 會有各自的 positive and negative 資料，但不影響整個問題)<br>所以如果有解 (linear separable)，則我們可以使用 <em>Structure Perceptron</em> 在有限步驟內求解。</p>
 <h4 id="Structure-Perceptron"><a href="#Structure-Perceptron" class="headerlink" title="Structure Perceptron"></a>Structure Perceptron</h4><p><img src="/2017/05/20/Structure-Perceptron-and-Structure-SVM/structure_perceptron.png" width="60%" height="60%"></p>
-<p>證明的概念跟 perceptron 一樣，就是假設有解，解為 $\hat{w}$，要求每一次的 update $w^k$，會跟 $\hat{w}$ 愈來愈接近，也就是</p>
+<p>證明的概念跟 perceptron 一樣，就是假設有解，解為 <span>$\hat{w}$</span><!-- Has MathJax -->，要求每一次的 update <span>$w^k$</span><!-- Has MathJax -->，會跟 <span>$\hat{w}$</span><!-- Has MathJax --> 愈來愈接近，也就是</p>
 <span>$$\begin{align} 
 cos\rho_k = \frac{\hat{w}\cdot w^k}{\Vert{\hat{w}}\Vert\cdot\Vert{w^k}\Vert}
 \end{align}$$</span><!-- Has MathJax -->
-<p>要愈大愈好!但我們也知道 $cos$ 最大就 1，因此就有 upper bound，所以會在有限步驟搞定。詳細推倒步驟可參考李老師講義，或看 <a href="http://www.cs.columbia.edu/~mcollins/courses/6998-2012/notes/perc.converge.pdf" target="_blank" rel="external">perceptron 的收斂證明</a>。</p>
+
+<p>要愈大愈好!但我們也知道 <span>$cos$</span><!-- Has MathJax --> 最大就 1，因此就有 upper bound，所以會在有限步驟搞定。詳細推倒步驟可參考李老師講義，或看 <a href="http://www.cs.columbia.edu/~mcollins/courses/6998-2012/notes/perc.converge.pdf" target="_blank" rel="external">perceptron 的收斂證明</a>。</p>
 <h4 id="Cost-Function"><a href="#Cost-Function" class="headerlink" title="Cost Function"></a>Cost Function</h4><p>用 cost function 的角度來說，其實 perceptron 處理的 cost 是<strong>計算錯誤的次數</strong>，如果將 cost 的 function 畫出來的話，會是 step function，而無法做微分求解。因此通常會將 cost function 改成可微分的方式，例如 linear or quadratic or what ever continuous function。改成可微分就有很多好處了，可以針對 cost function 做很多需要的修改，這些修改包括 1. 對不同的錯誤有不同的懲罰 2. 加入 regularization term … 等等，我們等下會談到。</p>
 <blockquote>
 <p>Picture is from <a href="http://dl.acm.org/citation.cfm?id=954544" target="_blank" rel="external">Duda Pattern Classification</a></p>
@@ -418,57 +419,69 @@ cos\rho_k = \frac{\hat{w}\cdot w^k}{\Vert{\hat{w}}\Vert\cdot\Vert{w^k}\Vert}
 <p>左圖就是原來的 perceptron cost，而右圖就是將 cost 改成 linear cost。<br>Linear cost 可定義如下:<br><span>$$\begin{align} 
 C=\sum_{n=1}^N C^n \\
 C^n=(max_y[w\cdot\phi(x^n,y)])-w\cdot\phi(x^n,\hat{y}^n)
-\end{align}$$</span><!-- Has MathJax --><br>所以，就gradient descent下去吧，跟原來的 perceptron learning 改 cost function 一樣。</p>
-<h4 id="讓錯誤的程度能表現出來"><a href="#讓錯誤的程度能表現出來" class="headerlink" title="讓錯誤的程度能表現出來"></a>讓錯誤的程度能表現出來</h4><p>這是什麼意思呢? 原來的 cost function 對於每一個錯誤的情形都一視同仁，也就是在找那個 $w$ 的時候，只要錯誤的例子投影在 $w$ 上比正確的還要小就好，不在忽小多少，但事實上錯誤會有好壞之分。下面是一個李老師的例子，例如右邊黃色的框框雖然跟正確答案紅框框不同 (所以被當成錯誤的例子)，但有大致上都抓到初音的臉了，因此我們可以允許他跟正確答案較接近。<br><img src="/2017/05/20/Structure-Perceptron-and-Structure-SVM/negative_example_weight.png" width="60%" height="60%"><br>因此 cost function 可以修改一下:</p>
+\end{align}$$</span><!-- Has MathJax --> 所以，就gradient descent下去吧，跟原來的 perceptron learning 改 cost function 一樣。</p>
+<h4 id="讓錯誤的程度能表現出來"><a href="#讓錯誤的程度能表現出來" class="headerlink" title="讓錯誤的程度能表現出來"></a>讓錯誤的程度能表現出來</h4><p>這是什麼意思呢? 原來的 cost function 對於每一個錯誤的情形都一視同仁，也就是在找那個 <span>$w$</span><!-- Has MathJax --> 的時候，只要錯誤的例子投影在 <span>$w$</span><!-- Has MathJax --> 上比正確的還要小就好，不在忽小多少，但事實上錯誤會有好壞之分。下面是一個李老師的例子，例如右邊黃色的框框雖然跟正確答案紅框框不同 (所以被當成錯誤的例子)，但有大致上都抓到初音的臉了，因此我們可以允許他跟正確答案較接近。<br><img src="/2017/05/20/Structure-Perceptron-and-Structure-SVM/negative_example_weight.png" width="60%" height="60%"><br>因此 cost function 可以修改一下:</p>
 <span>$$\begin{align} 
 C=\sum_{n=1}^N C^n \\
 C^n=max_y[w\cdot\phi(x^n,y)+\triangle(\hat{y}^n,y)]-w\cdot\phi(x^n,\hat{y}^n)
 \end{align}$$</span><!-- Has MathJax -->
-<p>$\triangle(\hat{y}^n,y)$ 定義了這個錯誤的例子額外的 cost (需&gt;=0)，以 bounding box 而言，舉例來說兩個 set A and B，$\triangle(A,B)$ 可定義為 $1-/frac{A \cap B}{A \cup B}$。<br>不過需要特別一提的是，多增加這個額外的定義，有可能使得原來容易解的 $argmax_y$ (Problem 2) 變得無法解，所以要注意。</p>
-<h4 id="Minimize-the-upper-bound"><a href="#Minimize-the-upper-bound" class="headerlink" title="Minimize the upper bound"></a>Minimize the upper bound</h4><p>很有趣的一點是，在我們引入了 $\triangle(\hat{y}^n,y)$ (稱為 margin, 在後面講到 structure SVM 可以看得出來) 後，可以用另一個觀點來看這個問題。</p>
-<p>假設我們希望能將 $C’$ 最小化:</p>
+
+<p><span>$\triangle(\hat{y}^n,y)$</span><!-- Has MathJax --> 定義了這個錯誤的例子額外的 cost (需&gt;=0)，以 bounding box 而言，舉例來說兩個 set A and B，<span>$\triangle(A,B)$</span><!-- Has MathJax --> 可定義為 <span>$1-/frac{A \cap B}{A \cup B}$</span><!-- Has MathJax -->。<br>不過需要特別一提的是，多增加這個額外的定義，有可能使得原來容易解的 <span>$argmax_y$</span><!-- Has MathJax --> (Problem 2) 變得無法解，所以要注意。</p>
+<h4 id="Minimize-the-upper-bound"><a href="#Minimize-the-upper-bound" class="headerlink" title="Minimize the upper bound"></a>Minimize the upper bound</h4><p>很有趣的一點是，在我們引入了 <span>$\triangle(\hat{y}^n,y)$</span><!-- Has MathJax --> (稱為 margin, 在後面講到 structure SVM 可以看得出來) 後，可以用另一個觀點來看這個問題。</p>
+<p>假設我們希望能將 <span>$C&apos;$</span><!-- Has MathJax --> 最小化:</p>
 <span>$$\begin{align} 
 \tilde{y}^n=argmax_y{w\cdot \phi(x^n,y)} \\
 C&apos;=\sum_{n=1}^N{\triangle(\hat{y}^n,\tilde{y}^n)}
 \end{align}$$</span><!-- Has MathJax -->
-<p>結果我們發現其實 $\triangle(\hat{y}^n,\tilde{y}^n)\leq C^n$，因而變成</p>
+
+<p>結果我們發現其實 <span>$\triangle(\hat{y}^n,\tilde{y}^n)\leq C^n$</span><!-- Has MathJax -->，因而變成</p>
 <p><img src="/2017/05/20/Structure-Perceptron-and-Structure-SVM/min_upper_bd.png" width="60%" height="60%"></p>
-<p>而我們上面都是在最小化 $C$，所以其實我們在做的事情就是在<strong>最小化 $C’$ 的 upper bound</strong>。<br>上界的證明如下:<br><img src="/2017/05/20/Structure-Perceptron-and-Structure-SVM/proof_of_min_upper_bd.png" width="60%" height="60%"><br>這種藉由最佳化 upper bound 的方式，在 adaboost 也見過。普遍來說，原來的式子不容易最佳化的時候，我們藉由定義一個容易最佳化的upper bound，然後最小化它。另外，<a href="https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm" target="_blank" rel="external">EM 演算法</a>也有類似的概念。</p>
-<h4 id="Regularization"><a href="#Regularization" class="headerlink" title="Regularization"></a>Regularization</h4><p>直接加入 norm-2 regularization:<br><span>$$\begin{align} 
+<p>而我們上面都是在最小化 <span>$C$</span><!-- Has MathJax -->，所以其實我們在做的事情就是在<strong>最小化 <span>$C&apos;$</span><!-- Has MathJax --> 的 upper bound</strong>。<br>上界的證明如下:<br><img src="/2017/05/20/Structure-Perceptron-and-Structure-SVM/proof_of_min_upper_bd.png" width="60%" height="60%"><br>這種藉由最佳化 upper bound 的方式，在 adaboost 也見過。普遍來說，原來的式子不容易最佳化的時候，我們藉由定義一個容易最佳化的upper bound，然後最小化它。另外，<a href="https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm" target="_blank" rel="external">EM 演算法</a>也有類似的概念。</p>
+<h4 id="Regularization"><a href="#Regularization" class="headerlink" title="Regularization"></a>Regularization</h4><p>直接加入 norm-2 regularization:</p>
+<span>$$\begin{align} 
 C=\frac{1}{2}\Vert{w}\Vert ^2+\lambda\sum_{n=1}^N C^n \\
 C^n=max_y[w\cdot\phi(x^n,y)+\triangle(\hat{y}^n,y)]-w\cdot\phi(x^n,\hat{y}^n)
-\end{align}$$</span><!-- Has MathJax --></p>
+\end{align}$$</span><!-- Has MathJax -->
+
 <hr>
 <h3 id="Structure-SVM"><a href="#Structure-SVM" class="headerlink" title="Structure SVM"></a>Structure SVM</h3><p>先講結論: 上面 Linear Model 最後的 cost function (包含marginal and regularization terms) 就是等價於 SVM。<br>原先問題 P1:</p>
 <blockquote>
-<p>Find $w$ that minimize $C$<br><span>$$\begin{align} 
+<p>Find <span>$w$</span><!-- Has MathJax --> that minimize <span>$C$</span><!-- Has MathJax --></p>
+</blockquote>
+<span>$$\begin{align} 
 C=\frac{1}{2}\Vert{w}\Vert ^2+\lambda\sum_{n=1}^N C^n \\
 C^n=max_y[w\cdot\phi(x^n,y)+\triangle(\hat{y}^n,y)]-w\cdot\phi(x^n,\hat{y}^n)
-\end{align}$$</span><!-- Has MathJax --></p>
-</blockquote>
+\end{align}$$</span><!-- Has MathJax -->
+
 <p>改寫後的問題 P2:</p>
 <blockquote>
-<p>Find $w$ that minimize $C$<br><span>$$\begin{align} 
+<p>Find <span>$w$</span><!-- Has MathJax --> that minimize <span>$C$</span><!-- Has MathJax --></p>
+</blockquote>
+<span>$$\begin{align} 
 C=\frac{1}{2}\Vert{w}\Vert ^2+\lambda\sum_{n=1}^N C^n \\
 For \forall{y}: C^n\geq w\cdot\phi(x^n,y)+\triangle(\hat{y}^n,y)-w\cdot\phi(x^n,\hat{y}^n)
-\end{align}$$</span><!-- Has MathJax --></p>
-</blockquote>
-<p>觀察 P2，我們注意到給定一個 $w$ 時，它<strong>最小</strong>的 $C^n$ 應該會是什麼呢? (找最小是因為我們要 minimize $C$) 譬如我要求 $x\leq{ 5,1,2,10 }$ 這個式子的 $x$ 最小是多少，很明顯就是 $x=max{ 5,1,2,10 }$。因此式 P2 的式 (13) 可以寫成 P1 的式 (11)。<br>寫成 P2 有什麼好處? 首先將 $C^n$ 改成 $\epsilon^n$，然後再稍微改寫一下得到如下的問題:</p>
+\end{align}$$</span><!-- Has MathJax -->
+
+<p>觀察 P2，我們注意到給定一個 <span>$w$</span><!-- Has MathJax --> 時，它<strong>最小</strong>的 <span>$C^n$</span><!-- Has MathJax --> 應該會是什麼呢? (找最小是因為我們要 minimize <span>$C$</span><!-- Has MathJax -->) 譬如我要求 <span>$x\leq\{ 5,1,2,10 \}$</span><!-- Has MathJax --> 這個式子的 <span>$x$</span><!-- Has MathJax --> 最小是多少，很明顯就是 <span>$x=max\{ 5,1,2,10 \}$</span><!-- Has MathJax -->。因此式 P2 的式 (13) 可以寫成 P1 的式 (11)。<br>寫成 P2 有什麼好處? 首先將 <span>$C^n$</span><!-- Has MathJax --> 改成 <span>$\epsilon^n$</span><!-- Has MathJax -->，然後再稍微改寫一下得到如下的問題:</p>
 <p>問題 P3:</p>
 <blockquote>
-<p>Find $w,\epsilon^n,\epsilon^2,…,\epsilon^N$ that minimize $C$<br><span>$$C=\frac{1}{2}\Vert{w}\Vert ^2+\lambda\sum_{n=1}^N \epsilon^n \\
-For \forall{y}\neq{\hat{y}^n}: w\cdot (\phi(x^n,\hat{y}^n)-\phi(x^n,y))\leq \triangle (\hat{y}^n,y)-\epsilon^n,\epsilon^n\leq 0$$</span><!-- Has MathJax --></p>
+<p>Find <span>$w,\epsilon^n,\epsilon^2,...,\epsilon^N$</span><!-- Has MathJax --> that minimize <span>$C$</span><!-- Has MathJax --></p>
 </blockquote>
-<p>注意到，對於一個 n-th training pair $(x^n,\hat{y}^n)$ 和給定一個 $y\neq\hat{y}^n$ 來說，我們都會得到一個 linear constraint。可以將上面式子的 constant 用 a, b來表示變成:<br><span>$w\cdot a \leq b - \epsilon^n \\$</span><!-- Has MathJax --></p>
-<p>發現了嗎? 對於變數 $w$ 和 $\epsilon^n$ 來說，這就是一個 linear constraint。</p>
+<span>$$C=\frac{1}{2}\Vert{w}\Vert ^2+\lambda\sum_{n=1}^N \epsilon^n \\
+For \forall{y}\neq{\hat{y}^n}: w\cdot (\phi(x^n,\hat{y}^n)-\phi(x^n,y))\leq \triangle (\hat{y}^n,y)-\epsilon^n,\epsilon^n\leq 0$$</span><!-- Has MathJax -->
+
+<p>注意到，對於一個 n-th training pair <span>$(x^n,\hat{y}^n)$</span><!-- Has MathJax --> 和給定一個 <span>$y\neq\hat{y}^n$</span><!-- Has MathJax --> 來說，我們都會得到一個 linear constraint。可以將上面式子的 constant 用 a, b來表示變成:</p>
+<span>$$w\cdot a \leq b - \epsilon^n \\$$</span><!-- Has MathJax -->
+
+<p>發現了嗎? 對於變數 <span>$w$</span><!-- Has MathJax --> 和 <span>$\epsilon^n$</span><!-- Has MathJax --> 來說，這就是一個 linear constraint。</p>
 <p>眼尖的讀者，可能就會覺得 P3 很眼熟。沒錯!它跟 SVM 長很像! 讓我們來跟 <a href="https://en.wikipedia.org/wiki/Support_vector_machine" target="_blank" rel="external">SVM 的 Primal form</a> (不是 dual form) 做個比較吧。可以發現有兩點不同，原 SVM from wiki 列出如下:<br><img src="/2017/05/20/Structure-Perceptron-and-Structure-SVM/svm_primal.png" width="60%" height="60%"></p>
 <ol>
 <li>Margin term 的不同，P3 的 margin 比較 general，可以根據每個 negative case 都有自己的 margin，而原來 binary SVM 的 margin 是定為 1。</li>
 <li>Constraint 個數的不同，原 SVM 個數為 training data 的個數，但是 P3 的個數為<strong>無窮多個</strong>。</li>
 </ol>
 <p>呼! 所以 P3 這個問題，就是 SVM 的 general 版本，我們也稱之為 Structure SVM，這裡終於跟 SVM 連結上了!</p>
-<h4 id="Cutting-Plane-Algorithm"><a href="#Cutting-Plane-Algorithm" class="headerlink" title="Cutting Plane Algorithm"></a>Cutting Plane Algorithm</h4><p>原先 SVM 有限的 constraint 下，我們直接用一個 QP solver可以很快處理掉。但在 Structure SVM 有無窮多的 constraints 究竟要怎麼解? 是個問題。<br>首先觀察到，其實很多 constraints 都是無效的。例如:<br><img src="/2017/05/20/Structure-Perceptron-and-Structure-SVM/cutting_plane_p1.png" width="60%" height="60%"><br>所以這個演算法策略就是從一個空的 working set $\mathbb{A}^n$ 出發，每次 iteration 都找一個最 violate 的 constraint 加進去，直到無法再加入任何的 constraint 為止。<br>這裡其實有兩個問題要討論，第一個是什麼是最 violate 的 constraint? 第二個是，這演算法會收斂嗎? 難道不會永遠都找得到 violate 的 constraint 一直加入嗎?<br>我們先把演算法列出來，再來討論上面這兩個問題。<br><img src="/2017/05/20/Structure-Perceptron-and-Structure-SVM/cutting_plane_algo.png" width="60%" height="60%"></p>
-<h4 id="Most-Violated-Constraint"><a href="#Most-Violated-Constraint" class="headerlink" title="Most Violated Constraint"></a>Most Violated Constraint</h4><p>直接秀李老師的投影片<br><img src="/2017/05/20/Structure-Perceptron-and-Structure-SVM/most_violate.png" width="60%" height="60%"><br>注意到在 Degree of Violation 的推導中，所有與變數 $y$ 無關的部分可以去掉。因此我們最後可以得到求 Most Violated Constraint 就是在求 Problem 2 ($argmax_y$)。注意到其實我們一直 <strong>“先假裝 Problem 2 已解”</strong></p>
+<h4 id="Cutting-Plane-Algorithm"><a href="#Cutting-Plane-Algorithm" class="headerlink" title="Cutting Plane Algorithm"></a>Cutting Plane Algorithm</h4><p>原先 SVM 有限的 constraint 下，我們直接用一個 QP solver可以很快處理掉。但在 Structure SVM 有無窮多的 constraints 究竟要怎麼解? 是個問題。<br>首先觀察到，其實很多 constraints 都是無效的。例如:<br><img src="/2017/05/20/Structure-Perceptron-and-Structure-SVM/cutting_plane_p1.png" width="60%" height="60%"><br>所以這個演算法策略就是從一個空的 working set <span>$\mathbb{A}^n$</span><!-- Has MathJax --> 出發，每次 iteration 都找一個最 violate 的 constraint 加進去，直到無法再加入任何的 constraint 為止。<br>這裡其實有兩個問題要討論，第一個是什麼是最 violate 的 constraint? 第二個是，這演算法會收斂嗎? 難道不會永遠都找得到 violate 的 constraint 一直加入嗎?<br>我們先把演算法列出來，再來討論上面這兩個問題。<br><img src="/2017/05/20/Structure-Perceptron-and-Structure-SVM/cutting_plane_algo.png" width="60%" height="60%"></p>
+<h4 id="Most-Violated-Constraint"><a href="#Most-Violated-Constraint" class="headerlink" title="Most Violated Constraint"></a>Most Violated Constraint</h4><p>直接秀李老師的投影片<br><img src="/2017/05/20/Structure-Perceptron-and-Structure-SVM/most_violate.png" width="60%" height="60%"><br>注意到在 Degree of Violation 的推導中，所有與變數 <span>$y$</span><!-- Has MathJax --> 無關的部分可以去掉。因此我們最後可以得到求 Most Violated Constraint 就是在求 Problem 2 (<span>$argmax_y$</span><!-- Has MathJax -->)。注意到其實我們一直 <strong>“先假裝 Problem 2 已解”</strong></p>
 <h4 id="Convergence"><a href="#Convergence" class="headerlink" title="Convergence?"></a>Convergence?</h4><p>論文中證明如果讓 violate 的條件是必須超過一個 threshold 才算 violated，則演算法會在有限步驟內收斂。嚴謹的數學證明要參考 <a href="http://www.cs.cornell.edu/people/tj/publications/tsochantaridis_etal_04a.pdf" target="_blank" rel="external">paper</a>。</p>
 <!--
 這邊的解釋是用我自己容易理解的講法來說明，所以是直觀上的講法，若要嚴謹的數學證明要參考 [paper](http://www.cs.cornell.edu/people/tj/publications/tsochantaridis_etal_04a.pdf)。
@@ -480,7 +493,7 @@ For \forall{y}\neq{\hat{y}^n}: w\cdot (\phi(x^n,\hat{y}^n)-\phi(x^n,y))\leq \tri
 <hr>
 <h3 id="最後的麻煩-Problem-2-argmax"><a href="#最後的麻煩-Problem-2-argmax" class="headerlink" title="最後的麻煩: Problem 2 argmax"></a>最後的麻煩: Problem 2 argmax</h3><p>這篇實在打太長了，以至於我想省略這個地方了 (淚)，事實上解 Problem 2 必須看問題本身是什麼，以 POS (Part-Of-Speech) tagging 來說，Problem 2 可用 Viterbi 求解。而這也就是李教授下一個課程 <a href="http://speech.ee.ntu.edu.tw/~tlkagk/courses_MLSD15_2.html" target="_blank" rel="external">Sequence Labeling Problem</a>。<br>POS 如何對應到 Structure Learning 實在非常精彩! 真的不得不佩服這些人的智慧! 有興趣的讀者請一定要看李教授的投影片內容!</p>
 <blockquote>
-<p>簡單筆記一下: POS 使用 HMM 方式來 model，例如一句話 x = “John saw the saw” 對應到詞性 y = “PN V D N”。然後把詞性當作 state, word 當作 observation，就是一個典型的 HMM 結構。接著使用 Conditional Random Field (CRF) 將 $log P(x,y)$ 對應到 $w\cdot\phi(x,y)$ 的形式，在 $P(x,y)$ 是由 HMM 定義的情形下，我們可以寫出相對應的 $\phi(x,y)$ 該如何定義。因此就轉成一個 structure learning 的格式了。詳細請參考李老師課程講義。</p>
+<p>簡單筆記一下: POS 使用 HMM 方式來 model，例如一句話 x = “John saw the saw” 對應到詞性 y = “PN V D N”。然後把詞性當作 state, word 當作 observation，就是一個典型的 HMM 結構。接著使用 Conditional Random Field (CRF) 將 <span>$log P(x,y)$</span><!-- Has MathJax --> 對應到 <span>$w\cdot\phi(x,y)$</span><!-- Has MathJax --> 的形式，在 <span>$P(x,y)$</span><!-- Has MathJax --> 是由 HMM 定義的情形下，我們可以寫出相對應的 <span>$\phi(x,y)$</span><!-- Has MathJax --> 該如何定義。因此就轉成一個 structure learning 的格式了。詳細請參考李老師課程講義。</p>
 </blockquote>
 <hr>
 <h3 id="彩蛋"><a href="#彩蛋" class="headerlink" title="彩蛋"></a>彩蛋</h3><ul>
@@ -696,7 +709,7 @@ For \forall{y}\neq{\hat{y}^n}: w\cdot (\phi(x^n,\hat{y}^n)-\phi(x^n,y))\leq \tri
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#A-General-Framework-Energy-based-Model"><span class="nav-number">1.</span> <span class="nav-text">A General Framework (Energy-based Model)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Linear-Model-of-F-x-y-w-cdot-phi-x-y"><span class="nav-number">2.</span> <span class="nav-text">Linear Model of $F(x,y)=w\cdot \phi(x,y)$</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Structure-Perceptron"><span class="nav-number">2.1.</span> <span class="nav-text">Structure Perceptron</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Cost-Function"><span class="nav-number">2.2.</span> <span class="nav-text">Cost Function</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#讓錯誤的程度能表現出來"><span class="nav-number">2.3.</span> <span class="nav-text">讓錯誤的程度能表現出來</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Minimize-the-upper-bound"><span class="nav-number">2.4.</span> <span class="nav-text">Minimize the upper bound</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Regularization"><span class="nav-number">2.5.</span> <span class="nav-text">Regularization</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Structure-SVM"><span class="nav-number">3.</span> <span class="nav-text">Structure SVM</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Cutting-Plane-Algorithm"><span class="nav-number">3.1.</span> <span class="nav-text">Cutting Plane Algorithm</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Most-Violated-Constraint"><span class="nav-number">3.2.</span> <span class="nav-text">Most Violated Constraint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Convergence"><span class="nav-number">3.3.</span> <span class="nav-text">Convergence?</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#最後的麻煩-Problem-2-argmax"><span class="nav-number">4.</span> <span class="nav-text">最後的麻煩: Problem 2 argmax</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#彩蛋"><span class="nav-number">5.</span> <span class="nav-text">彩蛋</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">6.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#A-General-Framework-Energy-based-Model"><span class="nav-number">1.</span> <span class="nav-text">A General Framework (Energy-based Model)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Linear-Model-of-<span>$F(x,y)=w\cdot \phi(x,y)$</span><!-- Has MathJax -->"><span class="nav-number">2.</span> <span class="nav-text">Linear Model of $F(x,y)=w\cdot \phi(x,y)$</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Structure-Perceptron"><span class="nav-number">2.1.</span> <span class="nav-text">Structure Perceptron</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Cost-Function"><span class="nav-number">2.2.</span> <span class="nav-text">Cost Function</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#讓錯誤的程度能表現出來"><span class="nav-number">2.3.</span> <span class="nav-text">讓錯誤的程度能表現出來</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Minimize-the-upper-bound"><span class="nav-number">2.4.</span> <span class="nav-text">Minimize the upper bound</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Regularization"><span class="nav-number">2.5.</span> <span class="nav-text">Regularization</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Structure-SVM"><span class="nav-number">3.</span> <span class="nav-text">Structure SVM</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Cutting-Plane-Algorithm"><span class="nav-number">3.1.</span> <span class="nav-text">Cutting Plane Algorithm</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Most-Violated-Constraint"><span class="nav-number">3.2.</span> <span class="nav-text">Most Violated Constraint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Convergence"><span class="nav-number">3.3.</span> <span class="nav-text">Convergence?</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#最後的麻煩-Problem-2-argmax"><span class="nav-number">4.</span> <span class="nav-text">最後的麻煩: Problem 2 argmax</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#彩蛋"><span class="nav-number">5.</span> <span class="nav-text">彩蛋</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">6.</span> <span class="nav-text">Reference</span></a></li></ol></div>
             
 
           </div>

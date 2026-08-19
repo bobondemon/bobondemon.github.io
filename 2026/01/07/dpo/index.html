@@ -99,7 +99,7 @@ Pre-trained model 經過 SFT (Supervised Fine-Tuning) 再經過 RLHF (Reinforcem
 Pre-trained model 經過 SFT (Supervised Fine-Tuning) 再經過 RLHF (Reinforcement Learning from Human Fee">
 <meta property="og:image" content="https://bobondemon.github.io/2026/01/07/dpo/ChatGPT_DPO.png">
 <meta property="og:image" content="https://bobondemon.github.io/2026/01/07/dpo/image 1.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.833Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.241Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="告別 Reward Model: DPO 如何讓 LLM 偏好對齊變得穩定且高效">
 <meta name="twitter:description" content="DPO 捨棄 RLHF 中笨重的 reward model, 並將 RL 問題直接轉換成對好壞兩個 responses 的 supervised training. [圖片產生自 ChatGPT]
@@ -406,7 +406,7 @@ D_{KL}(\pi_\theta || \pi_{ref}) = \mathbb{E}_{y \sim \pi_\theta} \left[ \log \fr
 \end{align*}$$</span><!-- Has MathJax --> 為什麼不希望差異太大?<br>因為 reward model <span>$r_\phi(x,y)$</span><!-- Has MathJax --> 是事先訓練好的模型, 也只是個近似, 如果說模型訓練後有些缺陷, 例如對很多 emojio 符號會給很高的 reward, 則基於 RL 追求最大化 reward 的行為就會瘋狂輸出 emojio.<br>這種行為稱為 <a href="https://en.wikipedia.org/wiki/Reward_hacking" target="_blank" rel="external">Reward Hacking</a>. 因此加個 KL 約束項來希望避免.</p>
 <h3 id="RLHF-總結和缺點"><a href="#RLHF-總結和缺點" class="headerlink" title="RLHF 總結和缺點"></a>RLHF 總結和缺點</h3><p>在 DPO 出現之前, 我們使用 RLHF 來讓模型符合人類喜好. 這是一個<strong>兩階段</strong>且不穩定的過程:</p>
 <ol>
-<li><strong>訓練 Reward Model (RM):</strong> 收集成對數據 <span>$(x, y_w, y_l)$</span><!-- Has MathJax -->, 其中 <span>$x$</span><!-- Has MathJax --> 是 prompt,  <span>$y_w$</span><!-- Has MathJax --> 是勝出的回答 (winner),  <span>$y_l$</span><!-- Has MathJax --> 是落敗的回答 (loser). 訓練一個神經網路 <span>$r_\phi(x, y)$</span><!-- Has MathJax --> 來預測哪個回答更好 (使用 Bradley-Terry 模型)<span>$$\begin{align*}
+<li><strong>訓練 Reward Model (RM):</strong> 收集成對數據 <span>$(x, y_w, y_l)$</span><!-- Has MathJax -->, 其中 <span>$x$</span><!-- Has MathJax --> 是 prompt,  <span>$y_w$</span><!-- Has MathJax --> 是勝出的回答 (winner),  <span>$y_l$</span><!-- Has MathJax --> 是落敗的回答 (loser). 訓練一個神經網路 <span>$r_\phi(x, y)$</span><!-- Has MathJax --> 來預測哪個回答更好 (使用 Bradley-Terry 模型)<br><span>$$\begin{align*}
 \mathcal{L}_{RM} = -\log \sigma(r_\phi(x, y_w) - r_\phi(x, y_l))
 \end{align*}$$</span><!-- Has MathJax --></li>
 <li><strong>加上 KL-divergence 優化 Policy:</strong> 固定 RM, 加上 KL-divergence 更新語言模型 <span>$\pi_\theta$</span><!-- Has MathJax -->，最大化獎勵並防止模型偏離初始模型 <span>$\pi_{ref}$</span><!-- Has MathJax --> 太遠</li>
@@ -429,10 +429,10 @@ D_{KL}(\pi_\theta || \pi_{ref}) = \mathbb{E}_{y \sim \pi_\theta} \left[ \log \fr
 \end{align}$$</span><!-- Has MathJax --> 其中 <span>$Z(x) = \sum_y \pi_{ref}(y|x) \exp\left( \frac{r(x, y)}{\beta} \right)$</span><!-- Has MathJax -->.<br>所以給定一個 reward <span>$r$</span><!-- Has MathJax --> 我們知道對應這個 <span>$r$</span><!-- Has MathJax --> 的最佳 policy <span>$\pi^*$</span><!-- Has MathJax --> (使得 (3) 達到最大) 長怎樣<br>反過來說, 給一個策略 <span>$\pi^*$</span><!-- Has MathJax -->, <em>讓這個策略成為最佳策略</em>的那個 reward <span>$r$</span><!-- Has MathJax --> 是不是也找的到? 可以的<br>代數反推一下 (4) 得到<br><span>$$\begin{align}
 \Longrightarrow \log \pi^*(y|x) = -\log Z(x) + \log \pi_{ref}(y|x) + \frac{1}{\beta} r(x, y) \\
 \Longrightarrow r(x, y) = \beta \log \frac{\pi^*(y|x)}{\pi_{ref}(y|x)} + \beta \log Z(x)
-\end{align}$$</span><!-- Has MathJax --> 現在回到我們的偏好數據集, 我們有 <span>$\{(x, y_w, y_l)\}$</span><!-- Has MathJax -->.  Bradley-Terry 模型 (式 (2)) 告訴我們, <span>$y_w$</span><!-- Has MathJax --> 勝過 <span>$y_l$</span><!-- Has MathJax --> 的機率取決於兩者的獎勵差:<br><span>$P(y_w \succ y_l | x) = \sigma(r(x, y_w) - r(x, y_l))$</span><!-- Has MathJax --> 現在把 <span>$r$</span><!-- Has MathJax --> 式 (6) 代入這個 <span>$r(x, y_w) - r(x, y_l)$</span><!-- Has MathJax --> 中：<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 現在回到我們的偏好數據集, 我們有 <span>$\{(x, y_w, y_l)\}$</span><!-- Has MathJax -->.  Bradley-Terry 模型 (式 (2)) 告訴我們, <span>$y_w$</span><!-- Has MathJax --> 勝過 <span>$y_l$</span><!-- Has MathJax --> 的機率取決於兩者的獎勵差:<br><span>$$P(y_w \succ y_l | x) = \sigma(r(x, y_w) - r(x, y_l))$$</span><!-- Has MathJax --> 現在把 <span>$r$</span><!-- Has MathJax --> 式 (6) 代入這個 <span>$r(x, y_w) - r(x, y_l)$</span><!-- Has MathJax --> 中：<br><span>$$\begin{align}
 r(x, y_w) - r(x, y_l) &amp;= \left( \beta \log \frac{\pi^*(y_w|x)}{\pi_{ref}(y_w|x)} + \beta \log Z(x) \right) - \left( \beta \log \frac{\pi^*(y_l|x)}{\pi_{ref}(y_l|x)} + \beta \log Z(x) \right) \\
 &amp;= \beta \log \frac{\pi^*(y_w|x)}{\pi_{ref}(y_w|x)} - \beta \log \frac{\pi^*(y_l|x)}{\pi_{ref}(y_l|x)}
-\end{align}$$</span><!-- Has MathJax --> <span>$\beta \log Z(x)$</span><!-- Has MathJax --> 因為跟 <span>$y$</span><!-- Has MathJax --> 無關, 抵銷掉了.<br>現在, 我們把理論上的 <span>$\pi^*$</span><!-- Has MathJax --> 替換成我們正在訓練的神經網路 <span>$\pi_\theta$</span><!-- Has MathJax -->. 我們的目標是最大化偏好數據的 Log Likelihood (也就是最小化 Negative Log Likelihood):<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --><br><span>$\beta \log Z(x)$</span><!-- Has MathJax --> 因為跟 <span>$y$</span><!-- Has MathJax --> 無關, 抵銷掉了.<br>現在, 我們把理論上的 <span>$\pi^*$</span><!-- Has MathJax --> 替換成我們正在訓練的神經網路 <span>$\pi_\theta$</span><!-- Has MathJax -->. 我們的目標是最大化偏好數據的 Log Likelihood (也就是最小化 Negative Log Likelihood):<br><span>$$\begin{align}
 \mathcal{L}_{DPO}(\pi_\theta; \pi_{ref}) = -\mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}} \left[ \log \sigma \left( \beta \log \frac{\pi_\theta(y_w|x)}{\pi_{ref}(y_w|x)} - \beta \log \frac{\pi_\theta(y_l|x)}{\pi_{ref}(y_l|x)} \right) \right]
 \end{align}$$</span><!-- Has MathJax --> 這就是最終 DPO 的 loss 👏🏻<br>總結來說, <strong>優化 DPO loss (9) 使得我們能盡量對偏好數據集中的 <span>$y_w$</span><!-- Has MathJax --> 勝過 <span>$y_l$</span><!-- Has MathJax --> 的機率愈高愈好</strong>.<br>而 (9) 又是基於 <span>$\pi$</span><!-- Has MathJax --> 與 <span>$r$</span><!-- Has MathJax --> 的 closed form solution 關係 (式 (4)&amp;(6)) 推導出來的, <strong>該關係直接保證了 RL 的目標函式 (3) 達到最大</strong>.</p>
 <blockquote>

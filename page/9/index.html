@@ -517,7 +517,7 @@
         
           <hr>
 <p>這是 far field 筆記系列第四篇, 寫這篇是因為做 CGMM-MVDR 時, 很好奇為何 spatial features 聚類的結果可以對應不同方向的聲源. 因此記錄下自己的一點想法.</p>
-<p>假設我們有 $M$ 個麥克風, 則在 stft (short-time fourier transform) 上來說, $\mathbf{f}_{\omega,t}$ 表示一個頻率 $\omega$, 時間 $t$ 的 $M$ 維向量. 對於某一個 $\theta$ 方向的 narrowband 訊號, ideally 我們可以這麼表示</p>
+<p>假設我們有 <span>$M$</span><!-- Has MathJax --> 個麥克風, 則在 stft (short-time fourier transform) 上來說, <span>$\mathbf{f}_{\omega,t}$</span><!-- Has MathJax --> 表示一個頻率 <span>$\omega$</span><!-- Has MathJax -->, 時間 <span>$t$</span><!-- Has MathJax --> 的 <span>$M$</span><!-- Has MathJax --> 維向量. 對於某一個 <span>$\theta$</span><!-- Has MathJax --> 方向的 narrowband 訊號, ideally 我們可以這麼表示</p>
 <span>$$\begin{align}
 \mathbf{f}_{\omega,t}^{\theta}=f(\omega)\mathbf{\upsilon}(\theta)=f(\omega)
 \left[
@@ -676,9 +676,10 @@ e^{-j\omega\tau_{M-1}}
       
         
           <hr>
-<p>記錄一下單通道降噪的一個經典方法, MMSE-STSA, MMSE-LSA, 已經是 1984 左右的文章了. 單通道降噪 OMLSA 也從這衍生出來的. 我們先從 MMSE-STSA 說起, 全名是 minimum mean-square error short time spectral amplitude.<br><span>$y(t)=x(t)+d(t),0\leq t\leq T$</span><!-- Has MathJax --><br>$x$, $d$, $y$ 分別是 speech, noise, 和收到的 noisy signal, 其中 $x$, $d$ 相互獨立. 相對應的第 $k$ 個 frequency bin 如下:<br><span>$$X_k=A_k\exp(j\alpha_k) \\
+<p>記錄一下單通道降噪的一個經典方法, MMSE-STSA, MMSE-LSA, 已經是 1984 左右的文章了. 單通道降噪 OMLSA 也從這衍生出來的. 我們先從 MMSE-STSA 說起, 全名是 minimum mean-square error short time spectral amplitude.<br><span>$$y(t)=x(t)+d(t),0\leq t\leq T$$</span><!-- Has MathJax --><br><span>$x$</span><!-- Has MathJax -->, <span>$d$</span><!-- Has MathJax -->, <span>$y$</span><!-- Has MathJax --> 分別是 speech, noise, 和收到的 noisy signal, 其中 <span>$x$</span><!-- Has MathJax -->, <span>$d$</span><!-- Has MathJax --> 相互獨立. 相對應的第 <span>$k$</span><!-- Has MathJax --> 個 frequency bin 如下:</p>
+<span>$$X_k=A_k\exp(j\alpha_k) \\
 D_k \\
-Y_k=R_k\exp(j\theta_k)$$</span><!-- Has MathJax --></p>
+Y_k=R_k\exp(j\theta_k)$$</span><!-- Has MathJax -->
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2019/03/20/MMSE-STSA-and-LSA/#more" rel="contents">
@@ -1730,8 +1731,8 @@ Y_k=R_k\exp(j\theta_k)$$</span><!-- Has MathJax --></p>
       
         
           <hr>
-<p>前一陣子學習了 Variational Inference, 因為自己記性只有 LSTM 沒有 L, 所以趕快記下筆記. 學得還是很粗淺, 又是一個大坑阿.<br>監督學習不外乎就是 training 和 testing (inference). 而 inference 在做的事情就是在計算後驗概率 $p(z|x)$. 在 PGM 中通常是 intractable, 或要找到 exact solution 的計算複雜度太高, 這時 VI 就派上用場了. VI 簡單講就是當 $p(z|x)$ 不容易得到時, 可以幫你找到一個很好的近似, $q(z)$.</p>
-<p>放上一張 NIPS 2016 VI tutorial 的圖, 非常形象地表示 VI 做的事情: 將找 $p(z|x)$ 的問題轉化成一個最佳化問題.</p>
+<p>前一陣子學習了 Variational Inference, 因為自己記性只有 LSTM 沒有 L, 所以趕快記下筆記. 學得還是很粗淺, 又是一個大坑阿.<br>監督學習不外乎就是 training 和 testing (inference). 而 inference 在做的事情就是在計算後驗概率 <span>$p(z\|x)$</span><!-- Has MathJax -->. 在 PGM 中通常是 intractable, 或要找到 exact solution 的計算複雜度太高, 這時 VI 就派上用場了. VI 簡單講就是當 <span>$p(z\|x)$</span><!-- Has MathJax --> 不容易得到時, 可以幫你找到一個很好的近似, <span>$q(z)$</span><!-- Has MathJax -->.</p>
+<p>放上一張 NIPS 2016 VI tutorial 的圖, 非常形象地表示 VI 做的事情: 將找 <span>$p(z\|x)$</span><!-- Has MathJax --> 的問題轉化成一個最佳化問題.</p>
 <p><img src="/2018/09/18/Variational-Inference-Notes/cover.png" width="70%" height="70%"></p>
           <!--noindex-->
           <div class="post-button text-center">

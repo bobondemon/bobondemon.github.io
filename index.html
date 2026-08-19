@@ -981,25 +981,22 @@ Y &amp;=XW=(XR)(R^TW) \\
           <hr>
 <p>向量的 norm 我們很熟悉了, 但對於一個矩陣的 norm 又該怎麼定義呢?<br>最直覺的想法就是把矩陣 flatten 成一個向量, 套用向量的 norm 即可. 這引導出了 Frobenius norm.<br>但是矩陣還包含了將向量做線性轉換的作用, 所以向量經過矩陣轉換後的 <em>norm 變化</em>是不是可以用來當作矩陣 norm 的度量方式呢? 這樣的想法引導出了 operator norm 或 spectral norm.<br>先給出 take away 總結:</p>
 <ul>
-<li><p>Frobenius norm: 開根號的 “singular value 平方和”</p>
-  <span>$$\begin{aligned}
-\|A\|_F := \sqrt{\sum_{i,j}|a_{ij}|^2} =\mathrm{Tr}(A^HA)=\sqrt{\sum_i^{\min\{m,n\}}\sigma_i^2(A)}
-\end{aligned}$$</span><!-- Has MathJax -->
+<li><p>Frobenius norm: 開根號的 “singular value 平方和”<br>  <span>$$\begin{aligned}
+    \|A\|_F := \sqrt{\sum_{i,j}|a_{ij}|^2} =\mathrm{Tr}(A^HA)=\sqrt{\sum_i^{\min\{m,n\}}\sigma_i^2(A)}
+    \end{aligned}$$</span><!-- Has MathJax --></p>
 </li>
-<li><p>Spectral norm: 最大的 singular value</p>
-  <span>$$\begin{aligned}
-\|A\|_2 :=\sup_{\|x\|_2\leq1}\{\|Ax\|_2\}=\sqrt{\lambda_{\max}(A^HA)}=\sigma_{\max}(A)
-\end{aligned}$$</span><!-- Has MathJax -->
+<li><p>Spectral norm: 最大的 singular value<br>  <span>$$\begin{aligned}
+    \|A\|_2 :=\sup_{\|x\|_2\leq1}\{\|Ax\|_2\}=\sqrt{\lambda_{\max}(A^HA)}=\sigma_{\max}(A)
+    \end{aligned}$$</span><!-- Has MathJax --></p>
 </li>
 </ul>
 <blockquote>
 <p>💡 為什麼 spectral norm 這麼定義?<br>推薦閱讀周老師的文章, <a href="https://ccjou.wordpress.com/2010/05/10/%E7%9F%A9%E9%99%A3%E6%A8%A1/">矩陣範數</a>, 非常具有啟發性！更多延伸：<a href="https://ccjou.wordpress.com/2012/07/03/%E8%AD%9C%E5%8D%8A%E5%BE%91%E8%88%87%E7%9F%A9%E9%99%A3%E7%AF%84%E6%95%B8/">譜半徑與矩陣範數</a></p>
 </blockquote>
 <ul>
-<li>兩者的關係:      <span>$$\begin{aligned}
-\|A\|_2 \leq \|A\|_F
-\end{aligned}$$</span><!-- Has MathJax -->
-</li>
+<li>兩者的關係:<br>  <span>$$\begin{aligned}
+    \|A\|_2 \leq \|A\|_F
+    \end{aligned}$$</span><!-- Has MathJax --></li>
 </ul>
 <p>接著詳細記錄定義和推導證明 (參考自黃子嘉線性代數講義)</p>
           <!--noindex-->
@@ -1754,7 +1751,7 @@ Y &amp;=XW=(XR)(R^TW) \\
         
           <hr>
 <p>📔 筆記內容: <strong>赵世钰老師 “<a href="https://github.com/MathFoundationRL/Book-Mathematical-Foundation-of-Reinforcement-Learning">强化学习的数学原理</a>”</strong> 課程 (也推薦用 <a href="https://bobondemon.notion.site/notes-mathematical-foundation-of-reinforcement-learning">Notion版本</a> 來閱讀)<br>很高興我初次學習 RL 就是透過這門課, 讓我扎實理解其背後的數學和邏輯<br>老實說 RL 方法很多很雜, 套句趙老師的話, RL 數學很深, 結構性又很強, 一環扣一環<br>如果沒有這堂課這樣<em>循序剖析</em>和從<em>數學出發</em>解釋的話, 我自己應該很難入門, 謝謝這門課的赵世钰老師! 🙏🏻</p>
-<p>本篇筆記方式盡量濃縮, 而每個章節更詳細的筆記參考:<br>&emsp;$\circ$ <a href="https://bobondemon.notion.site/RL-1-Fundamentals-of-Reinforcement-Learning-196edc3d531d801d8c73d0d771abb3f9?source=copy_link">RL(1): Fundamentals of Reinforcement Learning</a><br>&emsp;$\circ$ <a href="https://bobondemon.notion.site/RL-2-Sample-based-Learning-Methods-1c7edc3d531d80ecaaa5cd6e4a8b55f7?source=copy_link">RL(2): Sample-based Learning Methods</a><br>&emsp;$\circ$ <a href="https://bobondemon.notion.site/RL-3-Prediction-and-Control-with-Function-Approximation-1efedc3d531d80d395f4d1edc6f4523c?source=copy_link">RL(3): Prediction and Control with Function Approximation</a></p>
+<p>本篇筆記方式盡量濃縮, 而每個章節更詳細的筆記參考:<br>&emsp;<span>$\circ$</span><!-- Has MathJax --> <a href="https://bobondemon.notion.site/RL-1-Fundamentals-of-Reinforcement-Learning-196edc3d531d801d8c73d0d771abb3f9?source=copy_link">RL(1): Fundamentals of Reinforcement Learning</a><br>&emsp;<span>$\circ$</span><!-- Has MathJax --> <a href="https://bobondemon.notion.site/RL-2-Sample-based-Learning-Methods-1c7edc3d531d80ecaaa5cd6e4a8b55f7?source=copy_link">RL(2): Sample-based Learning Methods</a><br>&emsp;<span>$\circ$</span><!-- Has MathJax --> <a href="https://bobondemon.notion.site/RL-3-Prediction-and-Control-with-Function-Approximation-1efedc3d531d80d395f4d1edc6f4523c?source=copy_link">RL(3): Prediction and Control with Function Approximation</a></p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2025/12/25/RL的數學原理/#more" rel="contents">

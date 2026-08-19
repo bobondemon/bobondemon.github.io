@@ -104,7 +104,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2018/02/11/Mixtures-of-Factor-Analyzers/gmm2guassian.png">
 <meta property="og:image" content="https://bobondemon.github.io/2018/02/11/Mixtures-of-Factor-Analyzers/ubm_and_spk_models.png">
 <meta property="og:image" content="https://bobondemon.github.io/2018/02/11/Mixtures-of-Factor-Analyzers/gmm2guassian_soft.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.821Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.174Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Mixtures of Factor Analyzers">
 <meta name="twitter:description" content="這篇使用 Bishop PRML 的 notations, 同使參考 Zoubin Ghahramani and Geoffrey E. Hinton (沒錯, 就是那位 Hiton, 另外, 第一作者也是神人級別, 劍橋教授, Uber 首席科學家) 1997 年的論文 “The EM Algorithm for Mixtures of Factor Analyzers“, 實作了 Mixtu">
@@ -394,76 +394,86 @@
 <hr>
 <h3 id="Factor-Analysis"><a href="#Factor-Analysis" class="headerlink" title="Factor Analysis"></a>Factor Analysis</h3><p>一言以蔽之, <strong>sub-space 降維</strong>. 假設我們都活在陰魂不散的 Gauss 世界中, 所有 model 都是高斯分布.</p>
 <p><img src="/2018/02/11/Mixtures-of-Factor-Analyzers/Gauss.jpg" width="50%" height="50%"></p>
-<p>我們觀察的資料 $x$ 都是高斯分布, 且都是高維度. 但實際上 $x$ 通常只由少數幾個看不到的變數控制, 一般稱這些看不到的變數為 latent variable $z$. 如下圖舉例:</p>
+<p>我們觀察的資料 <span>$x$</span><!-- Has MathJax --> 都是高斯分布, 且都是高維度. 但實際上 <span>$x$</span><!-- Has MathJax --> 通常只由少數幾個看不到的變數控制, 一般稱這些看不到的變數為 latent variable <span>$z$</span><!-- Has MathJax -->. 如下圖舉例:</p>
 <p><img src="/2018/02/11/Mixtures-of-Factor-Analyzers/latent_space.png" width="60%" height="60%"></p>
 <p>所以我們的主要問題就是, 怎麼對 Gaussian distribution 建立 sub-space 模型?  答案就是使用 Linear Gaussian Model.</p>
-<p>一些 notations 定義: $x$ 表示我們的 observation, 維度是 $D$. $z$ 是我們的 latent variable, 維度是 $K$. 我們一般都期望 $K \ll D$. $x$ and $z$ follow linear-Gaussian framework, 有如下的關係:</p>
+<p>一些 notations 定義: <span>$x$</span><!-- Has MathJax --> 表示我們的 observation, 維度是 <span>$D$</span><!-- Has MathJax -->. <span>$z$</span><!-- Has MathJax --> 是我們的 latent variable, 維度是 <span>$K$</span><!-- Has MathJax -->. 我們一般都期望 <span>$K \ll D$</span><!-- Has MathJax -->. <span>$x$</span><!-- Has MathJax --> and <span>$z$</span><!-- Has MathJax --> follow linear-Gaussian framework, 有如下的關係:</p>
 <span>$$\begin{align}
 p(z)=N(z|0,I) \\
 p(x|z)=N(x|Wz+\mu,\Psi) \\
 \end{align}$$</span><!-- Has MathJax -->
-<p>$W$ 是一個線性轉換, 將低維度的 latent space 轉換到高維度的 observation space, 另外 <strong>$\Psi$ 必須是對角矩陣</strong>. 由於是對角的關係, 因此 $\Psi$ 捕捉了 obaservation 維度的各自變異量, 因此稱為 <em>uniquenesses</em>, 而 $W$ 就是負責捕捉共同項, 稱為 <em>factor loading</em>. 書裡有一個簡單明瞭的圖解釋上述的模型, 我就不多說了, 自行看圖:</p>
+
+<p><span>$W$</span><!-- Has MathJax --> 是一個線性轉換, 將低維度的 latent space 轉換到高維度的 observation space, 另外 <strong><span>$\Psi$</span><!-- Has MathJax --> 必須是對角矩陣</strong>. 由於是對角的關係, 因此 <span>$\Psi$</span><!-- Has MathJax --> 捕捉了 obaservation 維度的各自變異量, 因此稱為 <em>uniquenesses</em>, 而 <span>$W$</span><!-- Has MathJax --> 就是負責捕捉共同項, 稱為 <em>factor loading</em>. 書裡有一個簡單明瞭的圖解釋上述的模型, 我就不多說了, 自行看圖:</p>
 <p><img src="/2018/02/11/Mixtures-of-Factor-Analyzers/generative_view.png" width="70%" height="70%"></p>
 <p>因為是 linear-Gaussian model, 所以 marginal distribution 也是 Gaussian:</p>
 <span>$$\begin{align}
 p(x)=N(x|\mu,C) \\
 \mbox{where } C=WW^T+\Psi
 \end{align}$$</span><!-- Has MathJax -->
+
 <p>同時, 事後機率也是 Gaussian</p>
 <span>$$\begin{align}
 p(z|x)=N(z|GW^T\Psi^{-1}(x-\bar{x}),G^{-1}) \\
 \mbox{where } G=(I+W^T\Psi^{-1}W)^{-1}
 \end{align}$$</span><!-- Has MathJax -->
+
 <blockquote>
 <p>完整的 lineaer-Gaussian model 公式, from PRML book:<br><img src="/2018/02/11/Mixtures-of-Factor-Analyzers/linearGaussian.png" width="70%" height="70%"></p>
 </blockquote>
-<p>有了 $p(x)$ (式 3) 基本上我們就可以根據 training data 算出 likelihood, 然後找出什麼樣的參數可以最大化它. 但是這裡的問題是含有未知變數 $z$, 這個在 training data 看不到, 因為我們只看的到 $x$.</p>
-<p>不過別擔心, EM 演算法可以處理含有未知變數情況下的 maximal likelihood estimation. 忘了什麼是 EM, 可以參考一下<a href="EM_notes.pdf">這</a>. 很精簡的講一下就是, 找到一個輔助函數 $Q$, 該輔助函數一定小於原來的 likelihood 函數, 因此只要找到一組參數可以對輔助函數最大化, 那麼對於原來的 likelihood 函數也會有提升, 重複下去就可以持續提升, 直到 local maximum.<br>另外輔助函數就是 “complete-data log likelihood and take its expectation with respect to the posterior distribution of the latent distribution evaluated using ‘old’ parameter values”, 我知道很粗略, 還請自行看筆記或是 PRML Ch9.</p>
+<p>有了 <span>$p(x)$</span><!-- Has MathJax --> (式 3) 基本上我們就可以根據 training data 算出 likelihood, 然後找出什麼樣的參數可以最大化它. 但是這裡的問題是含有未知變數 <span>$z$</span><!-- Has MathJax -->, 這個在 training data 看不到, 因為我們只看的到 <span>$x$</span><!-- Has MathJax -->.</p>
+<p>不過別擔心, EM 演算法可以處理含有未知變數情況下的 maximal likelihood estimation. 忘了什麼是 EM, 可以參考一下<a href="EM_notes.pdf">這</a>. 很精簡的講一下就是, 找到一個輔助函數 <span>$Q$</span><!-- Has MathJax -->, 該輔助函數一定小於原來的 likelihood 函數, 因此只要找到一組參數可以對輔助函數最大化, 那麼對於原來的 likelihood 函數也會有提升, 重複下去就可以持續提升, 直到 local maximum.<br>另外輔助函數就是 “complete-data log likelihood and take its expectation with respect to the posterior distribution of the latent distribution evaluated using ‘old’ parameter values”, 我知道很粗略, 還請自行看筆記或是 PRML Ch9.</p>
 <h4 id="E-Step"><a href="#E-Step" class="headerlink" title="E-Step"></a>E-Step</h4><p>E-Step 主要算出基於舊參數下的事後機率的一階二階統計量</p>
-<p>首先將符號做簡化, 方便後面的式子更簡潔 ($n$ 是訓練資料的 index):</p>
+<p>首先將符號做簡化, 方便後面的式子更簡潔 (<span>$n$</span><!-- Has MathJax --> 是訓練資料的 index):</p>
 <span>$$\mathbb{E}[z_n]\equiv\mathbb{E}_{z_n|x_n}[z_n] \\
 \mathbb{E}[z_nz_n^T]\equiv\mathbb{E}_{z_n|x_n}[z_nz_n^T] \\$$</span><!-- Has MathJax -->
+
 <p>事後機率的一階二階統計量如下:</p>
 <span>$$\begin{align}
 \mathbb{E}[z_n] = GW^T\Psi^{-1}(x_n-\mu) \\
 \mathbb{E}[z_nz_n^T] = G + \mathbb{E}[z_n] \mathbb{E}[z_n]^T \\
 \mbox{where } G=(I+W^T\Psi^{-1}W)^{-1}
 \end{align}$$</span><!-- Has MathJax -->
+
 <p>因為事後機率是 Gaussian, 所以由式 (5) 可以推得式 (7) 和 式 (8).</p>
-<h4 id="M-Step"><a href="#M-Step" class="headerlink" title="M-Step"></a>M-Step</h4><p>這一步就是最大化輔助函數 $Q$, 其中 $\mu$ 等於 sample mean, 可以直接寫死不需要 iteration. 另外兩個參數 update 如下:</p>
+<h4 id="M-Step"><a href="#M-Step" class="headerlink" title="M-Step"></a>M-Step</h4><p>這一步就是最大化輔助函數 <span>$Q$</span><!-- Has MathJax -->, 其中 <span>$\mu$</span><!-- Has MathJax --> 等於 sample mean, 可以直接寫死不需要 iteration. 另外兩個參數 update 如下:</p>
 <span>$$\begin{align}
 W^{new}=\left[\sum_{n=1}^N (x_n-\mu)\mathbb{E}[z_n]^T\right]\left[\sum_{n=1}^N \mathbb{E}[z_nz_n^T]\right]^{-1} \\
 \Psi^{new}=\mbox{diag}\left[S-W^{new}\frac{1}{N}\sum_{n=1}^N \mathbb{E}[z_n](x_n-\mu)^T\right]
 \end{align}$$</span><!-- Has MathJax -->
-<p>$S$ 是 sample covariance matrix (除 N 的那個 biased)</p>
-<h4 id="Toy-Example"><a href="#Toy-Example" class="headerlink" title="Toy Example"></a>Toy Example</h4><p>黑色那條線是真正產生資料時的 $W$, 可以當成正確答案. 紅色的是 FA 估計出來的 $W$ 和 $p(x)$. 可以發現 $W$ 沒有跟正確答案一樣, 這是因為我們在做 maximum likelihood 的時候, 只關心 $p(x)$, 因此可以有不同的 latent space 產生相同的 $p(x)$. 範例也一併把 probabilistic PCA 做出來了, 可以發現 PPCA 算的 $W$ 跟正確答案很接近, 這是因為此範例的資料其實是根據 PPCA 的模型產生的, 所以 PPCA 較接近是正常. 同時我們看到 PPCA 估計出來的 $p(x)$ 其實也跟 FA 一樣, 再度佐證 FA 其實也沒算錯, 只是不同的表達方式.</p>
+
+<p><span>$S$</span><!-- Has MathJax --> 是 sample covariance matrix (除 N 的那個 biased)</p>
+<h4 id="Toy-Example"><a href="#Toy-Example" class="headerlink" title="Toy Example"></a>Toy Example</h4><p>黑色那條線是真正產生資料時的 <span>$W$</span><!-- Has MathJax -->, 可以當成正確答案. 紅色的是 FA 估計出來的 <span>$W$</span><!-- Has MathJax --> 和 <span>$p(x)$</span><!-- Has MathJax -->. 可以發現 <span>$W$</span><!-- Has MathJax --> 沒有跟正確答案一樣, 這是因為我們在做 maximum likelihood 的時候, 只關心 <span>$p(x)$</span><!-- Has MathJax -->, 因此可以有不同的 latent space 產生相同的 <span>$p(x)$</span><!-- Has MathJax -->. 範例也一併把 probabilistic PCA 做出來了, 可以發現 PPCA 算的 <span>$W$</span><!-- Has MathJax --> 跟正確答案很接近, 這是因為此範例的資料其實是根據 PPCA 的模型產生的, 所以 PPCA 較接近是正常. 同時我們看到 PPCA 估計出來的 <span>$p(x)$</span><!-- Has MathJax --> 其實也跟 FA 一樣, 再度佐證 FA 其實也沒算錯, 只是不同的表達方式.</p>
 <p><img src="/2018/02/11/Mixtures-of-Factor-Analyzers/FA.png" width="70%" height="70%"></p>
 <hr>
 <h3 id="Mixtures-of-Factor-Analyzers"><a href="#Mixtures-of-Factor-Analyzers" class="headerlink" title="Mixtures of Factor Analyzers"></a>Mixtures of Factor Analyzers</h3><p>將 FA 假設有多個 components 組成就變成 MFA 了, 其實就跟 GMM 一樣, 差別在於我們<strong>用了 latent space 去各別 model 每個 Gaussian Components</strong> 而已!</p>
-<p>要注意的是, 這時候的 latent variables 不只有 $z$, 還有 $m$ (=1~M 表示有 $M$ 個 components), 我們用下標 $j$ 表示 component 的 index.</p>
-<p>另外, 每一個 component, 會有各自的 latent space, 因此有各自的 $W_j$ 和 $\mu_j$, 但是<strong>全部的 components 共用一個 uniquenesses $\Psi$</strong>.</p>
+<p>要注意的是, 這時候的 latent variables 不只有 <span>$z$</span><!-- Has MathJax -->, 還有 <span>$m$</span><!-- Has MathJax --> (=1~M 表示有 <span>$M$</span><!-- Has MathJax --> 個 components), 我們用下標 <span>$j$</span><!-- Has MathJax --> 表示 component 的 index.</p>
+<p>另外, 每一個 component, 會有各自的 latent space, 因此有各自的 <span>$W_j$</span><!-- Has MathJax --> 和 <span>$\mu_j$</span><!-- Has MathJax -->, 但是<strong>全部的 components 共用一個 uniquenesses <span>$\Psi$</span><!-- Has MathJax --></strong>.</p>
 <span>$$\begin{align}
 p(x|z,m=j)=N(x|W_j z+\mu_j,\Psi)
 \end{align}$$</span><!-- Has MathJax -->
-<p>和 GMM 一樣, 每一個 component 都有一個 weights, $\pi_j$, 合起來機率是1</p>
+
+<p>和 GMM 一樣, 每一個 component 都有一個 weights, <span>$\pi_j$</span><!-- Has MathJax -->, 合起來機率是1</p>
 <h4 id="E-Step-1"><a href="#E-Step-1" class="headerlink" title="E-Step"></a>E-Step</h4><p>一階和二階統計量如下:</p>
 <span>$$\begin{align}
 \color{red}{\mathbb{E}[z_n|m=j]} = G_j W_j^T \Psi^{-1}(x_n-\mu_j) \\
 \color{red}{\mathbb{E}[z_nz_n^T|m=j]} = G_j + \mathbb{E}[z_n|m=j] \mathbb{E}[z_n|m=j]^T \\
 \mbox{where } G_j=(I+W_j^T\Psi^{-1}W_j)^{-1}
 \end{align}$$</span><!-- Has MathJax -->
+
 <p>而真正的事後機率為:</p>
 <span>$$\begin{align}
 \mathbb{E}[m=j,z_n] = h_{nj}\mathbb{E}[z_n|m=j] \\
 \mathbb{E}[m=j,z_nz_n^T] = h_{nj}\mathbb{E}[z_nz_n^T|m=j] \\
 \mbox{where } \color{red}{h_{nj}}=\mathbb{E}[m=j|x_n]\propto p(x_n,m=j)
 \end{align}$$</span><!-- Has MathJax -->
-<p>將 (18) 解釋清楚一下, 基本上就是計算給定一個 $x_n$, 它是由 component $j$ 所產生的機率是多少. 我們可以進一步推導如下:</p>
+
+<p>將 (18) 解釋清楚一下, 基本上就是計算給定一個 <span>$x_n$</span><!-- Has MathJax -->, 它是由 component <span>$j$</span><!-- Has MathJax --> 所產生的機率是多少. 我們可以進一步推導如下:</p>
 <span>$$\begin{align}
 p(x_n,m=j)=p(m=j)p(x_n)\\
 =\pi_j N(x_n|\mu_j,C_j=W_jW_j^T+\Psi)
 \end{align}$$</span><!-- Has MathJax -->
-<p>(19) 到 (20) 的部分可以由 (3) 和 (4) 所知道的 marginal distribution $p(x)$ 得到</p>
+
+<p>(19) 到 (20) 的部分可以由 (3) 和 (4) 所知道的 marginal distribution <span>$p(x)$</span><!-- Has MathJax --> 得到</p>
 <p>到這裡, 所有需要的統計量, 紅色部分, 我們都可以算得了.</p>
 <h4 id="M-Step-1"><a href="#M-Step-1" class="headerlink" title="M-Step"></a>M-Step</h4><p>通通微分等於零, 通通微分等於零, 通通微分等於零 … 得到:</p>
 <span>$$\begin{align}
@@ -472,6 +482,7 @@ p(x_n,m=j)=p(m=j)p(x_n)\\
 W_j^{new}=\left[\sum_{n=1}^N h_{nj}(x_n-\mu_j)\mathbb{E}[z_n|m=j]^T\right]\left[\sum_{n=1}^N h_{nj}\mathbb{E}[z_nz_n^T|m=j]\right]^{-1} \\
 \Psi^{new}=\frac{1}{N}\mbox{diag}\left[ \sum_{nj} h_{nj} \left( (x_n-\mu_j) - W_j^{new}\mathbb{E}[z_n|m=j] \right)(x_n-\mu_j)^T \right]
 \end{align}$$</span><!-- Has MathJax -->
+
 <h4 id="Toy-Example-1"><a href="#Toy-Example-1" class="headerlink" title="Toy Example"></a>Toy Example</h4><p><img src="/2018/02/11/Mixtures-of-Factor-Analyzers/MFA.png" width="70%" height="70%"></p>
 <p>圖應該很清楚了, 有正確 model 到 data</p>
 <blockquote>
@@ -486,18 +497,19 @@ W_j^{new}=\left[\sum_{n=1}^N h_{nj}(x_n-\mu_j)\mathbb{E}[z_n|m=j]^T\right]\left[
 </blockquote>
 <p>supervector 維度為 mfcc-dim x mixture數, 很容易有 40x1024 這麼高維! 因此 ivector 就是利用 FA 的方法將 supervector 降維. 那具體怎麼做呢? 首先我們要先用一個小技巧將 “多個 Gaussians” (注意不是 GMM, 因為沒有mixture weight的概念, 每一個 Gaussian都同等重要) 轉換成一個 Gaussain. 見圖如下:</p>
 <p><img src="/2018/02/11/Mixtures-of-Factor-Analyzers/gmm2guassian.png" width="70%" height="70%"></p>
-<p>我們可以很容易驗證兩邊是等價的. 轉換成一個 Gaussian 好處就是我們可以直接使用 FA 降維, 而 ivector 就是該 FA 的 latent variable $z$. 如同 (2) 的定義:</p>
+<p>我們可以很容易驗證兩邊是等價的. 轉換成一個 Gaussian 好處就是我們可以直接使用 FA 降維, 而 ivector 就是該 FA 的 latent variable <span>$z$</span><!-- Has MathJax -->. 如同 (2) 的定義:</p>
 <span>$$\begin{align}
 p(x|z)=N(x|Wz+\mu,\Sigma) \\
 \end{align}$$</span><!-- Has MathJax -->
-<p>這裡的 $\mu$ 是 UBM 的 supervector, $\Sigma$ 則如同上圖的定義, 是一個 block diagonal matrix, 每一個 block 對應一個 UBM mixture 的 covariance matrix. 因此 $\mu$ 和 $\Sigma$ 都是使用 UBM 的參數.</p>
-<p>針對式 (25) 去更仔細了解其所代表的物理意義是很值得的, 所以我們多說一點. 由於我們已經知道這樣的一個 Gaussian 實際上代表了原來 mfcc space 的多個 Gaussians. 所以針對某一個特定的 ivector $z^*$ 由式 (25) 得知, 他有可能代表了下圖橘色的三個 Gaussians (也因此可能代表了某一個 speaker 的模型):</p>
+
+<p>這裡的 <span>$\mu$</span><!-- Has MathJax --> 是 UBM 的 supervector, <span>$\Sigma$</span><!-- Has MathJax --> 則如同上圖的定義, 是一個 block diagonal matrix, 每一個 block 對應一個 UBM mixture 的 covariance matrix. 因此 <span>$\mu$</span><!-- Has MathJax --> 和 <span>$\Sigma$</span><!-- Has MathJax --> 都是使用 UBM 的參數.</p>
+<p>針對式 (25) 去更仔細了解其所代表的物理意義是很值得的, 所以我們多說一點. 由於我們已經知道這樣的一個 Gaussian 實際上代表了原來 mfcc space 的多個 Gaussians. 所以針對某一個特定的 ivector <span>$z^*$</span><!-- Has MathJax --> 由式 (25) 得知, 他有可能代表了下圖橘色的三個 Gaussians (也因此可能代表了某一個 speaker 的模型):</p>
 <p><img src="/2018/02/11/Mixtures-of-Factor-Analyzers/ubm_and_spk_models.png" width="50%" height="50%"></p>
 <p>到目前為止所描述的 ivector 實際上是根據自己的理解將 2005 年 “<a href="http://ieeexplore.ieee.org/document/1420369/" target="_blank" rel="external">Eigenvoice Modeling with Sparse Training Data</a>“ 裡的 <em>Proposition 1</em> (p348) 的設定描述出來. 如有錯誤還請來信指正.</p>
 <p>該設定中, 每一個 mfcc vector 都會事先被歸類好屬於哪一個 mixture, 等於<strong>硬分類</strong>. 但是其實並不需要, 一個明顯的改進方法就是使用後驗概率來做<strong>軟分類</strong>. 直接看圖:</p>
 <p><img src="/2018/02/11/Mixtures-of-Factor-Analyzers/gmm2guassian_soft.png" width="70%" height="70%"></p>
 <p>目前的 ivector 計算都使用這種方式, 例如 Microsoft Research 的 <a href="https://www.microsoft.com/en-us/research/publication/msr-identity-toolbox-v1-0-a-matlab-toolbox-for-speaker-recognition-research-2/" target="_blank" rel="external">MSR Identity Toolbox</a>. 該 toolbox 使用 “<a href="https://pdfs.semanticscholar.org/bf66/f0ff14174fcc4af3eb4718f00a5ae178c7ad.pdf" target="_blank" rel="external">A Straightforward and Efficient Implementation of the Factor Analysis Model for Speaker Verification</a>“ 的實作方式, 可以由論文的式 (2),(5) 看出使用後驗概率的設定.</p>
-<p>最後多說一些語者識別的事情. ivector 主要是針對原高維空間 (mfcc-dim x component數量) 做降維, 而沒有去針對語者的訊息. 所以傳統流程會再經過 WCCN + LDA, 而 LDA 就會針對同一個語者盡量靠近, 而不同語者盡量拉開. 經過 LDA 後就可以用 $cos$ 計算相似度進行語者之間的打分.</p>
+<p>最後多說一些語者識別的事情. ivector 主要是針對原高維空間 (mfcc-dim x component數量) 做降維, 而沒有去針對語者的訊息. 所以傳統流程會再經過 WCCN + LDA, 而 LDA 就會針對同一個語者盡量靠近, 而不同語者盡量拉開. 經過 LDA 後就可以用 <span>$cos$</span><!-- Has MathJax --> 計算相似度進行語者之間的打分.</p>
 <p>但事實上, 更好的做法是用一個 PLDA 做更好的打分. 關於 PLDA 請參考這邊原始文章 “<a href="http://ieeexplore.ieee.org/document/4409052/authors" target="_blank" rel="external">Probabilistic Linear Discriminant Analysis for Inferences About Identity</a>“, 而 PLDA 更是與本篇的 FA 脫離不了關係!</p>
 <p>總體來說 FA, MFA 對於目前的語者識別系統仍然十分關鍵, 縱使目前 Kaldi 使用了深度學習替換了 ivector, 但後端仍然接 PLDA.</p>
 <hr>

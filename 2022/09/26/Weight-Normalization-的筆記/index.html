@@ -105,7 +105,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2022/09/26/Weight-Normalization-的筆記/Untitled 1.png">
 <meta property="og:image" content="https://bobondemon.github.io/2022/09/26/Weight-Normalization-的筆記/Untitled 2.png">
 <meta property="og:image" content="https://bobondemon.github.io/2022/09/26/Weight-Normalization-的筆記/wn_pytorch.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.833Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.238Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Weight Normalization 的筆記">
 <meta name="twitter:description" content="使用 SGD 做優化時, 如果 ill-conditioned of Hessian matrix, i.e. $\sigma_1/\sigma_n$ 最大最小的 eigenvalues 之比值, 會使得收斂效率不彰(ref zig-zag).
@@ -386,21 +386,24 @@
 
       
         <hr>
-<p>使用 SGD 做優化時, 如果 ill-conditioned of Hessian matrix, i.e. $\sigma_1/\sigma_n$ 最大最小的 eigenvalues 之比值, 會使得收斂效率不彰<br>(ref <a href="https://trond.hjorteland.com/thesis/node26.html" target="_blank" rel="external">zig-zag</a>).</p>
+<p>使用 SGD 做優化時, 如果 ill-conditioned of Hessian matrix, i.e. <span>$\sigma_1/\sigma_n$</span><!-- Has MathJax --> 最大最小的 eigenvalues 之比值, 會使得收斂效率不彰<br>(ref <a href="https://trond.hjorteland.com/thesis/node26.html" target="_blank" rel="external">zig-zag</a>).</p>
 <blockquote>
 <p>可以想成 loss function 的曲面愈不像正圓則愈 ill-conditioned (愈扁平).</p>
 </blockquote>
-<p>希望藉由 re-parameterization 來將 ill-conditioned 狀況降低.<br>一般來說 NN 的 layer 可以這麼寫:<br><span>$$y=\phi(w^Tx+b)$$</span><!-- Has MathJax --> 把 weight vector $w$ 重新改寫如下:</p>
-<span>$$w={g\over\|v\|}v\quad\quad(\star)$$</span><!-- Has MathJax --> WN 就是將 $w$ 拆成用 unit vector $v/||v||$ 和 magnitude $g$ 兩個 variables 來表示<br><br><a id="more"></a>
-<h2 id="對大小-g-的微分"><a href="#對大小-g-的微分" class="headerlink" title="對大小 $g$ 的微分"></a>對大小 $g$ 的微分</h2><hr>
-<p>因此 loss function $L$ 對 $g$ 微分為:<br><span>$$\begin{align}
+<p>希望藉由 re-parameterization 來將 ill-conditioned 狀況降低.<br>一般來說 NN 的 layer 可以這麼寫:<br><span>$$y=\phi(w^Tx+b)$$</span><!-- Has MathJax --> 把 weight vector <span>$w$</span><!-- Has MathJax --> 重新改寫如下:</p>
+<p><span>$$w={g\over\|v\|}v\quad\quad(\star)$$</span><!-- Has MathJax --> WN 就是將 <span>$w$</span><!-- Has MathJax --> 拆成用 unit vector <span>$v/\||v\||$</span><!-- Has MathJax --> 和 magnitude <span>$g$</span><!-- Has MathJax --> 兩個 variables 來表示</p>
+<a id="more"></a>
+<h2 id="對大小-<span>$g$</span><!-- Has MathJax -->-的微分"><a href="#對大小-<span>$g$</span><!-- Has MathJax -->-的微分" class="headerlink" title="對大小 <span>$g$</span><!-- Has MathJax --> 的微分"></a>對大小 <span>$g$</span><!-- Has MathJax --> 的微分</h2><hr>
+<p>因此 loss function <span>$L$</span><!-- Has MathJax --> 對 <span>$g$</span><!-- Has MathJax --> 微分為:</p>
+<span>$$\begin{align}
 \frac{dL}{dg}=\nabla_wL^T\frac{\partial w}{\partial g}=\nabla_wL^T\frac{v}{\|v\|}
-\end{align}$$</span><!-- Has MathJax --></p>
+\end{align}$$</span><!-- Has MathJax -->
+
 <blockquote>
-<p>這裡我們寫 gradient vector 都以 column vector 來寫<br>所以如果 loss function $L$ 是 scalar 的話, gradient 就是 transpose of Jacobian matrix (剛好是 1xn 的 row vector)</p>
+<p>這裡我們寫 gradient vector 都以 column vector 來寫<br>所以如果 loss function <span>$L$</span><!-- Has MathJax --> 是 scalar 的話, gradient 就是 transpose of Jacobian matrix (剛好是 1xn 的 row vector)</p>
 </blockquote>
-<h2 id="對方向向量-v-的微分"><a href="#對方向向量-v-的微分" class="headerlink" title="對方向向量 $v$ 的微分"></a>對方向向量 $v$ 的微分</h2><hr>
-<p>Loss function $L$ 對 $v$ 微分為:</p>
+<h2 id="對方向向量-<span>$v$</span><!-- Has MathJax -->-的微分"><a href="#對方向向量-<span>$v$</span><!-- Has MathJax -->-的微分" class="headerlink" title="對方向向量 <span>$v$</span><!-- Has MathJax --> 的微分"></a>對方向向量 <span>$v$</span><!-- Has MathJax --> 的微分</h2><hr>
+<p>Loss function <span>$L$</span><!-- Has MathJax --> 對 <span>$v$</span><!-- Has MathJax --> 微分為:</p>
 <blockquote>
 <p>這裡要參考到 <a href="https://www.math.uwaterloo.ca/~hwolkowi/matrixcookbook.pdf" target="_blank" rel="external">matrix cookbook</a> equation (130)</p>
 </blockquote>
@@ -410,42 +413,46 @@
 I-\frac{vv^T}{\|v\|^2}
 \right)\quad
 \end{align}$$</span><!-- Has MathJax -->
+
 <span>$$\therefore \quad \nabla_vL=\frac{g}{\|v\|}M_v\nabla_wL \quad\text{where}\ M_v:=I-\frac{vv^T}{\|v\|^2}$$</span><!-- Has MathJax -->
+
 <blockquote>
 <p><a href="https://arxiv.org/abs/1602.07868?context=cs.NE" target="_blank" rel="external">論文</a>裡式 (3) 的 gradient 推導可藉由將 (1) 代進到 (2) 裡得到.</p>
 </blockquote>
-<h2 id="nabla-vL-的物理意義"><a href="#nabla-vL-的物理意義" class="headerlink" title="$\nabla_vL$ 的物理意義"></a>$\nabla_vL$ 的物理意義</h2><hr>
-<p>注意到由於 $v$ 跟 $w$ 是同方向但大小不同而已. 所以<br><span>$$M_v=I-\frac{vv^T}{\|v\|^2}=I-\frac{ww^T}{\|w\|^2}=:M_w$$</span><!-- Has MathJax --></p>
+<h2 id="<span>$\nabla_vL$</span><!-- Has MathJax -->-的物理意義"><a href="#<span>$\nabla_vL$</span><!-- Has MathJax -->-的物理意義" class="headerlink" title="<span>$\nabla_vL$</span><!-- Has MathJax --> 的物理意義"></a><span>$\nabla_vL$</span><!-- Has MathJax --> 的物理意義</h2><hr>
+<p>注意到由於 <span>$v$</span><!-- Has MathJax --> 跟 <span>$w$</span><!-- Has MathJax --> 是同方向但大小不同而已. 所以</p>
+<span>$$M_v=I-\frac{vv^T}{\|v\|^2}=I-\frac{ww^T}{\|w\|^2}=:M_w$$</span><!-- Has MathJax -->
+
 <p><span>$$\begin{align}
 \therefore \quad 
 \nabla_vL=\frac{g}{\|v\|}M_w\nabla_wL \quad\text{where}\ M_w:=I-
 \color{orange}{\frac{ww^T}{\|w\|^2}}
-\end{align}$$</span><!-- Has MathJax --> 觀察一下 $M_w$ 裡的第二項 ((4) 的橘色部分) 乘上一個 vector $x$ 代表的意義:<br><span>$$\frac{w}{\|w\|}\cdot\frac{w^T}{\|w\|}\cdot x$$</span><!-- Has MathJax --> 其中 <span>$w/\|w\|$</span><!-- Has MathJax --> 表示 $w$ 方向的 unit vector, 而 <span>$w^Tx/\|w\|$</span><!-- Has MathJax --> 表示 $x$ 投影在 $w$ 方向上的長度.</p>
+\end{align}$$</span><!-- Has MathJax --> 觀察一下 <span>$M_w$</span><!-- Has MathJax --> 裡的第二項 ((4) 的橘色部分) 乘上一個 vector <span>$x$</span><!-- Has MathJax --> 代表的意義:<br><span>$$\frac{w}{\|w\|}\cdot\frac{w^T}{\|w\|}\cdot x$$</span><!-- Has MathJax --> 其中 <span>$w/\|w\|$</span><!-- Has MathJax --> 表示 <span>$w$</span><!-- Has MathJax --> 方向的 unit vector, 而 <span>$w^Tx/\|w\|$</span><!-- Has MathJax --> 表示 <span>$x$</span><!-- Has MathJax --> 投影在 <span>$w$</span><!-- Has MathJax --> 方向上的長度.</p>
 <p><img src="/2022/09/26/Weight-Normalization-的筆記/Untitled.png" width="60%" height="60%"></p>
-<p>所以 <span>$$M_w\nabla_wL=\nabla_wL-\frac{w}{\|w\|}\cdot\frac{w^T}{\|w\|}\cdot \nabla_wL$$</span><!-- Has MathJax --> <span>$M_w\nabla_wL$</span><!-- Has MathJax --> 就是將 $\nabla_wL$ 扣掉在 $w$ 方向上的分量, 而 <span>$\nabla_vL$</span><!-- Has MathJax --> 只是再多乘一個 scalar,<br>也就是說 <span>$\nabla_vL\perp w$</span><!-- Has MathJax -->, i.e. <span>$w^T\nabla_vL=0$</span><!-- Has MathJax --> (只要利用 (4) 計算就可知道)</p>
-<h2 id="SGD-會使得-v-長度愈來愈大"><a href="#SGD-會使得-v-長度愈來愈大" class="headerlink" title="SGD 會使得 $v$ 長度愈來愈大"></a>SGD 會使得 $v$ 長度愈來愈大</h2><hr>
-<p>用 SGD update $v$ 的時候公式為:<br><span>$$v&apos;=v+\Delta v$$</span><!-- Has MathJax --> 且 <span>$\Delta v\propto\nabla_vL$</span><!-- Has MathJax --> by steepest descent.<br>而因為 <span>$\nabla_vL\perp w$</span><!-- Has MathJax --> 所以 <span>$\Delta v\perp w$</span><!-- Has MathJax -->. (要 update 的向量與目前的 weight 垂直)<br>由最開始的分解 $(\star)$ 我們知道 $v$ 與 weight $w$ 同方向. 所以自然 $\Delta v\perp v$.<br>這就導致了 update 後的 $v’$ 長度會比 $v$ 來得大 (三角不等式), 如下圖:</p>
+<p>所以 <span>$$M_w\nabla_wL=\nabla_wL-\frac{w}{\|w\|}\cdot\frac{w^T}{\|w\|}\cdot \nabla_wL$$</span><!-- Has MathJax --><br><span>$M_w\nabla_wL$</span><!-- Has MathJax --> 就是將 <span>$\nabla_wL$</span><!-- Has MathJax --> 扣掉在 <span>$w$</span><!-- Has MathJax --> 方向上的分量, 而 <span>$\nabla_vL$</span><!-- Has MathJax --> 只是再多乘一個 scalar,<br>也就是說 <span>$\nabla_vL\perp w$</span><!-- Has MathJax -->, i.e. <span>$w^T\nabla_vL=0$</span><!-- Has MathJax --> (只要利用 (4) 計算就可知道)</p>
+<h2 id="SGD-會使得-<span>$v$</span><!-- Has MathJax -->-長度愈來愈大"><a href="#SGD-會使得-<span>$v$</span><!-- Has MathJax -->-長度愈來愈大" class="headerlink" title="SGD 會使得 <span>$v$</span><!-- Has MathJax --> 長度愈來愈大"></a>SGD 會使得 <span>$v$</span><!-- Has MathJax --> 長度愈來愈大</h2><hr>
+<p>用 SGD update <span>$v$</span><!-- Has MathJax --> 的時候公式為:<br><span>$$v&apos;=v+\Delta v$$</span><!-- Has MathJax --> 且 <span>$\Delta v\propto\nabla_vL$</span><!-- Has MathJax --> by steepest descent.<br>而因為 <span>$\nabla_vL\perp w$</span><!-- Has MathJax --> 所以 <span>$\Delta v\perp w$</span><!-- Has MathJax -->. (要 update 的向量與目前的 weight 垂直)<br>由最開始的分解 <span>$(\star)$</span><!-- Has MathJax --> 我們知道 <span>$v$</span><!-- Has MathJax --> 與 weight <span>$w$</span><!-- Has MathJax --> 同方向. 所以自然 <span>$\Delta v\perp v$</span><!-- Has MathJax -->.<br>這就導致了 update 後的 <span>$v&apos;$</span><!-- Has MathJax --> 長度會比 <span>$v$</span><!-- Has MathJax --> 來得大 (三角不等式), 如下圖:</p>
 <p><img src="/2022/09/26/Weight-Normalization-的筆記/Untitled 1.png" width="50%" height="50%"></p>
-<p>所以經過多次 SGD, $v$ 長度會愈來愈大.</p>
+<p>所以經過多次 SGD, <span>$v$</span><!-- Has MathJax --> 長度會愈來愈大.</p>
 <h2 id="與-Batch-Normalization-的關聯"><a href="#與-Batch-Normalization-的關聯" class="headerlink" title="與 Batch Normalization 的關聯"></a>與 Batch Normalization 的關聯</h2><hr>
-<p>BN 在過一層 linear weight $v$ 後為:<br><span>$$\begin{align}
+<p>BN 在過一層 linear weight <span>$v$</span><!-- Has MathJax --> 後為:<br><span>$$\begin{align}
 v^Tf_{BN}(x)= v^T\left(g\cdot\frac{x-\mu}{\sigma}+b\right)
-\end{align}$$</span><!-- Has MathJax --> 其中 $\mu,\sigma$ 都是從訓練時的 mini-batch 統計的, 而 $g,b$ 是 trainable 的參數<br>而 WN 對 weight $w$ 為 (不看 non-linear activation 那項):<br><span>$$f_{WN}(x;w)= w^Tx  = {g\over\|v\|}v^Tx \\
+\end{align}$$</span><!-- Has MathJax --> 其中 <span>$\mu,\sigma$</span><!-- Has MathJax --> 都是從訓練時的 mini-batch 統計的, 而 <span>$g,b$</span><!-- Has MathJax --> 是 trainable 的參數<br>而 WN 對 weight <span>$w$</span><!-- Has MathJax --> 為 (不看 non-linear activation 那項):<br><span>$$f_{WN}(x;w)= w^Tx  = {g\over\|v\|}v^Tx \\
 = v^T\left(g\cdot\frac{x}{\|v\|}\right) = v^Tf_{BN}(x)$$</span><!-- Has MathJax --> 對照 BN 可以知道設定 <span>$\sigma=\|v\|,\mu=0,b=0$</span><!-- Has MathJax --> 就變成 WN!<br>但 WN 的好處是不依賴 mini-batch 的設定, 這在如果 batch size 較小的情況會比較有利.</p>
 <h2 id="BN在Conv後會有Conv的Weight具有Scale-Invariant特性"><a href="#BN在Conv後會有Conv的Weight具有Scale-Invariant特性" class="headerlink" title="BN在Conv後會有Conv的Weight具有Scale Invariant特性"></a>BN在Conv後會有Conv的Weight具有<strong>Scale Invariant</strong>特性</h2><hr>
-<p>WN 對於 $v$ 會愈 update 愈大, 考慮 BN 是否也有這樣的狀況?<br>一般來說, 我們會這麼串: <code>activation(BN(convolution(x)))</code><br>將 BN 放在 convolution 後 activation 之前, 這樣可以最後做完 quantizaiton 的時候, convolution 和 BN 的 weight 做融合.<br>令 $w$ 當作 convolution 的 weights, 如果 weights 做 $\alpha$ 倍的 scale: $w’=\alpha w$, 則對 BN 後的結果不會有影響, 這是<strong>因為 $\mu’=\alpha\mu$, and $\sigma’=\alpha\sigma$ 也跟著一起 scale</strong><br><span>$$f_{BN}(\alpha w^Tx)=f_{BN}(w^Tx)$$</span><!-- Has MathJax --> 明確寫出來一個 function $f$ 對 input $w$ 是 scale invariant:<br><span>$$f(\alpha w)=f(w),\quad \forall \alpha\in\mathbb{R}$$</span><!-- Has MathJax --> 微積分我們學過 gradient vector 會跟 coutour 的 level curve 垂直<br>把 scale invariant function 的 “等高線” contour map 畫出來, 示意圖大概這樣:</p>
+<p>WN 對於 <span>$v$</span><!-- Has MathJax --> 會愈 update 愈大, 考慮 BN 是否也有這樣的狀況?<br>一般來說, 我們會這麼串: <code>activation(BN(convolution(x)))</code><br>將 BN 放在 convolution 後 activation 之前, 這樣可以最後做完 quantizaiton 的時候, convolution 和 BN 的 weight 做融合.<br>令 <span>$w$</span><!-- Has MathJax --> 當作 convolution 的 weights, 如果 weights 做 <span>$\alpha$</span><!-- Has MathJax --> 倍的 scale: <span>$w&apos;=\alpha w$</span><!-- Has MathJax -->, 則對 BN 後的結果不會有影響, 這是<strong>因為 <span>$\mu&apos;=\alpha\mu$</span><!-- Has MathJax -->, and <span>$\sigma&apos;=\alpha\sigma$</span><!-- Has MathJax --> 也跟著一起 scale</strong><br><span>$$f_{BN}(\alpha w^Tx)=f_{BN}(w^Tx)$$</span><!-- Has MathJax --> 明確寫出來一個 function <span>$f$</span><!-- Has MathJax --> 對 input <span>$w$</span><!-- Has MathJax --> 是 scale invariant:<br><span>$$f(\alpha w)=f(w),\quad \forall \alpha\in\mathbb{R}$$</span><!-- Has MathJax --> 微積分我們學過 gradient vector 會跟 coutour 的 level curve 垂直<br>把 scale invariant function 的 “等高線” contour map 畫出來, 示意圖大概這樣:</p>
 <p><img src="/2022/09/26/Weight-Normalization-的筆記/Untitled 2.png" width="80%" height="80%"></p>
-<p>可以看到做 SGD update 的方向會跟 contour 垂直, 導致跟之前討論 WN $v$ 會愈來愈大的狀況一樣, <strong>Convolution 的 weight $w$ 也會隨著 SGD update 愈來愈大</strong>.<br>因此我們在使用 <code>activation(BN(convolution(x)))</code> 這樣的 layer 的時候可能會觀察到這樣的現象.<br>到這邊我們可能會擔心, 會不會訓練下去 <span>$\|w\|_2$</span><!-- Has MathJax --> 會發散?<br>通常來說不用擔心, 因為離零點愈遠則 gradient 愈小. 這是因為 loss surface 只跟角度有關, 離零點愈遠的 loss surface 會愈稀疏、平坦. 這樣一來雖然每次 update <span>$\|w\|_2$</span><!-- Has MathJax --> 都會變大, 但變大的幅度愈來愈小. 這篇 <a href="https://www.inference.vc/exponentially-growing-learning-rate-implications-of-scale-invariance-induced-by-batchnorm/" target="_blank" rel="external">blog 文章</a> (by <a href="https://www.inference.vc/" target="_blank" rel="external">inFERENCe</a>) 也有描述, 裡面的圖也解釋得很好.</p>
+<p>可以看到做 SGD update 的方向會跟 contour 垂直, 導致跟之前討論 WN <span>$v$</span><!-- Has MathJax --> 會愈來愈大的狀況一樣, <strong>Convolution 的 weight <span>$w$</span><!-- Has MathJax --> 也會隨著 SGD update 愈來愈大</strong>.<br>因此我們在使用 <code>activation(BN(convolution(x)))</code> 這樣的 layer 的時候可能會觀察到這樣的現象.<br>到這邊我們可能會擔心, 會不會訓練下去 <span>$\|w\|_2$</span><!-- Has MathJax --> 會發散?<br>通常來說不用擔心, 因為離零點愈遠則 gradient 愈小. 這是因為 loss surface 只跟角度有關, 離零點愈遠的 loss surface 會愈稀疏、平坦. 這樣一來雖然每次 update <span>$\|w\|_2$</span><!-- Has MathJax --> 都會變大, 但變大的幅度愈來愈小. 這篇 <a href="https://www.inference.vc/exponentially-growing-learning-rate-implications-of-scale-invariance-induced-by-batchnorm/" target="_blank" rel="external">blog 文章</a> (by <a href="https://www.inference.vc/" target="_blank" rel="external">inFERENCe</a>) 也有描述, 裡面的圖也解釋得很好.</p>
 <blockquote>
 <p>💡 另外也可以 update 完 weight 後, 再把 convolution 的 weight 直接 normalized, 因為反正是 scale invariant function, 不影響輸出結果.</p>
 </blockquote>
-<h2 id="v-和-g-的初始化"><a href="#v-和-g-的初始化" class="headerlink" title="$v$ 和 $g$ 的初始化"></a>$v$ 和 $g$ 的初始化</h2><hr>
+<h2 id="<span>$v$</span><!-- Has MathJax -->-和-<span>$g$</span><!-- Has MathJax -->-的初始化"><a href="#<span>$v$</span><!-- Has MathJax -->-和-<span>$g$</span><!-- Has MathJax -->-的初始化" class="headerlink" title="<span>$v$</span><!-- Has MathJax --> 和 <span>$g$</span><!-- Has MathJax --> 的初始化"></a><span>$v$</span><!-- Has MathJax --> 和 <span>$g$</span><!-- Has MathJax --> 的初始化</h2><hr>
 <p>可以參考 <strong><strong><a href="https://zhuanlan.zhihu.com/p/55102378" target="_blank" rel="external">模型优化之Weight Normalization</a></strong></strong> 的說明就好.<br>論文有題到 WN 對於 initialization 比較敏感</p>
 <h2 id="Pytorch-的-API"><a href="#Pytorch-的-API" class="headerlink" title="Pytorch 的 API"></a>Pytorch 的 API</h2><hr>
 <p><a href="https://pytorch.org/docs/stable/generated/torch.nn.utils.weight_norm.html" target="_blank" rel="external">torch.nn.utils.weight_norm</a><br>注意 weight normalization 是這種形式:<br><span>$$y=\phi(w^Tx+b)$$</span><!-- Has MathJax --> (markdown渲染怪怪的, 改用圖)<br><img src="/2022/09/26/Weight-Normalization-的筆記/wn_pytorch.png" width="80%" height="80%"></p>
-<p>注意到 conv2d 一次的”內積” 是處理 <code>in_channel * kernel_height * kernel_width</code>, 所以一個 $w$ 的維度也是如此.<br>總共有 <code>out_channel</code> 這麼多個的 “內積”, 也就是有這麼多的 $w$.<br>另外, 把 stride or dilation 改動不會影響 <code>weight_g</code> and <code>weight_v</code> 的 size</p>
+<p>注意到 conv2d 一次的”內積” 是處理 <code>in_channel * kernel_height * kernel_width</code>, 所以一個 <span>$w$</span><!-- Has MathJax --> 的維度也是如此.<br>總共有 <code>out_channel</code> 這麼多個的 “內積”, 也就是有這麼多的 <span>$w$</span><!-- Has MathJax -->.<br>另外, 把 stride or dilation 改動不會影響 <code>weight_g</code> and <code>weight_v</code> 的 size</p>
 <h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><hr>
-<p>WN 直接將參數拆成大小和方向向量分別 update. 希望藉由這樣拆解能減緩 ill-conditioned 狀況, 使模型收斂速度加快. 同時 WN 也不依賴 mini-batch, 這在 batch size 如果比較小的時候不會像 BN 效果變差, 或是比較適用於 RNN.<br>不過拆成這樣參數量也會增加, 但其實 BN 也需要額外的 memory 來存 $\mu,\sigma$, 這樣比就要看誰划算了.<br>另外探討了 <code>activation(BN(convolution(x)))</code> 有時會觀察到 <strong>Convolution 的 weight $w$ 也會隨著 SGD update 愈來愈大.</strong><br>這個現象跟本文 WN 裡面討論到方向向量 $v$ 的大小也會愈 update 愈大道理是很像的.</p>
+<p>WN 直接將參數拆成大小和方向向量分別 update. 希望藉由這樣拆解能減緩 ill-conditioned 狀況, 使模型收斂速度加快. 同時 WN 也不依賴 mini-batch, 這在 batch size 如果比較小的時候不會像 BN 效果變差, 或是比較適用於 RNN.<br>不過拆成這樣參數量也會增加, 但其實 BN 也需要額外的 memory 來存 <span>$\mu,\sigma$</span><!-- Has MathJax -->, 這樣比就要看誰划算了.<br>另外探討了 <code>activation(BN(convolution(x)))</code> 有時會觀察到 <strong>Convolution 的 weight <span>$w$</span><!-- Has MathJax --> 也會隨著 SGD update 愈來愈大.</strong><br>這個現象跟本文 WN 裡面討論到方向向量 <span>$v$</span><!-- Has MathJax --> 的大小也會愈 update 愈大道理是很像的.</p>
 <p>不過目前遇到的實務上, 比較少使用 WN, 大部分還是用 BN, LN (Layer Normalization).<br>有效性我自己還要再多觀察</p>
 <p>最後透過看這篇論文, 仔細推導裡面的數學和理解其物理意義, 這對我來說還是很有幫助的.</p>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><hr>
@@ -658,7 +665,7 @@ v^Tf_{BN}(x)= v^T\left(g\cdot\frac{x-\mu}{\sigma}+b\right)
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#對大小-g-的微分"><span class="nav-number">1.</span> <span class="nav-text">對大小 $g$ 的微分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#對方向向量-v-的微分"><span class="nav-number">2.</span> <span class="nav-text">對方向向量 $v$ 的微分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#nabla-vL-的物理意義"><span class="nav-number">3.</span> <span class="nav-text">$\nabla_vL$ 的物理意義</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SGD-會使得-v-長度愈來愈大"><span class="nav-number">4.</span> <span class="nav-text">SGD 會使得 $v$ 長度愈來愈大</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#與-Batch-Normalization-的關聯"><span class="nav-number">5.</span> <span class="nav-text">與 Batch Normalization 的關聯</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BN在Conv後會有Conv的Weight具有Scale-Invariant特性"><span class="nav-number">6.</span> <span class="nav-text">BN在Conv後會有Conv的Weight具有Scale Invariant特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#v-和-g-的初始化"><span class="nav-number">7.</span> <span class="nav-text">$v$ 和 $g$ 的初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Pytorch-的-API"><span class="nav-number">8.</span> <span class="nav-text">Pytorch 的 API</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Summary"><span class="nav-number">9.</span> <span class="nav-text">Summary</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">10.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#對大小-<span>$g$</span><!-- Has MathJax -->-的微分"><span class="nav-number">1.</span> <span class="nav-text">對大小 $g$ 的微分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#對方向向量-<span>$v$</span><!-- Has MathJax -->-的微分"><span class="nav-number">2.</span> <span class="nav-text">對方向向量 $v$ 的微分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#<span>$\nabla_vL$</span><!-- Has MathJax -->-的物理意義"><span class="nav-number">3.</span> <span class="nav-text">$\nabla_vL$ 的物理意義</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SGD-會使得-<span>$v$</span><!-- Has MathJax -->-長度愈來愈大"><span class="nav-number">4.</span> <span class="nav-text">SGD 會使得 $v$ 長度愈來愈大</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#與-Batch-Normalization-的關聯"><span class="nav-number">5.</span> <span class="nav-text">與 Batch Normalization 的關聯</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BN在Conv後會有Conv的Weight具有Scale-Invariant特性"><span class="nav-number">6.</span> <span class="nav-text">BN在Conv後會有Conv的Weight具有Scale Invariant特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#<span>$v$</span><!-- Has MathJax -->-和-<span>$g$</span><!-- Has MathJax -->-的初始化"><span class="nav-number">7.</span> <span class="nav-text">$v$ 和 $g$ 的初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Pytorch-的-API"><span class="nav-number">8.</span> <span class="nav-text">Pytorch 的 API</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Summary"><span class="nav-number">9.</span> <span class="nav-text">Summary</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">10.</span> <span class="nav-text">Reference</span></a></li></ol></div>
             
 
           </div>

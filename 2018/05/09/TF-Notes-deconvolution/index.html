@@ -393,9 +393,9 @@
 <h2 id="What-is-deconvolution"><a href="#What-is-deconvolution" class="headerlink" title="What is deconvolution?"></a>What is deconvolution?</h2><p>破題: Deconvolution 的操作就是 kernel tranpose 後的 convolution. 使用<a href="https://youtu.be/Tk5B4seA-AU?t=35m41s" target="_blank" rel="external">李宏毅老師的上課內容</a>, 如下圖:</p>
 <p><img src="/2018/05/09/TF-Notes-deconvolution/conv_transpose.png" width="60%" height="60%"></p>
 <p>其實圖已經十分明確了, 因此不多解釋.</p>
-<p>另外在 tensorflow 中, 假設我們的 kernel $W$ 為 <code>W.shape = (img_h, img_w, dim1, dim2)</code>. 則 <code>tf.nn.conv2d(in_tensor,W,stride,padding)</code> 會將 <code>(dim1,dim2)</code> 看成 <code>(in_dim, out_dim)</code>. 而 <code>tf.nn.conv2d_transpose(in_tensor,W,output_shape,stride)</code> 會將 <code>(dim1,dim2)</code> 看成 <code>(out_dim, in_dim)</code>, 注意是反過來的. 有兩點多做說明:</p>
+<p>另外在 tensorflow 中, 假設我們的 kernel <span>$W$</span><!-- Has MathJax --> 為 <code>W.shape = (img_h, img_w, dim1, dim2)</code>. 則 <code>tf.nn.conv2d(in_tensor,W,stride,padding)</code> 會將 <code>(dim1,dim2)</code> 看成 <code>(in_dim, out_dim)</code>. 而 <code>tf.nn.conv2d_transpose(in_tensor,W,output_shape,stride)</code> 會將 <code>(dim1,dim2)</code> 看成 <code>(out_dim, in_dim)</code>, 注意是反過來的. 有兩點多做說明:</p>
 <ol>
-<li><code>tf.nn.conv2d_transpose</code> 會自動對 $W$ 做 transpose 之後再 convolution, 因此我們不需要自己做 transpose.</li>
+<li><code>tf.nn.conv2d_transpose</code> 會自動對 <span>$W$</span><!-- Has MathJax --> 做 transpose 之後再 convolution, 因此我們不需要自己做 transpose.</li>
 <li><code>tf.nn.conv2d_transpose</code> 需要額外指定 <code>output_shape</code>.</li>
 </ol>
 <blockquote>

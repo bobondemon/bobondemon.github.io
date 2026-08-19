@@ -97,7 +97,7 @@
 前言基於 Score Matching, 提出 Denoising Score Matching (DSM) 的目標函式, 好處是在 en">
 <meta property="og:image" content="https://bobondemon.github.io/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/Untitled.png">
 <meta property="og:image" content="https://bobondemon.github.io/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/Untitled 1.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.810Z">
+<meta property="og:updated_time" content="2026-08-19T14:30:13.129Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Score Matching 系列 (二) Denoising Score Matching (DSM) 改善效率並可 Scalable">
 <meta name="twitter:description" content="這是一篇論文筆記: “A Connection Between Score Matching and Denoising Autoencoders”建議看本文前請先參前一篇: Score Matching 系列 (一) Non-normalized 模型估計
@@ -379,7 +379,7 @@
 <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>基於 Score Matching, 提出 Denoising Score Matching (DSM) 的目標函式, 好處是在 energy-based model 下:</p>
 <ol>
 <li>不用將 score function 的 gradients 也納入 loss 去計算 (避免二次微分做 backprop 提高效率)</li>
-<li>當 input $x$ 的維度很大也沒問題 (可以 scalable)</li>
+<li>當 input <span>$x$</span><!-- Has MathJax --> 的維度很大也沒問題 (可以 scalable)</li>
 </ol>
 <p>但缺點是:</p>
 <ol>
@@ -389,32 +389,38 @@
 <p>這兩個缺點在下一篇 <a href="https://bobondemon.github.io/2022/03/06/Sliced-Score-Matching-A-Scalable-Approach-to-Density-and-Score-Estimation/">Sliced Score Matching (SSM)</a> 可以得到改善<br>這篇論文最後也點出了 denoising autoencoder 跟 score matching 的關係 (實際上就是 DSM loss)</p>
 <p>以下正文開始<br><a id="more"></a></p>
 <h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><hr>
-<p>$q(x)$ 表示 data (真實資料) 的 pdf, $p(x;\theta)$ 表示 model 參數為 $\theta$ 的 pdf<br>Explicit Score Matching (ESM) 為:<br><span>$$\begin{align}
+<p><span>$q(x)$</span><!-- Has MathJax --> 表示 data (真實資料) 的 pdf, <span>$p(x;\theta)$</span><!-- Has MathJax --> 表示 model 參數為 <span>$\theta$</span><!-- Has MathJax --> 的 pdf<br>Explicit Score Matching (ESM) 為:<br><span>$$\begin{align}
 J_{ESM,q}(\theta) = \mathbb{E}_{q(x)}\left[
 \frac{1}{2}\left\|
 \psi(x;\theta)-\frac{\partial \log q(x)}{\partial x}
 \right\|^2
 \right]
-\end{align}$$</span><!-- Has MathJax --><br>實際上我們不知道 $q(x)$, 因此式 (1) 的 <span>$J_{ESM}$</span><!-- Has MathJax --> 我們無法用. 不過, 最開始的 Score Matching 論文已經證明 <span>$J_{ESM}$</span><!-- Has MathJax --> 等價於如下的 <span>$J_{ISM}$</span><!-- Has MathJax -->, 而 <span>$J_{ISM}$</span><!-- Has MathJax --> 是我們能實作的<br>Implicit Score Matching (ISM) 為:<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 實際上我們不知道 <span>$q(x)$</span><!-- Has MathJax -->, 因此式 (1) 的 <span>$J_{ESM}$</span><!-- Has MathJax --> 我們無法用. 不過, 最開始的 Score Matching 論文已經證明 <span>$J_{ESM}$</span><!-- Has MathJax --> 等價於如下的 <span>$J_{ISM}$</span><!-- Has MathJax -->, 而 <span>$J_{ISM}$</span><!-- Has MathJax --> 是我們能實作的<br>Implicit Score Matching (ISM) 為:<br><span>$$\begin{align}
 J_{ISM,q}(\theta)=\mathbb{E}_{q(x)}\left[
 \frac{1}{2}\|\psi(x;\theta)\|^2+ tr(\nabla_x\psi(x;\theta))
 \right]
-\end{align}$$</span><!-- Has MathJax --><br>如果我們對 $q(x)$ 做 pertrub, i.e. 每一個 data point $x$ 都加上一個 pdf 為 <span>$q_\sigma(\tilde{x}|x)$</span><!-- Has MathJax --> 的 random noise<br>其中 $\sigma$ 為該 noise pdf 的參數, 如果以 isotropic Gaussian pdf 為例子, $\sigma^2$ 就是 variance<br>則 noisy 的 data pdf <span>$q_\sigma(\tilde{x})$</span><!-- Has MathJax --> 就變成:<br><span>$q_\sigma(\tilde{x})=\int q_\sigma(\tilde{x}|x) q(x) dx$</span><!-- Has MathJax --></p>
+\end{align}$$</span><!-- Has MathJax --> 如果我們對 <span>$q(x)$</span><!-- Has MathJax --> 做 pertrub, i.e. 每一個 data point <span>$x$</span><!-- Has MathJax --> 都加上一個 pdf 為 <span>$q_\sigma(\tilde{x}|x)$</span><!-- Has MathJax --> 的 random noise<br>其中 <span>$\sigma$</span><!-- Has MathJax --> 為該 noise pdf 的參數, 如果以 isotropic Gaussian pdf 為例子, <span>$\sigma^2$</span><!-- Has MathJax --> 就是 variance<br>則 noisy 的 data pdf <span>$q_\sigma(\tilde{x})$</span><!-- Has MathJax --> 就變成:</p>
+<span>$$q_\sigma(\tilde{x})=\int q_\sigma(\tilde{x}|x) q(x) dx$$</span><!-- Has MathJax -->
+
 <blockquote>
-<p>💡 兩個 independent random variables $x,y$ 相加 $z=x+y$, 則 $z$ 的 pdf 為 $x,y$ 的 pdfs 的 convolution</p>
+<p>💡 兩個 independent random variables <span>$x,y$</span><!-- Has MathJax --> 相加 <span>$z=x+y$</span><!-- Has MathJax -->, 則 <span>$z$</span><!-- Has MathJax --> 的 pdf 為 <span>$x,y$</span><!-- Has MathJax --> 的 pdfs 的 convolution</p>
 </blockquote>
-<p>然後 $\theta$ 要學的目標 pdf 變成 <span>$q_\sigma(\tilde{x})$</span><!-- Has MathJax --> 後, 其 ESM 為:<br><span>$$\begin{align}
+<p>然後 <span>$\theta$</span><!-- Has MathJax --> 要學的目標 pdf 變成 <span>$q_\sigma(\tilde{x})$</span><!-- Has MathJax --> 後, 其 ESM 為:</p>
+<span>$$\begin{align}
 J_{ESM,q_\sigma}(\theta) = \mathbb{E}_{q_\sigma(\tilde{x})}\left[
 \frac{1}{2}\left\|
 \psi(\tilde{x};\theta)-\frac{\partial \log q_\sigma(\tilde{x})}{\partial \tilde{x}}
 \right\|^2
 \right]
-\end{align}$$</span><!-- Has MathJax --></p>
-<p><strong>只是將原來的 ESM data pdf 換成 noisy 版本而已.</strong> 因此, <span>$J_{ESM,q_\sigma}$</span><!-- Has MathJax --> 也會等價 <span>$J_{ISM,q_\sigma}$</span><!-- Has MathJax --> (只要適當的 noise pdf 讓 <span>$q_\sigma(\tilde{x})$</span><!-- Has MathJax --> 滿足原來 ESM 等於 ISM 的條件)<br>其中:<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax -->
+
+<p><strong>只是將原來的 ESM data pdf 換成 noisy 版本而已.</strong> 因此, <span>$J_{ESM,q_\sigma}$</span><!-- Has MathJax --> 也會等價 <span>$J_{ISM,q_\sigma}$</span><!-- Has MathJax --> (只要適當的 noise pdf 讓 <span>$q_\sigma(\tilde{x})$</span><!-- Has MathJax --> 滿足原來 ESM 等於 ISM 的條件)<br>其中:</p>
+<span>$$\begin{align}
 J_{ISM,q_\sigma}(\theta)=\mathbb{E}_{q_\sigma(\tilde{x})}\left[
 \frac{1}{2}\|\psi(\tilde{x};\theta)\|^2+ tr(\nabla_x\psi(\tilde{x};\theta))
 \right]
-\end{align}$$</span><!-- Has MathJax --></p>
+\end{align}$$</span><!-- Has MathJax -->
+
 <blockquote>
 <p>⚠️ 乍看之下 (4) 好像跟原來的 ISM (式 (2)) 沒什麼不同, 其實不同的地方在 “expectation on what pdf”</p>
 </blockquote>
@@ -422,7 +428,7 @@ J_{ISM,q_\sigma}(\theta)=\mathbb{E}_{q_\sigma(\tilde{x})}\left[
 <blockquote>
 <ol>
 <li>有關如何將一二次微分加入 loss 中可參考 [<a href="https://zhuanlan.zhihu.com/p/84890656" target="_blank" rel="external">retain_graph和create_graph参数</a>]</li>
-<li>其實我們可以直接用一個 NN 來表示 score function $\psi(x;\theta)$, 這樣原來的二次微分就是該 NN 的一次微分, 雖然這樣做比較有效率, 但 <a href="https://arxiv.org/abs/1805.08306" target="_blank" rel="external">Deep Energy Estimator Networks</a> 指出會不 robust. 不過如果使用 Sliced Score Matching (SSM), 該文作者說一樣可以有效的用 NN 直接 predict score function.</li>
+<li>其實我們可以直接用一個 NN 來表示 score function <span>$\psi(x;\theta)$</span><!-- Has MathJax -->, 這樣原來的二次微分就是該 NN 的一次微分, 雖然這樣做比較有效率, 但 <a href="https://arxiv.org/abs/1805.08306" target="_blank" rel="external">Deep Energy Estimator Networks</a> 指出會不 robust. 不過如果使用 Sliced Score Matching (SSM), 該文作者說一樣可以有效的用 NN 直接 predict score function.</li>
 </ol>
 </blockquote>
 <p>這篇論文提出的 <strong>Denoising Score Matching (DSM)</strong> 的目標函式 <span>$J_{DSM,q_\sigma}(\theta)$</span><!-- Has MathJax --> 可以避開上述將微分項也加入 loss 計算導致不有效率的缺點. 該目標函式為:<br><span>$$\begin{align}
@@ -432,11 +438,12 @@ J_{DSM,q_\sigma}(\theta)=\mathbb{E}_{q_\sigma(x,\tilde{x})}\left[
 \psi(\tilde{x};\theta) - \frac{\partial\log q_\sigma(\tilde{x}|x)}{\partial\tilde{x}}
 \right\|^2
 \right]
-\end{align}$$</span><!-- Has MathJax --><br>注意到若 noise pdf 為 isotropic Gaussian nosie <span>$\mathcal{N}(x,\sigma^2I)$</span><!-- Has MathJax --> 則:</p>
+\end{align}$$</span><!-- Has MathJax --> 注意到若 noise pdf 為 isotropic Gaussian nosie <span>$\mathcal{N}(x,\sigma^2I)$</span><!-- Has MathJax --> 則:</p>
 <span>$$\frac{\partial\log q_\sigma(\tilde{x}|x)}{\partial\tilde{x}} = \frac{1}{\sigma^2}(x-\tilde{x})$$</span><!-- Has MathJax -->
+
 <p>因此式 (5) 變得很容易計算也有效率</p>
 <blockquote>
-<p>💡 還有一個直觀的解釋, 我們給定一個 pair $(x,\tilde{x})$, 希望 $\tilde{x}$ 的 gradient 跟 noise pdf 的 gradient 流向一樣, <strong>相當於希望將 nosiey 的 $\tilde{x}$ 還原成 clean 的 $x$</strong></p>
+<p>💡 還有一個直觀的解釋, 我們給定一個 pair <span>$(x,\tilde{x})$</span><!-- Has MathJax -->, 希望 <span>$\tilde{x}$</span><!-- Has MathJax --> 的 gradient 跟 noise pdf 的 gradient 流向一樣, <strong>相當於希望將 nosiey 的 <span>$\tilde{x}$</span><!-- Has MathJax --> 還原成 clean 的 <span>$x$</span><!-- Has MathJax --></strong></p>
 </blockquote>
 <p>文章並證明了 <span>$J_{DSM_{q_\sigma}}$</span><!-- Has MathJax --> 等價於 <span>$J_{ESM_{q_\sigma}}$</span><!-- Has MathJax -->, i.e. (5)=(3)</p>
 <p>我們擷取論文 Appendix 的證明:<br><img src="/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/Untitled.png" width="80%" height="80%"><br><img src="/2022/03/06/A-Connection-Between-Score-Matching-and-Denoising-Autoencoders/Untitled 1.png" width="80%" height="80%"></p>
