@@ -100,7 +100,7 @@ $$\begin{align*}
 \quad w_{k+1}=w_k-\alpha_k\nabla_wf(w_k,x_k)
 \end{align*}$$ 其中 $f$ 是要 minimized 的目標函數, $x_k$, $w_k$ 是 $k$-th iteration 的 data 和 weight.以前在學的時候都會">
 <meta property="og:image" content="https://bobondemon.github.io/2025/05/02/RM-algo/image.png">
-<meta property="og:updated_time" content="2026-08-20T12:28:17.450Z">
+<meta property="og:updated_time" content="2026-08-20T13:10:17.817Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Robbins-Monro Algorithm 和 Dvoretzky's Convergence Theorem 筆記">
 <meta name="twitter:description" content="Stochastic Gradient Descent (SGD) 算法:
@@ -399,11 +399,11 @@ $$\begin{align*}
 <p>其中 <span>$\mathcal{H}_k=\{w_k,w_{k-1},...\}$</span><!-- Has MathJax --> 表示過往的紀錄 (稱 <a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-7-Stochastic-integration-Ito-formula/#Week-7-4-5-Integrals-of-the-type-%E2%88%AB-X-t-dW-t">filtration</a>)<br>則 <span>$w_k$</span><!-- Has MathJax --> <a href="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-6-Ergodicity-differentiability-continuity/#Self-Study-Convergence-of-random-variables">almost surely (a.s.) converges</a> 到 root <span>$w^\ast$</span><!-- Has MathJax -->, where <span>$g(w^\ast)=0$</span><!-- Has MathJax -->.<br>分析:</p>
 <ul>
 <li>第 1 個條件在最佳化問題 (optimize 函式 <span>$f(w)$</span><!-- Has MathJax -->) 的時候, 由於我們設定 <span>$g(w)=\nabla_w f(w)$</span><!-- Has MathJax --> 所以變成要求 <span>$\nabla_w^2 f(w)$</span><!-- Has MathJax --> 必須是正定矩陣, 即 <span>$f$</span><!-- Has MathJax --> 是 strictly convex function.</li>
-<li>第 2 個條件很有趣, 首先如果滿足 <span>$\sum_{k=1}^\infty a_k^2&lt;\infty$</span><!-- Has MathJax -->, 表示 <span>$a_k\longrightarrow 0$</span><!-- Has MathJax --> for <span>$k\longrightarrow\infty$</span><!-- Has MathJax --> (反證法即可知), 說明希望 <span>$a_k$</span><!-- Has MathJax --> 確實要愈來愈小, 這位什麼重要呢? 我們分析一下<br>  因為 <span>$w_{k+1}-w_k=-a_k\tilde{g}(w_k,\eta_k)$</span><!-- Has MathJax -->, 如果 <span>$\tilde{g}$</span><!-- Has MathJax --> is bounded 則<br>  <span>$$\because a_k\xrightarrow[k\rightarrow\infty]{} 0, \quad \therefore a_k\tilde{g}\xrightarrow[k\rightarrow\infty]{} 0;\quad\Longrightarrow (w_{k+1}-w_k)\xrightarrow[k\rightarrow\infty]{} 0$$</span><!-- Has MathJax --><br>不然的話 <span>$w_{k+1}-w_k$</span><!-- Has MathJax --> 會震盪.<br>  再來 <span>$\sum_{k=1}^\infty a_k=\infty$</span><!-- Has MathJax --> 則希望 <span>$a_k$</span><!-- Has MathJax --> 不要過小, 這樣有什麼好處呢? 我們觀察 (1)<br>  <span>$$\begin{align*}
+<li>第 2 個條件很有趣, 首先如果滿足 <span>$\sum_{k=1}^\infty a_k^2&lt;\infty$</span><!-- Has MathJax -->, 表示 <span>$a_k\longrightarrow 0$</span><!-- Has MathJax --> for <span>$k\longrightarrow\infty$</span><!-- Has MathJax --> (反證法即可知), 說明希望 <span>$a_k$</span><!-- Has MathJax --> 確實要愈來愈小, 這位什麼重要呢? 我們分析一下<br>  因為 <span>$w_{k+1}-w_k=-a_k\tilde{g}(w_k,\eta_k)$</span><!-- Has MathJax -->, 如果 <span>$\tilde{g}$</span><!-- Has MathJax --> is bounded 則<br><span>$$\because a_k\xrightarrow[k\rightarrow\infty]{} 0, \quad \therefore a_k\tilde{g}\xrightarrow[k\rightarrow\infty]{} 0;\quad\Longrightarrow (w_{k+1}-w_k)\xrightarrow[k\rightarrow\infty]{} 0$$</span><!-- Has MathJax --> 不然的話 <span>$w_{k+1}-w_k$</span><!-- Has MathJax --> 會震盪.<br>  再來 <span>$\sum_{k=1}^\infty a_k=\infty$</span><!-- Has MathJax --> 則希望 <span>$a_k$</span><!-- Has MathJax --> 不要過小, 這樣有什麼好處呢? 我們觀察 (1)<br><span>$$\begin{align*}
     (1)\Longrightarrow w_{k+1}-w_k=-a_k\tilde{g}(w_k,\eta_k) \\
     \Longrightarrow\sum_{k=1}^\infty(w_{k+1}-w_k)=-\sum_{k=1}^\infty a_k\tilde{g}(w_k,\eta_k) \\
     \Longrightarrow w_\infty-w_1=-\sum_{k=1}^\infty a_k\tilde{g}(w_k,\eta_k)
-    \end{align*}$$</span><!-- Has MathJax --><br>如果 <span>$\sum_{k=1}^\infty a_k&lt;\infty$</span><!-- Has MathJax --> 加上 <span>$\tilde g$</span><!-- Has MathJax --> 是 bounded, 則 <span>$w_\infty-w_1&lt;\infty$</span><!-- Has MathJax --> 是 bounded, 這樣會讓我們的 initial <span>$w_1$</span><!-- Has MathJax --> 沒辦法隨意選擇</li>
+    \end{align*}$$</span><!-- Has MathJax --> 如果 <span>$\sum_{k=1}^\infty a_k&lt;\infty$</span><!-- Has MathJax --> 加上 <span>$\tilde g$</span><!-- Has MathJax --> 是 bounded, 則 <span>$w_\infty-w_1&lt;\infty$</span><!-- Has MathJax --> 是 bounded, 這樣會讓我們的 initial <span>$w_1$</span><!-- Has MathJax --> 沒辦法隨意選擇</li>
 <li>第 3 個條件, 一般來說 <span>$\{\eta_k\}$</span><!-- Has MathJax --> 是 i.i.d. 滿足 <span>$\mathbb{E}[\eta_k]=0$</span><!-- Has MathJax --> 和 <span>$\mathbb{E}[\eta_k^2]&lt;\infty$</span><!-- Has MathJax --></li>
 </ul>
 <p>RM theorem 的證明要使用下段介紹的 Dvoretzky’s convergence theorem</p>

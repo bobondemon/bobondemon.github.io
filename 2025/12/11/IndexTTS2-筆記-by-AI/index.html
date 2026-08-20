@@ -100,7 +100,7 @@ LLM 的進步已經從根本上改變我讀論文的方式了
 <meta property="og:image" content="https://bobondemon.github.io/2025/12/11/IndexTTS2-筆記-by-AI/image.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/12/11/IndexTTS2-筆記-by-AI/image 1.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/12/11/IndexTTS2-筆記-by-AI/image 2.png">
-<meta property="og:updated_time" content="2026-08-20T12:28:17.440Z">
+<meta property="og:updated_time" content="2026-08-20T13:10:17.810Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="IndexTTS2 筆記 by AI">
 <meta name="twitter:description" content="此篇文章為 IndexTTS2 論文 (arxiv, 官網, Github) 的筆記, 內容幾乎都是 AI 產出的, 而且也確實整理的很棒
@@ -426,9 +426,9 @@ X = [c, p, e_{\langle BT\rangle}, E_{text}, e_{\langle BA\rangle}, E_{sem}]
 <h3 id="精確時長控制機制-Duration-Control-Mechanism"><a href="#精確時長控制機制-Duration-Control-Mechanism" class="headerlink" title="精確時長控制機制 (Duration Control Mechanism)"></a>精確時長控制機制 (Duration Control Mechanism)</h3><p>這是 IndexTTS2 解決 AR 模型難以控制長度的關鍵技術。</p>
 <ul>
 <li><strong>原理</strong>：模型不只依賴文字內容預測何時結束，而是直接將「目標長度」作為輸入條件 <strong><span>$p$</span><!-- Has MathJax --></strong> 餵給模型。</li>
-<li><strong>數學定義</strong>：時長 Embedding <strong><span>$p$</span><!-- Has MathJax --></strong> 計算公式為：<br>  <span>$$\begin{align*}
+<li><strong>數學定義</strong>：時長 Embedding <strong><span>$p$</span><!-- Has MathJax --></strong> 計算公式為：<br><span>$$\begin{align*}
     p = W_{num}h(T)
-    \end{align*}$$</span><!-- Has MathJax --><br>  其中 <span>$T$</span><!-- Has MathJax --> 是目標語義 Token 的總長度，<span>$h(T)$</span><!-- Has MathJax --> 是將 <span>$T$</span><!-- Has MathJax --> 轉為 One-hot 向量的函數，<span>$W_{num}$</span><!-- Has MathJax --> 是一個 Embedding Table。</li>
+    \end{align*}$$</span><!-- Has MathJax --> 其中 <span>$T$</span><!-- Has MathJax --> 是目標語義 Token 的總長度，<span>$h(T)$</span><!-- Has MathJax --> 是將 <span>$T$</span><!-- Has MathJax --> 轉為 One-hot 向量的函數，<span>$W_{num}$</span><!-- Has MathJax --> 是一個 Embedding Table。</li>
 <li><strong>關鍵 Trick (<span>$W_{sem} = W_{num}$</span><!-- Has MathJax -->)</strong>：論文中使用了一個特殊的技巧，強制讓<strong>「時長 Embedding Table (<span>$W_{num}$</span><!-- Has MathJax -->)」</strong>與<strong>「語義位置 Embedding Table (<span>$W_{sem}$</span><!-- Has MathJax -->)」</strong>共享權重(Weight Sharing）。<ul>
 <li><strong>技術意義</strong>：這在數學上強制模型將「目標總長度資訊」與「序列的位置資訊」對齊。這讓自回歸系統能夠精確感知「我現在生成到第幾個 Token」以及「我總共應該生成幾個 Token」，從而精確地在指定長度結束生成 。</li>
 </ul>
@@ -514,9 +514,9 @@ X = [c, p, e_{\langle BT\rangle}, E_{text}, e_{\langle BA\rangle}, E_{sem}]
 <p><strong>Step 4:</strong> 向量加權融合 (Weighted Average)<br>這是最關鍵的一步，將「語義機率」轉為「聲學向量」。</p>
 <ul>
 <li><strong>計算</strong>：最終輸入給 T2S 的情感向量 <span>$e_{input}$</span><!-- Has MathJax -->，是上述 7 個基準情感向量 <span>$V$</span><!-- Has MathJax --> 的<strong>加權平均</strong>。</li>
-<li><strong>公式</strong>：其中 <span>$p_i$</span><!-- Has MathJax --> 是 Qwen 預測的第 <span>$i$</span><!-- Has MathJax --> 個情感的機率， <span>$v_i$</span><!-- Has MathJax --> 是第 <span>$i$</span><!-- Has MathJax --> 個情感的聲學 Embedding。<br>  <span>$$\begin{align*}
+<li><strong>公式</strong>：其中 <span>$p_i$</span><!-- Has MathJax --> 是 Qwen 預測的第 <span>$i$</span><!-- Has MathJax --> 個情感的機率， <span>$v_i$</span><!-- Has MathJax --> 是第 <span>$i$</span><!-- Has MathJax --> 個情感的聲學 Embedding。<br><span>$$\begin{align*}
     e_{input} = \sum_{i=1}^{7} p_i \cdot v_i
-    \end{align*}$$</span><!-- Has MathJax --><br>.</li>
+    \end{align*}$$</span><!-- Has MathJax --> .</li>
 </ul>
 <h3 id="為什麼這個設計很聰明？"><a href="#為什麼這個設計很聰明？" class="headerlink" title="為什麼這個設計很聰明？"></a>為什麼這個設計很聰明？</h3><ul>
 <li><strong>解決了數據標註困難</strong>：<br>  要收集「帶有精確情感強度標籤（例如：70% 快樂 + 30% 驚訝）」的語音數據極其困難。這個方法利用 LLM 的常識推理來「憑空創造」出這些細膩的標籤。</li>

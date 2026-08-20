@@ -96,7 +96,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2022/01/07/Score-Function-and-Fisher-Information-Matrix/Untitled.png">
 <meta property="og:image" content="https://bobondemon.github.io/2022/01/07/Score-Function-and-Fisher-Information-Matrix/Untitled 1.png">
 <meta property="og:image" content="https://bobondemon.github.io/2022/01/07/Score-Function-and-Fisher-Information-Matrix/Untitled 2.png">
-<meta property="og:updated_time" content="2026-08-20T12:28:17.451Z">
+<meta property="og:updated_time" content="2026-08-20T12:43:32.863Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Score Function and Fisher Information Matrix">
 <meta name="twitter:description" content="Bayesian statistics 視 dataset $\mathcal{D}=\{x_1,...,x_n\}$ 為固定, 而 model parameter $\theta$ 為 random variables, 透過假設 prior $p(\theta)$, 利用 Bayes rule 可得 posterior $p(\theta|\mathcal{D})$. 而估計的參數就是 po">
@@ -380,9 +380,11 @@
 <p>先定義一波</p>
 <a id="more"></a>
 <h2 id="Score-Function"><a href="#Score-Function" class="headerlink" title="Score Function"></a>Score Function</h2><hr>
-<p><strong>[Score Function Definition]:</strong><br>&emsp;針對某一點 data point <span>$x$</span><!-- Has MathJax -->, 在 <span>$\hat{\theta}$</span><!-- Has MathJax --> 點的 log-likelihood 的 gradient 定義為 score function:<br>&emsp;<span>$$\begin{align}
+<p><strong>[Score Function Definition]:</strong><br>&emsp;針對某一點 data point <span>$x$</span><!-- Has MathJax -->, 在 <span>$\hat{\theta}$</span><!-- Has MathJax --> 點的 log-likelihood 的 gradient 定義為 score function:</p>
+<span>$$\begin{align}
 s(x,\hat{\theta}) \triangleq \nabla_\theta \log p(x|\hat\theta)
-\end{align}$$</span><!-- Has MathJax --></p>
+\end{align}$$</span><!-- Has MathJax -->
+
 <p>注意到如果 <span>$x$</span><!-- Has MathJax --> 是 random variables, <span>$s(x,\hat{\theta})$</span><!-- Has MathJax --> 也會是 random variable<br>在 Frequentist statistics 觀點下, data <span>$x$</span><!-- Has MathJax --> 是 random variables, 所以可以對 true parameter <span>$\theta^*$</span><!-- Has MathJax --> 的 data distribution <span>$p(x|\theta^*)$</span><!-- Has MathJax --> 計算期望值:</p>
 <span>$$\begin{align}
 \mathbb{E}_{p(x|\theta^*)}[s(x,\hat{\theta})] = \int p(x|\theta^*) \nabla_\theta \log p(x|\hat\theta) dx
@@ -412,11 +414,11 @@ s(x,\hat{\theta}) \triangleq \nabla_\theta \log p(x|\hat\theta)
 <blockquote>
 <p>💡 <span>$\mathbb{E}_{p(x|\theta^*)}[\cdot]$</span><!-- Has MathJax --> 我們簡寫為 <span>$\mathbb{E}_{p^*}[\cdot]$</span><!-- Has MathJax --></p>
 </blockquote>
-<p><strong>[Fisher Information Matrix Definition]:</strong><br>&emsp;在 <span>$\hat{\theta}$</span><!-- Has MathJax --> 點的 Fisher information matrix 定義為:<br>&emsp;<span>$$I(\theta^* ; \hat\theta)
+<p><strong>[Fisher Information Matrix Definition]:</strong><br>&emsp;在 <span>$\hat{\theta}$</span><!-- Has MathJax --> 點的 Fisher information matrix 定義為:<br><span>$$I(\theta^* ; \hat\theta)
 =\mathbb{E}_{p^*}\left[
 s(x,\hat\theta)s(x,\hat\theta)^T
 \right] \\
-= \mathbb{E}_{p^*}\left[\nabla_\theta\log p(x|\hat\theta)\nabla_\theta\log p(x|\hat\theta)^T\right]$$</span><!-- Has MathJax --><br>&emsp;其中 <span>$\theta^*$</span><!-- Has MathJax --> 為真實資料的參數<br><strong><ins>其實就是 score function 的 second moment.</ins></strong></p>
+= \mathbb{E}_{p^*}\left[\nabla_\theta\log p(x|\hat\theta)\nabla_\theta\log p(x|\hat\theta)^T\right]$$</span><!-- Has MathJax --> &emsp;其中 <span>$\theta^*$</span><!-- Has MathJax --> 為真實資料的參數<br><strong><ins>其實就是 score function 的 second moment.</ins></strong></p>
 <p>Fisher information matrix 在 <span>$\hat\theta=\theta^*$</span><!-- Has MathJax --> 此點上為:<br><span>$$\begin{align}
 I(\theta^* ; \theta^*)
 =\mathbb{E}_{p^*}\left[

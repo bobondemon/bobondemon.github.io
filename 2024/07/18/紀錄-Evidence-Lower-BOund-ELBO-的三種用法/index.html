@@ -95,7 +95,7 @@
 <meta property="og:description" content="Maximal Log-likelihood 是很多模型訓練時目標函式. 在訓練時除了 observed data $x$ (蒐集到的 training data) 還會有無法觀測的 hidden variable $z$ (例如 VAE 中 encoder 的結果).如何在有隱變量情況下做 MLE, Evidence Lower BOund (ELBO) 就是關鍵. 一般來說, 因為 ELBO">
 <meta property="og:image" content="https://bobondemon.github.io/2024/07/18/紀錄-Evidence-Lower-BOund-ELBO-的三種用法/Untitled.png">
 <meta property="og:image" content="https://bobondemon.github.io/2024/07/18/紀錄-Evidence-Lower-BOund-ELBO-的三種用法/sampling.png">
-<meta property="og:updated_time" content="2026-08-20T12:28:17.463Z">
+<meta property="og:updated_time" content="2026-08-20T13:12:29.305Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="紀錄 Evidence Lower BOund (ELBO) 的三種用法">
 <meta name="twitter:description" content="Maximal Log-likelihood 是很多模型訓練時目標函式. 在訓練時除了 observed data $x$ (蒐集到的 training data) 還會有無法觀測的 hidden variable $z$ (例如 VAE 中 encoder 的結果).如何在有隱變量情況下做 MLE, Evidence Lower BOund (ELBO) 就是關鍵. 一般來說, 因為 ELBO">
@@ -412,19 +412,25 @@
 <blockquote>
 <p>這個也是 VAE (Variational Auto-Encoder) 的用法<br>更多請參考以前的筆記 [<a href="https://bobondemon.github.io/2018/09/18/Variational-Inference-Notes/#Appendix-EM-%E8%B7%9F-VI-%E5%BE%88%E5%83%8F%E9%98%BF">Appendix: EM 跟 VI 很像阿</a>]</p>
 </blockquote>
-<h2 id="Diffusion-Model-用法"><a href="#Diffusion-Model-用法" class="headerlink" title="Diffusion Model 用法"></a>Diffusion Model 用法</h2><p><img src="/2024/07/18/紀錄-Evidence-Lower-BOund-ELBO-的三種用法/Untitled.png" width="80%" height="80%"><br>先說一下 diffusion model 的設定 (from <a href="https://lilianweng.github.io/posts/2021-07-11-diffusion-models/#classifier-guided-diffusion" target="_blank" rel="external">Lil’Log</a>, 但把原圖的 <span>$q(\cdot)$</span><!-- Has MathJax --> 變成 <span>$p(\cdot)$</span><!-- Has MathJax --> 為了符合本文的符號定義, 因為本文 <span>$q$</span><!-- Has MathJax --> 是用做 auxiliary function)<br>&emsp;- <span>$x_0$</span><!-- Has MathJax --> 表示 observation data (e.g. 乾淨影像)<br>&emsp;- <span>$x_T$</span><!-- Has MathJax --> 表示加噪到最後的 Gaussian noise 影像 (分佈直接就是 standard Gaussian 與 data 分佈無關)<br>透過 diffusion model 定義的 forward process 來加噪:<br><span>$$\begin{align}
+<h2 id="Diffusion-Model-用法"><a href="#Diffusion-Model-用法" class="headerlink" title="Diffusion Model 用法"></a>Diffusion Model 用法</h2><p><img src="/2024/07/18/紀錄-Evidence-Lower-BOund-ELBO-的三種用法/Untitled.png" width="80%" height="80%"><br>先說一下 diffusion model 的設定 (from <a href="https://lilianweng.github.io/posts/2021-07-11-diffusion-models/#classifier-guided-diffusion" target="_blank" rel="external">Lil’Log</a>, 但把原圖的 <span>$q(\cdot)$</span><!-- Has MathJax --> 變成 <span>$p(\cdot)$</span><!-- Has MathJax --> 為了符合本文的符號定義, 因為本文 <span>$q$</span><!-- Has MathJax --> 是用做 auxiliary function)<br>&emsp;- <span>$x_0$</span><!-- Has MathJax --> 表示 observation data (e.g. 乾淨影像)<br>&emsp;- <span>$x_T$</span><!-- Has MathJax --> 表示加噪到最後的 Gaussian noise 影像 (分佈直接就是 standard Gaussian 與 data 分佈無關)<br>透過 diffusion model 定義的 forward process 來加噪:</p>
+<p><span>$$\begin{align}
 p(\mathbf{x}_t \vert \mathbf{x}_{t-1}) = \mathcal{N}(\mathbf{x}_t; \sqrt{1 - \beta_t} \mathbf{x}_{t-1}, \beta_t\mathbf{I})
-\end{align}$$</span><!-- Has MathJax --> 和使用 Markov chain 的設定, <span>$p(x_{1:T}|x_0)$</span><!-- Has MathJax --> 是可以直接寫出來的:<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 和使用 Markov chain 的設定, <span>$p(x_{1:T}|x_0)$</span><!-- Has MathJax --> 是可以直接寫出來的:</p>
+<p><span>$$\begin{align}
 p(\mathbf{x}_{1:T} \vert \mathbf{x}_0) = \prod^T_{t=1} p(\mathbf{x}_t \vert \mathbf{x}_{t-1})
 \end{align}$$</span><!-- Has MathJax --> Diffusion model 一樣做 MLE (maximal likelihood estimation), 要找出最佳的 <span>$\theta^\ast$</span><!-- Has MathJax --> 使得 <span>$\log p(x|\theta^\ast)$</span><!-- Has MathJax --> 最大. 一樣觀察下式<br><span>$$\log p(x|{\color{red}\theta})=KL(q(z)\|p(z|x,{\color{red}\theta}))+
 \mathbb{E}_{z\sim q}\left[\log p(x,z|{\color{red}\theta}) - \log q(z)\right] \\
-=KL(q(z)\|p(z|x,{\color{red}\theta}))+\mathcal{L}(q,{\color{red}\theta})$$</span><!-- Has MathJax --> 此時設定 <span>$x_0$</span><!-- Has MathJax --> 對應到 <span>$x$</span><!-- Has MathJax --> 是 observed data (e.g. 乾淨影像), 而 <span>$x_{1:T}$</span><!-- Has MathJax --> 是我們看不到的 hidden variable <span>$z$</span><!-- Has MathJax --> (e.g. 加噪過程的影像), 則我們知道真實的 posterior <span>$p(z|x)$</span><!-- Has MathJax --> 由式 (3, 4) 是已知的.<br>因為我們的問題不是要找 <span>$q$</span><!-- Has MathJax --> 去逼近 <span>$p(z|x)$</span><!-- Has MathJax -->, 直接把 <span>$q$</span><!-- Has MathJax --> 設定成已知的 <span>$p(z|x)$</span><!-- Has MathJax --> 即可, i.e.:<br><span>$$\begin{align}
+=KL(q(z)\|p(z|x,{\color{red}\theta}))+\mathcal{L}(q,{\color{red}\theta})$$</span><!-- Has MathJax --> 此時設定 <span>$x_0$</span><!-- Has MathJax --> 對應到 <span>$x$</span><!-- Has MathJax --> 是 observed data (e.g. 乾淨影像), 而 <span>$x_{1:T}$</span><!-- Has MathJax --> 是我們看不到的 hidden variable <span>$z$</span><!-- Has MathJax --> (e.g. 加噪過程的影像), 則我們知道真實的 posterior <span>$p(z|x)$</span><!-- Has MathJax --> 由式 (3, 4) 是已知的.<br>因為我們的問題不是要找 <span>$q$</span><!-- Has MathJax --> 去逼近 <span>$p(z|x)$</span><!-- Has MathJax -->, 直接把 <span>$q$</span><!-- Has MathJax --> 設定成已知的 <span>$p(z|x)$</span><!-- Has MathJax --> 即可, i.e.:</p>
+<p><span>$$\begin{align}
 q(z):=p(z|x)
-\end{align}$$</span><!-- Has MathJax --> 然後一樣最大化 ELBO <span>$\mathcal{L}(\theta)$</span><!-- Has MathJax --> (由於 <span>$q$</span><!-- Has MathJax --> 是已知固定數學式子不是要找的參數, 所以從 <span>$\mathcal{L}(\theta,q)$</span><!-- Has MathJax --> 去掉) 來找出最佳的 <span>$\theta^*$</span><!-- Has MathJax --> 使得 marginal log likelihood <span>$\log p(x|\theta)$</span><!-- Has MathJax --> 也變大<br><span>$$\theta^\ast=\arg\max_\theta\mathcal{L}(\theta)$$</span><!-- Has MathJax --> 從原本的 ELBO 出發 (式 (1, 2)) 改寫一下:<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 然後一樣最大化 ELBO <span>$\mathcal{L}(\theta)$</span><!-- Has MathJax --> (由於 <span>$q$</span><!-- Has MathJax --> 是已知固定數學式子不是要找的參數, 所以從 <span>$\mathcal{L}(\theta,q)$</span><!-- Has MathJax --> 去掉) 來找出最佳的 <span>$\theta^*$</span><!-- Has MathJax --> 使得 marginal log likelihood <span>$\log p(x|\theta)$</span><!-- Has MathJax --> 也變大</p>
+<p><span>$$\theta^\ast=\arg\max_\theta\mathcal{L}(\theta)$$</span><!-- Has MathJax --> 從原本的 ELBO 出發 (式 (1, 2)) 改寫一下:</p>
+<p><span>$$\begin{align}
 \log p(x|\theta)\geq\mathcal{L}(\theta):=\mathbb{E}_{z\sim q(z)}\left[\log p(x,z|\theta) - \log q(z)\right] \\
 \Longrightarrow \mathbb{E}_{x\sim p(x)}\log p(x|\theta) \geq \mathbb{E}_{x\sim p(x),z\sim {\color{orange}{q(z)}}}\left[\log p(x,z|\theta) - \log {\color{orange}{q(z)}}\right] \\
 \Longrightarrow \mathbb{E}_{x\sim p(x)}\log p(x|\theta) \geq \mathbb{E}_{x\sim p(x),z\sim {\color{orange}{p(z|x)}}}\left[\log p(x,z|\theta) - \log {\color{orange}{p(z|x)}}\right]
-\end{align}$$</span><!-- Has MathJax --> 式 (7) 到 (8) 是因為 (5) 我們定義這樣的關係<br>我們來對應一下 Diffusion model 的 loss (式 (9) 參考自 [<a href="https://lilianweng.github.io/posts/2021-07-11-diffusion-models/#classifier-guided-diffusion" target="_blank" rel="external">What are Diffusion Models?</a>]) VLB (Variational Lower Bound):<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> 式 (7) 到 (8) 是因為 (5) 我們定義這樣的關係<br>我們來對應一下 Diffusion model 的 loss (式 (9) 參考自 [<a href="https://lilianweng.github.io/posts/2021-07-11-diffusion-models/#classifier-guided-diffusion" target="_blank" rel="external">What are Diffusion Models?</a>]) VLB (Variational Lower Bound):</p>
+<p><span>$$\begin{align}
 L_{VLB}=\mathbb{E}_{p(x_{0:T})}\left[
 \log\frac{p(x_{1:T}|x_0)}{p(x_{0:T}|\theta)}
 \right]

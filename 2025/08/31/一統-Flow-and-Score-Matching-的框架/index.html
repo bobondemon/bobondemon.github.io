@@ -102,7 +102,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2025/08/31/一統-Flow-and-Score-Matching-的框架/image.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/08/31/一統-Flow-and-Score-Matching-的框架/image 1.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/08/31/一統-Flow-and-Score-Matching-的框架/image 2.png">
-<meta property="og:updated_time" content="2026-08-20T12:28:17.461Z">
+<meta property="og:updated_time" content="2026-08-20T12:43:32.870Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="一統 Flow and Score Matching 的框架">
 <meta name="twitter:description" content="⚠️ [提醒]: 本篇難度可能偏高, 有些地方不會從頭開始解釋, 畢竟主要給自己筆記的, 請讀者見諒.
@@ -432,9 +432,9 @@ X_{t+h}=X_t+hu_t^\text{score}(X_t)+\sigma_t(W_{t+h}-W_t) \\
 </blockquote>
 <p>另外值得一提的是, 當訓練好 score function 的 NN <span>${\color{orange}{s_t^\theta}}$</span><!-- Has MathJax --> 之後, <strong>diffusion coefficient <span>$\sigma_t$</span><!-- Has MathJax --> 可以自由設定</strong>, 只要 <span>$\geq0$</span><!-- Has MathJax --> 且連續即可.<br>所以可以看到當 <span>$\sigma_t=0$</span><!-- Has MathJax --> 的話, <strong>score matching reduce 成 flow matching</strong> 了.</p>
 <hr>
-<h2 id="Gaussian-Probability-Path-的-Score-Matching-訓練"><a href="#Gaussian-Probability-Path-的-Score-Matching-訓練" class="headerlink" title="Gaussian Probability Path 的 Score Matching 訓練"></a>Gaussian Probability Path 的 Score Matching 訓練</h2><p>我們知道若為 Gaussian probability path <span>$p_t(x|z)=\mathcal{N}(\alpha_tz,\beta_t^2I)$</span><!-- Has MathJax --> 的情形, 其 conditional vector field <span>$u_t^{flow}(x|z)$</span><!-- Has MathJax --> 為 (推導參考之前<a href="https://bobondemon.github.io/2024/11/06/%E5%98%97%E8%A9%A6%E7%90%86%E8%A7%A3-Flow-Matching/#%E8%AD%89%E6%98%8E%E5%AD%98%E5%9C%A8%E5%94%AF%E4%B8%80-u-t-x-x-1-%E7%94%A2%E7%94%9F%E5%BC%8F-7-p-t-x-x-1">筆記</a>): <span>$$\begin{align}
+<h2 id="Gaussian-Probability-Path-的-Score-Matching-訓練"><a href="#Gaussian-Probability-Path-的-Score-Matching-訓練" class="headerlink" title="Gaussian Probability Path 的 Score Matching 訓練"></a>Gaussian Probability Path 的 Score Matching 訓練</h2><p>我們知道若為 Gaussian probability path <span>$p_t(x|z)=\mathcal{N}(\alpha_tz,\beta_t^2I)$</span><!-- Has MathJax --> 的情形, 其 conditional vector field <span>$u_t^{flow}(x|z)$</span><!-- Has MathJax --> 為 (推導參考之前<a href="https://bobondemon.github.io/2024/11/06/%E5%98%97%E8%A9%A6%E7%90%86%E8%A7%A3-Flow-Matching/#%E8%AD%89%E6%98%8E%E5%AD%98%E5%9C%A8%E5%94%AF%E4%B8%80-u-t-x-x-1-%E7%94%A2%E7%94%9F%E5%BC%8F-7-p-t-x-x-1">筆記</a>):<br><span>$$\begin{align}
 u_t^{flow}(x|z)=\left(\dot{\alpha}_t-\frac{\dot{\beta}_t}{\beta_t}\alpha_t\right)z+\frac{\dot{\beta}_t}{\beta_t}x
-\end{align}$$</span><!-- Has MathJax --><br>繼續做一些推導:<br><span>$$\begin{align*}
+\end{align}$$</span><!-- Has MathJax --> 繼續做一些推導:<br><span>$$\begin{align*}
 =\left(\beta_t^2\frac{\dot\alpha_t}{\alpha_t}-\dot\beta_t\beta_t\right)
 \left(\frac{\alpha_tz-x}{\beta_t^2}\right)+\frac{\dot\alpha_t}{\alpha_t}x \\
 =\left(\beta_t^2\frac{\dot\alpha_t}{\alpha_t}-\dot\beta_t\beta_t\right)\nabla\log p_t(x|z) + \frac{\dot\alpha_t}{\alpha_t}x

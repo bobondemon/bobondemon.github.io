@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="PyTorch,Gumbel distribution,Straight Through Estimator (STE),L0 regularization,Concrete distribution,Hard Concrete distribution,Pruning," />
+  <meta name="keywords" content="PyTorch,Gumbel distribution,L0 regularization,Concrete distribution,Hard Concrete distribution,Pruning,Straight Through Estimator (STE)," />
 
 
 
@@ -108,7 +108,7 @@ NN model 參數 $\theta$, 我們希望非$0$的個數愈少愈好, i.e. $\|\thet
 <meta property="og:image" content="https://bobondemon.github.io/2023/01/15/L0-Regularization-詳細攻略/Untitled 6.png">
 <meta property="og:image" content="https://bobondemon.github.io/2023/01/15/L0-Regularization-詳細攻略/inception_forward.png">
 <meta property="og:image" content="https://bobondemon.github.io/2023/01/15/L0-Regularization-詳細攻略/L_C0.png">
-<meta property="og:updated_time" content="2026-08-20T12:28:17.442Z">
+<meta property="og:updated_time" content="2026-08-20T13:10:17.811Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="L0 Regularization 詳細攻略">
 <meta name="twitter:description" content="這是一篇論文Learning Sparse Neural Networks through L0 Regularization 的詳細筆記, 同時自己實作做實驗 [My Github]主要以詳解每個部分並自己能回憶起為目的, 所以或許不是很好閱讀
@@ -434,8 +434,8 @@ F^{-1}(F(x))=x \Rightarrow F^{-1}\left(e^{-e^{-(x-\mu)/\beta}}\right)=x \\
 </blockquote>
 <p>所以如果 <span>$F^{-1}(U)$</span><!-- Has MathJax --> where <span>$U\sim\text{Uniform}(0,1)$</span><!-- Has MathJax -->, 等於照機率分佈取 Gumbel random variable.</p>
 <ul>
-<li>Inverse transform sampling [<a href="https://en.wikipedia.org/wiki/Inverse_transform_sampling" target="_blank" rel="external">wiki</a>]<br>  假設有一個 strictly monotone transfromation (所以存在 inverse) <span>$T:[0,1]\rightarrow\mathbb{R}$</span><!-- Has MathJax -->, 使得 <span>$T(U)=_dX$</span><!-- Has MathJax -->, 其中 <span>$U\sim\text{Uniform}(0,1)$</span><!-- Has MathJax -->. 那我們就可以使用 <span>$T$</span><!-- Has MathJax --> 來做 <span>$X$</span><!-- Has MathJax --> 的採樣<br>  令 <span>$X$</span><!-- Has MathJax --> 的 CDF 為 <span>$F_X(x)$</span><!-- Has MathJax -->, 則:<br>  <span>$$F_X(x)=Pr(X\leq x)=Pr(T(U)\leq x) \\
-    =Pr(U\leq T^{-1}(x))=T^{-1}(x)$$</span><!-- Has MathJax --><br>則我們發現 <span>$T$</span><!-- Has MathJax --> 是 <span>$F_X^{-1}$</span><!-- Has MathJax -->. 因此 <span>$F_X^{-1}(U)$</span><!-- Has MathJax --> 就可以用來採樣 <span>$X$</span><!-- Has MathJax -->.</li>
+<li>Inverse transform sampling [<a href="https://en.wikipedia.org/wiki/Inverse_transform_sampling" target="_blank" rel="external">wiki</a>]<br>  假設有一個 strictly monotone transfromation (所以存在 inverse) <span>$T:[0,1]\rightarrow\mathbb{R}$</span><!-- Has MathJax -->, 使得 <span>$T(U)=_dX$</span><!-- Has MathJax -->, 其中 <span>$U\sim\text{Uniform}(0,1)$</span><!-- Has MathJax -->. 那我們就可以使用 <span>$T$</span><!-- Has MathJax --> 來做 <span>$X$</span><!-- Has MathJax --> 的採樣<br>  令 <span>$X$</span><!-- Has MathJax --> 的 CDF 為 <span>$F_X(x)$</span><!-- Has MathJax -->, 則:<br><span>$$F_X(x)=Pr(X\leq x)=Pr(T(U)\leq x) \\
+    =Pr(U\leq T^{-1}(x))=T^{-1}(x)$$</span><!-- Has MathJax --> 則我們發現 <span>$T$</span><!-- Has MathJax --> 是 <span>$F_X^{-1}$</span><!-- Has MathJax -->. 因此 <span>$F_X^{-1}(U)$</span><!-- Has MathJax --> 就可以用來採樣 <span>$X$</span><!-- Has MathJax -->.</li>
 </ul>
 <p>Let <span>$U\sim\text{Uniform}(0,1)$</span><!-- Has MathJax -->, then <span>$F^{-1}(U)=\mu-\beta\ln(-\ln(U))\sim\text{Gumbel}(\mu,\beta)$</span><!-- Has MathJax -->.<br>另外, 兩個 Gumbel r.v.s 的 difference 服從 <a href="https://en.wikipedia.org/wiki/Logistic_distribution" target="_blank" rel="external">Logistic distribution</a>.<br>If <span>$X\sim\text{Gumbel}(\mu_X,\beta)$</span><!-- Has MathJax --> and <span>$Y\sim\text{Gumbel}(\mu_Y,\beta)$</span><!-- Has MathJax --> are independent, then, <span>$X-Y\sim\text{Logistic}(\mu_X-\mu_Y, \beta)$</span><!-- Has MathJax --><br>Logistic random variable 其 CDF 是 sigmoid function.</p>
 <h2 id="Categorical-Distribution-and-Gumbel-Max-Trick"><a href="#Categorical-Distribution-and-Gumbel-Max-Trick" class="headerlink" title="Categorical Distribution and Gumbel Max Trick"></a>Categorical Distribution and Gumbel Max Trick</h2><hr>
@@ -588,8 +588,6 @@ X\sim\text{BinConcrete}(\alpha,\tau):=\sigma\left(\frac{L+\ln\alpha}{\tau}\right
           
             <a href="/tags/Gumbel-distribution/" rel="tag"># Gumbel distribution</a>
           
-            <a href="/tags/Straight-Through-Estimator-STE/" rel="tag"># Straight Through Estimator (STE)</a>
-          
             <a href="/tags/L0-regularization/" rel="tag"># L0 regularization</a>
           
             <a href="/tags/Concrete-distribution/" rel="tag"># Concrete distribution</a>
@@ -597,6 +595,8 @@ X\sim\text{BinConcrete}(\alpha,\tau):=\sigma\left(\frac{L+\ln\alpha}{\tau}\right
             <a href="/tags/Hard-Concrete-distribution/" rel="tag"># Hard Concrete distribution</a>
           
             <a href="/tags/Pruning/" rel="tag"># Pruning</a>
+          
+            <a href="/tags/Straight-Through-Estimator-STE/" rel="tag"># Straight Through Estimator (STE)</a>
           
         </div>
       

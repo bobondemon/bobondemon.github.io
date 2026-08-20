@@ -112,7 +112,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/F.png">
 <meta property="og:image" content="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Q.png">
 <meta property="og:image" content="https://bobondemon.github.io/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Jaccobian.png">
-<meta property="og:updated_time" content="2026-08-20T12:28:17.441Z">
+<meta property="og:updated_time" content="2026-08-20T13:12:29.304Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Notes for Kalman Filter and Extended KF">
 <meta name="twitter:description" content="Udacity term2 (Sensor Fusion, Localization, and Control) 的第一個 Project 就是用 KF and EKF 將 Lidar and Radar 的資訊做 fusion 並且可以 tracking。由於 KF/EKF 的數學符號很多，因此想筆記一下方便日後回想，所以主要以我自己看的角度，可能有些地方會沒有明確說明。本篇的筆記來源是
@@ -493,9 +493,14 @@ y=(\vec{z}_k-h(\hat{x}_k))
 <hr>
 <h3 id="總結-Lidar-and-Radar-Fusion"><a href="#總結-Lidar-and-Radar-Fusion" class="headerlink" title="總結 Lidar and Radar Fusion"></a>總結 Lidar and Radar Fusion</h3><p><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/fusion_flow.png" width="100%" height="100%"></p>
 <ul>
-<li><strong>[Predict]</strong><br><span>$$\hat{x}_{k}=F_k\hat{x}_{k-1} \\
-P_k = F_kP_{k-1}F_k^T+Q$$</span><!-- Has MathJax --> where<br><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/F.png" width="30%" height="30%"><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Q.png" width="50%" height="50%"></li>
-<li><strong>[Lidar Update]</strong><br><span>$$y=(\vec{z}_k-H_{lidar}\hat{x}_k) \\
+<li><strong>[Predict]</strong></li>
+</ul>
+<p><span>$$\hat{x}_{k}=F_k\hat{x}_{k-1} \\
+P_k = F_kP_{k-1}F_k^T+Q$$</span><!-- Has MathJax --> where<br><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/F.png" width="30%" height="30%"><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Q.png" width="50%" height="50%"></p>
+<ul>
+<li><strong>[Lidar Update]</strong></li>
+</ul>
+<p><span>$$y=(\vec{z}_k-H_{lidar}\hat{x}_k) \\
 S=H_{lidar}P_kH_{lidar}^T+R_k \\
 \hat{x}_k&apos;=\hat{x}_k+Ky \\
 P_k&apos;=P_k-KH_{lidar}P_k \\
@@ -505,12 +510,16 @@ K=P_kH_{lidar}^TS^{-1}$$</span><!-- Has MathJax --> where \(R_k\) sensor noise c
 1 &amp; 0 &amp; 0 &amp; 0 \\
 0 &amp; 1 &amp; 0 &amp; 0
 \end{array}
-\right)$$</span><!-- Has MathJax --></li>
-<li><strong>[Radar Update]</strong><br><span>$$y=(\vec{z}_k-h(\hat{x}_k)) \\
+\right)$$</span><!-- Has MathJax --></p>
+<ul>
+<li><strong>[Radar Update]</strong></li>
+</ul>
+<p><span>$$y=(\vec{z}_k-h(\hat{x}_k)) \\
 S=H_kP_kH_k^T+R_k \\
 \hat{x}_k&apos;=\hat{x}_k+Ky \\
 P_k&apos;=P_k-KH_kP_k \\
-K=P_kH_k^TS^{-1}$$</span><!-- Has MathJax --> where \(R_k\) sensor noise covariance matrix 由廠商提供, and<br><span>$$h(x)=
+K=P_kH_k^TS^{-1}$$</span><!-- Has MathJax --> where \(R_k\) sensor noise covariance matrix 由廠商提供, and </p>
+<p><span>$$h(x)=
 \left(
 \begin{array}{clr}
 \rho \\
@@ -525,10 +534,8 @@ K=P_kH_k^TS^{-1}$$</span><!-- Has MathJax --> where \(R_k\) sensor noise covaria
 \arctan(p_y/p_x) \\
 \frac{p_xv_x+p_yv_y}{\sqrt{p_x^2+p_y^2}}
 \end{array}
-\right)$$</span><!-- Has MathJax --><br><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Jaccobian.png" width="50%" height="50%"></li>
-</ul>
-<hr>
-<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
+\right)$$</span><!-- Has MathJax --></p>
+<h2 id><a href="#" class="headerlink" title></a><img src="/2017/04/03/Kalman-Filter-and-Extended-KF-Notes/Jaccobian.png" width="50%" height="50%"></h2><h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
 <li><a href="http://www.bzarg.com/p/how-a-kalman-filter-works-in-pictures/" target="_blank" rel="external">How a Kalman filter works, in pictures</a></li>
 <li>Udacity Term2 Lecture</li>
 </ol>
@@ -734,7 +741,7 @@ K=P_kH_k^TS^{-1}$$</span><!-- Has MathJax --> where \(R_k\) sensor noise covaria
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#State-Space-Model"><span class="nav-number">1.</span> <span class="nav-text">State Space Model</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Prediction-Stage"><span class="nav-number">2.</span> <span class="nav-text">Prediction Stage</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Update-Stage"><span class="nav-number">3.</span> <span class="nav-text">Update Stage</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#KF-Flow"><span class="nav-number">4.</span> <span class="nav-text">KF Flow</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Lidar-Radar-的一些設定"><span class="nav-number">5.</span> <span class="nav-text">Lidar/Radar 的一些設定</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#EKF"><span class="nav-number">6.</span> <span class="nav-text">EKF</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#總結-Lidar-and-Radar-Fusion"><span class="nav-number">7.</span> <span class="nav-text">總結 Lidar and Radar Fusion</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">8.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#State-Space-Model"><span class="nav-number">1.</span> <span class="nav-text">State Space Model</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Prediction-Stage"><span class="nav-number">2.</span> <span class="nav-text">Prediction Stage</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Update-Stage"><span class="nav-number">3.</span> <span class="nav-text">Update Stage</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#KF-Flow"><span class="nav-number">4.</span> <span class="nav-text">KF Flow</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Lidar-Radar-的一些設定"><span class="nav-number">5.</span> <span class="nav-text">Lidar/Radar 的一些設定</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#EKF"><span class="nav-number">6.</span> <span class="nav-text">EKF</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#總結-Lidar-and-Radar-Fusion"><span class="nav-number">7.</span> <span class="nav-text">總結 Lidar and Radar Fusion</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#"><span class="nav-number"></span> <span class="nav-text"></span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">1.</span> <span class="nav-text">Reference</span></a></li></ol></div>
             
 
           </div>

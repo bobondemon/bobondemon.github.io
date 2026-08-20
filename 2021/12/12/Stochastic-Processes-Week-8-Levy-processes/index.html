@@ -123,7 +123,7 @@ Week 5: Stationarity an">
 <meta property="og:image" content="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 13.png">
 <meta property="og:image" content="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 14.png">
 <meta property="og:image" content="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 15.png">
-<meta property="og:updated_time" content="2026-08-20T12:28:17.456Z">
+<meta property="og:updated_time" content="2026-08-20T12:51:18.217Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Stochastic Processes Week 8 Lévy processes">
 <meta name="twitter:description" content="Coursera Stochastic Processes 課程筆記, 共十篇:
@@ -435,14 +435,16 @@ Week 5: Stationarity an">
 \text{assume } t&gt;s \text{ } =Cov(L_t-L_s+L_s,L_s) = Cov(L_t-L_s,L_s) + Var(L_s) = Var(L_s)\\
 \therefore K(t,s)=Var(L_{\min(t,s)})$$</span><!-- Has MathJax -->
 
-<p><strong>[Cadlag Function Def]:</strong><br>&emsp;中文稱 “右連左極函數”<br>&emsp;We say <span>$f$</span><!-- Has MathJax --> is a Cadlag function, if 左右 limit 都存在且定義 <span>$f$</span><!-- Has MathJax --> 為右 limit 的值<br>&emsp;<span>$$\exists\lim_{s\rightarrow t,s&lt;t} f(s) =: f(t^-) \\
-\exists\lim_{s\rightarrow t,s&gt;t} f(s) =: f(t^+) = f(t)$$</span><!-- Has MathJax --></p>
+<p><strong>[Cadlag Function Def]:</strong><br>&emsp;中文稱 “右連左極函數”<br>&emsp;We say <span>$f$</span><!-- Has MathJax --> is a Cadlag function, if 左右 limit 都存在且定義 <span>$f$</span><!-- Has MathJax --> 為右 limit 的值</p>
+<span>$$\exists\lim_{s\rightarrow t,s&lt;t} f(s) =: f(t^-) \\
+\exists\lim_{s\rightarrow t,s&gt;t} f(s) =: f(t^+) = f(t)$$</span><!-- Has MathJax -->
+
 <p>Wiki 的介紹很清楚<br><img src="/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled.png" width="80%" height="80%"></p>
 <p>記得在 Brownian motion 時有講到 Kolmogorov continuity theorem: 一定存在一個 continuous modification of a Brownian motion 類似.<br>所以看到 Brownian motion 可以只考慮其 almost surely continuous trajectories 的版本</p>
 <p><strong>[Proposition, Cadlag Trajectories of Levy Process]:</strong><br>&emsp;在 Levy process 也有類似的情況. 給定一個 Levy process <span>$L_t$</span><!-- Has MathJax --><br>&emsp;存在另一個 process <span>$L_t&apos;$</span><!-- Has MathJax --> such that 所有 trajectories 都是 almost surely Cadlag function.</p>
 <hr>
-<h2 id="Week-8-2-Examples-of-Levy-processes-Calculation-of-the-characteristic-function-in-particular-cases"><a href="#Week-8-2-Examples-of-Levy-processes-Calculation-of-the-characteristic-function-in-particular-cases" class="headerlink" title="Week 8.2: Examples of Lévy processes. Calculation of the characteristic function in particular cases"></a>Week 8.2: Examples of Lévy processes. Calculation of the characteristic function in particular cases</h2><p><strong>[Infinitely Divisible Distributions Def]:</strong><br>&emsp;<span>$\xi$</span><!-- Has MathJax --> is a infinitely divisible distribution if <span>$\forall n\geq2$</span><!-- Has MathJax -->, <span>$\exists Y_1,\ldots,Y_n$</span><!-- Has MathJax --> - i.i.d. such that<br>&emsp;<span>$\xi=^d Y_1+\dots+Y_n$</span><!-- Has MathJax --><br>&emsp;Note that it is equals <em>in distribution sense</em>. It is equivalent to saying:<br>&emsp;<span>$$\Phi_\xi(u)=\left(\Phi_{Y_1}(u)\right)^n, \qquad \forall n \\
-\Longleftrightarrow \left(\Phi_\xi(u)\right)^{1/n} \text{ is a characteristic function}, \qquad\forall n$$</span><!-- Has MathJax --><br>&emsp;where <span>$\Phi_\xi(u)$</span><!-- Has MathJax --> is the characteristic function of random variable <span>$\xi$</span><!-- Has MathJax --></p>
+<h2 id="Week-8-2-Examples-of-Levy-processes-Calculation-of-the-characteristic-function-in-particular-cases"><a href="#Week-8-2-Examples-of-Levy-processes-Calculation-of-the-characteristic-function-in-particular-cases" class="headerlink" title="Week 8.2: Examples of Lévy processes. Calculation of the characteristic function in particular cases"></a>Week 8.2: Examples of Lévy processes. Calculation of the characteristic function in particular cases</h2><p><strong>[Infinitely Divisible Distributions Def]:</strong><br>&emsp;<span>$\xi$</span><!-- Has MathJax --> is a infinitely divisible distribution if <span>$\forall n\geq2$</span><!-- Has MathJax -->, <span>$\exists Y_1,\ldots,Y_n$</span><!-- Has MathJax --> - i.i.d. such that<br>&emsp;<span>$\xi=^d Y_1+\dots+Y_n$</span><!-- Has MathJax --><br>&emsp;Note that it is equals <em>in distribution sense</em>. It is equivalent to saying:<br><span>$$\Phi_\xi(u)=\left(\Phi_{Y_1}(u)\right)^n, \qquad \forall n \\
+\Longleftrightarrow \left(\Phi_\xi(u)\right)^{1/n} \text{ is a characteristic function}, \qquad\forall n$$</span><!-- Has MathJax --> &emsp;where <span>$\Phi_\xi(u)$</span><!-- Has MathJax --> is the characteristic function of random variable <span>$\xi$</span><!-- Has MathJax --></p>
 <p><strong>[Levy Process can be Characterized by an I.D.D.]:</strong><br>&emsp;1. <span>$\forall$</span><!-- Has MathJax --> Levy process <span>$L_t$</span><!-- Has MathJax --> at <span>$\forall$</span><!-- Has MathJax --> time <span>$t^*$</span><!-- Has MathJax -->, <span>$L_{t^*}$</span><!-- Has MathJax --> has an infinitely divisible distribution<br>&emsp;2. <span>$\forall$</span><!-- Has MathJax --> infinitely divisible distribution, <span>$\exists$</span><!-- Has MathJax --> a Levy process <span>$L_t$</span><!-- Has MathJax --> such that <span>$L_1$</span><!-- Has MathJax --> has this distribution<br>[Proof]:<br>&emsp;只證明第一條. <span>$L_t$</span><!-- Has MathJax --> 可以改寫如下: <span>$\forall n$</span><!-- Has MathJax --> 都滿足<br>&emsp;<span>$L_t=\sum_{k=1}^n\left(L_{t\cdot\frac{k}{n}} - L_{t\cdot\frac{k-1}{n}}\right)$</span><!-- Has MathJax --><br>&emsp;由於 stationary increments 特性<br>&emsp;<span>$\left(L_{t\cdot\frac{k}{n}} - L_{t\cdot\frac{k-1}{n}} \right) =^d L_{\frac{t}{n}}$</span><!-- Has MathJax --><br>&emsp;再由於 independent increments 特性, 變成 <span>$n$</span><!-- Has MathJax --> 個 i.i.d. random variables 相加. Q.E.D.</p>
 <p><strong>[Normal Distribution is an i.d.d.]:</strong><br><img src="/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 1.png" width="50%" height="50%"><br>&emsp;所以可以發現 <span>$L_t$</span><!-- Has MathJax --> is a Levy process (<span>$W_t$</span><!-- Has MathJax --> is a Brownian motion)<br>&emsp;<span>$L_t=\mu t+\sigma W_t$</span><!-- Has MathJax --><br>; 且 <span>$L_1\sim\mathcal{N}(\mu,\sigma^2)$</span><!-- Has MathJax --></p>
 <p><strong>[Cauchy Distribution is an i.d.d.]:</strong><br>&emsp;Cauchy distribution 的 p.d.f. 為:<br>&emsp;<span>$p(x)=\frac{1}{\pi\gamma\left[1+\left(\frac{x-x_0}{\gamma}\right)^2\right]}$</span><!-- Has MathJax --><br>&emsp;其中 <span>$x_0$</span><!-- Has MathJax --> 稱為 location parameter, <span>$\gamma$</span><!-- Has MathJax --> 稱為 scale parameter<br><img src="/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 2.png" width="50%" height="50%"><br>&emsp;觀察特徵函數可以發現是 i.d.d.<br><img src="/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 3.png" width="40%" height="40%"></p>
@@ -459,12 +461,12 @@ Week 5: Stationarity an">
 </blockquote>
 <p>因此 random variable 的 support set 就用 measurable function 的方式去想</p>
 <p><strong>[Uniform Distribution is NOT i.d.d.]:</strong><br>&emsp;Let <span>$\xi$</span><!-- Has MathJax --> is uniform distribution <span>$\mathcal{U}(a,b)$</span><!-- Has MathJax -->, then the characteristic function is<br>&emsp;<span>$\Phi_\xi(u)=\int_a^b e^{iux}\frac{1}{b-a}dx=\frac{1}{b-a}\cdot\frac{e^{iua}}{iu}\cdot\left(e^{iu(b-a)}-1\right)$</span><!-- Has MathJax --><br>&emsp;We have <span>$\Phi_\xi(u)=0$</span><!-- Has MathJax --> if and only if<br>&emsp;<span>$e^{iu(b-a)}=1 \Longleftrightarrow u=\frac{2\pi k}{b-a},\qquad k\in\mathbb{Z}/\{0\}$</span><!-- Has MathJax --><br>&emsp;所以存在 <span>$\mathbb{R}$</span><!-- Has MathJax --> 的 root, 因此不是 infinitely divisible distributions</p>
-<p><strong>[Bernoulli Distribution is NOT i.d.d.]:</strong><br>&emsp;Let <span>$\xi$</span><!-- Has MathJax --> is Bernoulli random variable<br>&emsp;<span>$$\xi=\left\{
+<p><strong>[Bernoulli Distribution is NOT i.d.d.]:</strong><br>&emsp;Let <span>$\xi$</span><!-- Has MathJax --> is Bernoulli random variable<br><span>$$\xi=\left\{
 \begin{array}{rl}
 1, &amp; p\\
 0, &amp; 1-p
 \end{array}
-\right.$$</span><!-- Has MathJax --><br>&emsp;then <span>$Supp(\xi)=\{0,1\}$</span><!-- Has MathJax -->, so is not bounded and hence NOT infinitely divisible distributions</p>
+\right.$$</span><!-- Has MathJax --> &emsp;then <span>$Supp(\xi)=\{0,1\}$</span><!-- Has MathJax -->, so is not bounded and hence NOT infinitely divisible distributions</p>
 <p><img src="/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 7.png" width="100%" height="100%"></p>
 <blockquote>
 <p>我們常看到的 distribution 大部分都是 infinitely divisible distribution, 如<br>Gaussian, Cauchy, Gamma, Poisson, Compound Poisson<br>但是 uniform and Bernoulli distributions 不是 i.d.d.</p>
@@ -479,25 +481,29 @@ Week 5: Stationarity an">
 <h2 id="Week-8-4-Characteristic-exponent"><a href="#Week-8-4-Characteristic-exponent" class="headerlink" title="Week 8.4: Characteristic exponent"></a>Week 8.4: Characteristic exponent</h2><p><strong>[Characteristic Exponent Def with Proposition]:</strong><br>&emsp;<span>$\forall$</span><!-- Has MathJax --> Levy process <span>$L_t$</span><!-- Has MathJax -->, <span>$\exists \Psi:\mathbb{R}\rightarrow\mathbb{C}$</span><!-- Has MathJax --> call characteristic exponent, such that<br>&emsp;<span>$\Phi_{L_t}(u)=\mathbb{E}[e^{iuL_t}]=e^{t\cdot\Psi(u)}$</span><!-- Has MathJax --></p>
 <p><strong>[Example 1]:</strong><br>&emsp;<span>$L_t=\mu\cdot t$</span><!-- Has MathJax -->, 其 characteristic function is <span>$\Phi_{L_t}(u)=\mathbb{E}[e^{iu\mu t}]$</span><!-- Has MathJax -->, 所以 <span>$\Psi(u)=iu\mu$</span><!-- Has MathJax --></p>
 <p><strong>[Brownian Motion Example 2]:</strong><br>&emsp;<span>$L_t=\sigma W_t$</span><!-- Has MathJax -->, where <span>$W_t$</span><!-- Has MathJax --> is a Brownian motion. 所以 <span>$L_t\sim\mathcal{N}(0,\sigma^2t)$</span><!-- Has MathJax -->.<br>&emsp;我們知道 <span>$X\sim\mathcal{N}(\mu,\sigma^2)$</span><!-- Has MathJax --> 的特徵方程式為:<br>&emsp;<span>$\Phi_X(u)=e^{i\mu u-\frac{1}{2}\sigma^2u^2}$</span><!-- Has MathJax --><br>&emsp;所以<br>&emsp;<span>$\Phi_{L_t}(u)=e^{-\frac{1}{2}\sigma^2t u^2}\Longrightarrow \Psi(u)=-\frac{1}{2}\sigma^2u^2$</span><!-- Has MathJax --></p>
-<p><strong>[Compound Poisson processes Example 3]:</strong><br>&emsp;Let <span>$X_t$</span><!-- Has MathJax --> is a Compound Poisson processes. We have it’s <strong><em>characteristic function of increments</em></strong> as:<br>&emsp;<span>$\Phi_{X_t-X_s}(u)=e^{\lambda(t-s)(\Phi_{\xi_1}(u)-1)}$</span><!-- Has MathJax --><br>&emsp;Therefore, characteristic function of <span>$L_t=X_t$</span><!-- Has MathJax -->:<br>&emsp;<span>$\Phi_{L_t}(u)=e^{\lambda t(\Phi_{\xi_1}(u)-1)}$</span><!-- Has MathJax --><br>&emsp;and hence<br>&emsp;<span>$$\Psi(u)=\lambda(\Phi_{\xi_1}(u)-1) \\
+<p><strong>[Compound Poisson processes Example 3]:</strong><br>&emsp;Let <span>$X_t$</span><!-- Has MathJax --> is a Compound Poisson processes. We have it’s <strong><em>characteristic function of increments</em></strong> as:<br>&emsp;<span>$\Phi_{X_t-X_s}(u)=e^{\lambda(t-s)(\Phi_{\xi_1}(u)-1)}$</span><!-- Has MathJax --><br>&emsp;Therefore, characteristic function of <span>$L_t=X_t$</span><!-- Has MathJax -->:<br>&emsp;<span>$\Phi_{L_t}(u)=e^{\lambda t(\Phi_{\xi_1}(u)-1)}$</span><!-- Has MathJax --><br>&emsp;and hence</p>
+<span>$$\Psi(u)=\lambda(\Phi_{\xi_1}(u)-1) \\
 =\lambda\left( \int e^{iux}\mathcal{P}_{\xi_1}(x)dx - \int\mathcal{P}_{\xi_1}(x)dx \right) \\
 = \int (e^{iux}-1)\lambda \mathcal{P}_{\xi_1}(x)dx 
-=\int (e^{iux}-1)\lambda F_{\xi_1}(dx)$$</span><!-- Has MathJax --></p>
+=\int (e^{iux}-1)\lambda F_{\xi_1}(dx)$$</span><!-- Has MathJax -->
+
 <p><strong>[Linear Brownian Motion Plus Compound Poisson processes Example 4]:</strong><br>&emsp;Let <span>$L_t$</span><!-- Has MathJax --> is<br>&emsp;<span>$L_t=\mu t+\sigma W_t + C.P.P.$</span><!-- Has MathJax --><br>&emsp;then we have<br>&emsp;<span>$\Psi(u)=iu\mu-\frac{1}{2}\sigma^2u^2 + \int (e^{iux}-1)\lambda F_\xi(dx)$</span><!-- Has MathJax --></p>
 <blockquote>
 <p>這個形式很重要, for such Levy process, 其特徵方程式可以 explicitly 寫出來</p>
 </blockquote>
-<p><strong>[Corollaries]:</strong><br>&emsp;1. The distribution of <span>$L_t$</span><!-- Has MathJax --> is determined by <span>$L_1$</span><!-- Has MathJax --><br>&emsp;&emsp;<span>$\Phi_{L_1}(u)=e^{\Psi(u)}$</span><!-- Has MathJax --><br>&emsp;&emsp;所以可以由 <span>$L_1$</span><!-- Has MathJax --> 決定出 characteristic exponent <span>$\Psi(u)$</span><!-- Has MathJax --><br>&emsp;&emsp;而知道 <span>$\Psi(u)$</span><!-- Has MathJax --> 我們就知道任何時間點的 characteristic function, 也就決定了 distribution<br>&emsp;2. Expectation and variance of <span>$L_t$</span><!-- Has MathJax --><br>&emsp;&emsp;<span>$$\mathbb{E}L_t=t\cdot\mathbb{E}L_1 \\
+<p><strong>[Corollaries]:</strong><br>&emsp;1. The distribution of <span>$L_t$</span><!-- Has MathJax --> is determined by <span>$L_1$</span><!-- Has MathJax --><br>&emsp;&emsp;<span>$\Phi_{L_1}(u)=e^{\Psi(u)}$</span><!-- Has MathJax --><br>&emsp;&emsp;所以可以由 <span>$L_1$</span><!-- Has MathJax --> 決定出 characteristic exponent <span>$\Psi(u)$</span><!-- Has MathJax --><br>&emsp;&emsp;而知道 <span>$\Psi(u)$</span><!-- Has MathJax --> 我們就知道任何時間點的 characteristic function, 也就決定了 distribution<br>&emsp;2. Expectation and variance of <span>$L_t$</span><!-- Has MathJax --></p>
+<span>$$\mathbb{E}L_t=t\cdot\mathbb{E}L_1 \\
 Var(L_t)=t\cdot Var(L_1) \\
-K(t,s) =Var(L_{\min(t,s)}) = \min(t,s)\cdot Var(L_1)$$</span><!-- Has MathJax --></p>
+K(t,s) =Var(L_{\min(t,s)}) = \min(t,s)\cdot Var(L_1)$$</span><!-- Has MathJax -->
+
 <blockquote>
 <p>由此 <span>$K(t,s)$</span><!-- Has MathJax --> 可知, Levy process is NOT stationary (in any sense). 因為 WSS 必須滿足 <span>$K(t,s)=K(t+h,s+h)$</span><!-- Has MathJax -->, 然而 <span>$\min(t,s)\neq \min(t+h,s+h)$</span><!-- Has MathJax --></p>
 </blockquote>
 <p>注意到, Levy process is NOT stationary but is stationary increment</p>
 <hr>
-<h2 id="Week-8-5-Properties-of-a-Levy-process-which-directly-follow-from-the-existence-of-characteristic-exponent"><a href="#Week-8-5-Properties-of-a-Levy-process-which-directly-follow-from-the-existence-of-characteristic-exponent" class="headerlink" title="Week 8.5: Properties of a Lévy process, which directly follow from the existence of characteristic exponent"></a>Week 8.5: Properties of a Lévy process, which directly follow from the existence of characteristic exponent</h2><p><strong>[Levy Measure Def]:</strong><br>&emsp;Levy measure of a Levy process <span>$X_t$</span><!-- Has MathJax --> is defined as<br>&emsp;<span>$$\nu(B)=\mathbb{E}\left[
+<h2 id="Week-8-5-Properties-of-a-Levy-process-which-directly-follow-from-the-existence-of-characteristic-exponent"><a href="#Week-8-5-Properties-of-a-Levy-process-which-directly-follow-from-the-existence-of-characteristic-exponent" class="headerlink" title="Week 8.5: Properties of a Lévy process, which directly follow from the existence of characteristic exponent"></a>Week 8.5: Properties of a Lévy process, which directly follow from the existence of characteristic exponent</h2><p><strong>[Levy Measure Def]:</strong><br>&emsp;Levy measure of a Levy process <span>$X_t$</span><!-- Has MathJax --> is defined as<br><span>$$\nu(B)=\mathbb{E}\left[
 \# t\in[0,1]: \triangle X_t \in B
-\right], \qquad \forall B\subset\mathbb{R} \setminus\{0\}$$</span><!-- Has MathJax --><br>&emsp;where <span>$\triangle X_t=X_t-X_{t^-}$</span><!-- Has MathJax --> (size of jump), also reference to <a href="https://www.notion.so/Week-8-L-vy-processes-305f008762c24cd3ac981521f69a970b" target="_blank" rel="external">definition of Cadlag function</a></p>
+\right], \qquad \forall B\subset\mathbb{R} \setminus\{0\}$$</span><!-- Has MathJax --> &emsp;where <span>$\triangle X_t=X_t-X_{t^-}$</span><!-- Has MathJax --> (size of jump), also reference to <a href="https://www.notion.so/Week-8-L-vy-processes-305f008762c24cd3ac981521f69a970b" target="_blank" rel="external">definition of Cadlag function</a></p>
 <blockquote>
 <p><span>$B$</span><!-- Has MathJax --> 定義了我們要關注的那些 jump 值, 而 measure 就是: 有多少 (以期望值來看) random variables 他們的 jump 值屬於 <span>$B$</span><!-- Has MathJax -->, 且 random variables 只限制在 <span>$t\in[0,1]$</span><!-- Has MathJax --><br>又或者這麼說, 對於 <span>$X_t,\forall t\in[0,1]$</span><!-- Has MathJax --> 這些 random variables 來說, measure 就是發生 jump 次數的期望值 (constrained on jump 的值是我們要的, i.e. in <span>$B$</span><!-- Has MathJax -->)<br>此段課程後面會提供一個 Levy measure 的充要條件, 實在很神奇</p>
 </blockquote>
@@ -509,17 +515,20 @@ K(t,s) =Var(L_{\min(t,s)}) = \min(t,s)\cdot Var(L_1)$$</span><!-- Has MathJax --
 <blockquote>
 <p>可以這麼想, 在原來的 Poisson process, 每一次的 jump 都固定是 <span>$1$</span><!-- Has MathJax -->, 但在 C.P.P. jump 的值是根據 <span>$\xi_k$</span><!-- Has MathJax --> 來決定的. 所以能不能算進一次 jump 要看 jump 的值是不是在 <span>$B$</span><!-- Has MathJax --> 中</p>
 </blockquote>
-<p><strong>[Sufficient and Necessary Condition of Levy Measure]:</strong><br>&emsp;If <span>$\nu$</span><!-- Has MathJax --> is a Levy measure for some Levy process <span>$L_t$</span><!-- Has MathJax -->, if and only if satisfying<br>&emsp;<span>$$\int_{|x|&lt;1} x^2\nu(dx) =\int_{|x|&lt;1} x^2s(x)dx&lt;\infty \\
-\int_{|x|\geq1} \nu(dx)=\int_{|x|\geq1} s(x)dx&lt;\infty$$</span><!-- Has MathJax --></p>
+<p><strong>[Sufficient and Necessary Condition of Levy Measure]:</strong><br>&emsp;If <span>$\nu$</span><!-- Has MathJax --> is a Levy measure for some Levy process <span>$L_t$</span><!-- Has MathJax -->, if and only if satisfying</p>
+<span>$$\int_{|x|&lt;1} x^2\nu(dx) =\int_{|x|&lt;1} x^2s(x)dx&lt;\infty \\
+\int_{|x|\geq1} \nu(dx)=\int_{|x|\geq1} s(x)dx&lt;\infty$$</span><!-- Has MathJax -->
+
+
 <hr>
 <h2 id="Week-8-6-Levy-Khintchine-representation-and-Levy-Khintchine-triplet-1"><a href="#Week-8-6-Levy-Khintchine-representation-and-Levy-Khintchine-triplet-1" class="headerlink" title="Week 8.6: Lévy-Khintchine representation and Lévy-Khintchine triplet-1"></a>Week 8.6: Lévy-Khintchine representation and Lévy-Khintchine triplet-1</h2><blockquote>
 <p>💡 課程老師說這是整個課程最重要的定理</p>
 </blockquote>
-<p><strong>[Levy-Khintchine Theorem]:</strong><br>&emsp;The characteristic exponent <span>$\Psi(u)$</span><!-- Has MathJax --> of a Levy process <span>$L_t$</span><!-- Has MathJax --> can be represented as follows:<br>&emsp;<span>$$\color{orange}{
+<p><strong>[Levy-Khintchine Theorem]:</strong><br>&emsp;The characteristic exponent <span>$\Psi(u)$</span><!-- Has MathJax --> of a Levy process <span>$L_t$</span><!-- Has MathJax --> can be represented as follows:<br><span>$$\color{orange}{
 \Psi(u)=iu\mu-\frac{1}{2}u^2\sigma^2 + \int_{\mathbb{R}}\left(
 e^{iux}-1-iux\cdot\mathbf{1}\{|x|&lt;1\}
 \right)\nu(dx)
-}$$</span><!-- Has MathJax --><br>&emsp;where <span>$\mu\in\mathbb{R},\sigma\geq0$</span><!-- Has MathJax -->, and <span>$\nu$</span><!-- Has MathJax --> is a Levy measure. <strong><span>$(\mu,\sigma,\nu)$</span><!-- Has MathJax --> is called Levy triplet</strong><br>&emsp;which completely determined the distribution of Levy process at any time moment <span>$t$</span><!-- Has MathJax --></p>
+}$$</span><!-- Has MathJax --> &emsp;where <span>$\mu\in\mathbb{R},\sigma\geq0$</span><!-- Has MathJax -->, and <span>$\nu$</span><!-- Has MathJax --> is a Levy measure. <strong><span>$(\mu,\sigma,\nu)$</span><!-- Has MathJax --> is called Levy triplet</strong><br>&emsp;which completely determined the distribution of Levy process at any time moment <span>$t$</span><!-- Has MathJax --></p>
 <p>可以證明 <span>$\forall L_t$</span><!-- Has MathJax --> - Levy process, 可以表示如下<br><span>$X_t = \underbrace{\mu t + \sigma W_t}_\text{continuous part} + \underbrace{\mathcal{J}_t}_{\text{jump part}}$</span><!-- Has MathJax --></p>
 <p>所以 Levy process 的 continuous part 可以視為 Brownian motion<br>而 jump part <span>$\mathcal{J}_t$</span><!-- Has MathJax -->:</p>
 <span>$$\mathcal{J}_t \approx 
@@ -550,16 +559,16 @@ iux\cdot\mathbf{1}\{|x|&lt;1\}
 <blockquote>
 <p>注意到 Brownian motion <span>$W_t$</span><!-- Has MathJax --> <strong><em>不是</em></strong> bounded variation</p>
 </blockquote>
-<p><strong>[When Levy Process is Bounded Variation]:</strong><br>&emsp;一個 Levy process <span>$L_t$</span><!-- Has MathJax --> 是 <strong><em>bounded variation 若且為若</em></strong><br>&emsp;<span>$$\begin{align}
+<p><strong>[When Levy Process is Bounded Variation]:</strong><br>&emsp;一個 Levy process <span>$L_t$</span><!-- Has MathJax --> 是 <strong><em>bounded variation 若且為若</em></strong><br><span>$$\begin{align}
 \sigma=0 \\
 \int_{|x|&lt;1} x\nu(dx) &lt; \infty
-\end{align}$$</span><!-- Has MathJax --><br>&emsp;條件 <span>$(2)$</span><!-- Has MathJax --> 會有如下結果<br>&emsp;<span>$\int_\mathbb{R}iux\cdot\mathbf{1}\{|x|&lt;1\}\nu(dx) = iu\int_{|x|&lt;1}x\nu(dx)&lt;\infty$</span><!-- Has MathJax --><br>&emsp;因此 characteristic exponent 變成:<br>&emsp;<span>$$\Psi(u)=iu\mu-\frac{1}{2}u^2\sigma^2 + \int_{\mathbb{R}}\left(
+\end{align}$$</span><!-- Has MathJax --> &emsp;條件 <span>$(2)$</span><!-- Has MathJax --> 會有如下結果<br>&emsp;<span>$\int_\mathbb{R}iux\cdot\mathbf{1}\{|x|&lt;1\}\nu(dx) = iu\int_{|x|&lt;1}x\nu(dx)&lt;\infty$</span><!-- Has MathJax --><br>&emsp;因此 characteristic exponent 變成:<br><span>$$\Psi(u)=iu\mu-\frac{1}{2}u^2\sigma^2 + \int_{\mathbb{R}}\left(
 e^{iux}-1-
 iux\cdot\mathbf{1}\{|x|&lt;1\}
 \right)\nu(dx) \\
 =iu\mu +
 \int_{\mathbb{R}}(e^{iux}-1)\nu(dx)-iu\int_{|x|&lt;1}x\nu(dx) \\
-= iu\left(\mu-\int_{|x|&lt;1}x\nu(dx)\right) + \int_{\mathbb{R}}(e^{iux}-1)\nu(dx)$$</span><!-- Has MathJax --><br>&emsp;所以 characteristic function: <span>$\Phi(u)=\exp\{t\cdot\Psi(u)\}$</span><!-- Has MathJax --></p>
+= iu\left(\mu-\int_{|x|&lt;1}x\nu(dx)\right) + \int_{\mathbb{R}}(e^{iux}-1)\nu(dx)$$</span><!-- Has MathJax --> &emsp;所以 characteristic function: <span>$\Phi(u)=\exp\{t\cdot\Psi(u)\}$</span><!-- Has MathJax --></p>
 <p>重寫一遍, 這很重要<br><span>$$\color{orange}{
 \Psi(u) = iu
 \underbrace{\left(\mu-\int_{|x|&lt;1}x\nu(dx)\right)}_{=\tilde{\mu}}
@@ -569,17 +578,19 @@ iux\cdot\mathbf{1}\{|x|&lt;1\}
 \underbrace{\left(\mu-\int_{|x|&lt;1}x\cdot s(x)dx\right)}_{\tilde{\mu}}
  + \int_{\mathbb{R}}(e^{iux}-1)\cdot s(x)dx
 }$$</span><!-- Has MathJax --> where <span>$s(x)$</span><!-- Has MathJax --> is Levy density</p>
-<p><strong>[When Levy Process is C.P.P.]</strong><br>&emsp;一個 Levy process <span>$L_t$</span><!-- Has MathJax --> 是 <strong><em>C.P.P. 若且為若</em></strong><br>&emsp;<span>$$\begin{align}
+<p><strong>[When Levy Process is C.P.P.]</strong><br>&emsp;一個 Levy process <span>$L_t$</span><!-- Has MathJax --> 是 <strong><em>C.P.P. 若且為若</em></strong><br><span>$$\begin{align}
 \sigma=0, \\
 \int_{\mathbb{R}}\nu(dx)=\nu(\mathbb{R})&lt;\infty
-\end{align}$$</span><!-- Has MathJax --><br>&emsp;可以發現這樣的 <span>$L_t$</span><!-- Has MathJax --> 也是 bounded variation, 所以也可以簡化</p>
-<p><strong>[When Levy Process is Subordinator]:</strong><br>&emsp;一個 Levy process <span>$L_t$</span><!-- Has MathJax --> 稱為 subordinator 如果滿足<br>&emsp;<span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> &emsp;可以發現這樣的 <span>$L_t$</span><!-- Has MathJax --> 也是 bounded variation, 所以也可以簡化</p>
+<p><strong>[When Levy Process is Subordinator]:</strong><br>&emsp;一個 Levy process <span>$L_t$</span><!-- Has MathJax --> 稱為 subordinator 如果滿足<br><span>$$\begin{align}
 X_t\geq0\text{ a.s. }\Longleftrightarrow X_t\geq X_s\text{ a.s. }, \forall t\geq s
-\end{align}$$</span><!-- Has MathJax --><br>&emsp;上式會等價是因為 Levy process 的 stationary increment. i.e.<br>&emsp;<span>$X_t-X_s =^d X_{t-s}, \qquad \forall t\geq s$</span><!-- Has MathJax --><br>&emsp;而 Levy process <span>$L_t$</span><!-- Has MathJax --> 為 subordinator <strong><em>若且為若</em></strong><br>&emsp;<span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --> &emsp;上式會等價是因為 Levy process 的 stationary increment. i.e.<br>&emsp;<span>$X_t-X_s =^d X_{t-s}, \qquad \forall t\geq s$</span><!-- Has MathJax --><br>&emsp;而 Levy process <span>$L_t$</span><!-- Has MathJax --> 為 subordinator <strong><em>若且為若</em></strong></p>
+<span>$$\begin{align}
 \sigma=0 \\
 \nu(\mathbb{R}^-)=0 \\
 \int_0^1 x\nu(dx)&lt;\infty
-\end{align}$$</span><!-- Has MathJax --></p>
+\end{align}$$</span><!-- Has MathJax -->
+
 <blockquote>
 <p>式 (7) 的 Levy measure 表示 jump 的值一定都是正的 (為負的次數其 measure 為 0)</p>
 </blockquote>
@@ -606,9 +617,11 @@ r:\int_{|x|&lt;1}x^r\nu(dx)&lt;\infty
 \right\}$$</span><!-- Has MathJax -->
 
 <p><strong>[Stable Processes Def]:</strong><br>&emsp;Stable processes are Levy processes which have stable distribution at any time moment.</p>
-<p>以下照老師的說法寫下的, 不是很肯定<br><strong>[Levy Process Defined by Stable Process]:</strong><br>&emsp;<span>$S_t$</span><!-- Has MathJax --> is a Levy process if <span>$\forall a&gt;0$</span><!-- Has MathJax -->, <span>$\exists b:\mathbb{R}^+\rightarrow\mathbb{R}$</span><!-- Has MathJax -->, <span>$\alpha\in(0,2]$</span><!-- Has MathJax -->, such that<br>&emsp;<span>$$\left\{ S_{at}\right\}_{t\geq0}
+<p>以下照老師的說法寫下的, 不是很肯定<br><strong>[Levy Process Defined by Stable Process]:</strong><br>&emsp;<span>$S_t$</span><!-- Has MathJax --> is a Levy process if <span>$\forall a&gt;0$</span><!-- Has MathJax -->, <span>$\exists b:\mathbb{R}^+\rightarrow\mathbb{R}$</span><!-- Has MathJax -->, <span>$\alpha\in(0,2]$</span><!-- Has MathJax -->, such that</p>
+<span>$$\left\{ S_{at}\right\}_{t\geq0}
 =^d
-\left\{ a^{1/\alpha}S_t+b(t)\right\}_{t\geq0}$$</span><!-- Has MathJax --></p>
+\left\{ a^{1/\alpha}S_t+b(t)\right\}_{t\geq0}$$</span><!-- Has MathJax -->
+
 <p>Brownian motion is a stable process, 因為 <span>$\alpha=2$</span><!-- Has MathJax -->, <span>$b(t)=0$</span><!-- Has MathJax --> 滿足上式<br><span>$W_{at}\sim\mathcal{N}(0,at)\sim\sqrt{2}\cdot\mathcal{N}(0,t)\sim\sqrt{2}\cdot W_t$</span><!-- Has MathJax --></p>
 <p>For stable processes, <span>$BG(\nu)=\alpha$</span><!-- Has MathJax --></p>
 <p>如果 <span>$\alpha\approx0$</span><!-- Has MathJax -->, 則 trajectories 會很接近 C.P.P., 而如果 <span>$\alpha\approx2$</span><!-- Has MathJax -->, 則 trajectories 會很接近 Brownian motion, 其他則介於中間的兩者混合<br><img src="/2021/12/12/Stochastic-Processes-Week-8-Levy-processes/Untitled 13.png" width="60%" height="60%"></p>

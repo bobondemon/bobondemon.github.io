@@ -93,7 +93,7 @@
 <meta property="og:url" content="https://bobondemon.github.io/2026/04/18/MatrixNorm/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="向量的 norm 我們很熟悉了, 但對於一個矩陣的 norm 又該怎麼定義呢?最直覺的想法就是把矩陣 flatten 成一個向量, 套用向量的 norm 即可. 這引導出了 Frobenius norm.但是矩陣還包含了將向量做線性轉換的作用, 所以向量經過矩陣轉換後的 norm 變化是不是可以用來當作矩陣 norm 的度量方式呢? 這樣的想法引導出了 operator norm 或 spect">
-<meta property="og:updated_time" content="2026-08-19T15:19:39.153Z">
+<meta property="og:updated_time" content="2026-08-20T13:10:17.812Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="量量矩陣的大小: Frobenius 和 Spectral Norm">
 <meta name="twitter:description" content="向量的 norm 我們很熟悉了, 但對於一個矩陣的 norm 又該怎麼定義呢?最直覺的想法就是把矩陣 flatten 成一個向量, 套用向量的 norm 即可. 這引導出了 Frobenius norm.但是矩陣還包含了將向量做線性轉換的作用, 所以向量經過矩陣轉換後的 norm 變化是不是可以用來當作矩陣 norm 的度量方式呢? 這樣的想法引導出了 operator norm 或 spect">
@@ -371,22 +371,27 @@
         <hr>
 <p>向量的 norm 我們很熟悉了, 但對於一個矩陣的 norm 又該怎麼定義呢?<br>最直覺的想法就是把矩陣 flatten 成一個向量, 套用向量的 norm 即可. 這引導出了 Frobenius norm.<br>但是矩陣還包含了將向量做線性轉換的作用, 所以向量經過矩陣轉換後的 <em>norm 變化</em>是不是可以用來當作矩陣 norm 的度量方式呢? 這樣的想法引導出了 operator norm 或 spectral norm.<br>先給出 take away 總結:</p>
 <ul>
-<li><p>Frobenius norm: 開根號的 “singular value 平方和”<br>  <span>$$\begin{aligned}
+<li><p>Frobenius norm: 開根號的 “singular value 平方和”</p>
+<span>$$\begin{aligned}
     \|A\|_F := \sqrt{\sum_{i,j}|a_{ij}|^2} =\mathrm{Tr}(A^HA)=\sqrt{\sum_i^{\min\{m,n\}}\sigma_i^2(A)}
-    \end{aligned}$$</span><!-- Has MathJax --></p>
+    \end{aligned}$$</span><!-- Has MathJax -->
 </li>
-<li><p>Spectral norm: 最大的 singular value<br>  <span>$$\begin{aligned}
+<li><p>Spectral norm: 最大的 singular value</p>
+<span>$$\begin{aligned}
     \|A\|_2 :=\sup_{\|x\|_2\leq1}\{\|Ax\|_2\}=\sqrt{\lambda_{\max}(A^HA)}=\sigma_{\max}(A)
-    \end{aligned}$$</span><!-- Has MathJax --></p>
+    \end{aligned}$$</span><!-- Has MathJax -->
+
 </li>
 </ul>
 <blockquote>
 <p>💡 為什麼 spectral norm 這麼定義?<br>推薦閱讀周老師的文章, <a href="https://ccjou.wordpress.com/2010/05/10/%E7%9F%A9%E9%99%A3%E6%A8%A1/" target="_blank" rel="external">矩陣範數</a>, 非常具有啟發性！更多延伸：<a href="https://ccjou.wordpress.com/2012/07/03/%E8%AD%9C%E5%8D%8A%E5%BE%91%E8%88%87%E7%9F%A9%E9%99%A3%E7%AF%84%E6%95%B8/" target="_blank" rel="external">譜半徑與矩陣範數</a></p>
 </blockquote>
 <ul>
-<li>兩者的關係:<br>  <span>$$\begin{aligned}
+<li>兩者的關係:    <span>$$\begin{aligned}
     \|A\|_2 \leq \|A\|_F
-    \end{aligned}$$</span><!-- Has MathJax --></li>
+    \end{aligned}$$</span><!-- Has MathJax -->
+
+</li>
 </ul>
 <p>接著詳細記錄定義和推導證明 (參考自黃子嘉線性代數講義)</p>
 <a id="more"></a>

@@ -112,7 +112,7 @@ Week 5: Stationari">
 <meta property="og:image" content="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/Untitled 2.png">
 <meta property="og:image" content="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/1_8fqGjD53hQHAg_3Ew-rFVA.png">
 <meta property="og:image" content="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/1_ChFQfJHe8uHTcWpLCipg7g.png">
-<meta property="og:updated_time" content="2026-08-20T12:28:17.453Z">
+<meta property="og:updated_time" content="2026-08-20T12:51:18.213Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Stochastic Processes Week 0 一些預備知識">
 <meta name="twitter:description" content="Coursera Stochastic Processes 課程筆記, 共十篇:
@@ -427,12 +427,12 @@ Week 5: Stationari">
 </li>
 </ul>
 <ul>
-<li><p><span>$Cov(X,Y)=\mathbb{E}[XY]-\mathbb{E}[X]\mathbb{E}[Y]$</span><!-- Has MathJax --><br><a href="<span>$(X_1,...,X_n) \text{ where } X_k\sim\mathcal{N}(\mu_k,\sigma_k^2),\forall k=1,...,n$</span><!-- Has MathJax -->">Proof</a>:</p>
+<li><p><span>$Cov(X,Y)=\mathbb{E}[XY]-\mathbb{E}[X]\mathbb{E}[Y]$</span><!-- Has MathJax --><br>[Proof]:</p>
 <span>$$Cov(X,Y)=\mathbb{E}[(X-\mu_x)(Y-\mu_y)] \\
 =\mathbb{E}[XY]-\mu_x\mathbb{E}[Y]-\mu_y\mathbb{E}[X]+\mu_x\mu_y \\
 =\mathbb{E}[XY]-\mu_x\mu_y$$</span><!-- Has MathJax -->
 </li>
-<li><p><span>$Var(X)=\mathbb{E}[X^2]-(\mathbb{E}[X])^2$</span><!-- Has MathJax --><br><a href="<span>$(X_1,...,X_n) \text{ where } X_k\sim\mathcal{N}(\mu_k,\sigma_k^2),\forall k=1,...,n$</span><!-- Has MathJax -->">Proof</a>:</p>
+<li><p><span>$Var(X)=\mathbb{E}[X^2]-(\mathbb{E}[X])^2$</span><!-- Has MathJax --><br>[Proof]:</p>
 <span>$$Var(X)=Cov(X,X)=\mathbb{E}[XX]-\mathbb{E}[X]\mathbb{E}[X] \\
 = \mathbb{E}[X^2]-(\mathbb{E}[X])^2$$</span><!-- Has MathJax -->
 
@@ -443,7 +443,7 @@ Week 5: Stationari">
 <li><span>$X,Y$</span><!-- Has MathJax --> uncorrelated <span>$\Longleftrightarrow Cov(X,Y)=0 \Longleftrightarrow \mathbb{E}[XY]=\mathbb{E}[X]\mathbb{E}[Y]$</span><!-- Has MathJax --></li>
 <li><p><span>$X\perp Y \Rightarrow$</span><!-- Has MathJax --> <span>$X,Y$</span><!-- Has MathJax --> uncorrelated <span>$\Rightarrow \mathbb{E}[XY]=\mathbb{E}[X]\mathbb{E}[Y]$</span><!-- Has MathJax --></p>
 </li>
-<li><p>Covariance 是線性的: <span>$Cov(aX+bY,cZ)=acCov(X,Z)+bcCov(Y,Z)$</span><!-- Has MathJax --><br><a href="<span>$(X_1,...,X_n) \text{ where } X_k\sim\mathcal{N}(\mu_k,\sigma_k^2),\forall k=1,...,n$</span><!-- Has MathJax -->">Proof</a>:</p>
+<li><p>Covariance 是線性的: <span>$Cov(aX+bY,cZ)=acCov(X,Z)+bcCov(Y,Z)$</span><!-- Has MathJax --><br>[Proof]:</p>
 <span>$$Cov(aX+bY,cZ)=\mathbb{E}[(aX+bY)cZ]-\mathbb{E}[aX+bY]\mathbb{E}[cZ] \\
 = ac\mathbb{E}[XZ]+bc\mathbb{E}[YZ]-ac\mathbb{E}[X]\mathbb{E}[Z]-bc\mathbb{E}[Y]\mathbb{E}[Z] \\
 = ac(\mathbb{E}[XZ]-\mathbb{E}[X]\mathbb{E}[Z])+bc(\mathbb{E}[YZ]-\mathbb{E}[Y]\mathbb{E}[Z]) \\
@@ -451,7 +451,7 @@ Week 5: Stationari">
 </li>
 <li><p><strong>[Characteristic Function Def]:</strong><br>  For random variable <span>$\xi$</span><!-- Has MathJax -->, 定義 characteristic function <span>$\Phi:\mathbb{R}\rightarrow \mathbb{C}$</span><!-- Has MathJax --> 為<br>  <span>$$\Phi_\xi(u) = \mathbb{E}\left[ e^{iu\xi} \right]$$</span><!-- Has MathJax --></p>
 </li>
-<li><p>如果 <span>$\xi_1\perp\xi_2$</span><!-- Has MathJax -->, 則<br><span>$\Phi_{\xi_1+\xi_2}(u)=\Phi_{\xi_1}(u)\Phi_{\xi_2}(u)$</span><!-- Has MathJax --><br><a href="<span>$(X_1,...,X_n) \text{ where } X_k\sim\mathcal{N}(\mu_k,\sigma_k^2),\forall k=1,...,n$</span><!-- Has MathJax -->">Proof</a>:</p>
+<li><p>如果 <span>$\xi_1\perp\xi_2$</span><!-- Has MathJax -->, 則<br><span>$\Phi_{\xi_1+\xi_2}(u)=\Phi_{\xi_1}(u)\Phi_{\xi_2}(u)$</span><!-- Has MathJax --><br>[Proof]:</p>
 <span>$$\Phi_{\xi_1+\xi_2}(u)=\mathbb{E}[e^{iu(\xi_1+\xi_2)}]=\mathbb{E}[e^{iu\xi_1}e^{iu\xi_2}] \\
 = \int_{\xi_1,\xi_2} \mathcal{P}(\xi_1,\xi_2)e^{iu\xi_1}e^{iu\xi_2} d\xi_1 d\xi_2 \\
 = \int_{\xi_1,\xi_2} \left(\mathcal{P}(\xi_1)e^{iu\xi_1}\right)\left(\mathcal{P}(\xi_2)e^{iu\xi_2}\right) d\xi_1 d\xi_2 \\
@@ -462,7 +462,7 @@ Week 5: Stationari">
 </li>
 <li><p><span>$|Cov(X,Y)|\leq\sqrt{Var(X)}\sqrt{Var(Y)}$</span><!-- Has MathJax --><br>[<a href="https://en.wikipedia.org/wiki/Covariance" target="_blank" rel="external">Proof</a>]:<br><img src="/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/Untitled.png" width="65%" height="65%"></p>
 </li>
-<li><p><span>$Var(X+Y)=Var(X)+Var(Y)+2Cov(X,Y)$</span><!-- Has MathJax --><br><a href="<span>$(X_1,...,X_n) \text{ where } X_k\sim\mathcal{N}(\mu_k,\sigma_k^2),\forall k=1,...,n$</span><!-- Has MathJax -->">Proof</a>:</p>
+<li><p><span>$Var(X+Y)=Var(X)+Var(Y)+2Cov(X,Y)$</span><!-- Has MathJax --><br>[Proof]:</p>
 <span>$$Var(X+Y)=Cov(X+Y,X+Y)\\
 =Cov(X,X)+2Cov(X,Y)+Cov(Y,Y)\\
 =Var(X)+Var(Y)+2Cov(X,Y)$$</span><!-- Has MathJax -->
@@ -475,14 +475,12 @@ p(x)=\frac{1}{\sqrt{2\pi}\sigma} e^{-\frac{(x-\mu)^2}{2\sigma^2}}$$</span><!-- H
 </li>
 <li><p>The characteristic function of normal distribution is:<br><span>$\Phi(u)=e^{iu\mu-\frac{1}{2}u^2\sigma^2}$</span><!-- Has MathJax --></p>
 </li>
-<li><p>獨立高斯分佈之和仍為高斯分佈, mean and variance 都相加</p>
-</li>
-</ul>
-<p>我們知道<br><span>$$X_k\sim\mathcal{N}(\mu_k,\sigma_k^2)\longleftrightarrow
+<li><p>獨立高斯分佈之和仍為高斯分佈, mean and variance 都相加<br>[Proof]:<br><span>$(X_1,...,X_n) \text{ where } X_k\sim\mathcal{N}(\mu_k,\sigma_k^2),\forall k=1,...,n$</span><!-- Has MathJax --><br>我們知道<br><span>$$X_k\sim\mathcal{N}(\mu_k,\sigma_k^2)\longleftrightarrow
 \Phi_k(u)=e^{iu\mu_k-\frac{1}{2}u^2\sigma_k^2}$$</span><!-- Has MathJax --> 則<br><span>$$\sum_k X_k \longleftrightarrow
 \prod_k \Phi_k(u) = e^{iu(\sum_k \mu_k)-\frac{1}{2}u^2(\sum_k \sigma_k^2)}$$</span><!-- Has MathJax --> 由特徵方程式與機率分佈一對一對應得知<br><span>$\sum_k X_k \sim \mathcal{N}\left(\sum_k \mu_k, \sum_k \sigma_k^2\right)$</span><!-- Has MathJax --></p>
-<ul>
-<li><span>$K:\mathcal{X}\times\mathcal{X}\rightarrow\mathbb{R}$</span><!-- Has MathJax --> is symmetric positive semi-definite:<br><img src="/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/Untitled 1.png" width="75%" height="75%"></li>
+</li>
+<li><p><span>$K:\mathcal{X}\times\mathcal{X}\rightarrow\mathbb{R}$</span><!-- Has MathJax --> is symmetric positive semi-definite:<br><img src="/2021/12/11/Stochastic-Processes-Week-0-一些預備知識/Untitled 1.png" width="75%" height="75%"></p>
+</li>
 </ul>
 <ul>
 <li><p>給定 <span>$t_1&lt;t_2&lt;...&lt;t_n$</span><!-- Has MathJax --> 一個很有用的技巧為:<br>可以變成以下這些 disjoint 區段的線性組合<br><span>$(t_2-t_1),...,(t_n-t_{n-1})$</span><!-- Has MathJax --><br>具體如下:<br><span>$$\sum_{k=1}^n \lambda_k B_{t_k} = \lambda_n(B_{t_n}-B_{t_{n-1}}) + (\lambda_n+\lambda_{n-1})B_{t_{n-1}} + \sum_{k=1}^{n-2} \lambda_k B_{t_k} \\

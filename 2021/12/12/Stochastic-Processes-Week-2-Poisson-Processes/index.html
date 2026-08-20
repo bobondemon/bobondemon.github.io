@@ -114,7 +114,7 @@ Week 5: Stationari">
 <meta property="og:image" content="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/Untitled 4.png">
 <meta property="og:image" content="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/Untitled 5.png">
 <meta property="og:image" content="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/Untitled 6.png">
-<meta property="og:updated_time" content="2026-08-20T12:28:17.453Z">
+<meta property="og:updated_time" content="2026-08-20T12:51:18.214Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Stochastic Processes Week 2 Poisson Processes">
 <meta name="twitter:description" content="Coursera Stochastic Processes 課程筆記, 共十篇:
@@ -415,35 +415,37 @@ Week 5: Stationari">
 <hr>
 <h2 id="Week-2-1-4-Definition-of-a-Poisson-process-as-a-special-example-of-renewal-process-Exact-forms-of-the-distributions-of-the-renewal-process-and-the-counting-process"><a href="#Week-2-1-4-Definition-of-a-Poisson-process-as-a-special-example-of-renewal-process-Exact-forms-of-the-distributions-of-the-renewal-process-and-the-counting-process" class="headerlink" title="Week 2.1-4: Definition of a Poisson process as a special example of renewal process. Exact forms of the distributions of the renewal process and the counting process"></a>Week 2.1-4: Definition of a Poisson process as a special example of renewal process. Exact forms of the distributions of the renewal process and the counting process</h2><p>Just a recap<br><img src="/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/Untitled.png" width="100%" height="100%"><br>令我們有如上面所述的 renewal process<br><strong>[Poisson Processes Def1]:</strong><br>&emsp;A Poisson process 是一個 renewal process, 且 <span>$\xi_i\sim p(x)=\lambda e^{-\lambda x}\cdot \mathbf{1}(x&gt;0)$</span><!-- Has MathJax --> which is exponential density function<br>&emsp;此時 <span>$\mathbf{1}(\cdot)$</span><!-- Has MathJax --> 為 indicator function, 而 <span>$\lambda$</span><!-- Has MathJax --> 稱為 intensity parameter, 或 rate of Poisson process</p>
 <p>簡單說就是 exponential random variables 的 renewal process<br>此時的 renewal process 的 <span>$S_n$</span><!-- Has MathJax --> (arrival time process) and <span>$N_t$</span><!-- Has MathJax --> (counting process) 有 closed form</p>
-<p><strong>[Thm] Arrival time process <span>$S_n$</span><!-- Has MathJax --> 的 distribution and density functions:</strong><br>&emsp;<span>$$F_{S_n}(x)=\left\{ \begin{array}
+<p><strong>[Thm] Arrival time process <span>$S_n$</span><!-- Has MathJax --> 的 distribution and density functions:</strong></p>
+<span>$$F_{S_n}(x)=\left\{ \begin{array}
 {rl} 1-e^{-\lambda x} \sum_{k=0}^{n-1}\frac{(\lambda x)^k}{k!}, &amp; x&gt;0 \\
 0, &amp; x&lt;0
 \end{array} \right. \\
-\mathcal{P}_{S_n}(x)=\lambda\frac{(\lambda x)^{n-1}}{(n-1)!}e^{-\lambda x}\cdot \mathbf{1}(x&gt;0)$$</span><!-- Has MathJax --></p>
-<p><a href="&emsp;<span>$$\mathcal{P}\{\xi_1\leq x\}=\mathcal{P}\{S_1\leq x\}=\mathcal{P}\{N_x\geq 1\}
-= 1 - \mathcal{P}\{N_x=0\} \\
-= 1- Pois(\Lambda(x)) = 1-e^{-\Lambda(x)}$$</span><!-- Has MathJax -->">Proof</a>:<br>&emsp;我們證明 p.d.f., 使用數學歸納法<br>&emsp;考慮 <span>$n=1$</span><!-- Has MathJax --> 時 <span>$\mathcal{P}_{S_1}=?$</span><!-- Has MathJax --><br>&emsp;<span>$S_1=\xi_1\sim \lambda e^{-\lambda x}\cdot \mathbf{1}(x&gt;0)$</span><!-- Has MathJax --><br>&emsp;假設 <span>$n$</span><!-- Has MathJax --> 成立, 考慮 <span>$n+1$</span><!-- Has MathJax --><br>&emsp;<span>$$\mathcal{P}_{S_{n+1}}(x)
+\mathcal{P}_{S_n}(x)=\lambda\frac{(\lambda x)^{n-1}}{(n-1)!}e^{-\lambda x}\cdot \mathbf{1}(x&gt;0)$$</span><!-- Has MathJax -->
+
+<p>[Proof]:<br>&emsp;我們證明 p.d.f., 使用數學歸納法<br>&emsp;考慮 <span>$n=1$</span><!-- Has MathJax --> 時 <span>$\mathcal{P}_{S_1}=?$</span><!-- Has MathJax --><br>&emsp;<span>$S_1=\xi_1\sim \lambda e^{-\lambda x}\cdot \mathbf{1}(x&gt;0)$</span><!-- Has MathJax --><br>&emsp;假設 <span>$n$</span><!-- Has MathJax --> 成立, 考慮 <span>$n+1$</span><!-- Has MathJax --></p>
+<span>$$\mathcal{P}_{S_{n+1}}(x)
 = \int_{y=0}^x \mathcal{P}_{S_n}(x-y) \cdot \mathcal{P}_{\xi_{n+1}}(y) dy \\
 = \int_{y=0}^x
 \frac{\lambda^n(x-y)^{n-1}}{(n-1)!}e^{-\lambda (x-y)} \lambda e^{-\lambda y} dy \\
 = \int_{y=0}^x
 \frac{\lambda^{n+1}(x-y)^{n-1}}{(n-1)!}e^{-\lambda x} dy \\
 = \frac{\lambda^{n+1}}{(n-1)!}e^{-\lambda x} \int_{y=0}^x (x-y)^{n-1}dy \\
-= \frac{\lambda^{n+1}}{(n-1)!} e^{-\lambda x} \cdot \frac{x^n}{n} = \lambda\frac{(\lambda x)^n}{n!} e^{-\lambda x}$$</span><!-- Has MathJax --></p>
-<p><strong>[Thm] Counting process <span>$N_t$</span><!-- Has MathJax --> 是 Poisson distribution, <span>$\mathcal{P}\{N_t=n\}\sim Pois(\lambda t)$</span><!-- Has MathJax -->:</strong><br>&emsp;<span>$${\color{orange}
+= \frac{\lambda^{n+1}}{(n-1)!} e^{-\lambda x} \cdot \frac{x^n}{n} = \lambda\frac{(\lambda x)^n}{n!} e^{-\lambda x}$$</span><!-- Has MathJax -->
+
+<p><strong>[Thm] Counting process <span>$N_t$</span><!-- Has MathJax --> 是 Poisson distribution, <span>$\mathcal{P}\{N_t=n\}\sim Pois(\lambda t)$</span><!-- Has MathJax -->:</strong><br><span>$${\color{orange}
 {
 \mathcal{P}\{N_t=n\} \sim Pois(\lambda t)=e^{-\lambda t}\frac{(\lambda t)^n}{n!}
 }
-}$$</span><!-- Has MathJax --><br><a href="&emsp;<span>$$\mathcal{P}\{\xi_1\leq x\}=\mathcal{P}\{S_1\leq x\}=\mathcal{P}\{N_x\geq 1\}
-= 1 - \mathcal{P}\{N_x=0\} \\
-= 1- Pois(\Lambda(x)) = 1-e^{-\Lambda(x)}$$</span><!-- Has MathJax -->">Proof</a>:<br>&emsp;我們有 <span>$\mathcal{P}\{N_t=n\}=\mathcal{P}\{ S_n\leq t\} - \mathcal{P}\{ S_{n+1}\leq t\}\ldots(\star)$</span><!-- Has MathJax --><br>&emsp;L.H.S. 意思是, 到時間 <span>$t$</span><!-- Has MathJax --> 為止正好發生 <span>$n$</span><!-- Has MathJax --> 次事件的機率<br>&emsp;R.H.S. 以下兩種都可以解釋:<br>&emsp;1. 到時間 <span>$t$</span><!-- Has MathJax --> 為止已發生至少 <span>$n$</span><!-- Has MathJax --> 次事件的機率, 扣掉, 到時間 <span>$t$</span><!-- Has MathJax --> 為止已發生至少 <span>$n+1$</span><!-- Has MathJax --> 次事件的機率<br>&emsp;&emsp;—&gt; 很顯然只會剩下到時間 <span>$t$</span><!-- Has MathJax --> 為止正好發生 <span>$n$</span><!-- Has MathJax --> 次事件的機率<br>&emsp;2. 第 <span>$n$</span><!-- Has MathJax --> 個事件發生的時間比 <span>$t$</span><!-- Has MathJax --> 小的機率, 扣掉, 第 <span>$n+1$</span><!-- Has MathJax --> 個事件發生的時間比 <span>$t$</span><!-- Has MathJax --> 小的機率.<br>&emsp;&emsp;<span>$\{N_t=n\}=\{S_n\leq t\} \cap \{S_{n+1}&gt;t\}$</span><!-- Has MathJax --> 用 <span>$A \cap B$</span><!-- Has MathJax --> 表示, 由於<br>&emsp;<span>$$\left.
+}$$</span><!-- Has MathJax --> [Proof]:<br>&emsp;我們有 <span>$\mathcal{P}\{N_t=n\}=\mathcal{P}\{ S_n\leq t\} - \mathcal{P}\{ S_{n+1}\leq t\}\ldots(\star)$</span><!-- Has MathJax --><br>&emsp;L.H.S. 意思是, 到時間 <span>$t$</span><!-- Has MathJax --> 為止正好發生 <span>$n$</span><!-- Has MathJax --> 次事件的機率<br>&emsp;R.H.S. 以下兩種都可以解釋:<br>&emsp;1. 到時間 <span>$t$</span><!-- Has MathJax --> 為止已發生至少 <span>$n$</span><!-- Has MathJax --> 次事件的機率, 扣掉, 到時間 <span>$t$</span><!-- Has MathJax --> 為止已發生至少 <span>$n+1$</span><!-- Has MathJax --> 次事件的機率<br>&emsp;&emsp;—&gt; 很顯然只會剩下到時間 <span>$t$</span><!-- Has MathJax --> 為止正好發生 <span>$n$</span><!-- Has MathJax --> 次事件的機率<br>&emsp;2. 第 <span>$n$</span><!-- Has MathJax --> 個事件發生的時間比 <span>$t$</span><!-- Has MathJax --> 小的機率, 扣掉, 第 <span>$n+1$</span><!-- Has MathJax --> 個事件發生的時間比 <span>$t$</span><!-- Has MathJax --> 小的機率.<br>&emsp;&emsp;<span>$\{N_t=n\}=\{S_n\leq t\} \cap \{S_{n+1}&gt;t\}$</span><!-- Has MathJax --> 用 <span>$A \cap B$</span><!-- Has MathJax --> 表示, 由於<br><span>$$\left.
 \begin{array}{r}
 A\cap B=A\backslash B^c \\
 B^c\subset A
 \end{array}
 \right\}
-\Rightarrow \mathcal{P}(A\cap B)=\mathcal{P}(A)-\mathcal{P}(B^c)$$</span><!-- Has MathJax --><br>&emsp;因此<br>&emsp;<span>$$(\star) = \left( 1-e^{-\lambda t} \sum_{k=0}^{n-1}\frac{(\lambda t)^k}{k!} \right) - \left( 1-e^{-\lambda t} \sum_{k=0}^{n}\frac{(\lambda t)^k}{k!} \right) \\
-= e^{-\lambda t}\frac{(\lambda t)^n}{n!}$$</span><!-- Has MathJax --></p>
+\Rightarrow \mathcal{P}(A\cap B)=\mathcal{P}(A)-\mathcal{P}(B^c)$$</span><!-- Has MathJax --> &emsp;因此</p>
+<span>$$(\star) = \left( 1-e^{-\lambda t} \sum_{k=0}^{n-1}\frac{(\lambda t)^k}{k!} \right) - \left( 1-e^{-\lambda t} \sum_{k=0}^{n}\frac{(\lambda t)^k}{k!} \right) \\
+= e^{-\lambda t}\frac{(\lambda t)^n}{n!}$$</span><!-- Has MathJax -->
+
 <hr>
 <h2 id="Week-2-5-Memoryless-property"><a href="#Week-2-5-Memoryless-property" class="headerlink" title="Week 2.5: Memoryless property"></a>Week 2.5: Memoryless property</h2><p><strong>[Def] Memoryless Property:</strong><br>&emsp;A random variable <span>$X$</span><!-- Has MathJax --> possesses the <em>memoryless property</em>, <span>$iff$</span><!-- Has MathJax --><br>&emsp;<span>$\mathcal{P}\{X&gt;u+v\} = \mathcal{P}\{X&gt;u\} \mathcal{P}\{X&gt;v\}$</span><!-- Has MathJax --></p>
 <p>If <span>$\mathcal{P}\{x&gt;v\}&gt;0$</span><!-- Has MathJax -->, then<br><span>$\mathcal{P}\{ X&gt;u+v \vert X&gt;v \} = \mathcal{P}\{ X&gt;u \}\ldots(\square)$</span><!-- Has MathJax --><br>這是因為</p>
@@ -460,31 +462,31 @@ B^c\subset A
 <p><strong>[Quiz]:</strong><br><img src="/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/Untitled 1.png" width="70%" height="70%"><br><img src="/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/Untitled 2.png" width="70%" height="70%"></p>
 <hr>
 <h2 id="Week-2-6-7-Other-definitions-of-Poisson-processes"><a href="#Week-2-6-7-Other-definitions-of-Poisson-processes" class="headerlink" title="Week 2.6-7: Other definitions of Poisson processes"></a>Week 2.6-7: Other definitions of Poisson processes</h2><p>之前定義 Poisson process 是 renewal process 的一個特例 (當 <span>$\xi$</span><!-- Has MathJax --> 是 exponential distribution)<br>現在給出另一種定義, 這種定義跟 Poisson process 與 Levy precess 的關聯有很大的關係. (之後才會知道)</p>
-<p><strong>[Poisson Processes Def2] from Levy precess:</strong><br>&emsp;Poisson process is an integer-valued process, <span>$N_t$</span><!-- Has MathJax -->, with <span>$N_0=0$</span><!-- Has MathJax --> a.s. (almost surely), such that<br>&emsp;1. <span>$N_t$</span><!-- Has MathJax --> has independent increments<br>&emsp;&emsp;<span>$\forall t_0&lt;t_1&lt;...&lt;t_n$</span><!-- Has MathJax -->, we have <span>$N_{t_1}-N_{t_0}, ..., N_{t_n}-N_{t_{n-1}}$</span><!-- Has MathJax --> are independent<br>&emsp;2. <span>$N_t$</span><!-- Has MathJax --> has stationary increments<br>&emsp;&emsp;<span>$N_t-N_s$</span><!-- Has MathJax --> 與 <span>$N_{t-s}$</span><!-- Has MathJax --> 具有相同的 distribution<br>&emsp;3. <span>$N_t-N_s\sim Pois(\lambda(t-s))$</span><!-- Has MathJax --><br>&emsp;&emsp;<span>$${\color{orange}
+<p><strong>[Poisson Processes Def2] from Levy precess:</strong><br>&emsp;Poisson process is an integer-valued process, <span>$N_t$</span><!-- Has MathJax -->, with <span>$N_0=0$</span><!-- Has MathJax --> a.s. (almost surely), such that<br>&emsp;1. <span>$N_t$</span><!-- Has MathJax --> has independent increments<br>&emsp;&emsp;<span>$\forall t_0&lt;t_1&lt;...&lt;t_n$</span><!-- Has MathJax -->, we have <span>$N_{t_1}-N_{t_0}, ..., N_{t_n}-N_{t_{n-1}}$</span><!-- Has MathJax --> are independent<br>&emsp;2. <span>$N_t$</span><!-- Has MathJax --> has stationary increments<br>&emsp;&emsp;<span>$N_t-N_s$</span><!-- Has MathJax --> 與 <span>$N_{t-s}$</span><!-- Has MathJax --> 具有相同的 distribution<br>&emsp;3. <span>$N_t-N_s\sim Pois(\lambda(t-s))$</span><!-- Has MathJax --></p>
+<span>$${\color{orange}
 {
 \mathcal{P}\{N_t=n\} \sim Pois(\lambda t)=e^{-\lambda t}\frac{(\lambda t)^n}{n!}
 }
-}$$</span><!-- Has MathJax --></p>
+}$$</span><!-- Has MathJax -->
+
 <blockquote>
 <p>特性 3 可以推導出特性 2<br><span>$X \sim Pois(\mu)$</span><!-- Has MathJax --> has <span>$\mathbb{E}[X]=Var[X]=\mu$</span><!-- Has MathJax --></p>
 </blockquote>
 <p>我們再來推導一個定理, 該定理讓我們有第三種 Poisson process 的定義. 且跟 queueing theory 有關聯.<br>當在一個極短的時間段之內, Poisson process 能分成三種情況:<br>&emsp;1. 沒有事件發生<br>&emsp;2. 事件發生 <span>$1$</span><!-- Has MathJax --> 次<br>&emsp;3. 事件發生 <span>$\geq 2$</span><!-- Has MathJax --> 次</p>
 <p>定義 <span>$f(h)=o(g(h))$</span><!-- Has MathJax --> 為<br><span>$\lim_{h\rightarrow0}\frac{f(h)}{g(h)}=0$</span><!-- Has MathJax --></p>
 <p>直觀理解為 <span>$f(h)$</span><!-- Has MathJax --> 比 <span>$g(h)$</span><!-- Has MathJax --> 小的更快.</p>
-<p><strong>[Thm] Poisson process 在極小時間段的行為:</strong><br>&emsp;<span>$$\left\{
+<p><strong>[Thm] Poisson process 在極小時間段的行為:</strong><br><span>$$\left\{
 \begin{array}{rl}
 \mathcal{P}\{N_{t+h}-N_t=0\} = 1 -\lambda h + o(h), &amp; h\rightarrow0 \\
 \mathcal{P}\{N_{t+h}-N_t=1\} = \lambda h + o(h), &amp; h\rightarrow0 \\
 \mathcal{P}\{N_{t+h}-N_t\geq2\} = o(h), &amp; h\rightarrow0 
 \end{array}
-\right.$$</span><!-- Has MathJax --><br><a href="&emsp;<span>$$\mathcal{P}\{\xi_1\leq x\}=\mathcal{P}\{S_1\leq x\}=\mathcal{P}\{N_x\geq 1\}
-= 1 - \mathcal{P}\{N_x=0\} \\
-= 1- Pois(\Lambda(x)) = 1-e^{-\Lambda(x)}$$</span><!-- Has MathJax -->">Proof</a>:<br>&emsp;我們先證明 <span>$=0$</span><!-- Has MathJax --> 的情況<br>&emsp;根據之前的 定義2 我們知道 <span>$\mathcal{P}\{N_{t+h}-N_t=0\}=e^{-\lambda h}$</span><!-- Has MathJax -->, 則<br>&emsp;<span>$$\lim_{h\rightarrow0}\frac{1-\mathcal{P}\{N_{t+h}-N_t=0\}}{h}  = \lim_{h\rightarrow0}\frac{1-e^{-\lambda h}}{h}\\
-\text{by L&apos;Hospital&apos;s rule} = \lim_{h\rightarrow0}\frac{\lambda e^{-\lambda h}}{1} = \lambda$$</span><!-- Has MathJax --><br>&emsp;i.e., as <span>$h\rightarrow0$</span><!-- Has MathJax -->,<br>&emsp;<span>$$\frac{1-\mathcal{P}\{N_{t+h}-N_t=0\}}{h} = \lambda + o(1) \\
+\right.$$</span><!-- Has MathJax --> [Proof]:<br>&emsp;我們先證明 <span>$=0$</span><!-- Has MathJax --> 的情況<br>&emsp;根據之前的 定義2 我們知道 <span>$\mathcal{P}\{N_{t+h}-N_t=0\}=e^{-\lambda h}$</span><!-- Has MathJax -->, 則<br><span>$$\lim_{h\rightarrow0}\frac{1-\mathcal{P}\{N_{t+h}-N_t=0\}}{h}  = \lim_{h\rightarrow0}\frac{1-e^{-\lambda h}}{h}\\
+\text{by L&apos;Hospital&apos;s rule} = \lim_{h\rightarrow0}\frac{\lambda e^{-\lambda h}}{1} = \lambda$$</span><!-- Has MathJax --> &emsp;i.e., as <span>$h\rightarrow0$</span><!-- Has MathJax -->,<br><span>$$\frac{1-\mathcal{P}\{N_{t+h}-N_t=0\}}{h} = \lambda + o(1) \\
 \Rightarrow \mathcal{P}\{N_{t+h}-N_t=0\} = 1-\lambda h + ho(1) \\
-= 1-\lambda h + o(h)$$</span><!-- Has MathJax --><br>&emsp;<span>$o(h)$</span><!-- Has MathJax --> 的正負號不重要, Q.E.D.<br>&emsp;而 <span>$\mathcal{P}\{N_{t+h}-N_t=1\} = \lambda h + o(h), h\rightarrow0$</span><!-- Has MathJax --> 這一條可以藉由計算<br>&emsp;<span>$$\lim_{h\rightarrow0}\frac{\mathcal{P}\{N_{t+h}-N_t=1\}}{h}  = \lim_{h\rightarrow0}\frac{e^{-\lambda h}\lambda h}{h}\\
-\text{by L&apos;Hospital&apos;s rule} = \lim_{h\rightarrow0}\frac{-\lambda e^{-\lambda h}\lambda h + \lambda e^{-\lambda h}}{1} = \lambda$$</span><!-- Has MathJax --><br>&emsp;i.e., as <span>$h\rightarrow0$</span><!-- Has MathJax -->,<br>&emsp;<span>$$\frac{\mathcal{P}\{N_{t+h}-N_t=1\}}{h} = \lambda + o(1) \\
-\Rightarrow \mathcal{P}\{N_{t+h}-N_t=1\} = \lambda h + o(h)$$</span><!-- Has MathJax --><br>&emsp;Q.E.D.</p>
+= 1-\lambda h + o(h)$$</span><!-- Has MathJax --> &emsp;<span>$o(h)$</span><!-- Has MathJax --> 的正負號不重要, Q.E.D.<br>&emsp;而 <span>$\mathcal{P}\{N_{t+h}-N_t=1\} = \lambda h + o(h), h\rightarrow0$</span><!-- Has MathJax --> 這一條可以藉由計算<br><span>$$\lim_{h\rightarrow0}\frac{\mathcal{P}\{N_{t+h}-N_t=1\}}{h}  = \lim_{h\rightarrow0}\frac{e^{-\lambda h}\lambda h}{h}\\
+\text{by L&apos;Hospital&apos;s rule} = \lim_{h\rightarrow0}\frac{-\lambda e^{-\lambda h}\lambda h + \lambda e^{-\lambda h}}{1} = \lambda$$</span><!-- Has MathJax --> &emsp;i.e., as <span>$h\rightarrow0$</span><!-- Has MathJax -->,<br><span>$$\frac{\mathcal{P}\{N_{t+h}-N_t=1\}}{h} = \lambda + o(1) \\
+\Rightarrow \mathcal{P}\{N_{t+h}-N_t=1\} = \lambda h + o(h)$$</span><!-- Has MathJax --> &emsp;Q.E.D.</p>
 <p>&emsp;最後, <span>$\mathcal{P}\{N_{t+h}-N_t\geq2\}=1-\mathcal{P}\{N_{t+h}-N_t=0\} - \mathcal{P}\{N_{t+h}-N_t=1\}$</span><!-- Has MathJax --> 可以計算得到<br>&emsp;注意到 <span>$-o(h)=o(h)$</span><!-- Has MathJax -->, <span>$2o(h)=o(h)$</span><!-- Has MathJax --><br>&emsp;Q.E.D.</p>
 <p><strong>[Poisson Processes Def3] from queueing process:</strong><br>&emsp;Poisson process is an integer-valued process, <span>$N_t$</span><!-- Has MathJax -->, with <span>$N_0=0$</span><!-- Has MathJax --> a.s. (almost surely), such that<br>&emsp;1. <span>$N_t$</span><!-- Has MathJax --> has independent increments<br>&emsp;&emsp; <span>$\forall t_0&lt;t_1&lt;...&lt;t_n$</span><!-- Has MathJax -->, we have <span>$N_{t_1}-N_{t_0}, ..., N_{t_n}-N_{t_{n-1}}$</span><!-- Has MathJax --> are independent<br>&emsp;2. <span>$N_t$</span><!-- Has MathJax --> has stationary increments<br>&emsp;&emsp;<span>$N_t-N_s$</span><!-- Has MathJax --> 與 <span>$N_{t-s}$</span><!-- Has MathJax --> 具有相同的 distribution<br>&emsp;3.  滿足:<br>&emsp;&emsp;<span>$\lim_{h\rightarrow0} \frac{\mathcal{P}\{N_{t+h} - N_t\geq2\}}{\mathcal{P}\{N_{t+h}-N_t=1\}}=0$</span><!-- Has MathJax --></p>
 <blockquote>
@@ -492,11 +494,11 @@ B^c\subset A
 </blockquote>
 <hr>
 <h2 id="Week-2-8-9-Non-homogeneous-Poisson-processes"><a href="#Week-2-8-9-Non-homogeneous-Poisson-processes" class="headerlink" title="Week 2.8-9: Non-homogeneous Poisson processes"></a>Week 2.8-9: Non-homogeneous Poisson processes</h2><p>也可以參考 <a href="https://www.randomservices.org/random/poisson/Nonhomogeneous.html" target="_blank" rel="external">https://www.randomservices.org/random/poisson/Nonhomogeneous.html</a>, 但對我來說有點難懂</p>
-<p><strong>[Non-homogeneous Poisson Processes Def1]:</strong><br>&emsp;Let <span>$\Lambda(t)$</span><!-- Has MathJax --> be a <em>differentiable increasing</em> function, and <span>$\Lambda(0)=0$</span><!-- Has MathJax -->,<br>&emsp;<span>$N_t$</span><!-- Has MathJax --> is a  N.H.P.P. (Non-Homogeneous Poisson Processes), if<br>&emsp;1. <span>$N_0=0$</span><!-- Has MathJax --><br>&emsp;2. <span>$N_t$</span><!-- Has MathJax --> has independent increments<br>&emsp;3. <span>$N_t-N_s \sim Pois(\Lambda(t)-\Lambda(s))$</span><!-- Has MathJax --><br>&emsp;&emsp;<span>$${\color{orange}
+<p><strong>[Non-homogeneous Poisson Processes Def1]:</strong><br>&emsp;Let <span>$\Lambda(t)$</span><!-- Has MathJax --> be a <em>differentiable increasing</em> function, and <span>$\Lambda(0)=0$</span><!-- Has MathJax -->,<br>&emsp;<span>$N_t$</span><!-- Has MathJax --> is a  N.H.P.P. (Non-Homogeneous Poisson Processes), if<br>&emsp;1. <span>$N_0=0$</span><!-- Has MathJax --><br>&emsp;2. <span>$N_t$</span><!-- Has MathJax --> has independent increments<br>&emsp;3. <span>$N_t-N_s \sim Pois(\Lambda(t)-\Lambda(s))$</span><!-- Has MathJax --><br><span>$${\color{orange}
 {
 \mathcal{P}\{N_t=n\} \sim Pois(\Lambda(t))=e^{-\Lambda(t)}\frac{\Lambda(t)^n}{n!}
 }
-}$$</span><!-- Has MathJax --><br>&emsp;定義 <span>$\lambda(t) = \Lambda&apos;(t)$</span><!-- Has MathJax -->, 稱 intensity function</p>
+}$$</span><!-- Has MathJax --> &emsp;定義 <span>$\lambda(t) = \Lambda&apos;(t)$</span><!-- Has MathJax -->, 稱 intensity function</p>
 <blockquote>
 <p>在 P.P. 的定義 2, 我們知道 <span>$N_t-N_s\sim Pois(\lambda(t-s))$</span><!-- Has MathJax -->, 所以當 <span>$\Lambda(t)=\lambda t$</span><!-- Has MathJax --> 的話, non-homogeneous P.P. 等於 P.P.</p>
 </blockquote>
@@ -515,22 +517,21 @@ B^c\subset A
 
 <p>先證明以下兩個等式:</p>
 <ol>
-<li><span>$\mathcal{P}_{\xi_1}(x)=\lambda(x)e^{-\Lambda(x)}$</span><!-- Has MathJax -->:</li>
-</ol>
-<p>&emsp;用到 <span>$\{S_n\leq t\}=\{N_t\geq n\}$</span><!-- Has MathJax -->, 然後左右等式微分得到:<br>&emsp;<span>$\mathcal{P}_{\xi_1}(x)=\lambda(x)e^{-\Lambda(x)}$</span><!-- Has MathJax --><br>&emsp;其中 <span>$\lambda=\Lambda&apos;$</span><!-- Has MathJax -->, Q.E.D.</p>
-<ol start="2">
-<li><span>$\mathcal{P}_{(\xi_2|\xi_1)}(t|s)=\lambda(t+s)e^{-\Lambda(t+s)+\Lambda(s)}$</span><!-- Has MathJax -->:<br><a href="&emsp;<span>$$\mathcal{P}\{\xi_1\leq x\}=\mathcal{P}\{S_1\leq x\}=\mathcal{P}\{N_x\geq 1\}
+<li><p><span>$\mathcal{P}_{\xi_1}(x)=\lambda(x)e^{-\Lambda(x)}$</span><!-- Has MathJax -->:<br>[Proof]:<br><span>$$\mathcal{P}\{\xi_1\leq x\}=\mathcal{P}\{S_1\leq x\}=\mathcal{P}\{N_x\geq 1\}
 = 1 - \mathcal{P}\{N_x=0\} \\
-= 1- Pois(\Lambda(x)) = 1-e^{-\Lambda(x)}$$</span><!-- Has MathJax -->">Proof</a>:<br>&emsp;先計算一下兩個 r.v.s <span>$\xi_1,\xi_2$</span><!-- Has MathJax --> 的 joint C.D.F. <span>$\mathcal{F}_{\xi_1,\xi_2}(s,t)$</span><!-- Has MathJax --><br>&emsp;<span>$$\mathcal{F}_{(\xi_1,\xi_2)}(\xi_1=s,\xi_2=t)=\mathcal{P}\{\xi_1\leq s, \xi_2\leq t\} \\
-=\int_{y=0}^s \mathcal{P}\{ \xi_1\leq s, \xi_2\leq t \vert \xi_1=y \} \mathcal{P}_{\xi_1}(y)dy$$</span><!-- Has MathJax --><br>&emsp;<span>$\because y\leq s$</span><!-- Has MathJax --><br>&emsp;<span>$$=\int_{y=0}^s \mathcal{P}\{ \xi_2\leq t \vert \xi_1=y \} \mathcal{P}_{\xi_1}(y) dy \\
-= \int_{y=0}^s \mathcal{P}\{ N_{t+y} - N_y \geq 1 \vert \xi_1 = y \} \mathcal{P}_{\xi_1}(y) dy \ldots(\star)$$</span><!-- Has MathJax --><br>&emsp;由 N.H.P.P. 的 independent increments 特性知道 <span>$(N_{t+y} - N_y),(N_y-N_0)$</span><!-- Has MathJax --> 這兩個 r.v.s 為 independent. 因此<br>&emsp;<span>$$\mathcal{P}\{N_{t+y} - N_y \geq 1 | \xi_1=y\} = \mathcal{P}\{ N_{t+y} - N_y \geq 1 | N_y-N_0=1 \} \\
-= \mathcal{P}\{N_{t+y} - N_y \geq 1 \}$$</span><!-- Has MathJax --><br>&emsp;接續 <span>$(\star)$</span><!-- Has MathJax --><br>&emsp;<span>$$(\star) = \int_{y=0}^s \mathcal{P}\{ N_{t+y}-N_y \geq 1 \} \cdot \mathcal{P}_{\xi_1}(y) dy \\
+= 1- Pois(\Lambda(x)) = 1-e^{-\Lambda(x)}$$</span><!-- Has MathJax --> &emsp;用到 <span>$\{S_n\leq t\}=\{N_t\geq n\}$</span><!-- Has MathJax -->, 然後左右等式微分得到:<br>&emsp;<span>$\mathcal{P}_{\xi_1}(x)=\lambda(x)e^{-\Lambda(x)}$</span><!-- Has MathJax --><br>&emsp;其中 <span>$\lambda=\Lambda&apos;$</span><!-- Has MathJax -->, Q.E.D.</p>
+</li>
+<li><p><span>$\mathcal{P}_{(\xi_2|\xi_1)}(t|s)=\lambda(t+s)e^{-\Lambda(t+s)+\Lambda(s)}$</span><!-- Has MathJax -->:<br>[Proof]:<br>&emsp;先計算一下兩個 r.v.s <span>$\xi_1,\xi_2$</span><!-- Has MathJax --> 的 joint C.D.F. <span>$\mathcal{F}_{\xi_1,\xi_2}(s,t)$</span><!-- Has MathJax --><br><span>$$\mathcal{F}_{(\xi_1,\xi_2)}(\xi_1=s,\xi_2=t)=\mathcal{P}\{\xi_1\leq s, \xi_2\leq t\} \\
+=\int_{y=0}^s \mathcal{P}\{ \xi_1\leq s, \xi_2\leq t \vert \xi_1=y \} \mathcal{P}_{\xi_1}(y)dy$$</span><!-- Has MathJax --> &emsp;<span>$\because y\leq s$</span><!-- Has MathJax --><br><span>$$=\int_{y=0}^s \mathcal{P}\{ \xi_2\leq t \vert \xi_1=y \} \mathcal{P}_{\xi_1}(y) dy \\
+= \int_{y=0}^s \mathcal{P}\{ N_{t+y} - N_y \geq 1 \vert \xi_1 = y \} \mathcal{P}_{\xi_1}(y) dy \ldots(\star)$$</span><!-- Has MathJax --> &emsp;由 N.H.P.P. 的 independent increments 特性知道 <span>$(N_{t+y} - N_y),(N_y-N_0)$</span><!-- Has MathJax --> 這兩個 r.v.s 為 independent. 因此<br><span>$$\mathcal{P}\{N_{t+y} - N_y \geq 1 | \xi_1=y\} = \mathcal{P}\{ N_{t+y} - N_y \geq 1 | N_y-N_0=1 \} \\
+= \mathcal{P}\{N_{t+y} - N_y \geq 1 \}$$</span><!-- Has MathJax --> &emsp;接續 <span>$(\star)$</span><!-- Has MathJax --><br><span>$$(\star) = \int_{y=0}^s \mathcal{P}\{ N_{t+y}-N_y \geq 1 \} \cdot \mathcal{P}_{\xi_1}(y) dy \\
 = \int_{y=0}^s (1 - \mathcal{P}\{ N_{t+y}-N_y = 0 \}) \cdot \mathcal{P}_{\xi_1}(y) dy \\
-= \int_{y=0}^s (1 - e^{-\Lambda(t+y)+\Lambda(y)}) \cdot \lambda(y)e^{-\Lambda(y)} dy$$</span><!-- Has MathJax --><br>&emsp;所以兩個 r.v.s <span>$\xi_1,\xi_2$</span><!-- Has MathJax --> 的 joint C.D.F.<br>&emsp;<span>$\mathcal{F}_{(\xi_1,\xi_2)}(s,t) = \int_{y=0}^s (1 - e^{-\Lambda(t+y)+\Lambda(y)}) \cdot \lambda(y)e^{-\Lambda(y)} dy$</span><!-- Has MathJax --><br>&emsp;微分可以計算 P.D.F.<br>&emsp;<span>$$\mathcal{P}_{(\xi_1,\xi_2)}(s,t) = \frac{\partial}{\partial t} \left( \frac{\partial}{\partial s} \mathcal{F}_{(\xi_1,\xi_2)}(s,t) \right) \\
+= \int_{y=0}^s (1 - e^{-\Lambda(t+y)+\Lambda(y)}) \cdot \lambda(y)e^{-\Lambda(y)} dy$$</span><!-- Has MathJax --> &emsp;所以兩個 r.v.s <span>$\xi_1,\xi_2$</span><!-- Has MathJax --> 的 joint C.D.F.<br>&emsp;<span>$\mathcal{F}_{(\xi_1,\xi_2)}(s,t) = \int_{y=0}^s (1 - e^{-\Lambda(t+y)+\Lambda(y)}) \cdot \lambda(y)e^{-\Lambda(y)} dy$</span><!-- Has MathJax --><br>&emsp;微分可以計算 P.D.F.<br><span>$$\mathcal{P}_{(\xi_1,\xi_2)}(s,t) = \frac{\partial}{\partial t} \left( \frac{\partial}{\partial s} \mathcal{F}_{(\xi_1,\xi_2)}(s,t) \right) \\
 \text{replace y by s} = \frac{\partial}{\partial t} \left( (1 - e^{-\Lambda(t+s)+\Lambda(s)}) \cdot \lambda(s)e^{-\Lambda(s)} \right) \\
 = \lambda(t+s) e^{-\Lambda(t+s)+\Lambda(s)}\cdot \lambda(s) e^{-\Lambda(s)} \\
-= \lambda(t+s) e^{-\Lambda(t+s)+\Lambda(s)} \cdot \mathcal{P}_{\xi_1}(s)$$</span><!-- Has MathJax --><br>&emsp;所以<br>&emsp;<span>$$\mathcal{P}_{(\xi_2|\xi_1)}(t|s) = \frac{\mathcal{P}_{(\xi_1,\xi_2)}(s,t)}{\mathcal{P}_{\xi_1}(s)} \\
-=\lambda(t+s)e^{-\Lambda(t+s)+\Lambda(s)}$$</span><!-- Has MathJax --><br>&emsp;Q.E.D.</li>
+= \lambda(t+s) e^{-\Lambda(t+s)+\Lambda(s)} \cdot \mathcal{P}_{\xi_1}(s)$$</span><!-- Has MathJax --> &emsp;所以<br><span>$$\mathcal{P}_{(\xi_2|\xi_1)}(t|s) = \frac{\mathcal{P}_{(\xi_1,\xi_2)}(s,t)}{\mathcal{P}_{\xi_1}(s)} \\
+=\lambda(t+s)e^{-\Lambda(t+s)+\Lambda(s)}$$</span><!-- Has MathJax --> &emsp;Q.E.D.</p>
+</li>
 </ol>
 <p>回到考慮什麼情況下的 N.H.P.P. 的 <span>$\xi_1, \xi_2, ...$</span><!-- Has MathJax --> 是 i.i.d. 這個問題<br>我們先假設 <span>$\xi_1, \xi_2, ...$</span><!-- Has MathJax --> 是 i.i.d., i.e. 假設 N.H.P.P. 是 renewal process, 則<br><span>$$\mathcal{P}_{\xi_2 | \xi_1}(t|s)=\mathcal{P}_{\xi_2}(t) \\
 \because\text{i.i.d.}=\mathcal{P}_{\xi_1}(t), \forall t,s&gt;0$$</span><!-- Has MathJax --> 帶入我們花很多力氣推導的上述兩個結果得到:<br><span>$\lambda(t+s)e^{-\Lambda(t+s)+\Lambda(s)} = \lambda(t)e^{-\Lambda(t)}$</span><!-- Has MathJax --><br>然後對兩邊都做積分</p>
@@ -559,21 +560,25 @@ B^c\subset A
 <p>換句話說 <strong>N.H.P.P. is a renewal process <span>$\Longleftrightarrow$</span><!-- Has MathJax --> it is homogenous P.P.</strong></p>
 <hr>
 <h2 id="Week-2-13-Elements-of-the-queueing-theory-M-G-k-systems-1"><a href="#Week-2-13-Elements-of-the-queueing-theory-M-G-k-systems-1" class="headerlink" title="Week 2.13: Elements of the queueing theory. M/G/k systems-1"></a>Week 2.13: Elements of the queueing theory. M/G/k systems-1</h2><p>我們先前證明過</p>
-<p><strong>[Thm] Poisson process 在極小時間段:</strong><br>&emsp;<span>$$\left\{
+<p><strong>[Thm] Poisson process 在極小時間段:</strong></p>
+<span>$$\left\{
 \begin{array}{rl}
 \mathcal{P}\{N_{t+h}-N_t=0\} = 1 -\lambda h + o(h), &amp; h\rightarrow0 \\
 \mathcal{P}\{N_{t+h}-N_t=1\} = \lambda h + o(h), &amp; h\rightarrow0 \\
 \mathcal{P}\{N_{t+h}-N_t\geq2\} = o(h), &amp; h\rightarrow0 
 \end{array}
-\right.$$</span><!-- Has MathJax --></p>
+\right.$$</span><!-- Has MathJax -->
+
 <p>對於 N.H.P.P. 也有類似的結果</p>
-<p><strong>[Thm] Non-homogeneous Poisson process 在極小時間段:</strong><br>&emsp;<span>$$\left\{
+<p><strong>[Thm] Non-homogeneous Poisson process 在極小時間段:</strong></p>
+<span>$$\left\{
 \begin{array}{rl}
 \mathcal{P}\{N_{t+h}-N_t=0\} = 1 -{\color{orange}{\lambda(t)}} h + o(h), &amp; h\rightarrow0 \\
 \mathcal{P}\{N_{t+h}-N_t=1\} = {\color{orange}\lambda(t)} h + o(h), &amp; h\rightarrow0 \\
 \mathcal{P}\{N_{t+h}-N_t\geq2\} = o(h), &amp; h\rightarrow0 
 \end{array}
-\right.$$</span><!-- Has MathJax --></p>
+\right.$$</span><!-- Has MathJax -->
+
 <p>所以類似的對於 N.H.P.P. 我們也有另一種定義 (類似 <strong>[Poisson Processes Def3]</strong>)</p>
 <p><strong>[Non-homogeneous Poisson Processes Def2]:</strong><br>&emsp;Let <span>$\Lambda(t)$</span><!-- Has MathJax --> be a <em>differentiable increasing</em> function, and <span>$\Lambda(0)=0$</span><!-- Has MathJax -->,<br>&emsp;<span>$N_t$</span><!-- Has MathJax --> is a  N.H.P.P. (Non-Homogeneous Poisson Processes), if<br>&emsp;1. <span>$N_0=0$</span><!-- Has MathJax --><br>&emsp;2. <span>$N_t$</span><!-- Has MathJax --> has independent increments<br>&emsp;3. 滿足:<br>&emsp;&emsp;<span>$\lim_{h\rightarrow0} \frac{\mathcal{P}\{N_{t+h} - N_t\geq2\}}{\mathcal{P}\{N_{t+h}-N_t=1\}}=0$</span><!-- Has MathJax --></p>
 <p>(Non-homogeneous) Poisson processes 很適合用來 modeling queueing processes.</p>
@@ -643,9 +648,7 @@ B^c\subset A
 <p>根據定義我們可以得到, 如果 <span>$\xi_1  \perp \xi_2$</span><!-- Has MathJax -->, 則 <span>$\mathcal{L}_{\xi_1+\xi_2}(u)=\mathcal{L}_{\xi_1}(u)\mathcal{L}_{\xi_2}(u)$</span><!-- Has MathJax -->. 注意到 <span>${\xi_1+\xi_2}$</span><!-- Has MathJax --> 其 P.D.F. 是 <span>$\xi_1,\xi_2$</span><!-- Has MathJax --> 的 P.D.F.s 的 convolution. 之前我們也證過 Laplace transform 這個性質</p>
 <p>對於 <span>$\xi$</span><!-- Has MathJax --> (C.P.P.) 是 general case 的情況來說, 我們需借助 characteristic function 幫忙<br><strong>[Characteristic Function Def]:</strong><br>&emsp;For random variable <span>$\xi$</span><!-- Has MathJax -->, 定義 characteristic function <span>$\Phi:\mathbb{R}\rightarrow \mathbb{C}$</span><!-- Has MathJax --> 為<br>&emsp;<span>$\Phi_\xi(u) = \mathbb{E}\left[ e^{iu\xi} \right]$</span><!-- Has MathJax --></p>
 <p>同樣根據定義我們可以得到, 如果 <span>$\xi_1  \perp \xi_2$</span><!-- Has MathJax -->, 則 <span>$\Phi_{\xi_1+\xi_2}(u)=\Phi_{\xi_1}(u)\Phi_{\xi_2}(u)$</span><!-- Has MathJax --></p>
-<p><strong>[Characteristic Function of Increment of C.P.P.]:</strong><br>&emsp;For <span>$t&gt;s\geq0$</span><!-- Has MathJax -->, and <span>$X_t$</span><!-- Has MathJax --> is a C.P.P., we have<br>&emsp;<span>$\Phi_{X_t-X_s}(u)=e^{\lambda(t-s)(\Phi_{\xi_1}(u)-1)}$</span><!-- Has MathJax --><br><a href="&emsp;<span>$$\mathcal{P}\{\xi_1\leq x\}=\mathcal{P}\{S_1\leq x\}=\mathcal{P}\{N_x\geq 1\}
-= 1 - \mathcal{P}\{N_x=0\} \\
-= 1- Pois(\Lambda(x)) = 1-e^{-\Lambda(x)}$$</span><!-- Has MathJax -->">Proof</a>:<br>&emsp;<span>$$\Phi_{X_t-X_s}(u)=\mathbb{E}\left[ e^{iu(X_t-X_s)} \right] \\
+<p><strong>[Characteristic Function of Increment of C.P.P.]:</strong><br>&emsp;For <span>$t&gt;s\geq0$</span><!-- Has MathJax -->, and <span>$X_t$</span><!-- Has MathJax --> is a C.P.P., we have<br>&emsp;<span>$\Phi_{X_t-X_s}(u)=e^{\lambda(t-s)(\Phi_{\xi_1}(u)-1)}$</span><!-- Has MathJax --><br>[Proof]:<br><span>$$\Phi_{X_t-X_s}(u)=\mathbb{E}\left[ e^{iu(X_t-X_s)} \right] \\
 =\sum_{k=0}^\infty
 {\color{orange}
 {\mathbb{E}\left[ \left. e^{iu(X_t-X_s)} \right| N_t-N_s=k\right]}
@@ -653,28 +656,28 @@ B^c\subset A
 \cdot
 {\color{green}
 {\mathcal{P}\{N_t-N_s=k\}}
-}$$</span><!-- Has MathJax --><br>&emsp;注意到已知 <span>$N_t-N_s=k$</span><!-- Has MathJax --> 的情況下, <span>$X_t-X_s$</span><!-- Has MathJax --> 根據 C.P.P. 的定義就是 <span>$\xi_1+...+\xi_k$</span><!-- Has MathJax -->, 再加上我們知道 <span>$\xi\perp N_t$</span><!-- Has MathJax -->, 所以橘色部分的 condition 就可以拔掉. 同時已知綠色部分為 Poisson Processes.<br>&emsp;因此:<br>&emsp;<span>$$= \sum_{k=0}^\infty
+}$$</span><!-- Has MathJax --> &emsp;注意到已知 <span>$N_t-N_s=k$</span><!-- Has MathJax --> 的情況下, <span>$X_t-X_s$</span><!-- Has MathJax --> 根據 C.P.P. 的定義就是 <span>$\xi_1+...+\xi_k$</span><!-- Has MathJax -->, 再加上我們知道 <span>$\xi\perp N_t$</span><!-- Has MathJax -->, 所以橘色部分的 condition 就可以拔掉. 同時已知綠色部分為 Poisson Processes.<br>&emsp;因此:<br><span>$$= \sum_{k=0}^\infty
 \mathbb{E}\left[e^{iu(X_t-X_s)}\right] \cdot
 Pois(\lambda(t-s)) \\
 = \sum_{k=0}^\infty
 (\Phi_{\xi_1}(u))^k \cdot e^{-\lambda(t-s)}\frac{(\lambda(t-s))^k}{k!} \\
 =e^{-\lambda(t-s)}\sum_{k=0}^\infty\frac{(\Phi_{\xi_1}(u)\lambda(t-s))^k}{k!} \\
-= e^{-\lambda(t-s)}e^{\Phi_{\xi_1}(u)\lambda(t-s)} =e^{\lambda(t-s)(\Phi_{\xi_1}(u)-1)}$$</span><!-- Has MathJax --><br>&emsp;Q.E.D.</p>
+= e^{-\lambda(t-s)}e^{\Phi_{\xi_1}(u)\lambda(t-s)} =e^{\lambda(t-s)(\Phi_{\xi_1}(u)-1)}$$</span><!-- Has MathJax --> &emsp;Q.E.D.</p>
 <p>此定理描述了 <em>increment of C.P.P. 的 characteristic function, 其具有 closed form solution</em><br>所以 characteristic function of <span>$X_t$</span><!-- Has MathJax --> is<br><span>$\Phi_{X_t}(u)=e^{\lambda t(\Phi_{\xi_1}(u)-1)}$</span><!-- Has MathJax --></p>
 <p>課程老師說這個 Theorem 很重要, 可以根據它推導出很多 Corollaries</p>
-<p><strong>[Expectation and Variance of C.P.P.]:</strong><br>&emsp;對於此節定義的 C.P.P. 我們有<br>&emsp;<span>$$\mathbb{E}[X_t]=\lambda t\mathbb{E}[\xi_1] \\
-Var[X_t]=\lambda t\mathbb{E}[\xi_1^2]$$</span><!-- Has MathJax --></p>
+<p><strong>[Expectation and Variance of C.P.P.]:</strong><br>&emsp;對於此節定義的 C.P.P. 我們有</p>
+<span>$$\mathbb{E}[X_t]=\lambda t\mathbb{E}[\xi_1] \\
+Var[X_t]=\lambda t\mathbb{E}[\xi_1^2]$$</span><!-- Has MathJax -->
+
 <blockquote>
 <p>原來的 Poisson distribution <span>$Pois(\lambda t)$</span><!-- Has MathJax --> 的 mean and variance 為 <span>$\lambda t$</span><!-- Has MathJax -->, 所以 C.P.P. 等於多乘上 <span>$\xi_1$</span><!-- Has MathJax --> 的 moments</p>
 </blockquote>
-<p><a href="&emsp;<span>$$\mathcal{P}\{\xi_1\leq x\}=\mathcal{P}\{S_1\leq x\}=\mathcal{P}\{N_x\geq 1\}
-= 1 - \mathcal{P}\{N_x=0\} \\
-= 1- Pois(\Lambda(x)) = 1-e^{-\Lambda(x)}$$</span><!-- Has MathJax -->">Proof</a>:<br>&emsp;課程證 expectation, 而 variance 可用同樣流程證明<br>&emsp;<span>$\mathbb{E}[\xi^r]&lt;\infty\Rightarrow\Phi_\xi(u)$</span><!-- Has MathJax --> is r-times 可微 at 0<br>&emsp;因為 derivative and expectation 都是線性的, 所以我們有<br>&emsp;<span>$\Phi^{(1)}_\xi(u)=\frac{d}{du}\mathbb{E}[e^{iu\xi}]=\mathbb{E}[(i\xi)e^{iu\xi}]$</span><!-- Has MathJax --><br>&emsp;<span>$\Phi^{(2)}_\xi(u)=\frac{d}{du}\frac{d}{du}\mathbb{E}[e^{iu\xi}]=\mathbb{E}[(i\xi)^2 e^{iu\xi}]$</span><!-- Has MathJax --><br>&emsp;<span>$...$</span><!-- Has MathJax --><br>&emsp;<span>$\Phi^{(r)}_\xi(u)=\mathbb{E}[(i\xi)^r e^{iu\xi}]$</span><!-- Has MathJax --><br>&emsp;<span>$\therefore \Phi_\xi^{(r)}(0)=i^r\cdot\mathbb{E}[\xi^r]$</span><!-- Has MathJax --><br>&emsp;由前面的 Theorem 知道 <span>$\Phi_{X_t}(u)=e^{\lambda t(\Phi_{\xi_1}(u)-1)}$</span><!-- Has MathJax -->, 所以<br>&emsp;<span>$$\Phi_{X_t}^{(1)}(u)=\frac{d}{du}\Phi_{X_t}(u) =\frac{d}{du}e^{\lambda t(\Phi_{\xi_1}(u)-1)} \\
-=\lambda t \Phi_{\xi_1}^{(1)}(u)e^{\lambda t(\Phi_{\xi_1}(u)-1)} = \lambda t \Phi_{\xi_1}^{(1)}(u)\Phi_{X_t}(u)$$</span><!-- Has MathJax --><br>&emsp;計算 <span>$\mathbb{E}[X_t]$</span><!-- Has MathJax -->:<br>&emsp;<span>$$\mathbb{E}[X_t]=\frac{\Phi_{X_t}^{(1)}(0)}{i}
+<p>[Proof]:<br>&emsp;課程證 expectation, 而 variance 可用同樣流程證明<br>&emsp;<span>$\mathbb{E}[\xi^r]&lt;\infty\Rightarrow\Phi_\xi(u)$</span><!-- Has MathJax --> is r-times 可微 at 0<br>&emsp;因為 derivative and expectation 都是線性的, 所以我們有<br>&emsp;<span>$\Phi^{(1)}_\xi(u)=\frac{d}{du}\mathbb{E}[e^{iu\xi}]=\mathbb{E}[(i\xi)e^{iu\xi}]$</span><!-- Has MathJax --><br>&emsp;<span>$\Phi^{(2)}_\xi(u)=\frac{d}{du}\frac{d}{du}\mathbb{E}[e^{iu\xi}]=\mathbb{E}[(i\xi)^2 e^{iu\xi}]$</span><!-- Has MathJax --><br>&emsp;<span>$...$</span><!-- Has MathJax --><br>&emsp;<span>$\Phi^{(r)}_\xi(u)=\mathbb{E}[(i\xi)^r e^{iu\xi}]$</span><!-- Has MathJax --><br>&emsp;<span>$\therefore \Phi_\xi^{(r)}(0)=i^r\cdot\mathbb{E}[\xi^r]$</span><!-- Has MathJax --><br>&emsp;由前面的 Theorem 知道 <span>$\Phi_{X_t}(u)=e^{\lambda t(\Phi_{\xi_1}(u)-1)}$</span><!-- Has MathJax -->, 所以<br><span>$$\Phi_{X_t}^{(1)}(u)=\frac{d}{du}\Phi_{X_t}(u) =\frac{d}{du}e^{\lambda t(\Phi_{\xi_1}(u)-1)} \\
+=\lambda t \Phi_{\xi_1}^{(1)}(u)e^{\lambda t(\Phi_{\xi_1}(u)-1)} = \lambda t \Phi_{\xi_1}^{(1)}(u)\Phi_{X_t}(u)$$</span><!-- Has MathJax --> &emsp;計算 <span>$\mathbb{E}[X_t]$</span><!-- Has MathJax -->:<br><span>$$\mathbb{E}[X_t]=\frac{\Phi_{X_t}^{(1)}(0)}{i}
 = \frac{\lambda t \Phi_{
 \xi_1}^{(1)}(0) \overbrace{\Phi_{X_t}(0)}^{=1}
 }
-{i}$$</span><!-- Has MathJax --><br>&emsp;而根據 <a href="https://en.wikipedia.org/wiki/Characteristic_function_(probability_theory" target="_blank" rel="external">characteristic function 的特性</a><br><img src="/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/Untitled 6.png" width="70%" height="70%"><br>&emsp;<span>$\frac{\Phi_{\xi_1}^{(1)}(0)}{i} = \mathbb{E}[\xi_1]$</span><!-- Has MathJax --><br>&emsp;所以 <span>$\mathbb{E}[X_t]=\lambda t\mathbb{E}[\xi_1]$</span><!-- Has MathJax --><br>&emsp;Q.E.D.</p>
+{i}$$</span><!-- Has MathJax --> &emsp;而根據 <a href="https://en.wikipedia.org/wiki/Characteristic_function_(probability_theory" target="_blank" rel="external">characteristic function 的特性</a><br><img src="/2021/12/12/Stochastic-Processes-Week-2-Poisson-Processes/Untitled 6.png" width="70%" height="70%"><br>&emsp;<span>$\frac{\Phi_{\xi_1}^{(1)}(0)}{i} = \mathbb{E}[\xi_1]$</span><!-- Has MathJax --><br>&emsp;所以 <span>$\mathbb{E}[X_t]=\lambda t\mathbb{E}[\xi_1]$</span><!-- Has MathJax --><br>&emsp;Q.E.D.</p>
 <hr>
 <h2 id="Applications-of-the-Poisson-Processes-and-Related-Models"><a href="#Applications-of-the-Poisson-Processes-and-Related-Models" class="headerlink" title="Applications of the Poisson Processes and Related Models"></a>Applications of the Poisson Processes and Related Models</h2><p><a href="Applications_of_the_Poisson_Processes_and_Related_Models.pdf">Applications of the Poisson Processes and Related Models.pdf</a></p>
 

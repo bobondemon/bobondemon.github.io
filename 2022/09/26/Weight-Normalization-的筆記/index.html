@@ -105,7 +105,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2022/09/26/Weight-Normalization-的筆記/Untitled 1.png">
 <meta property="og:image" content="https://bobondemon.github.io/2022/09/26/Weight-Normalization-的筆記/Untitled 2.png">
 <meta property="og:image" content="https://bobondemon.github.io/2022/09/26/Weight-Normalization-的筆記/wn_pytorch.png">
-<meta property="og:updated_time" content="2026-08-20T12:28:17.459Z">
+<meta property="og:updated_time" content="2026-08-20T12:43:32.868Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Weight Normalization 的筆記">
 <meta name="twitter:description" content="使用 SGD 做優化時, 如果 ill-conditioned of Hessian matrix, i.e. $\sigma_1/\sigma_n$ 最大最小的 eigenvalues 之比值, 會使得收斂效率不彰(ref zig-zag).
@@ -429,7 +429,7 @@ I-\frac{vv^T}{\|v\|^2}
 \color{orange}{\frac{ww^T}{\|w\|^2}}
 \end{align}$$</span><!-- Has MathJax --> 觀察一下 <span>$M_w$</span><!-- Has MathJax --> 裡的第二項 ((4) 的橘色部分) 乘上一個 vector <span>$x$</span><!-- Has MathJax --> 代表的意義:<br><span>$$\frac{w}{\|w\|}\cdot\frac{w^T}{\|w\|}\cdot x$$</span><!-- Has MathJax --> 其中 <span>$w/\|w\|$</span><!-- Has MathJax --> 表示 <span>$w$</span><!-- Has MathJax --> 方向的 unit vector, 而 <span>$w^Tx/\|w\|$</span><!-- Has MathJax --> 表示 <span>$x$</span><!-- Has MathJax --> 投影在 <span>$w$</span><!-- Has MathJax --> 方向上的長度.</p>
 <p><img src="/2022/09/26/Weight-Normalization-的筆記/Untitled.png" width="60%" height="60%"></p>
-<p>所以 <span>$$M_w\nabla_wL=\nabla_wL-\frac{w}{\|w\|}\cdot\frac{w^T}{\|w\|}\cdot \nabla_wL$$</span><!-- Has MathJax --><br><span>$M_w\nabla_wL$</span><!-- Has MathJax --> 就是將 <span>$\nabla_wL$</span><!-- Has MathJax --> 扣掉在 <span>$w$</span><!-- Has MathJax --> 方向上的分量, 而 <span>$\nabla_vL$</span><!-- Has MathJax --> 只是再多乘一個 scalar,<br>也就是說 <span>$\nabla_vL\perp w$</span><!-- Has MathJax -->, i.e. <span>$w^T\nabla_vL=0$</span><!-- Has MathJax --> (只要利用 (4) 計算就可知道)</p>
+<p>所以<br><span>$$M_w\nabla_wL=\nabla_wL-\frac{w}{\|w\|}\cdot\frac{w^T}{\|w\|}\cdot \nabla_wL$$</span><!-- Has MathJax --><br><span>$M_w\nabla_wL$</span><!-- Has MathJax --> 就是將 <span>$\nabla_wL$</span><!-- Has MathJax --> 扣掉在 <span>$w$</span><!-- Has MathJax --> 方向上的分量, 而 <span>$\nabla_vL$</span><!-- Has MathJax --> 只是再多乘一個 scalar,<br>也就是說 <span>$\nabla_vL\perp w$</span><!-- Has MathJax -->, i.e. <span>$w^T\nabla_vL=0$</span><!-- Has MathJax --> (只要利用 (4) 計算就可知道)</p>
 <h2 id="SGD-會使得-<span>$v$</span><!-- Has MathJax -->-長度愈來愈大"><a href="#SGD-會使得-<span>$v$</span><!-- Has MathJax -->-長度愈來愈大" class="headerlink" title="SGD 會使得 <span>$v$</span><!-- Has MathJax --> 長度愈來愈大"></a>SGD 會使得 <span>$v$</span><!-- Has MathJax --> 長度愈來愈大</h2><hr>
 <p>用 SGD update <span>$v$</span><!-- Has MathJax --> 的時候公式為:<br><span>$$v&apos;=v+\Delta v$$</span><!-- Has MathJax --> 且 <span>$\Delta v\propto\nabla_vL$</span><!-- Has MathJax --> by steepest descent.<br>而因為 <span>$\nabla_vL\perp w$</span><!-- Has MathJax --> 所以 <span>$\Delta v\perp w$</span><!-- Has MathJax -->. (要 update 的向量與目前的 weight 垂直)<br>由最開始的分解 <span>$(\star)$</span><!-- Has MathJax --> 我們知道 <span>$v$</span><!-- Has MathJax --> 與 weight <span>$w$</span><!-- Has MathJax --> 同方向. 所以自然 <span>$\Delta v\perp v$</span><!-- Has MathJax -->.<br>這就導致了 update 後的 <span>$v&apos;$</span><!-- Has MathJax --> 長度會比 <span>$v$</span><!-- Has MathJax --> 來得大 (三角不等式), 如下圖:</p>
 <p><img src="/2022/09/26/Weight-Normalization-的筆記/Untitled 1.png" width="50%" height="50%"></p>

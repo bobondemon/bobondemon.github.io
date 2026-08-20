@@ -122,7 +122,7 @@ v_y
 <meta property="og:image" content="https://bobondemon.github.io/2017/04/11/CTRV-Motion-Model/CTRV_state_vector.png">
 <meta property="og:image" content="https://bobondemon.github.io/2017/04/11/CTRV-Motion-Model/NoiseTermPosition.png">
 <meta property="og:image" content="https://bobondemon.github.io/2017/04/11/CTRV-Motion-Model/UKF_idea.png">
-<meta property="og:updated_time" content="2026-08-20T12:28:17.429Z">
+<meta property="og:updated_time" content="2026-08-20T13:12:29.303Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="CTRV Motion Model">
 <meta name="twitter:description" content="Motion Models
@@ -457,7 +457,8 @@ v \\
 \dot{\psi}
 \end{array}
 \right)
-\end{align}$$</span><!-- Has MathJax --><br><img src="/2017/04/11/CTRV-Motion-Model/CTRV_state_vector.png" width="80%" height="80%"><br>其中 <span>$p_x,p_y$</span><!-- Has MathJax --> 是 <span>$x,y$</span><!-- Has MathJax --> 座標位置，<span>$v$</span><!-- Has MathJax --> 是速度的 magnitude，<span>$\psi$</span><!-- Has MathJax --> 是速度的向量與水平軸的夾角稱 yaw angel，最後的 <span>$\dot{\psi}$</span><!-- Has MathJax --> 則是該夾角的變化率稱 yaw rate。<br><strong>而 CTRV 假設的是 <span>$v$</span><!-- Has MathJax --> 和 <span>$\dot{\psi}$</span><!-- Has MathJax --> 是 constant。</strong>而此 model 已<strong>不是一個線性系統</strong>了，也就是無法用 matrix 來表達，所以我們將式(1)改為如下的表達方式:<br><span>$$\begin{align}
+\end{align}$$</span><!-- Has MathJax --><br><img src="/2017/04/11/CTRV-Motion-Model/CTRV_state_vector.png" width="80%" height="80%"><br>其中 <span>$p_x,p_y$</span><!-- Has MathJax --> 是 <span>$x,y$</span><!-- Has MathJax --> 座標位置，<span>$v$</span><!-- Has MathJax --> 是速度的 magnitude，<span>$\psi$</span><!-- Has MathJax --> 是速度的向量與水平軸的夾角稱 yaw angel，最後的 <span>$\dot{\psi}$</span><!-- Has MathJax --> 則是該夾角的變化率稱 yaw rate。<br><strong>而 CTRV 假設的是 <span>$v$</span><!-- Has MathJax --> 和 <span>$\dot{\psi}$</span><!-- Has MathJax --> 是 constant。</strong>而此 model 已<strong>不是一個線性系統</strong>了，也就是無法用 matrix 來表達，所以我們將式(1)改為如下的表達方式:</p>
+<p><span>$$\begin{align}
 x_{k+1} = f(x_k,\nu_k)
 \end{align}$$</span><!-- Has MathJax --> 如何將 function <span>$f$</span><!-- Has MathJax --> 寫成遞迴式子呢? 請看下一段</p>
 <hr>

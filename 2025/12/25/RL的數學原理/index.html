@@ -105,7 +105,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2025/12/25/RL的數學原理/image 9.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/12/25/RL的數學原理/image 10.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/12/25/RL的數學原理/image 11.png">
-<meta property="og:updated_time" content="2026-08-20T12:28:17.450Z">
+<meta property="og:updated_time" content="2026-08-20T13:12:29.305Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="RL的數學原理: 趙世鈺課程濃縮筆記">
 <meta name="twitter:description" content="📔 筆記內容: 赵世钰老師 “强化学习的数学原理” 課程 (也推薦用 Notion版本 來閱讀)很高興我初次學習 RL 就是透過這門課, 讓我扎實理解其背後的數學和邏輯老實說 RL 方法很多很雜, 套句趙老師的話, RL 數學很深, 結構性又很強, 一環扣一環如果沒有這堂課這樣循序剖析和從數學出發解釋的話, 我自己應該很難入門, 謝謝這門課的赵世钰老師! 🙏🏻
@@ -429,23 +429,23 @@ R_{t+1}+\gamma\max_{a&apos;}q(S_{t+1},a&apos;)\right|S_t=s,A_t=a
 \right]}}
 \end{align*}$$</span><!-- Has MathJax -->
 
-<details><br>   <summary>▶️(點擊展開) Action Value BOE 推導 [<a href="https://www.notion.so/bobondemon/Ch-7-Temporal-Difference-Learning-Methods-for-Prediction-Control-1c7edc3d531d802aa64cf9e5c8f81ca0#1ebedc3d531d80189647f3c2b4f566f1" target="_blank" rel="external">ref</a>]</summary><br>    <span>$$\begin{align*}
+<details><br>   <summary>▶️(點擊展開) Action Value BOE 推導 [<a href="https://www.notion.so/bobondemon/Ch-7-Temporal-Difference-Learning-Methods-for-Prediction-Control-1c7edc3d531d802aa64cf9e5c8f81ca0#1ebedc3d531d80189647f3c2b4f566f1" target="_blank" rel="external">ref</a>]</summary><br><br><span>$$\begin{align*}
     q(s,a)=\mathbb{E}\left[\left.
     R_{t+1}+\gamma\max_{a&apos;}q(S_{t+1},a&apos;)\right|S_t=s,A_t=a
     \right] \\
     =\sum_r p(r|s,a)r + \gamma\sum_{s&apos;}p(s&apos;|s,a)\max_{a&apos;\in\mathcal{A}(s&apos;)}q(s&apos;,a&apos;) \\
-    \end{align*}$$</span><!-- Has MathJax --><br>對兩邊對 action <span>$a$</span><!-- Has MathJax --> 取 <span>$\max$</span><!-- Has MathJax --> 變成<br>    <span>$$\begin{align*}
+    \end{align*}$$</span><!-- Has MathJax --> 對兩邊對 action <span>$a$</span><!-- Has MathJax --> 取 <span>$\max$</span><!-- Has MathJax --> 變成<br><br><span>$$\begin{align*}
     \max_{a\in\mathcal{A}(s)}q(s,a) = \max_{a\in\mathcal{A}(s)}\left[
     \sum_r p(r|s,a)r + \gamma\sum_{s&apos;}p(s&apos;|s,a)\max_{a&apos;\in\mathcal{A}(s&apos;)}q(s&apos;,a&apos;)
     \right]
-    \end{align*}$$</span><!-- Has MathJax --><br>定義 <span>$v(s)\doteq\max_{a\in\mathcal{A}(s)}q(s,a)$</span><!-- Has MathJax -->, 改寫上式<br>    <span>$$\begin{align*}
+    \end{align*}$$</span><!-- Has MathJax --> 定義 <span>$v(s)\doteq\max_{a\in\mathcal{A}(s)}q(s,a)$</span><!-- Has MathJax -->, 改寫上式<br><br><span>$$\begin{align*}
     v(s)=\max_{a\in\mathcal{A}(s)}\left[
     \sum_r p(r|s,a)r + \gamma\sum_{s&apos;}p(s&apos;|s,a)v(s&apos;)
     \right] \\
     =\max_\pi\sum_{a\in\mathcal{A}(s)}\pi(a|s)\left[
     \sum_r p(r|s,a)r + \gamma\sum_{s&apos;}p(s&apos;|s,a)v(s&apos;)
     \right]
-    \end{align*}$$</span><!-- Has MathJax --><br>這正好就是 State Value 的 BOE<br></details>
+    \end{align*}$$</span><!-- Has MathJax --> 這正好就是 State Value 的 BOE<br></details>
 
 <hr>
 <h2 id="Ch4-Value-Iteration-amp-Policy-Iteration"><a href="#Ch4-Value-Iteration-amp-Policy-Iteration" class="headerlink" title="[Ch4]: Value Iteration &amp; Policy Iteration"></a>[Ch4]: Value Iteration &amp; Policy Iteration</h2><p>求解 BOE 可以直接幫我們找出 optimal state value 是多少, 以及對應的 optimal policy 是什麼<br>根據 <a href="https://www.notion.so/Contraction-Mapping-Principle-1afedc3d531d80d58122dfff5f716fec?pvs=21" target="_blank" rel="external">contraction mapping theorem</a> 可以從任意的 initial value <span>$v_0$</span><!-- Has MathJax --> 出發, 只要一直疊代: <span>$v_{k+1}=f(v_k)=\max_\pi(r_\pi+\gamma P_\pi v_k) ,$</span><!-- Has MathJax --> <span>$k=0,1,2,...$</span><!-- Has MathJax -->, 就能解<br>因此有了 Value Iteration 算法, 其中 policy update 用 <a href="https://bobondemon.notion.site/Week-3-Value-Functions-Bellman-Equations-1adedc3d531d80e9ade3cb1f22f6472e#1afedc3d531d80ad9606ed7c8f7e24be" target="_blank" rel="external">Greedy Optimal Policy</a>.<br>順序反過來的話, Policy iteration 先從一個任意的 policy <span>$\pi_0$</span><!-- Has MathJax --> 出發, 利用上面 Ch2 的 <a href="https://www.notion.so/bobondemon/RL-2cdedc3d531d80deb68de5606084a717?source=copy_link#2cdedc3d531d8078be22ea78df87d9bf" target="_blank" rel="external">PE (Policy Evaluation)</a> 我們可以評估在該 policy 下的 state value <span>$v_{\pi_0}$</span><!-- Has MathJax -->.<br>(注意到這是合法的 state value, 跟 value iteration 的 <span>$v_0$</span><!-- Has MathJax --> 不一樣)<br>有了對應的 state value <span>$v_{\pi_0}$</span><!-- Has MathJax --> 一樣利用 <a href="https://bobondemon.notion.site/Week-3-Value-Functions-Bellman-Equations-1adedc3d531d80e9ade3cb1f22f6472e#1afedc3d531d80ad9606ed7c8f7e24be" target="_blank" rel="external">Greedy Optimal Policy</a> 更新 policy, 即 policy improvement (PI) 找到更優的 policy. 重複 iteration 就是策略迭代算法.<br>下圖左和右分別是 Value &amp; Policy iteration 算法<br><img src="/2025/12/25/RL的數學原理/value_and_policy_iteration_algo.png" width="100%" height="100%"> Policy iteration 的收斂性證明需要用到 Value iteration 收斂的性質. 其他證明如能確保找到的 policy or value 是 optimal 的請參考 <a href="https://www.notion.so/Week-4-Dynamic-Programming-Value-and-Policy-Iteration-1b0edc3d531d80f8aea4e720938ea1e0?pvs=21" target="_blank" rel="external">Week4 筆記</a>.<br>最後它們都是 truncated policy iteration 的特例<br>注意到, Policy iteration 的 PE 理論上要收斂到無窮多步才能求出正確的 value 值 <span>$v_{\pi_k}$</span><!-- Has MathJax -->, 但如果只做一步 update 其實就是 value iteration 的做法, 更多請參考 <a href="https://www.notion.so/Week-4-Dynamic-Programming-Value-and-Policy-Iteration-1b0edc3d531d80f8aea4e720938ea1e0?pvs=21" target="_blank" rel="external">Week4 筆記</a>.<br>在做 policy or value iteration 的時候, 都會對所有 state 做 for loop<br>事實上可以很彈性, 可以 random 對 state 做, 也可以馬上 inplace 更新 state value, 也可以每次變動 truncated <span>$j$</span><!-- Has MathJax --> 步. 這樣做的好處是當 states 數量很多的時候 (甚至連掃過一次所有 states 都很難) 還是能做 RL.<br>這種更 general 的方法 Sutton and Barto 課本稱 Generalized Policy Iteration (GPI).</p>
@@ -458,12 +458,15 @@ R_{t+1}+\gamma\max_{a&apos;}q(S_{t+1},a&apos;)\right|S_t=s,A_t=a
 <blockquote>
 <p>所以還是在做 policy evaluation (如何 incremental 估計 state/action value), 可以想成 <a href="https://www.notion.so/bobondemon/RL-2cdedc3d531d80deb68de5606084a717#2cdedc3d531d8098b896f0135674964f" target="_blank" rel="external">Policy iteration 算法</a>的 PE 階段換成 TD method.</p>
 </blockquote>
-<p><details><br>   <summary>▶️(點擊展開) D 算法邏輯推導解釋 (RM 解 root, 該 root 為 Bellman equation 解)</summary><br>   回顧 <a href="https://www.notion.so/bobondemon/RL-2cdedc3d531d80deb68de5606084a717#2cdedc3d531d80dfbf51e84f94d0643a" target="_blank" rel="external">Bellman Expectation equation</a>: <span>$v_\pi(s)=\mathbb{E}[R_{t+1}+\gamma v_\pi(S_{t+1})|S_t=s],\quad s\in\mathcal{S}$</span><!-- Has MathJax --> <strong>對某個特定的 state <span>$s$</span><!-- Has MathJax -->, 令我們要求解的 <span>$v_\pi(s)$</span><!-- Has MathJax --> 為變數 <span>$w$</span><!-- Has MathJax --></strong>, 我們定義 function <span>$$\begin{align*}
+<p><details><br>   <summary>▶️(點擊展開) D 算法邏輯推導解釋 (RM 解 root, 該 root 為 Bellman equation 解)</summary><br>   回顧 <a href="https://www.notion.so/bobondemon/RL-2cdedc3d531d80deb68de5606084a717#2cdedc3d531d80dfbf51e84f94d0643a" target="_blank" rel="external">Bellman Expectation equation</a>: <span>$v_\pi(s)=\mathbb{E}[R_{t+1}+\gamma v_\pi(S_{t+1})|S_t=s],\quad s\in\mathcal{S}$</span><!-- Has MathJax --> <strong>對某個特定的 state <span>$s$</span><!-- Has MathJax -->, 令我們要求解的 <span>$v_\pi(s)$</span><!-- Has MathJax --> 為變數 <span>$w$</span><!-- Has MathJax --></strong>, 我們定義 function</details></p>
+<p><span>$$\begin{align*}
     g({\color{orange}{w}})\doteq {\color{orange}{w}} - \mathbb{E}[R_{t+1}+\gamma v_{\color{red}{\pi}}(S_{t+1})|S_t=s]
-    \end{align*}$$</span><!-- Has MathJax --><br>則對 <span>$g$</span><!-- Has MathJax --> 求解 root 等價於解出 Bellman Expectation equation.<br>    套用 RM 算法 (參考 <a href="https://bobondemon.github.io/2025/05/02/RM-algo/">Robbins-Monro algorithm</a>), 定義觀測函數 <span>$\tilde{g}$</span><!-- Has MathJax --> 為一次的觀測 sample: <span>$\tilde{g}(w,\eta_t)\doteq w-\left[r+\gamma v_\pi(s&apos;)\right]$</span><!-- Has MathJax --> 其中 <span>$R_{t+1}=r$</span><!-- Has MathJax --> 和 <span>$S_{t+1}=s&apos;$</span><!-- Has MathJax -->. 這是因為在 model-free 的設定下, 我們可以很容易拿到 <span>$(S_t,R_{t+1},S_{t+1})$</span><!-- Has MathJax --> 的很多觀測值 <span>$\{(s,r,s&apos;)\}$</span><!-- Has MathJax -->, 這叫 experience sample.<br>    則 RM 算法為: <span>$$\begin{align*}
+    \end{align*}$$</span><!-- Has MathJax --> 則對 <span>$g$</span><!-- Has MathJax --> 求解 root 等價於解出 Bellman Expectation equation.<br>    套用 RM 算法 (參考 <a href="https://bobondemon.github.io/2025/05/02/RM-algo/">Robbins-Monro algorithm</a>), 定義觀測函數 <span>$\tilde{g}$</span><!-- Has MathJax --> 為一次的觀測 sample: <span>$\tilde{g}(w,\eta_t)\doteq w-\left[r+\gamma v_\pi(s&apos;)\right]$</span><!-- Has MathJax --> 其中 <span>$R_{t+1}=r$</span><!-- Has MathJax --> 和 <span>$S_{t+1}=s&apos;$</span><!-- Has MathJax -->. 這是因為在 model-free 的設定下, 我們可以很容易拿到 <span>$(S_t,R_{t+1},S_{t+1})$</span><!-- Has MathJax --> 的很多觀測值 <span>$\{(s,r,s&apos;)\}$</span><!-- Has MathJax -->, 這叫 experience sample.<br>    則 RM 算法為:</p>
+<p><span>$$\begin{align*}
     w_{k+1}=w_{k}-a_k\tilde{g}(w_{k},\eta_k),\quad k=1,2,3,... \\
     \Longrightarrow w_{k+1}=w_{k}-a_k\left(w_{k}-\left[r+\gamma v_{\color{red}{\pi}}(s&apos;)\right]\right),\quad k=1,2,3,...
-    \end{align*}$$</span><!-- Has MathJax --><br>滿足 RM 算法的收斂條件下, 最後 <span>$w_\infty$</span><!-- Has MathJax --> 為 root, 即 <span>$g(w_\infty)=0$</span><!-- Has MathJax -->: <span>$w_\infty=\mathbb{E}[R_{t+1}+\gamma v_{\color{red}{\pi}}(S_{t+1})|S_t=s]$</span><!-- Has MathJax -->. 這樣就把 Bellman equation 解出來了.<br>    注意到上述的解 <span>$w_\infty$</span><!-- Has MathJax --> 的過程需要用到 ground truth state value <span>$v_{\color{red}{\pi}}$</span><!-- Has MathJax -->, 實務上使用目前正在估計的 <span>$w_k$</span><!-- Has MathJax --> 替代, 因此收斂過程還需嚴格證明, 這裡略過<br></details><br>因此 TD 算法:<br><span>$$\begin{align*}
+    \end{align*}$$</span><!-- Has MathJax --> 滿足 RM 算法的收斂條件下, 最後 <span>$w_\infty$</span><!-- Has MathJax --> 為 root, 即 <span>$g(w_\infty)=0$</span><!-- Has MathJax -->: <span>$w_\infty=\mathbb{E}[R_{t+1}+\gamma v_{\color{red}{\pi}}(S_{t+1})|S_t=s]$</span><!-- Has MathJax -->. 這樣就把 Bellman equation 解出來了.<br>    注意到上述的解 <span>$w_\infty$</span><!-- Has MathJax --> 的過程需要用到 ground truth state value <span>$v_{\color{red}{\pi}}$</span><!-- Has MathJax -->, 實務上使用目前正在估計的 <span>$w_k$</span><!-- Has MathJax --> 替代, 因此收斂過程還需嚴格證明, 這裡略過<br><br>因此 TD 算法:</p>
+<p><span>$$\begin{align*}
 {\color{orange}{
 \underbrace{v_{t+1}(s)}_{\text{new est.}} = \underbrace{v_{t}(s)}_{\text{current est.}} -\alpha_t(s)
 [
@@ -472,7 +475,8 @@ R_{t+1}+\gamma\max_{a&apos;}q(S_{t+1},a&apos;)\right|S_t=s,A_t=a
 ]
 }} ,\\
 v_{t+1}(s)=v_t(s),\quad\forall s\neq s_t,
-\end{align*}$$</span><!-- Has MathJax --> 兩個重要的 terms, <strong>TD target <span>$\bar{v}_t$</span><!-- Has MathJax --></strong> 和 T<strong>D error <span>$\delta_t$</span><!-- Has MathJax --></strong> 需要記住.<br>每次 iteration 都會縮短與 TD target <span>$\bar{v}_t$</span><!-- Has MathJax --> 的距離, 而 TD error 反應了目前 state value 的估計 <span>$v_t$</span><!-- Has MathJax --> 與真實 state value <span>$v_\pi$</span><!-- Has MathJax --> 的 ”期望” 差異. 更多<a href="https://bobondemon.notion.site/Ch-7-Temporal-Difference-Learning-Methods-for-Prediction-Control-1c7edc3d531d802aa64cf9e5c8f81ca0#1dcedc3d531d805bbd4cdb5771aaa711" target="_blank" rel="external">參閱它們的特性</a>.<br>如果 TD 方法改為估計 action value, 一個經典的方法稱為 Sarsa<br>給定 experience samples <span>$\{(s_t,a_t,r_{t+1},s_{t+1},a_{t+1})\}_t$</span><!-- Has MathJax --> (所以 s a r s a 名字就這麼來)<br>則 <strong>Sarsa algorithm</strong> 為 :<br><span>$$\begin{align*}
+\end{align*}$$</span><!-- Has MathJax --> 兩個重要的 terms, <strong>TD target <span>$\bar{v}_t$</span><!-- Has MathJax --></strong> 和 T<strong>D error <span>$\delta_t$</span><!-- Has MathJax --></strong> 需要記住.<br>每次 iteration 都會縮短與 TD target <span>$\bar{v}_t$</span><!-- Has MathJax --> 的距離, 而 TD error 反應了目前 state value 的估計 <span>$v_t$</span><!-- Has MathJax --> 與真實 state value <span>$v_\pi$</span><!-- Has MathJax --> 的 ”期望” 差異. 更多<a href="https://bobondemon.notion.site/Ch-7-Temporal-Difference-Learning-Methods-for-Prediction-Control-1c7edc3d531d802aa64cf9e5c8f81ca0#1dcedc3d531d805bbd4cdb5771aaa711" target="_blank" rel="external">參閱它們的特性</a>.<br>如果 TD 方法改為估計 action value, 一個經典的方法稱為 Sarsa<br>給定 experience samples <span>$\{(s_t,a_t,r_{t+1},s_{t+1},a_{t+1})\}_t$</span><!-- Has MathJax --> (所以 s a r s a 名字就這麼來)<br>則 <strong>Sarsa algorithm</strong> 為 :</p>
+<p><span>$$\begin{align*}
 {\color{orange}{q_{t+1}(s_t,a_t)=q_t(s_t,a_t)-\alpha_t(s_t,a_t)\left[q_t(s_t,a_t)-(r_{t+1}+\gamma q_t(s_{t+1},a_{t+1}))\right]}}, \\
 q_{t+1}(s,a)
 =q_t(s,a),\quad \forall (s,a)\neq(s_t,a_t)
@@ -512,14 +516,14 @@ w_{t+1}=w_t+\alpha_t( {\color{red}{v_\pi(s_t)}} -\hat{v}(s_t,w_t))\nabla_{w}\hat
 
 <p>ground truth 的 <span>$v_\pi$</span><!-- Has MathJax --> 我們不知道, 因此有兩種替代方式:</p>
 <ol>
-<li>Monte Carlo learning with function approximation<br> 設定 <span>$v_\pi(s_t)$</span><!-- Has MathJax --> 為 <span>$g_t$</span><!-- Has MathJax -->, 其中 <span>$g_t$</span><!-- Has MathJax --> 是從 <span>$s_t$</span><!-- Has MathJax --> 出發 (採樣) 直到完成一個 episode 的 return. 則變成 <span>$$\begin{align*}
+<li>Monte Carlo learning with function approximation<br> 設定 <span>$v_\pi(s_t)$</span><!-- Has MathJax --> 為 <span>$g_t$</span><!-- Has MathJax -->, 其中 <span>$g_t$</span><!-- Has MathJax --> 是從 <span>$s_t$</span><!-- Has MathJax --> 出發 (採樣) 直到完成一個 episode 的 return. 則變成<br><span>$$\begin{align*}
     w_{t+1}=w_t+\alpha_t( {\color{red}{g_t}} -\hat{v}(s_t,w_t))\nabla_{w}\hat{v}(s_t,w_t)
     \end{align*}$$</span><!-- Has MathJax --></li>
-<li>TD learning with function approximation<br> 設定 <span>$v_\pi(s_t)$</span><!-- Has MathJax --> 為 TD target <span>$r_{t+1}+\gamma\hat{v}(s_{t+1},w_t)$</span><!-- Has MathJax -->. 則變成 <span>$$\begin{align*}
+<li>TD learning with function approximation<br> 設定 <span>$v_\pi(s_t)$</span><!-- Has MathJax --> 為 TD target <span>$r_{t+1}+\gamma\hat{v}(s_{t+1},w_t)$</span><!-- Has MathJax -->. 則變成<br><span>$$\begin{align*}
     w_{t+1}=w_t+\alpha_t( {\color{red}{r_{t+1}+\gamma\hat{v}(s_{t+1},w_t)}} -\hat{v}(s_t,w_t))\nabla_{w}\hat{v}(s_t,w_t)
-    \end{align*}$$</span><!-- Has MathJax --><br>其實就變成中間是 TD-error 了 (參考 <a href="https://bobondemon.notion.site/Ch-7-Temporal-Difference-Learning-Methods-for-Prediction-Control-1c7edc3d531d802aa64cf9e5c8f81ca0#1dcedc3d531d8063bda9f1b943cc0441" target="_blank" rel="external">TD-learning 的公式 (7)</a>)<br> 進一步的如果使用 linear function <span>$\hat{v}(s,w)=\phi(s)^Tw$</span><!-- Has MathJax --> 來近似, 其中 gradient 為 <span>$\nabla_w\hat{v}(s,w)=\phi(s)$</span><!-- Has MathJax -->, 則變成<br> <span>$$\begin{align*}
+    \end{align*}$$</span><!-- Has MathJax --> 其實就變成中間是 TD-error 了 (參考 <a href="https://bobondemon.notion.site/Ch-7-Temporal-Difference-Learning-Methods-for-Prediction-Control-1c7edc3d531d802aa64cf9e5c8f81ca0#1dcedc3d531d8063bda9f1b943cc0441" target="_blank" rel="external">TD-learning 的公式 (7)</a>)<br> 進一步的如果使用 linear function <span>$\hat{v}(s,w)=\phi(s)^Tw$</span><!-- Has MathJax --> 來近似, 其中 gradient 為 <span>$\nabla_w\hat{v}(s,w)=\phi(s)$</span><!-- Has MathJax -->, 則變成<br><span>$$\begin{align*}
     w_{t+1}=w_t+\alpha_t({\color{red}{r_{t+1}+\gamma\phi^T(s_{t+1})w_t}}-\phi^T(s_t)w_t)\phi(s_t)
-    \end{align*}$$</span><!-- Has MathJax --><br>稱為 TD-linear 算法, 我們可以證明 Ch7 學的 tabular TD 算法是這個 TD-linear 的一個特例 [<a href="https://bobondemon.notion.site/Ch8-Value-Function-with-Function-Approximation-Methods-1efedc3d531d8069a1bae8a51aee01d1#1f2edc3d531d80239f4cefcba3a1c0d7" target="_blank" rel="external">ref</a>]</li>
+    \end{align*}$$</span><!-- Has MathJax --> 稱為 TD-linear 算法, 我們可以證明 Ch7 學的 tabular TD 算法是這個 TD-linear 的一個特例 [<a href="https://bobondemon.notion.site/Ch8-Value-Function-with-Function-Approximation-Methods-1efedc3d531d8069a1bae8a51aee01d1#1f2edc3d531d80239f4cefcba3a1c0d7" target="_blank" rel="external">ref</a>]</li>
 </ol>
 <blockquote>
 <p>TD learning with function approximation 的算法更新究竟在優化什麼目標函式, 粗暴點理解是一樣在解 Bellman equation, 詳細見<a href="https://bobondemon.notion.site/Ch8-Value-Function-with-Function-Approximation-Methods-1efedc3d531d8069a1bae8a51aee01d1#2d2edc3d531d803499edc8a01c5af34f" target="_blank" rel="external">筆記這部分</a>.</p>

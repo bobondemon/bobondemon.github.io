@@ -123,7 +123,7 @@ Week 5: Stationari">
 <meta property="og:image" content="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 9.png">
 <meta property="og:image" content="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 10.png">
 <meta property="og:image" content="https://bobondemon.github.io/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 11.png">
-<meta property="og:updated_time" content="2026-08-20T12:28:17.454Z">
+<meta property="og:updated_time" content="2026-08-20T12:51:18.214Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Stochastic Processes Week 3 Markov Chains">
 <meta name="twitter:description" content="Coursera Stochastic Processes 課程筆記, 共十篇:
@@ -434,23 +434,23 @@ Week 5: Stationari">
 <blockquote>
 <p>Any renewal process is also a Markov chain</p>
 </blockquote>
-<p><strong>[Random Walk Example]:</strong><br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled.png" width="60%" height="60%"><br>&emsp;考慮<br>&emsp;<span>$$\mathcal{P}\{ S_n=j | S_{n-1}=i_{n-1} \} = \left\{
+<p><strong>[Random Walk Example]:</strong><br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled.png" width="60%" height="60%"><br>&emsp;考慮<br><span>$$\mathcal{P}\{ S_n=j | S_{n-1}=i_{n-1} \} = \left\{
 \begin{array}{rl}
 p, &amp; j=i_{n-1}+1 \\
 1-p, &amp; j=i_{n-1}-1 \\
 0, &amp; \text{otherwise}
 \end{array}
-\right.$$</span><!-- Has MathJax --><br>&emsp;發現只會跟前一個 state 有關</p>
+\right.$$</span><!-- Has MathJax --> &emsp;發現只會跟前一個 state 有關</p>
 <blockquote>
 <p>注意到 random walk 不是 renewal process, 因為 <span>$\xi$</span><!-- Has MathJax --> 可以產生負的值. 而在 renewal process, <span>$\xi$</span><!-- Has MathJax --> 為 inter-arrival time <span>$\geq0$</span><!-- Has MathJax --></p>
 </blockquote>
-<p><strong>[Taxis in the airport Example]:</strong><br>&emsp;<span>$1$</span><!-- Has MathJax --> taxi at <span>$n$</span><!-- Has MathJax --> moment, <span>$n=1,2,3,...$</span><!-- Has MathJax --><br>&emsp;如果當下沒有乘客, taxi 就離開. 如果有乘客, taxi 當場載走一名並馬上就離開.<br>&emsp;<span>$X_k$</span><!-- Has MathJax -->: # people waiting for taxi at time <span>$k$</span><!-- Has MathJax --><br>&emsp;<span>$Y_k$</span><!-- Has MathJax -->: # people arriving at time <span>$k$</span><!-- Has MathJax --><br>&emsp;現在說明 <span>$X_k$</span><!-- Has MathJax --> 是 Markov chain<br>&emsp;<span>$$X_k=Y_k+(X_{k-1}-1)_+= \left\{
+<p><strong>[Taxis in the airport Example]:</strong><br>&emsp;<span>$1$</span><!-- Has MathJax --> taxi at <span>$n$</span><!-- Has MathJax --> moment, <span>$n=1,2,3,...$</span><!-- Has MathJax --><br>&emsp;如果當下沒有乘客, taxi 就離開. 如果有乘客, taxi 當場載走一名並馬上就離開.<br>&emsp;<span>$X_k$</span><!-- Has MathJax -->: # people waiting for taxi at time <span>$k$</span><!-- Has MathJax --><br>&emsp;<span>$Y_k$</span><!-- Has MathJax -->: # people arriving at time <span>$k$</span><!-- Has MathJax --><br>&emsp;現在說明 <span>$X_k$</span><!-- Has MathJax --> 是 Markov chain<br><span>$$X_k=Y_k+(X_{k-1}-1)_+= \left\{
 \begin{array}{rl}
 Y_k, &amp; \text{if }X_{k-1}=0 \\
 Y_k+X_{k-1}-1, &amp; \text{if }X_{k-1}\geq0 \\
 \end{array}
 \right.$$</span><!-- Has MathJax --><br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 1.png" width="40%" height="40%"><br>&emsp;所以 <span>$X_k$</span><!-- Has MathJax --> 只跟 <span>$X_{k-1}$</span><!-- Has MathJax --> 有關</p>
-<p><strong>[Example]:</strong><br>&emsp;考慮以下 <span>$X_n$</span><!-- Has MathJax -->, for some fixed <span>$m\in\mathbb{N}$</span><!-- Has MathJax --><br>&emsp;<span>$\mathcal{P}\{ X_n | X_{n-1},...,X_0 \} = \mathcal{P}\{ X_n | X_{n-1},...,X_{n-m} \}$</span><!-- Has MathJax --><br>&emsp;當下的 state 跟前 <span>$m$</span><!-- Has MathJax --> 個 states 有關, 而原本 Markov property 是只能與前 <span>$1$</span><!-- Has MathJax --> 個 state 有關.<br>&emsp;我們定義 <span>$S_n$</span><!-- Has MathJax --> (a vector of <span>$X_n$</span><!-- Has MathJax -->) 如下:<br>&emsp;<span>$S_n=(X_n,...,X_{n-m+1}),\text{ where } n=m-1,m,...$</span><!-- Has MathJax --><br>&emsp;則我們發現:<br>&emsp;<span>$$\mathcal{P}\{ X_n | X_{n-1},...,X_0 \} = \frac{\mathcal{P}\{ X_n,X_{n-1},...,X_0\}}{\mathcal{P}\{ X_{n-1},...,X_0\}} \\
+<p><strong>[Example]:</strong><br>&emsp;考慮以下 <span>$X_n$</span><!-- Has MathJax -->, for some fixed <span>$m\in\mathbb{N}$</span><!-- Has MathJax --><br>&emsp;<span>$\mathcal{P}\{ X_n | X_{n-1},...,X_0 \} = \mathcal{P}\{ X_n | X_{n-1},...,X_{n-m} \}$</span><!-- Has MathJax --><br>&emsp;當下的 state 跟前 <span>$m$</span><!-- Has MathJax --> 個 states 有關, 而原本 Markov property 是只能與前 <span>$1$</span><!-- Has MathJax --> 個 state 有關.<br>&emsp;我們定義 <span>$S_n$</span><!-- Has MathJax --> (a vector of <span>$X_n$</span><!-- Has MathJax -->) 如下:<br>&emsp;<span>$S_n=(X_n,...,X_{n-m+1}),\text{ where } n=m-1,m,...$</span><!-- Has MathJax --><br>&emsp;則我們發現:<br><span>$$\mathcal{P}\{ X_n | X_{n-1},...,X_0 \} = \frac{\mathcal{P}\{ X_n,X_{n-1},...,X_0\}}{\mathcal{P}\{ X_{n-1},...,X_0\}} \\
 = \frac
 {
 \mathcal{P}\{ (X_n,...,X_{n-m+1}), (X_{n-1},...,X_{n-m}),...,(X_{m-1},...,X_0) \}
@@ -472,18 +472,20 @@ Y_k+X_{k-1}-1, &amp; \text{if }X_{k-1}\geq0 \\
 } \\
 = \frac
 {\mathcal{P}\{S_n,S_{n-1}\}}
-{\mathcal{P}\{S_{n-1}\}} = \mathcal{P}\{S_n | S_{n-1}\}\ldots(\square)$$</span><!-- Has MathJax --><br>&emsp;因為 <span>$X_n$</span><!-- Has MathJax --> 是 Markov chain, 所以 <span>$(\star)=(\square)$</span><!-- Has MathJax -->, 得知 <span>$S_n$</span><!-- Has MathJax --> 為 Markov chain</p>
+{\mathcal{P}\{S_{n-1}\}} = \mathcal{P}\{S_n | S_{n-1}\}\ldots(\square)$$</span><!-- Has MathJax --> &emsp;因為 <span>$X_n$</span><!-- Has MathJax --> 是 Markov chain, 所以 <span>$(\star)=(\square)$</span><!-- Has MathJax -->, 得知 <span>$S_n$</span><!-- Has MathJax --> 為 Markov chain</p>
 <hr>
 <h2 id="Week-3-2-Matrix-representation-of-a-Markov-chain-Transition-matrix-Chapman-Kolmogorov-equation"><a href="#Week-3-2-Matrix-representation-of-a-Markov-chain-Transition-matrix-Chapman-Kolmogorov-equation" class="headerlink" title="Week 3.2: Matrix representation of a Markov chain. Transition matrix. Chapman-Kolmogorov equation"></a>Week 3.2: Matrix representation of a Markov chain. Transition matrix. Chapman-Kolmogorov equation</h2><p><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 2.png" width="100%" height="100%"><br>Matrix representation 如課程上圖的說明, 這裡很容易看上圖即可.</p>
 <p><strong>[Thm]:</strong><br>&emsp;Define <span>$p_{ij}^{(m)} = \mathcal{P}\{X_{n+m}=j | X_n=i\}$</span><!-- Has MathJax -->, 即 step <span>$n$</span><!-- Has MathJax --> 時在 state <span>$i$</span><!-- Has MathJax -->, 且走了 <span>$m$</span><!-- Has MathJax --> steps, i.e. step <span>$n+m$</span><!-- Has MathJax -->, 時在 state <span>$j$</span><!-- Has MathJax --> 的機率.<br>&emsp;並定義 <span>$P^{(m)}=\left( p_{ij}^{(m)} \right)$</span><!-- Has MathJax --> 表示 m-step 的 transition matrix. 則我們有:<br>&emsp;<span>$P^{(m)}= P^m=\underbrace{PP\cdots P}_{m\text{-times}}$</span><!-- Has MathJax --></p>
 <p><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 3.png" width="100%" height="100%"><br>定義了 stationary distribution <span>$\vec\pi^*=\vec\pi^*P$</span><!-- Has MathJax --></p>
 <hr>
 <h2 id="Week-3-3-5-Graphic-representation-Classification-of-states"><a href="#Week-3-3-5-Graphic-representation-Classification-of-states" class="headerlink" title="Week 3.3-5: Graphic representation. Classification of states"></a>Week 3.3-5: Graphic representation. Classification of states</h2><p><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Untitled 4.png" width="100%" height="100%"><br>定義了 <span>$i\rightarrow j$</span><!-- Has MathJax --> 表示有一條 walk (多條 arcs 連結) from <span>$i$</span><!-- Has MathJax --> to <span>$j$</span><!-- Has MathJax -->. 稱 <span>$j$</span><!-- Has MathJax --> is accesible from <span>$i$</span><!-- Has MathJax --><br>定義了 <span>$i\leftrightarrow j$</span><!-- Has MathJax --> 表示有一條雙向 walk 連結 <span>$i$</span><!-- Has MathJax --> and <span>$j$</span><!-- Has MathJax -->. 稱 <span>$i$</span><!-- Has MathJax --> and <span>$j$</span><!-- Has MathJax --> communicate</p>
-<p><strong>[Equivalence Relation Def]:</strong><br>&emsp;給定 set <span>$A$</span><!-- Has MathJax -->, 若有一個 binary operation <span>$\sim$</span><!-- Has MathJax --> 滿足以下關係則稱 <span>$\sim$</span><!-- Has MathJax --> 為 equivalence relation:<br>&emsp;<span>$$\begin{array}{rl}
+<p><strong>[Equivalence Relation Def]:</strong><br>&emsp;給定 set <span>$A$</span><!-- Has MathJax -->, 若有一個 binary operation <span>$\sim$</span><!-- Has MathJax --> 滿足以下關係則稱 <span>$\sim$</span><!-- Has MathJax --> 為 equivalence relation:</p>
+<span>$$\begin{array}{rl}
 a\sim a, a\in A &amp; \text{reflectivity} \\
 a\sim b\Rightarrow b\sim a, \forall a,b\in A &amp; \text{symmetry} \\
 a\sim b, b\sim c \Rightarrow a\sim c &amp; \text{transtivity}
-\end{array}$$</span><!-- Has MathJax --></p>
+\end{array}$$</span><!-- Has MathJax -->
+
 <p>給定 set <span>$A$</span><!-- Has MathJax --> 和它的一個 equivalence relation <span>$\sim$</span><!-- Has MathJax -->, 則我們可以定義出 <a href="https://en.wikipedia.org/wiki/Equivalence_class" target="_blank" rel="external">equivalence class</a></p>
 <blockquote>
 <p>The equivalence class of an element <span>$a$</span><!-- Has MathJax --> is often denoted <span>$[a]$</span><!-- Has MathJax --> or <span>$[a]_\sim$</span><!-- Has MathJax --> and is defined as the set <span>$\{ x\in A: a\sim x\}$</span><!-- Has MathJax --> of elements that are related to <span>$a$</span><!-- Has MathJax --> by <span>$\sim$</span><!-- Has MathJax -->.</p>
@@ -524,12 +526,12 @@ k \notin B_i, &amp; k \nleftrightarrow j
 <blockquote>
 <p><span>$a\vdots b$</span><!-- Has MathJax --> 表示 <span>$a$</span><!-- Has MathJax --> 能被 <span>$b$</span><!-- Has MathJax --> 整除</p>
 </blockquote>
-<p><strong>[Thm]: All elements in 1 equivalence class have the same period</strong><br>[Proof]:<br>&emsp;選定 states <span>$i$</span><!-- Has MathJax --> and <span>$j$</span><!-- Has MathJax --> 在同一個 equivalence class, 並令 <span>$i\rightarrow j$</span><!-- Has MathJax --> 走 <span>$n$</span><!-- Has MathJax --> 步, <span>$j\rightarrow i$</span><!-- Has MathJax --> 走 <span>$m$</span><!-- Has MathJax --> 步.<br>&emsp;假定 for some <span>$k$</span><!-- Has MathJax --> 滿足:<br>&emsp;<span>$p_{jj}^{(k)}\neq 0 \Longrightarrow k\vdots d(j) \ldots (\star)$</span><!-- Has MathJax --><br>&emsp;表示 <span>$j\rightarrow j$</span><!-- Has MathJax --> 可以走 <span>$k$</span><!-- Has MathJax --> 步, 因此 <span>$k$</span><!-- Has MathJax --> 一定會被 <span>$d(j)$</span><!-- Has MathJax --> 整除.<br>&emsp;如圖:<br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Proof_of_period_in_equivalence_class.drawio.png" width="50%" height="50%"><br>&emsp;我們有如下的關係:<br>&emsp;<span>$$\left.
+<p><strong>[Thm]: All elements in 1 equivalence class have the same period</strong><br>[Proof]:<br>&emsp;選定 states <span>$i$</span><!-- Has MathJax --> and <span>$j$</span><!-- Has MathJax --> 在同一個 equivalence class, 並令 <span>$i\rightarrow j$</span><!-- Has MathJax --> 走 <span>$n$</span><!-- Has MathJax --> 步, <span>$j\rightarrow i$</span><!-- Has MathJax --> 走 <span>$m$</span><!-- Has MathJax --> 步.<br>&emsp;假定 for some <span>$k$</span><!-- Has MathJax --> 滿足:<br>&emsp;<span>$p_{jj}^{(k)}\neq 0 \Longrightarrow k\vdots d(j) \ldots (\star)$</span><!-- Has MathJax --><br>&emsp;表示 <span>$j\rightarrow j$</span><!-- Has MathJax --> 可以走 <span>$k$</span><!-- Has MathJax --> 步, 因此 <span>$k$</span><!-- Has MathJax --> 一定會被 <span>$d(j)$</span><!-- Has MathJax --> 整除.<br>&emsp;如圖:<br><img src="/2021/12/12/Stochastic-Processes-Week-3-Markov-Chains/Proof_of_period_in_equivalence_class.drawio.png" width="50%" height="50%"><br>&emsp;我們有如下的關係:<br><span>$$\left.
 \begin{array}{r}
 p_{ii}^{(n+m)}\neq0 \Longrightarrow (n+m) \vdots d(i) \\
 p_{jj}^{(k)}\neq0 \Longrightarrow p_{ii}^{(n+m+k)}\neq0 \Longrightarrow (n+m+k) \vdots d(i) 
 \end{array}
-\right\} \Longrightarrow k\vdots d(i)$$</span><!-- Has MathJax --><br>&emsp;因為 <span>$j$</span><!-- Has MathJax --> 可以走 <span>$k$</span><!-- Has MathJax --> 步回到自己, 所以 <span>$i$</span><!-- Has MathJax --> 可以走 <span>$n+m+k$</span><!-- Has MathJax --> 步也回到自己. 得到 <span>$k$</span><!-- Has MathJax --> 可以被 <span>$d(i)$</span><!-- Has MathJax --> 整除的結論.<br>&emsp;因此對所有可能的 <span>$k$</span><!-- Has MathJax --> (那些滿足 <span>$(\star)$</span><!-- Has MathJax --> 的 <span>$k$</span><!-- Has MathJax -->) 我們都可以得到被 <span>$d(i)$</span><!-- Has MathJax --> 整除的結論.<br>&emsp;表示 <span>$d(i)$</span><!-- Has MathJax --> 是這些所有可能的 <span>$k$</span><!-- Has MathJax --> 的 “公因數”<br>&emsp;根據定義, <span>$d(j)$</span><!-- Has MathJax --> 是這些所有可能的 <span>$k$</span><!-- Has MathJax --> 的 “最大公因數”<br>&emsp;因此 <span>$d(j)\geq d(i)$</span><!-- Has MathJax --><br>&emsp;同樣的流程我們 <span>$i$</span><!-- Has MathJax --> and <span>$j$</span><!-- Has MathJax --> 的腳色互換, 也可以得到 <span>$d(i)\geq d(j)$</span><!-- Has MathJax --><br>&emsp;得到結論 <span>$d(i)=d(j)$</span><!-- Has MathJax --><br>&emsp;Q.E.D.<br>&emsp;課程的說明我覺得有點問題, 以下為課程的解釋:</p>
+\right\} \Longrightarrow k\vdots d(i)$$</span><!-- Has MathJax --> &emsp;因為 <span>$j$</span><!-- Has MathJax --> 可以走 <span>$k$</span><!-- Has MathJax --> 步回到自己, 所以 <span>$i$</span><!-- Has MathJax --> 可以走 <span>$n+m+k$</span><!-- Has MathJax --> 步也回到自己. 得到 <span>$k$</span><!-- Has MathJax --> 可以被 <span>$d(i)$</span><!-- Has MathJax --> 整除的結論.<br>&emsp;因此對所有可能的 <span>$k$</span><!-- Has MathJax --> (那些滿足 <span>$(\star)$</span><!-- Has MathJax --> 的 <span>$k$</span><!-- Has MathJax -->) 我們都可以得到被 <span>$d(i)$</span><!-- Has MathJax --> 整除的結論.<br>&emsp;表示 <span>$d(i)$</span><!-- Has MathJax --> 是這些所有可能的 <span>$k$</span><!-- Has MathJax --> 的 “公因數”<br>&emsp;根據定義, <span>$d(j)$</span><!-- Has MathJax --> 是這些所有可能的 <span>$k$</span><!-- Has MathJax --> 的 “最大公因數”<br>&emsp;因此 <span>$d(j)\geq d(i)$</span><!-- Has MathJax --><br>&emsp;同樣的流程我們 <span>$i$</span><!-- Has MathJax --> and <span>$j$</span><!-- Has MathJax --> 的腳色互換, 也可以得到 <span>$d(i)\geq d(j)$</span><!-- Has MathJax --><br>&emsp;得到結論 <span>$d(i)=d(j)$</span><!-- Has MathJax --><br>&emsp;Q.E.D.<br>&emsp;課程的說明我覺得有點問題, 以下為課程的解釋:</p>
 <blockquote>
 <p>注意到 <span>$d(i)$</span><!-- Has MathJax --> 是”某一個” <span>$k$</span><!-- Has MathJax --> 的因數, 但是 <span>$d(j)$</span><!-- Has MathJax --> 是所有可能的 <span>$k$</span><!-- Has MathJax --> 的最大公因數. 因此 <span>$d(i)$</span><!-- Has MathJax --> 一定可以被 <span>$d(j)$</span><!-- Has MathJax --> 整除 <strong>(??)</strong> :<br><span>$$d(i) \vdots d(j)$$</span><!-- Has MathJax --><br>同樣的流程我們 <span>$i$</span><!-- Has MathJax --> and <span>$j$</span><!-- Has MathJax --> 的腳色互換, 也可以得到 <span>$d(j)$</span><!-- Has MathJax --> 會被 <span>$d(i)$</span><!-- Has MathJax --> 整除<br>得到結論 <span>$d(i)=d(j)$</span><!-- Has MathJax --></p>
 </blockquote>

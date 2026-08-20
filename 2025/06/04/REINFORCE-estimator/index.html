@@ -97,7 +97,7 @@
 想了很久忘了在哪邊…縱使翻自己的 blog 筆記有時也沒查到很全面的資訊.所以就開始跟 ChatGPT 學習">
 <meta property="og:image" content="https://bobondemon.github.io/2025/06/04/REINFORCE-estimator/mode_averaging_and_seeking.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/06/04/REINFORCE-estimator/KL_with_Control_Variates.png">
-<meta property="og:updated_time" content="2026-08-20T12:28:17.449Z">
+<meta property="og:updated_time" content="2026-08-20T13:10:17.816Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="REINFORCE Estimator">
 <meta name="twitter:description" content="某天忘記幹嘛了突然回想起之前學到的一個問題是有關 gradient 的 variance 很大, 使得 gradient descent 訓練不夠穩定.不過可以利用扣掉一個 bias 或是使用 re-parameterization trick 來大幅降低 variance 解決此問題.
@@ -391,9 +391,9 @@
 = \mathbb{E}_{x \sim p_\theta} [f(x) \nabla_\theta \log p_\theta(x)]
 \end{align*}$$</span><!-- Has MathJax --> 這就是 <strong>REINFORCE estimator</strong>：<br><span>$$\nabla_\theta F(\theta) \approx \frac{1}{N} \sum_{i=1}^{N} f(x_i) \nabla_\theta \log p_\theta(x_i)$$</span><!-- Has MathJax --> 其中 <span>$x_i \sim p_\theta(x)$</span><!-- Has MathJax --> 是從該分佈中抽樣的樣本。</p>
 <h3 id="直覺解釋"><a href="#直覺解釋" class="headerlink" title="直覺解釋"></a><strong>直覺解釋</strong></h3><ul>
-<li><p><strong>關鍵技巧是對機率密度取對數的梯度</strong>：<br>  <span>$$\nabla_\theta p_\theta(x) = p_\theta(x) \nabla_\theta \log p_\theta(x)$$</span><!-- Has MathJax --><br>這使得我們可以用機率本身作為權重，而不直接對機率密度求梯度（避免計算困難）。</p>
+<li><p><strong>關鍵技巧是對機率密度取對數的梯度</strong>：<br><span>$$\nabla_\theta p_\theta(x) = p_\theta(x) \nabla_\theta \log p_\theta(x)$$</span><!-- Has MathJax --> 這使得我們可以用機率本身作為權重，而不直接對機率密度求梯度（避免計算困難）。</p>
 </li>
-<li><p><strong>這是一種無偏估計 (unbiased estimator)</strong>：<br>  <span>$$\mathbb{E}_{x \sim p_\theta} [f(x) \nabla_\theta \log p_\theta(x)]$$</span><!-- Has MathJax --><br>這個估計的期望值與真實梯度一致。</p>
+<li><p><strong>這是一種無偏估計 (unbiased estimator)</strong>：<br><span>$$\mathbb{E}_{x \sim p_\theta} [f(x) \nabla_\theta \log p_\theta(x)]$$</span><!-- Has MathJax --> 這個估計的期望值與真實梯度一致。</p>
 </li>
 <li><p><strong>只需要能對樣本計算對數機率的梯度</strong>：</p>
 <ul>
@@ -414,7 +414,7 @@
 <p><strong>[推導]:</strong><br>從機率分佈的性質出發，對任何參數 <span>$\theta$</span><!-- Has MathJax --> 控制的機率密度 <span>$p_\theta(x)$</span><!-- Has MathJax -->，我們知道它的總機率必須滿足歸一化條件：<br><span>$$\int p_\theta(x) dx = 1$$</span><!-- Has MathJax --> 對兩邊對 <span>$\theta$</span><!-- Has MathJax --> 求梯度：<br><span>$$\nabla_\theta \int p_\theta(x) dx = \int \nabla_\theta p_\theta(x) dx = 0$$</span><!-- Has MathJax --> 接著，我們應用 <strong>log-derivative trick</strong>（即 <strong>score function</strong> 的概念）：<br><span>$$\nabla_\theta p_\theta(x) = p_\theta(x) \nabla_\theta \log p_\theta(x)$$</span><!-- Has MathJax --> 將這個代入上式：<br><span>$$\int p_\theta(x) \nabla_\theta \log p_\theta(x) dx = 0$$</span><!-- Has MathJax --> 這其實就是期望值的定義：<br><span>$$\mathbb{E}_{x \sim p_\theta} [\nabla_\theta \log p_\theta(x)] = 0$$</span><!-- Has MathJax --> 這證明了對於任何機率分佈 <span>$p_\theta(x)$</span><!-- Has MathJax -->，它的 log 機率的梯度的期望值總是 <span>$0$</span><!-- Has MathJax -->。</p>
 <p><strong>[直覺]:</strong><br>當 <span>$f(x)$</span><!-- Has MathJax --> 本身有高方差時，減去一個適當的基線可以讓梯度的變化更小，使優化更穩定。<br>常見選擇：</p>
 <ul>
-<li><strong>均值基線</strong>：<br>  <span>$$b = \mathbb{E}[f(x)]$$</span><!-- Has MathJax --></li>
+<li><strong>均值基線</strong>：<br><span>$$b = \mathbb{E}[f(x)]$$</span><!-- Has MathJax --></li>
 <li><strong>狀態價值函數</strong>：<span>$b=V(x)$</span><!-- Has MathJax -->，這就是 Actor-Critic 方法中的 <strong>Critic</strong> 作用。</li>
 </ul>
 <h3 id="控制變數-Control-Variates"><a href="#控制變數-Control-Variates" class="headerlink" title="控制變數 (Control Variates)"></a><strong>控制變數 (Control Variates)</strong></h3><p>這種方法是基於 <strong>方差減少技術 (variance reduction techniques)</strong>，可以通過添加一個與梯度相關但均值為 0 的項來減少方差。例如：<br><span>$$\nabla_\theta F(\theta) = \mathbb{E}_{x \sim p_\theta} [(f(x) - c(x)) \nabla_\theta \log p_\theta(x)]$$</span><!-- Has MathJax --> 其中 <span>$c(x)$</span><!-- Has MathJax --> 是一個選擇得當的函數，使得 <strong>新梯度估計的方差較低</strong>。</p>
@@ -444,7 +444,7 @@ c(x)\doteq -\lambda(r(x)-\mathbb{E}_{x\sim P}\left[r(x)\right])
 <p><strong>[概念]:</strong><br>如果我們可以將 <span>$x$</span><!-- Has MathJax --> 重新參數化為一個<strong>可微的變換</strong>，即：<br><span>$$x = g(\epsilon, \theta)$$</span><!-- Has MathJax --> 其中 <span>$\epsilon$</span><!-- Has MathJax --> 是與 <span>$\theta$</span><!-- Has MathJax --> 無關的隨機變數，那麼期望可以改寫為：<br><span>$$\mathbb{E}_{x \sim p_\theta} [f(x)] = \mathbb{E}_{\epsilon \sim p(\epsilon)} [f(g(\epsilon, \theta))]$$</span><!-- Has MathJax --> 這樣求梯度時：<br><span>$$\nabla_\theta F(\theta) = \mathbb{E}_{\epsilon \sim p(\epsilon)} [\nabla_\theta f(g(\epsilon, \theta))]$$</span><!-- Has MathJax --> 這種方式的梯度方差通常遠小於 <strong>REINFORCE estimator</strong>。</p>
 <p><strong>[應用]:</strong></p>
 <ul>
-<li>高斯分佈 <span>$x \sim \mathcal{N}(\mu, \sigma^2)$</span><!-- Has MathJax --> 時，可以重參數化為：<br>  <span>$$x = \mu + \sigma \epsilon, \quad \epsilon \sim \mathcal{N}(0,1)$$</span><!-- Has MathJax --><br>這就是變分自動編碼器 (VAE) 使用的技巧。</li>
+<li>高斯分佈 <span>$x \sim \mathcal{N}(\mu, \sigma^2)$</span><!-- Has MathJax --> 時，可以重參數化為：<br><span>$$x = \mu + \sigma \epsilon, \quad \epsilon \sim \mathcal{N}(0,1)$$</span><!-- Has MathJax --> 這就是變分自動編碼器 (VAE) 使用的技巧。</li>
 <li>但這方法不適用於離散隨機變數，因此在離散情境下仍需使用 REINFORCE 或其他變異性降低技巧。</li>
 </ul>
 <h3 id="使用-Natural-Gradient-自然梯度"><a href="#使用-Natural-Gradient-自然梯度" class="headerlink" title="使用 Natural Gradient (自然梯度)"></a><strong>使用 Natural Gradient (自然梯度)</strong></h3><p>REINFORCE 使用標準的梯度下降方法，但有時可以透過 <strong>自然梯度 (Natural Gradient)</strong> 改善收斂速度。自然梯度的公式是：<br><span>$$\tilde{\nabla}_\theta = F^{-1} \nabla_\theta J(\theta)$$</span><!-- Has MathJax --> 其中 <span>$F$</span><!-- Has MathJax --> 是 Fisher 信息矩陣 (Fisher Information Matrix)，它考慮了參數空間的幾何性質，使梯度下降的步伐更合理。</p>

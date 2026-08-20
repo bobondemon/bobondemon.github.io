@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Earth Mover’s Distance (EMD),Optimal Transport,Wasserstein distance,Entropic Optimal Transport (EOT),Sinkhorn Knopp Algorithm,Lagrangian function,KKT," />
+  <meta name="keywords" content="Earth Mover’s Distance (EMD),Optimal Transport,Wasserstein distance,Sinkhorn Knopp Algorithm,Lagrangian function,KKT,Entropic Optimal Transport (EOT)," />
 
 
 
@@ -96,7 +96,7 @@
 <meta property="og:description" content="這是初探最優傳輸 OT (Optimal Transport) 的第二篇, 聊一下背後的數學理論接續上一篇引導出 EMD 是什麼以及什麼情況下我們需要 EMD 而非 KL or JSD 距離後, 我們最後說到 EMD 的兩個缺點: 不夠有效率以及無法微分
 本篇我們介紹 EOT (Entorpic Optimal Transport)EOT 將 EMD 問題 relax 後, 雖然只能找到逼近解,">
 <meta property="og:image" content="https://bobondemon.github.io/2026/03/03/EMD-2/image.png">
-<meta property="og:updated_time" content="2026-08-20T12:28:17.432Z">
+<meta property="og:updated_time" content="2026-08-20T13:10:17.807Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="初探推土機距離和 Entropic 最優傳輸 (EOT): 數學理論篇 (2/3)">
 <meta name="twitter:description" content="這是初探最優傳輸 OT (Optimal Transport) 的第二篇, 聊一下背後的數學理論接續上一篇引導出 EMD 是什麼以及什麼情況下我們需要 EMD 而非 KL or JSD 距離後, 我們最後說到 EMD 的兩個缺點: 不夠有效率以及無法微分
@@ -435,7 +435,7 @@ S_\epsilon(a, b) = OT_\epsilon(a, b) - \frac{1}{2} OT_\epsilon(a, a) - \frac{1}{
 <ol>
 <li><strong>擴充 Source <span>$a&apos;$</span><!-- Has MathJax -->:</strong> 在 <span>$a$</span><!-- Has MathJax --> 後面加一個虛擬點, 質量為 <span>$\sum b - m$</span><!-- Has MathJax -->. 其意義為 Target 沒收到的質量, 都由這個虛擬點給</li>
 <li><strong>擴充 Target <span>$b&apos;$</span><!-- Has MathJax -->:</strong> 在 <span>$b$</span><!-- Has MathJax --> 後面加一個虛擬點, 質量為 <span>$\sum a - m$</span><!-- Has MathJax -->, 其意義為 Source 沒送出去的質量, 都丟到這個虛擬點</li>
-<li><strong>擴充代價矩陣 <span>$C&apos;$</span><!-- Has MathJax --> 為:</strong><br> <span>$$\begin{aligned}
+<li><strong>擴充代價矩陣 <span>$C&apos;$</span><!-- Has MathJax --> 為:</strong><br><span>$$\begin{aligned}
     C&apos; = \begin{bmatrix} 
     C &amp; 0 \\ 
     0 &amp; 0 
@@ -519,13 +519,13 @@ S_\epsilon(a, b) = OT_\epsilon(a, b) - \frac{1}{2} OT_\epsilon(a, a) - \frac{1}{
           
             <a href="/tags/Wasserstein-distance/" rel="tag"># Wasserstein distance</a>
           
-            <a href="/tags/Entropic-Optimal-Transport-EOT/" rel="tag"># Entropic Optimal Transport (EOT)</a>
-          
             <a href="/tags/Sinkhorn-Knopp-Algorithm/" rel="tag"># Sinkhorn Knopp Algorithm</a>
           
             <a href="/tags/Lagrangian-function/" rel="tag"># Lagrangian function</a>
           
             <a href="/tags/KKT/" rel="tag"># KKT</a>
+          
+            <a href="/tags/Entropic-Optimal-Transport-EOT/" rel="tag"># Entropic Optimal Transport (EOT)</a>
           
         </div>
       

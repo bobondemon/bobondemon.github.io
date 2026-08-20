@@ -106,7 +106,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/image 10.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/image 11.png">
 <meta property="og:image" content="https://bobondemon.github.io/2025/07/08/神經網路鍊金術之高手心法/image 12.png">
-<meta property="og:updated_time" content="2026-08-20T12:28:17.462Z">
+<meta property="og:updated_time" content="2026-08-20T13:10:17.826Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="神經網路鍊金術之高手心法">
 <meta name="twitter:description" content="這裡指的 “高手” 來自 Google DeepMind 的科學家 Sander Dieleman [blog], 而他的工作有多大影響力請自行查看 [google scholar] 就會知道.這是筆者參加 ACDL 2025 MLSS 的其中一個 lecture, 也是私心認為最好的演講.共分三堂, 前兩堂講了 diffusion models, 最後一堂講了他目前對神經網路訓練的各種心得/m">
@@ -417,7 +417,7 @@
 <ul>
 <li><p><strong>Residual connections 非常有效</strong>:<br>  這是最簡單且有效的模型設計技巧 (或許 dropout 也是)<br>  他能有效保證 gradient 流通並且層數可以很深<br>  <strong>Morden version: divided by <span>$\sqrt{2}$</span><!-- Has MathJax -->, or residual 初始化為 <span>$0$</span><!-- Has MathJax --></strong>. (這我不清楚, 有機會找找來源)</p>
 </li>
-<li><p><strong>Normalization layers 設計</strong>:<br>  不管 BatchNorm, LayerNorm, GroupNorm, InstanceNorm, RMSNorm 或是 FiLM 都用以下公式:<br>  <span>$$\begin{align*}
+<li><p><strong>Normalization layers 設計</strong>:<br>  不管 BatchNorm, LayerNorm, GroupNorm, InstanceNorm, RMSNorm 或是 FiLM 都用以下公式:<br><span>$$\begin{align*}
     \mathbf{y}=a\cdot\frac{\mathbf{x}-\mu}{\sigma}+b
     \end{align*}$$</span><!-- Has MathJax --><br><img src="/2025/07/08/神經網路鍊金術之高手心法/image 5.png" width="75%" height="75%"></p>
 </li>

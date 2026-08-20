@@ -131,7 +131,7 @@ Week 5: Stationari">
 <meta property="og:image" content="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 21.png">
 <meta property="og:image" content="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 22.png">
 <meta property="og:image" content="https://bobondemon.github.io/2021/12/11/Stochastic-Processes-Week-1-Introduction-Renewal-processes/Untitled 23.png">
-<meta property="og:updated_time" content="2026-08-20T12:28:17.453Z">
+<meta property="og:updated_time" content="2026-08-20T12:51:18.213Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Stochastic Processes Week 1 Introduction & Renewal processes">
 <meta name="twitter:description" content="Coursera Stochastic Processes 課程筆記, 共十篇:
@@ -512,8 +512,10 @@ Week 5: Stationari">
 <p><span>$\mathcal{U}(t)$</span><!-- Has MathJax --> 稱 renewal function</p>
 </blockquote>
 </li>
-<li><p><span>$\mathbb{E} N_t = \mathcal{U}(t)$</span><!-- Has MathJax --><br>&emsp;<span>$$\mathbb{E}N_t = \mathbb{E}\left[ \#\{n:T_n\leq t\}  \right] =\mathbb{E}\left[ \sum_{n=1}^\infty \mathbf{1}(T_n\leq t) \right] \\
-=\sum_{n=1}^\infty \mathbb{E}\left[ \mathbf{1}(T_n\leq t) \right] =\sum_{n=1}^\infty P(T_n\leq t) =\sum_{n=1}^\infty F^{n\ast}(t)$$</span><!-- Has MathJax --></p>
+<li><p><span>$\mathbb{E} N_t = \mathcal{U}(t)$</span><!-- Has MathJax --></p>
+<span>$$\mathbb{E}N_t = \mathbb{E}\left[ \#\{n:T_n\leq t\}  \right] =\mathbb{E}\left[ \sum_{n=1}^\infty \mathbf{1}(T_n\leq t) \right] \\
+=\sum_{n=1}^\infty \mathbb{E}\left[ \mathbf{1}(T_n\leq t) \right] =\sum_{n=1}^\infty P(T_n\leq t) =\sum_{n=1}^\infty F^{n\ast}(t)$$</span><!-- Has MathJax -->
+
 </li>
 </ul>
 <p>雖然 <span>$\mathbb{E} N_t = \mathcal{U}(t) =\sum_{n=1}^\infty F^{n\ast}(t)$</span><!-- Has MathJax --> 我們可以明確寫出來, 但對於 <span>$F$</span><!-- Has MathJax --> 是比較 general form 的話, 幾乎很難算出來. 因為要算 convolution, 又要求 sequence 的 limit.</p>

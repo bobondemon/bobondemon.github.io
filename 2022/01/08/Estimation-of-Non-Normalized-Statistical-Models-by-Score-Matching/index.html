@@ -102,7 +102,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 4.png">
 <meta property="og:image" content="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 5.png">
 <meta property="og:image" content="https://bobondemon.github.io/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 6.png">
-<meta property="og:updated_time" content="2026-08-20T12:28:17.436Z">
+<meta property="og:updated_time" content="2026-08-20T13:14:00.503Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Score Matching 系列 (一) Non-normalized 模型估計">
 <meta name="twitter:description" content="這是一篇論文筆記: “Estimation of Non-Normalized Statistical Models by Score Matching”, 其實推薦直接讀論文, 數學式很清楚, 表達也明確, 只是想順著自己的說法做一下筆記
@@ -391,7 +391,7 @@
 <p>我們使用 MSE loss 來計算式 (1), 利用此 loss 找最佳 <span>$\theta$</span><!-- Has MathJax --> 的方法稱為 Score Matching<br>定義 score function, 它其實就是 gradient of the log-density with respect to the data vector:</p>
 <ul>
 <li>Data pdf 的 score function:<br>  <span>$\psi_x(\xi)=\nabla_\xi\log p_x(\xi) \in \mathbb{R}^n$</span><!-- Has MathJax --></li>
-<li>Model pdf 的 score function:<br>  <span>$$\psi(\xi;\theta)=
+<li>Model pdf 的 score function:<span>$$\psi(\xi;\theta)=
     \left(
     \begin{array}{c}
     \frac{\partial\log p(\xi;\theta)}{\partial\xi_1} \\
@@ -407,17 +407,23 @@
     \end{array}
     \right)
     = \nabla_\xi\log p(\xi;\theta)
-    =\color{orange}{\nabla_\xi\log q(\xi;\theta)}$$</span><!-- Has MathJax --></li>
+    =\color{orange}{\nabla_\xi\log q(\xi;\theta)}$$</span><!-- Has MathJax -->
+
+</li>
 </ul>
 <p>因此 objective function 就是這兩個 score functions 的 MSE (又稱為 Fisher Divergence: <a href="https://arxiv.org/abs/1205.2629" target="_blank" rel="external">Interpretation and Generalization of Score Matching</a>):<br><span>$$\begin{align}
 J(\theta)=\frac{1}{2}\int_{\xi\in\mathbb{R}^n} p_x(\xi) \| \psi(\xi;\theta)-\psi_x(\xi) \|^2 d\xi
 \end{align}$$</span><!-- Has MathJax --> 而 score matching estimator 的參數就是<br><span>$$\hat{\theta}=\arg\min_\theta J(\theta)$$</span><!-- Has MathJax --> 要算期望值需要知道真實資料的 pdf <span>$p_x(.)$</span><!-- Has MathJax -->, 雖然我們無法得到, 但可以根據 training data 去計算 empirical 期望值.<br>例如我們有 <span>$T$</span><!-- Has MathJax --> 個 observations <span>$\{x_1,...,x_T\}$</span><!-- Has MathJax -->, 則 empirical expectation 為<br><span>$$\tilde{J}(\theta)=\frac{1}{T}\sum_{t=1}^T \| \psi(x_t;\theta) - \psi(x_t) \|^2$$</span><!-- Has MathJax --> 不過 (2) 最麻煩的是我們不知道真實資料的 score function <span>$\psi_x(.)$</span><!-- Has MathJax -->, 論文的定理說明了在某些簡單的條件下, 可以避免掉計算這項.</p>
 <blockquote>
-<p>條件為: 除了 pdf 可微, 1st/2nd moment 存在, 一個比較特殊的條件為 (但也容易滿足):<br>    <span>$$p_x(\xi)\psi(\xi;\theta)\xrightarrow[\|\xi\|\rightarrow \infty]{}0$$</span><!-- Has MathJax --></p>
+<p>條件為: 除了 pdf 可微, 1st/2nd moment 存在, 一個比較特殊的條件為 (但也容易滿足):</p>
 </blockquote>
+<span>$$p_x(\xi)\psi(\xi;\theta)\xrightarrow[\|\xi\|\rightarrow \infty]{}0$$</span><!-- Has MathJax -->
+
+
 <p>我們在下面會看出來</p>
 <h2 id="Practical-Objective-Function-Implicit-Score-Matching"><a href="#Practical-Objective-Function-Implicit-Score-Matching" class="headerlink" title="Practical Objective Function (Implicit Score Matching)"></a>Practical Objective Function (Implicit Score Matching)</h2><hr>
-<p><img src="/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 1.png" width="80%" height="80%"><br>擷自論文. 將 Appendix 的證明描述如下:<br>將 (2) 展開變成<br><span>$$J(\theta)=\int p_x(\xi)\left[
+<p><img src="/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 1.png" width="80%" height="80%"><br>擷自論文. 將 Appendix 的證明描述如下:<br>將 (2) 展開變成</p>
+<p><span>$$J(\theta)=\int p_x(\xi)\left[
 \frac{1}{2}\|\psi_x(\xi)\|^2 + \frac{1}{2}\|\psi(\xi;\theta)\|^2 - \psi_x(\xi)^T\psi(\xi;\theta)
 \right] d\xi \\
 =\int p_x(\xi)\left[
@@ -444,7 +450,8 @@ J(\theta)=\int_{\xi\in\mathbb{R}^n}p_x(\xi)\sum_{i=1}^n\left[
 
 
 <h2 id="最佳解的存在唯一性"><a href="#最佳解的存在唯一性" class="headerlink" title="最佳解的存在唯一性"></a>最佳解的存在唯一性</h2><hr>
-<p><img src="/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 4.png" width="80%" height="80%"><br>證明:<br>對照式 (2) 的目標函數:<br><span>$$\begin{align}
+<p><img src="/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 4.png" width="80%" height="80%"><br>證明:<br>對照式 (2) 的目標函數:</p>
+<p><span>$$\begin{align}
 J(\theta)=\frac{1}{2}\int_{\xi\in\mathbb{R}^n} p_x(\xi) \| \psi(\xi;\theta)-\psi_x(\xi) \|^2 d\xi
 \end{align}$$</span><!-- Has MathJax --><br><img src="/2022/01/08/Estimation-of-Non-Normalized-Statistical-Models-by-Score-Matching/Untitled 5.png" width="80%" height="80%"><br>只要我們的 parameter space 夠大能夠包含真實的 pdf, 當目標函式達到最小, i.e. <span>$=0$</span><!-- Has MathJax -->, 則解就是真實的 pdf</p>
 <h2 id="討論"><a href="#討論" class="headerlink" title="討論"></a>討論</h2><hr>
