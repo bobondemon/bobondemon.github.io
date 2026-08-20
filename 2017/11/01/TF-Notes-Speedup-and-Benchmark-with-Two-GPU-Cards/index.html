@@ -99,7 +99,7 @@
 兩張卡等於是把一次要計算的 mini-batch 拆成兩半給兩個 (相同的) models 去並行計算 gradients，然後再交由 cpu 統一更新 model。詳細請自行參考官網。下面直接秀 Codes 和結">
 <meta property="og:image" content="https://bobondemon.github.io/2017/11/01/TF-Notes-Speedup-and-Benchmark-with-Two-GPU-Cards/Parallelism.png">
 <meta property="og:image" content="https://bobondemon.github.io/2017/11/01/TF-Notes-Speedup-and-Benchmark-with-Two-GPU-Cards/results.png">
-<meta property="og:updated_time" content="2026-08-19T13:01:09.831Z">
+<meta property="og:updated_time" content="2026-08-20T12:28:17.457Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="TF Notes (2), Speedup and Benchmark with Two GPU Cards">
 <meta name="twitter:description" content="這篇文章實作了官網的 同步式 data Parallelism 方法 ref，並且與原本只用一張GPU做個比較。實驗只使用兩張卡，多張卡方法一樣。主要架構如下圖 by TF 官網:

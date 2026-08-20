@@ -107,7 +107,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/cutting_plane_p1.png">
 <meta property="og:image" content="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/cutting_plane_algo.png">
 <meta property="og:image" content="https://bobondemon.github.io/2017/05/20/Structure-Perceptron-and-Structure-SVM/most_violate.png">
-<meta property="og:updated_time" content="2026-08-19T15:19:39.170Z">
+<meta property="og:updated_time" content="2026-08-20T12:28:17.456Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Structure Perceptron and Structure SVM">
 <meta name="twitter:description" content="記得當年念博的時候，對於SVM頗有愛，也覺得掌握度很高惹，就是 kernel method + convex optimization 的完美合體。直到某天看到 structureSVM，看了老半天實在不得要領，當時就放下沒再管了。多年後 (2015)，剛好台大李宏毅教授教的課程最後一堂 Project demo，有請我們部門介紹做的一些內容給學生，才看到了強大的李老師的課程內容。他所教的 st">
@@ -485,7 +485,7 @@ For \forall{y}\neq{\hat{y}^n}: w\cdot (\phi(x^n,\hat{y}^n)-\phi(x^n,y))\leq \tri
 這邊的解釋是用我自己容易理解的講法來說明，所以是直觀上的講法，若要嚴謹的數學證明要參考 [paper](http://www.cs.cornell.edu/people/tj/publications/tsochantaridis_etal_04a.pdf)。
 我們用上面講解很多 constraints 無效的那個例子來說明。由於它的 feasible set 是個 polygon，因此其實真正有效的 constraints 必定是那些**多邊形的邊**。而那些邊就是我們要找的 most violated constraints。就算是高維度來說，多邊形所形成的邊也是有限的，因此演算法會 terminate。
 但以數學上來說，有可能無窮多個 constraint 會形成一個 smooth 的曲線。如下圖的範例:
-<img src="feasible_set_constraints.png" width=60% height=60%>
+<img src="Structure-Perceptron-and-Structure-SVM/feasible_set_constraints.png" width=60% height=60%>
 在這種情形下，對於每一次的 iteration 理論上都會找到一個 violated constraint，也就使演算法不會停止。因此論文中一個解決的辦法就是讓 violate 的條件是必須超過一個 threshold 才算 violated。這就造成了 feasible set 理論上不會 smooth，而必定是一個 polygon! 好了，所以 convergence 也解決了。 :)
 -->
 <hr>
