@@ -458,7 +458,7 @@ I(\theta^* ; \theta^*)
 \end{align}$$</span><!-- Has MathJax -->
 
 
-<h2 id="KL-divergence-or-relative-entropy-與-MLE-與-<span>$I(\theta^* ; \theta^*)$</span><!-- Has MathJax -->-關聯"><a href="#KL-divergence-or-relative-entropy-與-MLE-與-<span>$I(\theta^* ; \theta^*)$</span><!-- Has MathJax -->-關聯" class="headerlink" title="KL-divergence (or relative entropy) 與 MLE 與 <span>$I(\theta^* ; \theta^*)$</span><!-- Has MathJax --> 關聯"></a>KL-divergence (or relative entropy) 與 MLE 與 <span>$I(\theta^* ; \theta^*)$</span><!-- Has MathJax --> 關聯</h2><hr>
+<h2 id="KL-divergence-or-relative-entropy-與-MLE-與-I-關聯"><a href="#KL-divergence-or-relative-entropy-與-MLE-與-I-關聯" class="headerlink" title="KL-divergence (or relative entropy) 與 MLE 與 $I(\theta^* ; \theta^*)$ 關聯"></a>KL-divergence (or relative entropy) 與 MLE 與 <span>$I(\theta^* ; \theta^*)$</span><!-- Has MathJax --> 關聯</h2><hr>
 <p>KL-divergence 為, 通常 <span>$p(x)$</span><!-- Has MathJax --> 表示 ground truth distribution:<br><span>$$KL(p(x);q(x))=\int p(x)\log\frac{p(x)}{q(x)}dx$$</span><!-- Has MathJax --> 則我們知道 MLE (maximum log likelihood estimation) 等同於求解最小化 KL-divergence [<a href="https://agustinus.kristia.de/techblog/2017/01/26/kl-mle/" target="_blank" rel="external">ref</a>]<br><span>$$\arg\min_{\theta} KL(p(x|\theta^*);p(x|\theta)) \\
 =\arg\min_{\theta} \int p(x|\theta^*)\log\frac{p(x|\theta^*)}{p(x|\theta)}dx \\
 =\arg\min_{\theta} 
@@ -476,7 +476,7 @@ KL(p(x|\theta^*); p(x|\theta))
 \text{by (7) } = I(\theta^*; \theta^*)$$</span><!-- Has MathJax -->
 
 
-<h2 id="<span>$I(\theta^* ; \theta^*)$</span><!-- Has MathJax -->-在-Frequentist-statistics-的解釋"><a href="#<span>$I(\theta^* ; \theta^*)$</span><!-- Has MathJax -->-在-Frequentist-statistics-的解釋" class="headerlink" title="<span>$I(\theta^* ; \theta^*)$</span><!-- Has MathJax --> 在 Frequentist statistics 的解釋"></a><span>$I(\theta^* ; \theta^*)$</span><!-- Has MathJax --> 在 Frequentist statistics 的解釋</h2><hr>
+<h2 id="I-在-Frequentist-statistics-的解釋"><a href="#I-在-Frequentist-statistics-的解釋" class="headerlink" title="$I(\theta^* ; \theta^*)$ 在 Frequentist statistics 的解釋"></a><span>$I(\theta^* ; \theta^*)$</span><!-- Has MathJax --> 在 Frequentist statistics 的解釋</h2><hr>
 <p>了解了 Fisher information matrix 的物理意義後, 還能給我們什麼洞見?<br>回到文章開頭說的:</p>
 <blockquote>
 <p>Frequentist statistics 視 dataset <span>$\mathcal{D}=\{X_1,...,X_n\}$</span><!-- Has MathJax --> 為 random variables, 透過真實 <span>$\theta^*$</span><!-- Has MathJax --> 採樣出 <span>$K$</span><!-- Has MathJax --> 組 datasets, 每一組 dataset <span>$\mathcal{D}^k$</span><!-- Has MathJax --> (共 <span>$n$</span><!-- Has MathJax --> 筆 data) 都可以求得一個 <span>$\theta_{mle}^k$</span><!-- Has MathJax --> (MLE 表示 Maximum Likelihood Estimator)</p>
@@ -709,7 +709,7 @@ KL(p(x|\theta^*); p(x|\theta))
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Score-Function"><span class="nav-number">1.</span> <span class="nav-text">Score Function</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Fisher-Information-Matrix"><span class="nav-number">2.</span> <span class="nav-text">Fisher Information Matrix</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#KL-divergence-or-relative-entropy-與-MLE-與-<span>$I(\theta^* ; \theta^*)$</span><!-- Has MathJax -->-關聯"><span class="nav-number">3.</span> <span class="nav-text">KL-divergence (or relative entropy) 與 MLE 與 $I(\theta^* ; \theta^*)$ 關聯</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#<span>$I(\theta^* ; \theta^*)$</span><!-- Has MathJax -->-在-Frequentist-statistics-的解釋"><span class="nav-number">4.</span> <span class="nav-text">$I(\theta^* ; \theta^*)$ 在 Frequentist statistics 的解釋</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Summary"><span class="nav-number">5.</span> <span class="nav-text">Summary</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">6.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Score-Function"><span class="nav-number">1.</span> <span class="nav-text">Score Function</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Fisher-Information-Matrix"><span class="nav-number">2.</span> <span class="nav-text">Fisher Information Matrix</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#KL-divergence-or-relative-entropy-與-MLE-與-I-關聯"><span class="nav-number">3.</span> <span class="nav-text">KL-divergence (or relative entropy) 與 MLE 與 $I(\theta^* ; \theta^*)$ 關聯</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#I-在-Frequentist-statistics-的解釋"><span class="nav-number">4.</span> <span class="nav-text">$I(\theta^* ; \theta^*)$ 在 Frequentist statistics 的解釋</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Summary"><span class="nav-number">5.</span> <span class="nav-text">Summary</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">6.</span> <span class="nav-text">Reference</span></a></li></ol></div>
             
 
           </div>

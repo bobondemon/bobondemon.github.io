@@ -386,7 +386,7 @@ Y_k=R_k\exp(j\theta_k)$$</span><!-- Has MathJax -->
 
 <a id="more"></a>
 <hr>
-<h3 id="MMSE-STSA-<span>$^{[1]}$</span><!-- Has MathJax -->"><a href="#MMSE-STSA-<span>$^{[1]}$</span><!-- Has MathJax -->" class="headerlink" title="MMSE-STSA <span>$^{[1]}$</span><!-- Has MathJax -->"></a>MMSE-STSA <span>$^{[1]}$</span><!-- Has MathJax --></h3><p>目標函式為<br><span>$$\begin{align}
+<h3 id="MMSE-STSA-1"><a href="#MMSE-STSA-1" class="headerlink" title="MMSE-STSA $^{[1]}$"></a>MMSE-STSA <span>$^{[1]}$</span><!-- Has MathJax --></h3><p>目標函式為<br><span>$$\begin{align}
 \arg\min_{\hat{A}_k}{\mathbb{E}\left[\left(A_k-\hat{A}_k\right)^2\vert y(t),0\leq t\leq T\right]}
 \end{align}$$</span><!-- Has MathJax --> 最佳解為<br><span>$$\begin{align}
 \hat{A}_k=\mathbb{E}\left[A_k\vert y(t),0\leq t \leq T\right]
@@ -422,7 +422,7 @@ p(a_k,\alpha_k)=\frac{1}{\pi\lambda_x (k)}\exp\left[-\frac{a_k^2}{\lambda_x (k)}
 <p>現在就算傳統方法一般也很少使用 MMSE-STSA, 至少會使用 LSA 取代. LSA 有近似的計算方式, 因此我們也不糾結 (12) 到底怎麼算出來.</p>
 </blockquote>
 <hr>
-<h3 id="MMSE-LSA-<span>$^{[2]}$</span><!-- Has MathJax -->"><a href="#MMSE-LSA-<span>$^{[2]}$</span><!-- Has MathJax -->" class="headerlink" title="MMSE-LSA <span>$^{[2]}$</span><!-- Has MathJax -->"></a>MMSE-LSA <span>$^{[2]}$</span><!-- Has MathJax --></h3><p>大致想法跟流程跟上面一樣(<del>只是我算不出來</del>), 只是目標函數針對 log 值來計算<br><span>$$\begin{align}
+<h3 id="MMSE-LSA-2"><a href="#MMSE-LSA-2" class="headerlink" title="MMSE-LSA $^{[2]}$"></a>MMSE-LSA <span>$^{[2]}$</span><!-- Has MathJax --></h3><p>大致想法跟流程跟上面一樣(<del>只是我算不出來</del>), 只是目標函數針對 log 值來計算<br><span>$$\begin{align}
 \arg\min_{\hat{A}_k}{\mathbb{E}\left[\left(\log A_k-\log\hat{A}_k\right)^2\vert y(t),0\leq t\leq T\right]}
 \end{align}$$</span><!-- Has MathJax --> 同樣經過不是人類的計算後得到:<br><span>$$\begin{align}
 \hat{A}_k=\frac{\xi_k}{1+\xi_k}\exp\left[\frac{1}{2}\int_{\upsilon_k}^{\infty}\frac{e^{-t}}{t}dt\right]R_k
@@ -662,7 +662,7 @@ p(k,l)=\alpha_p p(k,l-1)+(1-\alpha_p)\mathbf{I}[S(k,l)&gt;\delta S&apos;(k,l)]
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#MMSE-STSA-<span>$^{[1]}$</span><!-- Has MathJax -->"><span class="nav-number">1.</span> <span class="nav-text">MMSE-STSA $^{[1]}$</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MMSE-LSA-<span>$^{[2]}$</span><!-- Has MathJax -->"><span class="nav-number">2.</span> <span class="nav-text">MMSE-LSA $^{[2]}$</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MCRA-Prior-Posterior-SNR-估計"><span class="nav-number">3.</span> <span class="nav-text">MCRA Prior/Posterior SNR 估計</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MCRA-有哪些調整的參數"><span class="nav-number">4.</span> <span class="nav-text">MCRA 有哪些調整的參數</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">5.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#MMSE-STSA-1"><span class="nav-number">1.</span> <span class="nav-text">MMSE-STSA $^{[1]}$</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MMSE-LSA-2"><span class="nav-number">2.</span> <span class="nav-text">MMSE-LSA $^{[2]}$</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MCRA-Prior-Posterior-SNR-估計"><span class="nav-number">3.</span> <span class="nav-text">MCRA Prior/Posterior SNR 估計</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MCRA-有哪些調整的參數"><span class="nav-number">4.</span> <span class="nav-text">MCRA 有哪些調整的參數</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">5.</span> <span class="nav-text">Reference</span></a></li></ol></div>
             
 
           </div>

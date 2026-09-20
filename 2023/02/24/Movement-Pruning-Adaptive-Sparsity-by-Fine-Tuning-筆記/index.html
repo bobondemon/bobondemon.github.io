@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Straight Through Estimator (STE),Pruning,Movement pruning," />
+  <meta name="keywords" content="Pruning,Straight Through Estimator (STE),Movement pruning," />
 
 
 
@@ -405,7 +405,7 @@
 <li>Score <span>$S$</span><!-- Has MathJax --> 正好能代表重要性? 換句話說能反映 weight 在 fine tune 過程的 magnitude 傾向嗎?</li>
 </ol>
 <a id="more"></a>
-<h2 id="怎麼引入-score-<span>$S$</span><!-- Has MathJax -->"><a href="#怎麼引入-score-<span>$S$</span><!-- Has MathJax -->" class="headerlink" title="怎麼引入 score <span>$S$</span><!-- Has MathJax -->?"></a>怎麼引入 score <span>$S$</span><!-- Has MathJax -->?</h2><hr>
+<h2 id="怎麼引入-score-S"><a href="#怎麼引入-score-S" class="headerlink" title="怎麼引入 score $S$?"></a>怎麼引入 score <span>$S$</span><!-- Has MathJax -->?</h2><hr>
 <p>首先, 看一下 <span>$W$</span><!-- Has MathJax --> and <span>$S$</span><!-- Has MathJax --> 的 gradients</p>
 <p><u> <strong>Forward:</strong> </u><br><span>$a=(W\odot M)x$</span><!-- Has MathJax --></p>
 <p><span>$W$</span><!-- Has MathJax -->是 weight matrix, 而 <span>$M$</span><!-- Has MathJax -->是 mask matrix 每一個 element <span>$\in\\{0,1\\}$</span><!-- Has MathJax -->, <span>$M$</span><!-- Has MathJax --> 通常是從一個 score matrix <span>$S$</span><!-- Has MathJax --> 搭配上 masking function e.g. <span>$\text{Top}_v$</span><!-- Has MathJax --> 而來:<br><span>$$M_{ij}=\text{Top}_v(S)_{ij}=\left\{
@@ -431,7 +431,7 @@
 <blockquote>
 <p>這種作法稱 Straigth Through Estimator (STE)<br>Appendix A.1 證明 training loss 會收斂 (原論文有幾個推導當下沒看懂, 後來自己補足了一些推導, 見本文最後面段落)</p>
 </blockquote>
-<h2 id="Score-<span>$S$</span><!-- Has MathJax -->-能代表重要性"><a href="#Score-<span>$S$</span><!-- Has MathJax -->-能代表重要性" class="headerlink" title="Score <span>$S$</span><!-- Has MathJax --> 能代表重要性?"></a>Score <span>$S$</span><!-- Has MathJax --> 能代表重要性?</h2><hr>
+<h2 id="Score-S-能代表重要性"><a href="#Score-S-能代表重要性" class="headerlink" title="Score $S$ 能代表重要性?"></a>Score <span>$S$</span><!-- Has MathJax --> 能代表重要性?</h2><hr>
 <p>先回顧一個觀念<br><span>$$\frac{\partial \mathcal{L}}{\partial W_{ij}}&gt;0$$</span><!-- Has MathJax --> 表示 loss function <span>$\mathcal{L}$</span><!-- Has MathJax --> 與 <span>$W_{ij}$</span><!-- Has MathJax --> 方向一致, 換句話說</p>
 <p><span>$$W_{ij}\uparrow \iff \mathcal{L}\uparrow \\
 W_{ij}\downarrow \iff \mathcal{L}\downarrow \\$$</span><!-- Has MathJax --> 如果<br><span>$$\frac{\partial \mathcal{L}}{\partial W_{ij}}&lt;0$$</span><!-- Has MathJax --> 則表示方向相反<br>我們現在觀察 <span>$S$</span><!-- Has MathJax --> 和 <span>$W$</span><!-- Has MathJax --> 在 update 時候之間的關係, 由 (1) and (2) 的關係可以寫成如下:</p>
@@ -550,9 +550,9 @@ W_{kl}^{(t+1)} = W_{kl}^{(t)} - \alpha_W\frac{\partial L}{\partial W_{kl}}$$</sp
       
         <div class="post-tags">
           
-            <a href="/tags/Straight-Through-Estimator-STE/" rel="tag"># Straight Through Estimator (STE)</a>
-          
             <a href="/tags/Pruning/" rel="tag"># Pruning</a>
+          
+            <a href="/tags/Straight-Through-Estimator-STE/" rel="tag"># Straight Through Estimator (STE)</a>
           
             <a href="/tags/Movement-pruning/" rel="tag"># Movement pruning</a>
           
@@ -708,7 +708,7 @@ W_{kl}^{(t+1)} = W_{kl}^{(t)} - \alpha_W\frac{\partial L}{\partial W_{kl}}$$</sp
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#怎麼引入-score-<span>$S$</span><!-- Has MathJax -->"><span class="nav-number">2.</span> <span class="nav-text">怎麼引入 score $S$?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Score-<span>$S$</span><!-- Has MathJax -->-能代表重要性"><span class="nav-number">3.</span> <span class="nav-text">Score $S$ 能代表重要性?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Results"><span class="nav-number">4.</span> <span class="nav-text">Results</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Codes"><span class="nav-number">5.</span> <span class="nav-text">Codes</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Appendix-A-1-Guarantees-on-the-decrease-of-the-training-loss"><span class="nav-number">6.</span> <span class="nav-text">Appendix A.1 Guarantees on the decrease of the training loss</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">7.</span> <span class="nav-text">References</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#怎麼引入-score-S"><span class="nav-number">2.</span> <span class="nav-text">怎麼引入 score $S$?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Score-S-能代表重要性"><span class="nav-number">3.</span> <span class="nav-text">Score $S$ 能代表重要性?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Results"><span class="nav-number">4.</span> <span class="nav-text">Results</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Codes"><span class="nav-number">5.</span> <span class="nav-text">Codes</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Appendix-A-1-Guarantees-on-the-decrease-of-the-training-loss"><span class="nav-number">6.</span> <span class="nav-text">Appendix A.1 Guarantees on the decrease of the training loss</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">7.</span> <span class="nav-text">References</span></a></li></ol></div>
             
 
           </div>
