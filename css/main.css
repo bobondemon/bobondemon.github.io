@@ -1691,7 +1691,7 @@ pre .javascript .function {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #e85098;
+  background: #1d82c2;
 }
 .links-of-blogroll {
   font-size: 13px;
@@ -2229,6 +2229,13 @@ pre .javascript .function {
 .site-pv .busuanzi-value,
 .page-pv .busuanzi-value {
   margin: 0 5px;
+}
+.site-uv {
+  margin-right: 10px;
+}
+.site-uv::after {
+  content: "|";
+  padding-left: 10px;
 }
 .use-motion .post {
   opacity: 0;
@@ -2770,5 +2777,20 @@ hr {
   .footer-inner {
     width: auto;
     text-align: center;
+  }
+}
+.post-body table {
+  table-layout: auto;
+  word-break: break-word;
+}
+@media (max-width: 767px) {
+  .post-body table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .post-body table th,
+  .post-body table td {
+    white-space: nowrap;
   }
 }

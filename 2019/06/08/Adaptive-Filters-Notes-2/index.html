@@ -106,7 +106,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/fast_conv_ols.png">
 <meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/FDAF.png">
 <meta property="og:image" content="https://bobondemon.github.io/2019/06/08/Adaptive-Filters-Notes-2/upols.png">
-<meta property="og:updated_time" content="2026-08-20T12:28:17.427Z">
+<meta property="og:updated_time" content="2026-08-30T00:48:47.215Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Adaptive Filters 簡介 (2) Fast Convolution and Frequency Domain">
 <meta name="twitter:description" content="上一篇說明了 time domain 的 adaptive filters, 由於是 sample-by-sample 處理, 因此太慢了不可用, 真正可用的都是基於 frequency domain. 不過在深入之前, 一定要先了解 convolution 在 input 為 block-by-block 的情況下如何加速. 本文內容主要參考 Partitioned convolution a">
@@ -150,8 +150,6 @@
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
 
   
-
-
 
 
 
@@ -557,7 +555,6 @@ y[i]=\sum_{n=0}^{N-1} h[n] \cdot x[i-n]
           
   <div class="comments" id="comments">
     
-    
   </div>
 
 
@@ -604,7 +601,7 @@ y[i]=\sum_{n=0}^{N-1} h[n] \cdot x[i-n]
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">123</span>
+                <span class="site-state-item-count">124</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -626,7 +623,7 @@ y[i]=\sum_{n=0}^{N-1} h[n] \cdot x[i-n]
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">262</span>
+                <span class="site-state-item-count">264</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>
@@ -717,7 +714,19 @@ y[i]=\sum_{n=0}^{N-1} h[n] \cdot x[i-n]
   <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
   
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
 
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
   
 </div>
 

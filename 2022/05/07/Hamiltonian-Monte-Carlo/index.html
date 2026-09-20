@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Langevin Dynamics,MCMC,HMC,Metropolis Hastings,Hamiltonian Dynamic,Hamiltonian Monte Carlo,Langevin Monte Carlo,Denoising Diffusion Probabilistic Models,Diffusion Model," />
+  <meta name="keywords" content="MCMC,HMC,Metropolis Hastings,Hamiltonian Dynamic,Hamiltonian Monte Carlo,Langevin Monte Carlo,Langevin Dynamics,Denoising Diffusion Probabilistic Models,Diffusion Model," />
 
 
 
@@ -99,7 +99,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 2.png">
 <meta property="og:image" content="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/Untitled 3.png">
 <meta property="og:image" content="https://bobondemon.github.io/2022/05/07/Hamiltonian-Monte-Carlo/Langevin_Monte_Carlo.png">
-<meta property="og:updated_time" content="2026-08-20T12:28:17.440Z">
+<meta property="og:updated_time" content="2026-08-30T00:48:47.397Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="忘記物理也要搞懂的 Hamiltonian Monte Carlo (HMC) 筆記">
 <meta name="twitter:description" content="2024/07/28 更新 (見本文最後一段): 補充與 Langevin Dynamics 的關係, 這是我們在 [Score Matching 系列 (五) SM 加上 Langevin Dynamics 變成生成模型] 裡提到一旦訓練出 score function 後, 模型使用的採樣技術. 另外 Score Match + Langevin Dynamics (SMLD) 這種生成模">
@@ -143,8 +143,6 @@
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
 
   
-
-
 
 
 
@@ -578,8 +576,6 @@ U(\mathbf{x})=-\log p^*(\mathbf{x})
       
         <div class="post-tags">
           
-            <a href="/tags/Langevin-Dynamics/" rel="tag"># Langevin Dynamics</a>
-          
             <a href="/tags/MCMC/" rel="tag"># MCMC</a>
           
             <a href="/tags/HMC/" rel="tag"># HMC</a>
@@ -591,6 +587,8 @@ U(\mathbf{x})=-\log p^*(\mathbf{x})
             <a href="/tags/Hamiltonian-Monte-Carlo/" rel="tag"># Hamiltonian Monte Carlo</a>
           
             <a href="/tags/Langevin-Monte-Carlo/" rel="tag"># Langevin Monte Carlo</a>
+          
+            <a href="/tags/Langevin-Dynamics/" rel="tag"># Langevin Dynamics</a>
           
             <a href="/tags/Denoising-Diffusion-Probabilistic-Models/" rel="tag"># Denoising Diffusion Probabilistic Models</a>
           
@@ -645,7 +643,6 @@ U(\mathbf{x})=-\log p^*(\mathbf{x})
           
   <div class="comments" id="comments">
     
-    
   </div>
 
 
@@ -692,7 +689,7 @@ U(\mathbf{x})=-\log p^*(\mathbf{x})
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">123</span>
+                <span class="site-state-item-count">124</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -714,7 +711,7 @@ U(\mathbf{x})=-\log p^*(\mathbf{x})
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">262</span>
+                <span class="site-state-item-count">264</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>
@@ -805,7 +802,19 @@ U(\mathbf{x})=-\log p^*(\mathbf{x})
   <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
   
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
 
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
   
 </div>
 

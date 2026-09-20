@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 770 442" width="770" height="442" role="img">
+  <title>[S, a, b] 的錨點與視窗</title>
+  <style>
+    text { font-family: -apple-system, BlinkMacSystemFont, 'PingFang TC', 'Hiragino Sans TC', 'Microsoft JhengHei', 'Noto Sans CJK TC', 'Helvetica Neue', Arial, sans-serif; fill: #24292f; }
+    .lbl   { font-size: 16px; }
+    .lblb  { font-size: 16px; font-weight: 600; }
+    .sm    { font-size: 14px; fill: #636c76; }
+    .xs    { font-size: 13px; fill: #636c76; }
+    .mono  { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 15px; }
+    .monob { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 15px; font-weight: 600; }
+    .hd    { font-size: 13px; fill: #636c76; font-weight: 600; }
+  </style>
+  <rect width="770" height="442" fill="#ffffff"/>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,1 L9,5 L0,9 z" fill="#636c76"/></marker>
+    <marker id="al" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M10,1 L1,5 L10,9 z" fill="#636c76"/></marker>
+  </defs>
+  <text x="100" y="28" class="lblb" text-anchor="start">某個 node: S = 2、a = −3、b = 5</text>
+  <text x="100" y="50" class="sm" text-anchor="start">輸出幀 j 讀網路輸入幀 [ j·S + a , j·S + b ]</text>
+  <line x1="360.0" y1="72" x2="440.0" y2="72" stroke="#636c76" stroke-width="1" marker-start="url(#al)" marker-end="url(#ar)"/>
+  <text x="400" y="65" class="xs" text-anchor="middle">S = 2</text>
+  <text x="88" y="106" class="xs" text-anchor="end">輸出</text>
+  <rect x="102" y="86" width="36" height="30" rx="4" fill="#ffffff" stroke="#aeb7c0" stroke-width="1"/>
+  <text x="120" y="106" class="mono" text-anchor="middle" fill="#636c76">0</text>
+  <rect x="182" y="86" width="36" height="30" rx="4" fill="#ffffff" stroke="#aeb7c0" stroke-width="1"/>
+  <text x="200" y="106" class="mono" text-anchor="middle" fill="#636c76">1</text>
+  <rect x="262" y="86" width="36" height="30" rx="4" fill="#ffffff" stroke="#aeb7c0" stroke-width="1"/>
+  <text x="280" y="106" class="mono" text-anchor="middle" fill="#636c76">2</text>
+  <rect x="342" y="86" width="36" height="30" rx="4" fill="#dbe7f5" stroke="#2f6fb5" stroke-width="2"/>
+  <text x="360" y="106" class="monob" text-anchor="middle" fill="#24292f">3</text>
+  <rect x="422" y="86" width="36" height="30" rx="4" fill="#ffffff" stroke="#aeb7c0" stroke-width="1"/>
+  <text x="440" y="106" class="mono" text-anchor="middle" fill="#636c76">4</text>
+  <rect x="502" y="86" width="36" height="30" rx="4" fill="#ffffff" stroke="#aeb7c0" stroke-width="1"/>
+  <text x="520" y="106" class="mono" text-anchor="middle" fill="#636c76">5</text>
+  <rect x="582" y="86" width="36" height="30" rx="4" fill="#ffffff" stroke="#aeb7c0" stroke-width="1"/>
+  <text x="600" y="106" class="mono" text-anchor="middle" fill="#636c76">6</text>
+  <rect x="662" y="86" width="36" height="30" rx="4" fill="#ffffff" stroke="#aeb7c0" stroke-width="1"/>
+  <text x="680" y="106" class="mono" text-anchor="middle" fill="#636c76">7</text>
+  <line x1="360.0" y1="116" x2="360.0" y2="196" stroke="#2f6fb5" stroke-width="1.4" stroke-dasharray="4 4"/>
+  <text x="370" y="140" class="xs" text-anchor="start" fill="#2f6fb5">錨點 j·S = 6</text>
+  <line x1="360.0" y1="172" x2="240.0" y2="172" stroke="#636c76" stroke-width="1" marker-end="url(#ar)"/>
+  <text x="300" y="165" class="xs" text-anchor="middle">a = −3</text>
+  <line x1="360.0" y1="172" x2="560.0" y2="172" stroke="#636c76" stroke-width="1" marker-end="url(#ar)"/>
+  <text x="460" y="165" class="xs" text-anchor="middle">b = +5</text>
+  <text x="88" y="222" class="xs" text-anchor="end">輸入</text>
+  <rect x="100" y="196" width="40" height="42" fill="#ffffff" stroke="#aeb7c0" stroke-width="1"/>
+  <text x="120" y="223" class="mono" text-anchor="middle" fill="#636c76">0</text>
+  <rect x="140" y="196" width="40" height="42" fill="#ffffff" stroke="#aeb7c0" stroke-width="1"/>
+  <text x="160" y="223" class="mono" text-anchor="middle" fill="#636c76">1</text>
+  <rect x="180" y="196" width="40" height="42" fill="#ffffff" stroke="#aeb7c0" stroke-width="1"/>
+  <text x="200" y="223" class="mono" text-anchor="middle" fill="#636c76">2</text>
+  <rect x="220" y="196" width="40" height="42" fill="#dbe7f5" stroke="#2f6fb5" stroke-width="1"/>
+  <text x="240" y="223" class="mono" text-anchor="middle" fill="#24292f">3</text>
+  <rect x="260" y="196" width="40" height="42" fill="#dbe7f5" stroke="#2f6fb5" stroke-width="1"/>
+  <text x="280" y="223" class="mono" text-anchor="middle" fill="#24292f">4</text>
+  <rect x="300" y="196" width="40" height="42" fill="#dbe7f5" stroke="#2f6fb5" stroke-width="1"/>
+  <text x="320" y="223" class="mono" text-anchor="middle" fill="#24292f">5</text>
+  <rect x="340" y="196" width="40" height="42" fill="#a9c8e8" stroke="#2f6fb5" stroke-width="2"/>
+  <text x="360" y="223" class="monob" text-anchor="middle" fill="#24292f">6</text>
+  <rect x="380" y="196" width="40" height="42" fill="#f8e2d4" stroke="#c2582a" stroke-width="1"/>
+  <text x="400" y="223" class="mono" text-anchor="middle" fill="#24292f">7</text>
+  <rect x="420" y="196" width="40" height="42" fill="#f8e2d4" stroke="#c2582a" stroke-width="1"/>
+  <text x="440" y="223" class="mono" text-anchor="middle" fill="#24292f">8</text>
+  <rect x="460" y="196" width="40" height="42" fill="#f8e2d4" stroke="#c2582a" stroke-width="1"/>
+  <text x="480" y="223" class="mono" text-anchor="middle" fill="#24292f">9</text>
+  <rect x="500" y="196" width="40" height="42" fill="#f8e2d4" stroke="#c2582a" stroke-width="1"/>
+  <text x="520" y="223" class="mono" text-anchor="middle" fill="#24292f">10</text>
+  <rect x="540" y="196" width="40" height="42" fill="#f8e2d4" stroke="#c2582a" stroke-width="1"/>
+  <text x="560" y="223" class="mono" text-anchor="middle" fill="#24292f">11</text>
+  <rect x="580" y="196" width="40" height="42" fill="#ffffff" stroke="#aeb7c0" stroke-width="1"/>
+  <text x="600" y="223" class="mono" text-anchor="middle" fill="#636c76">12</text>
+  <rect x="620" y="196" width="40" height="42" fill="#ffffff" stroke="#aeb7c0" stroke-width="1"/>
+  <text x="640" y="223" class="mono" text-anchor="middle" fill="#636c76">13</text>
+  <rect x="660" y="196" width="40" height="42" fill="#ffffff" stroke="#aeb7c0" stroke-width="1"/>
+  <text x="680" y="223" class="mono" text-anchor="middle" fill="#636c76">14</text>
+  <rect x="700" y="196" width="40" height="42" fill="#ffffff" stroke="#aeb7c0" stroke-width="1"/>
+  <text x="720" y="223" class="mono" text-anchor="middle" fill="#636c76">15</text>
+  <text x="280" y="256" class="xs" text-anchor="middle" fill="#2f6fb5">過去 (要留的 buffer)</text>
+  <text x="480" y="256" class="xs" text-anchor="middle" fill="#c2582a">未來 (要等)</text>
+  <path d="M220,302 L220,294 L580,294 L580,302" fill="none" stroke="#24292f" stroke-width="1.2"/>
+  <text x="400" y="287" class="lbl" text-anchor="middle">rf = b − a + 1 = 9 幀</text>
+  <path d="M360.0,328 L360.0,336 L560.0,336 L560.0,328" fill="none" stroke="#c2582a" stroke-width="1.2"/>
+  <text x="460" y="354" class="lbl" text-anchor="middle" fill="#c2582a">lookahead = max(b, 0) = 5 幀</text>
+  <text x="88" y="388" class="xs" text-anchor="end">j = 4</text>
+  <rect x="300" y="374" width="360" height="20" rx="4" fill="#fafbfc" stroke="#aeb7c0" stroke-width="1.2" stroke-dasharray="5 3"/>
+  <text x="480" y="388" class="xs" text-anchor="middle">整段往右移 S = 2 幀 → [5, 13]</text>
+</svg>

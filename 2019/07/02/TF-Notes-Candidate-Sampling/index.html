@@ -93,7 +93,7 @@
 <meta property="og:url" content="https://bobondemon.github.io/2019/07/02/TF-Notes-Candidate-Sampling/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="NN 做分類最後一層通常使用 softmax loss, 但如果類別數量很大會導致計算 softmax 的 cost 太高, 這樣會讓訓練變得很慢. 假如總共的 class 數量是 10000 個, candidate sampling 的想法就是對於一個 input $x$ 採樣出一個 subset (當然需要包含正確的 label), 譬如只用 50 個 classes, 扣掉正確的那個 c">
-<meta property="og:updated_time" content="2026-08-19T15:19:39.170Z">
+<meta property="og:updated_time" content="2026-08-30T00:48:47.976Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="TF Notes (6), Candidate Sampling, Sampled Softmax Loss">
 <meta name="twitter:description" content="NN 做分類最後一層通常使用 softmax loss, 但如果類別數量很大會導致計算 softmax 的 cost 太高, 這樣會讓訓練變得很慢. 假如總共的 class 數量是 10000 個, candidate sampling 的想法就是對於一個 input $x$ 採樣出一個 subset (當然需要包含正確的 label), 譬如只用 50 個 classes, 扣掉正確的那個 c">
@@ -136,8 +136,6 @@
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
 
   
-
-
 
 
 
@@ -542,7 +540,6 @@ p&apos;(j)=\frac{e^{z_j}}{\sum_i e^{z_i}} \\
           
   <div class="comments" id="comments">
     
-    
   </div>
 
 
@@ -589,7 +586,7 @@ p&apos;(j)=\frac{e^{z_j}}{\sum_i e^{z_i}} \\
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">123</span>
+                <span class="site-state-item-count">124</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -611,7 +608,7 @@ p&apos;(j)=\frac{e^{z_j}}{\sum_i e^{z_i}} \\
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">262</span>
+                <span class="site-state-item-count">264</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>
@@ -702,7 +699,19 @@ p&apos;(j)=\frac{e^{z_j}}{\sum_i e^{z_i}} \\
   <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
   
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
 
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
   
 </div>
 

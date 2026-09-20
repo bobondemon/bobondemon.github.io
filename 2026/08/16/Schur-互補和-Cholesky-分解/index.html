@@ -93,7 +93,7 @@
 <meta property="og:url" content="https://bobondemon.github.io/2026/08/16/Schur-互補和-Cholesky-分解/index.html">
 <meta property="og:site_name" content="棒棒生">
 <meta property="og:description" content="近期回頭讀 GPTQ (針對 LLM 的 PTQ) 論文, 同時想認真理解其背後數學精隨, 才發現以前理解的太淺薄了.當我理解 Schur 互補 (Complement) 和 Cholesky 分解之間的關聯裡, 突然有種直擊核心的感覺, 因此決定做比較詳細的數學筆記.最後會用一個簡單的情境來說明 GPTQ 怎麼應用 Cholesky 分解.">
-<meta property="og:updated_time" content="2026-08-19T15:19:39.162Z">
+<meta property="og:updated_time" content="2026-08-30T00:48:47.757Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Schur 互補和 Cholesky 分解">
 <meta name="twitter:description" content="近期回頭讀 GPTQ (針對 LLM 的 PTQ) 論文, 同時想認真理解其背後數學精隨, 才發現以前理解的太淺薄了.當我理解 Schur 互補 (Complement) 和 Cholesky 分解之間的關聯裡, 突然有種直擊核心的感覺, 因此決定做比較詳細的數學筆記.最後會用一個簡單的情境來說明 GPTQ 怎麼應用 Cholesky 分解.">
@@ -136,8 +136,6 @@
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
 
   
-
-
 
 
 
@@ -544,6 +542,10 @@ D = \mathbf{l}_c\mathbf{l}_c^T + {\color{orange}{L_dL_d^T}} \\
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2026/09/20/Receptive-Field-怎麼算-從-streaming-的需求談起/" rel="prev" title="Receptive Field 怎麼算? 從 streaming 的需求談起">
+                Receptive Field 怎麼算? 從 streaming 的需求談起 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -567,7 +569,6 @@ D = \mathbf{l}_c\mathbf{l}_c^T + {\color{orange}{L_dL_d^T}} \\
 
           
   <div class="comments" id="comments">
-    
     
   </div>
 
@@ -615,7 +616,7 @@ D = \mathbf{l}_c\mathbf{l}_c^T + {\color{orange}{L_dL_d^T}} \\
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">123</span>
+                <span class="site-state-item-count">124</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -637,7 +638,7 @@ D = \mathbf{l}_c\mathbf{l}_c^T + {\color{orange}{L_dL_d^T}} \\
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">262</span>
+                <span class="site-state-item-count">264</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>
@@ -728,7 +729,19 @@ D = \mathbf{l}_c\mathbf{l}_c^T + {\color{orange}{L_dL_d^T}} \\
   <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
   
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
 
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
   
 </div>
 

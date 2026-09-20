@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="PyTorch,Fake Quantization,Quantization Aware Training (QAT),Straight Through Estimator (STE),LSQ,LSQ+," />
+  <meta name="keywords" content="PyTorch,Fake Quantization,Quantization Aware Training (QAT),LSQ,LSQ+,Straight Through Estimator (STE)," />
 
 
 
@@ -99,7 +99,7 @@
 <meta property="og:image" content="https://bobondemon.github.io/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/gradient_multiplier.png">
 <meta property="og:image" content="https://bobondemon.github.io/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/gradients_of_zero_point.png">
 <meta property="og:image" content="https://bobondemon.github.io/2022/12/04/Learning-Zero-Point-and-Scale-in-Quantization-Parameters/pytorch_implementation.png">
-<meta property="og:updated_time" content="2026-08-20T12:28:17.443Z">
+<meta property="og:updated_time" content="2026-08-30T00:48:47.474Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Learning Zero Point and Scale in Quantization Parameters">
 <meta name="twitter:description" content="在上一篇 搞懂 Quantization Aware Training 中的 Fake Quantization 我們討論了 fake quantization 以及 QAT提到了 observer 負責計算 zero point and scale $(z,s)$, 一般來說只需要透過統計觀測值的 min/max 範圍就能給定, 所以也不需要參與 backward 計算
@@ -144,8 +144,6 @@
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
 
   
-
-
 
 
 
@@ -512,11 +510,11 @@ Q_P - z &amp; \text{if }v/s+z\geq Q_P
           
             <a href="/tags/Quantization-Aware-Training-QAT/" rel="tag"># Quantization Aware Training (QAT)</a>
           
-            <a href="/tags/Straight-Through-Estimator-STE/" rel="tag"># Straight Through Estimator (STE)</a>
-          
             <a href="/tags/LSQ/" rel="tag"># LSQ</a>
           
             <a href="/tags/LSQ/" rel="tag"># LSQ+</a>
+          
+            <a href="/tags/Straight-Through-Estimator-STE/" rel="tag"># Straight Through Estimator (STE)</a>
           
         </div>
       
@@ -567,7 +565,6 @@ Q_P - z &amp; \text{if }v/s+z\geq Q_P
           
   <div class="comments" id="comments">
     
-    
   </div>
 
 
@@ -614,7 +611,7 @@ Q_P - z &amp; \text{if }v/s+z\geq Q_P
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">123</span>
+                <span class="site-state-item-count">124</span>
                 <span class="site-state-item-name">文章</span>
               </a>
             </div>
@@ -636,7 +633,7 @@ Q_P - z &amp; \text{if }v/s+z\geq Q_P
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">262</span>
+                <span class="site-state-item-count">264</span>
                 <span class="site-state-item-name">標籤</span>
               </a>
             </div>
@@ -727,7 +724,19 @@ Q_P - z &amp; \text{if }v/s+z\geq Q_P
   <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
   
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
 
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
   
 </div>
 

@@ -1,0 +1,1002 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Receptive Field,Streaming," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="本文與 Claude AI 共同編輯
+Receptive field (感受野, 以下簡稱 RF) 大概是 CNN 教科書裡最早出現、也最容易被當成「知道就好」的概念之一: 某一個輸出元素, 是由多少個輸入元素決定的?但如果你試過把一個離線訓練好的模型搬到邊緣裝置上做串流推論, 就會發現 RF 從「知道就好」的常識, 變成整個轉換流程的地基, 它直接決定每個 node 要留多大的 buffer、以">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Receptive Field 怎麼算? 從 streaming 的需求談起">
+<meta property="og:url" content="https://bobondemon.github.io/2026/09/20/Receptive-Field-怎麼算-從-streaming-的需求談起/index.html">
+<meta property="og:site_name" content="棒棒生">
+<meta property="og:description" content="本文與 Claude AI 共同編輯
+Receptive field (感受野, 以下簡稱 RF) 大概是 CNN 教科書裡最早出現、也最容易被當成「知道就好」的概念之一: 某一個輸出元素, 是由多少個輸入元素決定的?但如果你試過把一個離線訓練好的模型搬到邊緣裝置上做串流推論, 就會發現 RF 從「知道就好」的常識, 變成整個轉換流程的地基, 它直接決定每個 node 要留多大的 buffer、以">
+<meta property="og:image" content="https://bobondemon.github.io/2026/09/20/Receptive-Field-怎麼算-從-streaming-的需求談起/sab_window.svg">
+<meta property="og:image" content="https://bobondemon.github.io/2026/09/20/Receptive-Field-怎麼算-從-streaming-的需求談起/rf_growth.svg">
+<meta property="og:updated_time" content="2026-09-20T13:53:06.109Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Receptive Field 怎麼算? 從 streaming 的需求談起">
+<meta name="twitter:description" content="本文與 Claude AI 共同編輯
+Receptive field (感受野, 以下簡稱 RF) 大概是 CNN 教科書裡最早出現、也最容易被當成「知道就好」的概念之一: 某一個輸出元素, 是由多少個輸入元素決定的?但如果你試過把一個離線訓練好的模型搬到邊緣裝置上做串流推論, 就會發現 RF 從「知道就好」的常識, 變成整個轉換流程的地基, 它直接決定每個 node 要留多大的 buffer、以">
+<meta name="twitter:image" content="https://bobondemon.github.io/2026/09/20/Receptive-Field-怎麼算-從-streaming-的需求談起/sab_window.svg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bobondemon.github.io/2026/09/20/Receptive-Field-怎麼算-從-streaming-的需求談起/"/>
+
+
+
+
+
+  <title> Receptive Field 怎麼算? 從 streaming 的需求談起 | 棒棒生 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">棒棒生</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">讓學習變成一種習慣</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-guestbook">
+          <a href="/guestbook/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-comment"></i> <br />
+            
+            留言板
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bobondemon.github.io/2026/09/20/Receptive-Field-怎麼算-從-streaming-的需求談起/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chih-Sheng Chen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="棒棒生">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Receptive Field 怎麼算? 從 streaming 的需求談起
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2026-09-20T20:14:33+08:00">
+                2026-09-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分類於</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ML/" itemprop="url" rel="index">
+                    <span itemprop="name">ML</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 閱讀次數
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本文與 Claude AI 共同編輯</p>
+<p>Receptive field (感受野, 以下簡稱 RF) 大概是 CNN 教科書裡最早出現、也最容易被當成「知道就好」的概念之一: 某一個輸出元素, 是由多少個輸入元素決定的?<br>但如果你試過把一個離線訓練好的模型搬到邊緣裝置上做串流推論, 就會發現 RF 從「知道就好」的常識, 變成整個轉換流程的地基, 它直接決定每個 node 要留多大的 buffer、以及整條 pipeline 會有多少 latency.<br>這篇筆記想把 RF 的計算講清楚, 並且對照兩種看起來方向完全相反、實際上等價的算法: 一種是<strong>正向</strong>地把三元組 <span>$[S, a, b]$</span><!-- Has MathJax --> 一層一層往下帶, 另一種是 <a href="https://distill.pub/2019/computing-receptive-fields/" target="_blank" rel="external">Distill 那篇 Computing Receptive Fields of Convolutional Neural Networks</a> 的<strong>反向</strong>遞迴.</p>
+<a id="more"></a>
+<hr>
+<h2 id="為什麼串流需要-RF"><a href="#為什麼串流需要-RF" class="headerlink" title="為什麼串流需要 RF"></a>為什麼串流需要 RF</h2><p>PyTorch 訓練時的 graph 是 <strong>offline</strong> 的: 整段輸入一次餵進去. 以音訊為例, 一次吃 6 秒的音檔, 卷積在整條時間軸上滑過, 該補的 padding 補好, 輸出一次算完. 這在 GPU 上很自然, 但搬到邊緣裝置就有兩個麻煩:</p>
+<ul>
+<li><strong>記憶體</strong>: 6 秒 16 kHz 的音訊是 96000 個取樣點, 中間每一層的 feature map 都得整條留著</li>
+<li><strong>延遲</strong>: 要等 6 秒的資料到齊才算得出第一個輸出, 這不是 real time</li>
+</ul>
+<p>實務上的做法是把模型設計成 causal 的, 並且把 offline graph 轉成 <strong>streaming graph</strong>: 每次只餵一小段 (一個 hop), 每個 node 內部保留一小塊 <strong>keeping buffer</strong>, 把上次算過、這次還用得到的邊界資料留下來. 轉換之後, 記憶體用量從「整段序列」降到「每個 node 只留它真正需要的那幾幀」, 而且每收到一個 hop 就能吐出對應的輸出, 達到 real time 的效果.<br>要做這個轉換, 不管是編譯器自動做還是人工做, 都必須對<strong>每一個 node</strong> 回答兩個問題:</p>
+<ul>
+<li>這個 node 的輸出幀 <span>$j$</span><!-- Has MathJax -->, <strong>最早</strong>用到哪一幀輸入? → 決定 keeping buffer 要留多少<strong>過去</strong>的幀</li>
+<li><strong>最晚</strong>用到哪一幀輸入? → 決定要等多少<strong>未來</strong>的幀才算得出它, 也就是 lookahead latency</li>
+</ul>
+<p>這兩個端點圍出來的區間, 就是這個 node 的 receptive field.<br>這裡要強調一件事: 串流需要的是<strong>理論</strong> RF, 不是 effective RF. <a href="https://arxiv.org/abs/1701.04128" target="_blank" rel="external">Luo et al.</a> 指出輸入對輸出的影響力其實會往視窗邊緣大致呈高斯衰減, 只佔滿理論 RF 的一小部分, 所以理論值高估了「實際上重要」的範圍. 但對 buffer 來說沒得商量, 必須保留每一個<strong>可能</strong>有影響的幀, 少留一幀, 串流的結果就跟 offline 對不起來了.</p>
+<hr>
+<h2 id="先建立直覺"><a href="#先建立直覺" class="headerlink" title="先建立直覺"></a>先建立直覺</h2><p>最簡單的例子是一個 <span>$k = 3$</span><!-- Has MathJax -->、stride 1、padding 1 的 conv: 輸出幀 <span>$j$</span><!-- Has MathJax --> 讀輸入幀 <span>$j-1, j, j+1$</span><!-- Has MathJax -->, 要保留 1 幀過去、等 1 幀未來. 疊兩層, 輸出幀 <span>$j$</span><!-- Has MathJax --> 讀第一層的 <span>$j-1, \dots, j+1$</span><!-- Has MathJax -->, 而它們各自又讀輸入的前後一幀, 合起來就是 <span>$j-2, \dots, j+2$</span><!-- Has MathJax -->:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">輸入幀      j−2  j−1   j   j+1  j+2</div><div class="line">              \   |   /|\   |   /</div><div class="line">第一層輸出      j−1    j    j+1</div><div class="line">                  \    |    /</div><div class="line">第二層輸出             j</div></pre></td></tr></table></figure>
+<p>5 幀的視窗、2 幀的未來. 整篇文章要做的, 就是把這個推理寫成一般的公式.</p>
+<hr>
+<h2 id="三個數字-S-a-b"><a href="#三個數字-S-a-b" class="headerlink" title="三個數字: [S, a, b]"></a>三個數字: <code>[S, a, b]</code></h2><p>先定義記號. 把每個 node 配上一個累積 stride <span>$S$</span><!-- Has MathJax --> 與兩個偏移 <span>$a \le b$</span><!-- Has MathJax -->, 意思是: <strong>該 node 的輸出幀 <span>$j$</span><!-- Has MathJax --> 讀取網路輸入的第</strong><br><span>$$[\, j \cdot S + a,\ \ j \cdot S + b \,]$$</span><!-- Has MathJax --> <strong>幀.</strong> 就這樣, 三個數字把一個 node 對輸入的依賴講完了.<br><strong>錨點 <span>$j \cdot S$</span><!-- Has MathJax -->.</strong> 輸出每走 1 幀, 輸入走 <span>$S$</span><!-- Has MathJax --> 幀, 所以輸出幀 <span>$j$</span><!-- Has MathJax --> 在時間上對應到輸入幀 <span>$j \cdot S$</span><!-- Has MathJax -->, 稱為它的<em>錨點</em>. <span>$a$</span><!-- Has MathJax --> 與 <span>$b$</span><!-- Has MathJax --> 是相對錨點的偏移: 視窗從錨點往前 <span>$-a$</span><!-- Has MathJax --> 幀開始、到錨點往後 <span>$b$</span><!-- Has MathJax --> 幀結束. 前一節的兩層例子就是 <span>$S = 1,\ a = -2,\ b = 2$</span><!-- Has MathJax -->.<br>由此得到我們真正想要的兩個量:</p>
+<ul>
+<li><span>$\mathrm{rf} = b - a + 1$</span><!-- Has MathJax -->: 視窗的幀數, 也就是 keeping buffer 的大小</li>
+<li><span>$\mathrm{lookahead} = \max(b, 0)$</span><!-- Has MathJax -->: 要算出輸出 <span>$j$</span><!-- Has MathJax -->, 輸入必須到達 <span>$j \cdot S + b$</span><!-- Has MathJax -->, 也就是比錨點多等 <span>$b$</span><!-- Has MathJax --> 幀</li>
+</ul>
+<p><span>$\mathrm{lookahead}$</span><!-- Has MathJax --> 取 <span>$\max$</span><!-- Has MathJax --> 是因為 <span>$b$</span><!-- Has MathJax --> 可以是負的, 輸出只依賴錨點<em>之前</em>的輸入, 那就完全不必等, latency 是 0 而不是負數.</p>
+<p><img src="/2026/09/20/Receptive-Field-怎麼算-從-streaming-的需求談起/sab_window.svg" width="100%" height="100%"></p>
+<h3 id="每個-op-都有自己的-S-a-b"><a href="#每個-op-都有自己的-S-a-b" class="headerlink" title="每個 op 都有自己的 [S, a, b]"></a>每個 op 都有自己的 <code>[S, a, b]</code></h3><p>一個 op 只要能寫成「輸出幀 <span>$j$</span><!-- Has MathJax --> 讀輸入幀 <span>$j \cdot s - p,\ \dots,\ j \cdot s - p + k - 1$</span><!-- Has MathJax -->」, 它就有自己的 <span>$(k, s, p)$</span><!-- Has MathJax -->, 也就有自己的 <span>$[S, a, b]$</span><!-- Has MathJax --> (這裡 <span>$p$</span><!-- Has MathJax --> 指的是<strong>左</strong> padding; 右 padding 只決定序列結尾多吐幾幀, 不改變某個輸出讀的是<em>哪些</em>輸入, 所以完全不會出現在公式裡). 把 op 單獨接在網路輸入上, 從 <span>$[1, 0, 0]$</span><!-- Has MathJax --> 出發套一次下一節的規則, 就得到:</p>
+<table>
+<thead>
+<tr>
+<th>op</th>
+<th><span>$k,\ s,\ p$</span><!-- Has MathJax --></th>
+<th><span>$[S,\ a,\ b]$</span><!-- Has MathJax --></th>
+<th><span>$\mathrm{rf}$</span><!-- Has MathJax --> / <span>$\mathrm{lookahead}$</span><!-- Has MathJax --></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ReLU</code> / <code>Sigmoid</code> 等 pointwise</td>
+<td><span>$1,\ 1,\ 0$</span><!-- Has MathJax --></td>
+<td><span>$[1,\ 0,\ 0]$</span><!-- Has MathJax --></td>
+<td>1 / 0</td>
+</tr>
+<tr>
+<td><code>Conv1d(k=3, s=1, p=1)</code> (<code>&quot;same&quot;</code>)</td>
+<td><span>$3,\ 1,\ 1$</span><!-- Has MathJax --></td>
+<td><span>$[1,\ -1,\ 1]$</span><!-- Has MathJax --></td>
+<td>3 / 1</td>
+</tr>
+<tr>
+<td><code>Conv1d(k=3, s=2, p=1)</code></td>
+<td><span>$3,\ 2,\ 1$</span><!-- Has MathJax --></td>
+<td><span>$[2,\ -1,\ 1]$</span><!-- Has MathJax --></td>
+<td>3 / 1</td>
+</tr>
+<tr>
+<td>causal conv: <code>F.pad(x,(2,0))</code> + <code>Conv1d(k=3, p=0)</code></td>
+<td><span>$3,\ 1,\ 2$</span><!-- Has MathJax --></td>
+<td><span>$[1,\ -2,\ 0]$</span><!-- Has MathJax --></td>
+<td>3 / <strong>0</strong></td>
+</tr>
+<tr>
+<td><code>Conv1d(k=3, d=2, p=2)</code> (dilated)</td>
+<td><span>$5,\ 1,\ 2$</span><!-- Has MathJax --></td>
+<td><span>$[1,\ -2,\ 2]$</span><!-- Has MathJax --></td>
+<td>5 / 2</td>
+</tr>
+<tr>
+<td><code>MaxPool1d(k=2, s=2)</code></td>
+<td><span>$2,\ 2,\ 0$</span><!-- Has MathJax --></td>
+<td><span>$[2,\ 0,\ 1]$</span><!-- Has MathJax --></td>
+<td>2 / 1</td>
+</tr>
+<tr>
+<td>純延遲 <code>F.pad(x,(2,0))</code></td>
+<td><span>$1,\ 1,\ 2$</span><!-- Has MathJax --></td>
+<td><span>$[1,\ -2,\ -2]$</span><!-- Has MathJax --></td>
+<td>1 / <strong>0</strong></td>
+</tr>
+<tr>
+<td><code>GRU</code> / <code>LSTM</code></td>
+<td>—</td>
+<td><span>$[1,\ -\infty,\ 0]$</span><!-- Has MathJax --></td>
+<td><span>$\infty$</span><!-- Has MathJax --> / 0</td>
+</tr>
+</tbody>
+</table>
+<p>幾個值得一提的:</p>
+<ul>
+<li><strong>Dilation 走 <span>$k_{\text{eff}}$</span><!-- Has MathJax -->.</strong> 膨脹率 <span>$d$</span><!-- Has MathJax --> 的 kernel 實際涵蓋 <span>$k_{\text{eff}} = d(k-1) + 1$</span><!-- Has MathJax --> 個元素, 所以公式裡的 <span>$k$</span><!-- Has MathJax --> 一律換成 <span>$k_{\text{eff}}$</span><!-- Has MathJax --> 就好, 不需要另外一套規則.</li>
+<li><strong>Causal conv 的 lookahead 是 0.</strong> 把 padding 全部補在左邊 (<span>$p = k - 1$</span><!-- Has MathJax -->) 會讓 <span>$b = k - 1 - p = 0$</span><!-- Has MathJax -->. 這正是「causal」的定義, 而它在 <span>$[S, a, b]$</span><!-- Has MathJax --> 的語言裡就只是 <span>$b \le 0$</span><!-- Has MathJax -->.</li>
+<li><strong><span>$b$</span><!-- Has MathJax --> 可以是負的.</strong> 純延遲 <code>F.pad(x, (2,0))</code> 的輸出幀 <span>$j$</span><!-- Has MathJax --> 就是輸入幀 <span>$j - 2$</span><!-- Has MathJax --> (前兩幀是補出來的 0), 所以 <span>$a = b = -2$</span><!-- Has MathJax -->: 輸出比錨點還早確定, 一幀都不用等.</li>
+<li><strong>RNN 讓 <span>$a = -\infty$</span><!-- Has MathJax -->.</strong> GRU / LSTM 的輸出依賴<em>整段</em>過去, 視窗左端延伸到序列開頭, <span>$\mathrm{rf} = \infty$</span><!-- Has MathJax -->. 但 <span>$b$</span><!-- Has MathJax --> 不受影響, RNN 不會讓你多等未來的幀.</li>
+<li><strong>Pointwise 的 op 直接沿用輸入的 <span>$[S, a, b]$</span><!-- Has MathJax --></strong>, 因為它不讀相鄰幀. 這裡也順帶回答一個常見的問題: layer normalization 算不算? 如果它沿 channel 維做, 那對時間軸而言就是 pointwise (<span>$k = 1$</span><!-- Has MathJax -->); 如果是沿整條時間軸做 global normalization, 那等於 <span>$k = \infty$</span><!-- Has MathJax -->, 跟 RNN 一樣讓 <span>$a = -\infty$</span><!-- Has MathJax -->. 重點是<strong>只要能定義出 <span>$(k, s, p)$</span><!-- Has MathJax -->, 就能算 RF</strong>, 跟這個 op 在做什麼運算無關.</li>
+</ul>
+<hr>
+<h2 id="正向規則"><a href="#正向規則" class="headerlink" title="正向規則"></a>正向規則</h2><p>現在把規則推出來. 假設某個 node 已經有了 <span>$[S, a, b]$</span><!-- Has MathJax -->, 也就是它的輸出幀 <span>$i$</span><!-- Has MathJax --> 讀網路輸入幀 <span>$[\, i \cdot S + a,\ i \cdot S + b \,]$</span><!-- Has MathJax -->. 後面接一個 window 層, 參數是 <span>$(k, s, p)$</span><!-- Has MathJax -->. 由定義, 新的輸出幀 <span>$j$</span><!-- Has MathJax --> 讀這個 node 的第<br><span>$$i = j \cdot s - p,\ \ \dots,\ \ j \cdot s - p + k - 1$$</span><!-- Has MathJax --> 幀. 把最左的 <span>$i$</span><!-- Has MathJax --> 代進 <span>$i \cdot S + a$</span><!-- Has MathJax -->、最右的 <span>$i$</span><!-- Has MathJax --> 代進 <span>$i \cdot S + b$</span><!-- Has MathJax -->, 就得到它讀的網路輸入幀的兩個端點; 再整理成「<span>$j \cdot$</span><!-- Has MathJax --> 新 stride <span>$+$</span><!-- Has MathJax --> 偏移」的形式:<br><span>$$\begin{aligned} (j s - p) \cdot S + a &amp;= j \cdot (S s) + (a - p S) \\ (j s - p + k - 1) \cdot S + b &amp;= j \cdot (S s) + \big(b + (k - 1 - p) S\big) \end{aligned}$$</span><!-- Has MathJax --> 對照定義 <span>$[\, j \cdot S&apos; + a&apos;,\ j \cdot S&apos; + b&apos; \,]$</span><!-- Has MathJax -->, 就直接讀出了正向規則 (右邊的 <span>$S$</span><!-- Has MathJax --> 都是<strong>更新前</strong>的值):<br><span>$$S&apos; = S \cdot s, \qquad a&apos; = a - p \cdot S, \qquad b&apos; = b + (k - 1 - p) \cdot S$$</span><!-- Has MathJax --> 三條式子在做的是同一件事: <strong>把這一層的量 (以這一層的輸入幀為單位) 乘上 <span>$S$</span><!-- Has MathJax -->, 換算成網路輸入幀</strong>.</p>
+<ul>
+<li><span>$S&apos; = S \cdot s$</span><!-- Has MathJax -->: 這一層每走一步跳 <span>$s$</span><!-- Has MathJax --> 幀, 而這一層的每一幀又相當於 <span>$S$</span><!-- Has MathJax --> 個網路輸入幀</li>
+<li><span>$a&apos; = a - p \cdot S$</span><!-- Has MathJax -->: 左 padding 讓視窗往錨點左邊多伸 <span>$p$</span><!-- Has MathJax --> 幀, 換算成 <span>$p \cdot S$</span><!-- Has MathJax --> 個網路輸入幀</li>
+<li><span>$b&apos; = b + (k - 1 - p) \cdot S$</span><!-- Has MathJax -->: 視窗從左端往右寬 <span>$k - 1$</span><!-- Has MathJax --> 幀, 扣掉 padding 往左推的 <span>$p$</span><!-- Has MathJax --> 幀, 右端比錨點多出 <span>$k - 1 - p$</span><!-- Has MathJax --> 幀</li>
+</ul>
+<p>兩式相減, 得到只關心大小時的版本:<br><span>$$\mathrm{rf}&apos; = \mathrm{rf} + (k - 1) \cdot S$$</span><!-- Has MathJax --> padding 消失了, 它改變的是讀<em>哪些</em>輸入幀, 不是讀<em>幾</em>幀. 這跟直覺一致.<br>起點是網路輸入自己: 它的輸出幀 <span>$j$</span><!-- Has MathJax --> 就是輸入幀 <span>$j$</span><!-- Has MathJax -->, 所以</p>
+<span>$$S = 1, \qquad a = b = 0$$</span><!-- Has MathJax -->
+
+<h3 id="為什麼要正向走"><a href="#為什麼要正向走" class="headerlink" title="為什麼要正向走"></a>為什麼要正向走</h3><p>Distill 文章的所有遞迴式都是從輸出往輸入走 (<span>$l \to l-1$</span><!-- Has MathJax -->), 而這裡是反過來的: 依拓撲順序從網路輸入出發, 把 <span>$[S, a, b]$</span><!-- Has MathJax --> 一層一層往下帶.<br>選正向的理由很實際: <strong>一個 graph 可能有很多個輸出, 但通常只有一個帶時間軸的輸入.</strong> 正向走一次, 就同時得到了<em>每一個</em> node 的答案; 反向的話, 每個輸出都得各走一次. 而串流轉換需要的恰恰是「每個 node 的 buffer 要多大」, 不是只有最後那個輸出的數字.<br>另一個好處是, <span>$[S, a, b]$</span><!-- Has MathJax --> 把<strong>大小與位置一起帶著走</strong>. 反向那套要算位置得另外再跑一組遞迴 (下一節的 <span>$u, v$</span><!-- Has MathJax --> 或 <span>$S_l, P_l$</span><!-- Has MathJax -->).</p>
+<h3 id="走一個例子"><a href="#走一個例子" class="headerlink" title="走一個例子"></a>走一個例子</h3><p>拿一條 5 層的鏈: 全部 <span>$k = 3$</span><!-- Has MathJax -->、<code>&quot;same&quot;</code> padding (<span>$p = 1$</span><!-- Has MathJax -->), strides 依序是 <span>$1, 1, 2, 1, 1$</span><!-- Has MathJax -->.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">LAYERS = [(<span class="number">3</span>, <span class="number">1</span>, <span class="number">1</span>), (<span class="number">3</span>, <span class="number">1</span>, <span class="number">1</span>), (<span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>), (<span class="number">3</span>, <span class="number">1</span>, <span class="number">1</span>), (<span class="number">3</span>, <span class="number">1</span>, <span class="number">1</span>)]   <span class="comment"># (k, s, p)</span></div><div class="line"></div><div class="line">S, a, b = <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span></div><div class="line">print(f<span class="string">"&#123;'x':6s&#125; S=&#123;S&#125;  a=&#123;a:3d&#125;  b=&#123;b:3d&#125;  rf=&#123;b-a+1:3d&#125;  lookahead=&#123;max(b,0):3d&#125;"</span>)</div><div class="line"><span class="keyword">for</span> i, (k, s, p) <span class="keyword">in</span> enumerate(LAYERS, <span class="number">1</span>):</div><div class="line">    S, a, b = S * s, a - p * S, b + (k - <span class="number">1</span> - p) * S      <span class="comment"># 右邊都是更新前的 S</span></div><div class="line">    print(f<span class="string">"L&#123;i:&lt;5d&#125; S=&#123;S&#125;  a=&#123;a:3d&#125;  b=&#123;b:3d&#125;  rf=&#123;b-a+1:3d&#125;  lookahead=&#123;max(b,0):3d&#125;"</span>)</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">x      S=1  a=  0  b=  0  rf=  1  lookahead=  0</div><div class="line">L1     S=1  a= -1  b=  1  rf=  3  lookahead=  1</div><div class="line">L2     S=1  a= -2  b=  2  rf=  5  lookahead=  2</div><div class="line">L3     S=2  a= -3  b=  3  rf=  7  lookahead=  3</div><div class="line">L4     S=2  a= -5  b=  5  rf= 11  lookahead=  5</div><div class="line">L5     S=2  a= -7  b=  7  rf= 15  lookahead=  7</div></pre></td></tr></table></figure>
+<p>逐層手算對一下:<br><span>$$\begin{array}{llll} \texttt{L1}: &amp; S = 1 \cdot 1 = 1, &amp; a = 0 - 1 \cdot 1 = -1, &amp; b = 0 + (3 - 1 - 1) \cdot 1 = 1 \\ \texttt{L2}: &amp; S = 1 \cdot 1 = 1, &amp; a = -1 - 1 \cdot 1 = -2, &amp; b = 1 + 1 \cdot 1 = 2 \\ \texttt{L3}: &amp; S = 1 \cdot 2 = 2, &amp; a = -2 - 1 \cdot 1 = -3, &amp; b = 2 + 1 \cdot 1 = 3 \\ \texttt{L4}: &amp; S = 2 \cdot 1 = 2, &amp; a = -3 - 1 \cdot 2 = -5, &amp; b = 3 + 1 \cdot 2 = 5 \\ \texttt{L5}: &amp; S = 2 \cdot 1 = 2, &amp; a = -5 - 1 \cdot 2 = -7, &amp; b = 5 + 1 \cdot 2 = 7 \end{array}$$</span><!-- Has MathJax --> 注意 <code>L4</code> 的 <span>$k = 3$</span><!-- Has MathJax --> 對 <span>$b$</span><!-- Has MathJax --> 的貢獻是 <span>$1 \cdot 2 = 2$</span><!-- Has MathJax --> 幀而不是 1 幀: <code>L3</code> 已經把 stride 墊到 2, <code>L4</code> 的一幀等於輸入的兩幀. <strong>RF 的成長速度取決於它前面累積了多少 stride</strong>, 這是整套公式最關鍵的直覺.</p>
+<p><img src="/2026/09/20/Receptive-Field-怎麼算-從-streaming-的需求談起/rf_growth.svg" width="100%" height="100%"></p>
+<p>因為是對稱 padding, 這裡剛好 <span>$a = -b$</span><!-- Has MathJax -->, 所以 RF 序列是 <span>$3, 5, 7, 11, 15$</span><!-- Has MathJax -->: 每層往兩邊各長一樣多.</p>
+<hr>
+<h2 id="反向的視角-Distill-文章的公式"><a href="#反向的視角-Distill-文章的公式" class="headerlink" title="反向的視角: Distill 文章的公式"></a>反向的視角: Distill 文章的公式</h2><h3 id="記號與遞迴"><a href="#記號與遞迴" class="headerlink" title="記號與遞迴"></a>記號與遞迴</h3><p>Distill 那篇把網路看成 <span>$L$</span><!-- Has MathJax --> 層的鏈, 第 <span>$l$</span><!-- Has MathJax --> 層有 kernel <span>$k_l$</span><!-- Has MathJax -->、stride <span>$s_l$</span><!-- Has MathJax -->、左 padding <span>$p_l$</span><!-- Has MathJax -->, 輸入 feature map 為 <span>$f_{l-1}$</span><!-- Has MathJax -->、輸出為 <span>$f_l$</span><!-- Has MathJax --> (<span>$f_0$</span><!-- Has MathJax --> 是網路輸入、<span>$f_L$</span><!-- Has MathJax --> 是輸出).<br>定義 <span>$r_l$</span><!-- Has MathJax --> 為「<span>$f_L$</span><!-- Has MathJax --> 的<strong>一個</strong>輸出元素, 需要 <span>$f_l$</span><!-- Has MathJax --> 的多少個元素」. 若我們關心 <span>$f_l$</span><!-- Has MathJax --> 上的 <span>$r_l$</span><!-- Has MathJax --> 個連續元素 <span>$u, \dots, u + r_l - 1$</span><!-- Has MathJax -->, 它們在 <span>$f_{l-1}$</span><!-- Has MathJax --> 裡從 <span>$u s_l - p_l$</span><!-- Has MathJax --> 讀到 <span>$(u + r_l - 1)s_l - p_l + k_l - 1$</span><!-- Has MathJax -->, 共 <span>$s_l(r_l - 1) + k_l$</span><!-- Has MathJax --> 個. 於是從 <span>$r_L = 1$</span><!-- Has MathJax --> 出發反向走:<br><span>$$r_{l-1} = s_l \cdot r_l + (k_l - s_l) \tag{1}$$</span><!-- Has MathJax --> 展開得到封閉式:<br><span>$$r_0 = \sum_{l=1}^{L} (k_l - 1) \prod_{i=1}^{l-1} s_i + 1 \tag{2}$$</span><!-- Has MathJax --> 位置也有一組類似的遞迴. 設輸出上關心的元素索引為 <span>$u_L, \dots, v_L$</span><!-- Has MathJax -->, 則</p>
+<span>$$u_{l-1} = -p_l + u_l \cdot s_l \tag{3}$$</span><!-- Has MathJax -->
+
+<span>$$v_{l-1} = -p_l + v_l \cdot s_l + k_l - 1 \tag{4}$$</span><!-- Has MathJax -->
+
+<span>$$u_0 = u_L \prod_{i=1}^{L} s_i - \sum_{l=1}^{L} p_l \prod_{i=1}^{l-1} s_i \tag{5}$$</span><!-- Has MathJax -->
+
+<p><span>$$v_0 = v_L \prod_{i=1}^{L} s_i - \sum_{l=1}^{L} (1 + p_l - k_l) \prod_{i=1}^{l-1} s_i \tag{6}$$</span><!-- Has MathJax --> 文章還給 Eq.(5) 裡的兩個量取了名字, <strong>effective stride</strong> <span>$S_l$</span><!-- Has MathJax --> 與 <strong>effective padding</strong> <span>$P_l$</span><!-- Has MathJax -->:<br><span>$$S_l = \prod_{i=l+1}^{L} s_i, \qquad P_l = \sum_{m=l+1}^{L} p_m \prod_{i=l+1}^{m-1} s_i$$</span><!-- Has MathJax --> 它們同樣滿足反向遞迴 (起點 <span>$S_L = 1$</span><!-- Has MathJax -->、<span>$P_L = 0$</span><!-- Has MathJax -->):</p>
+<span>$$S_{l-1} = s_l \cdot S_l \tag{7}$$</span><!-- Has MathJax -->
+
+<p><span>$$P_{l-1} = s_l \cdot P_l + p_l \tag{8}$$</span><!-- Has MathJax --> 於是單一輸出元素的 Eq.(5) 簡化成 <span>$u_0 = -P_0 + u_L \cdot S_0$</span><!-- Has MathJax -->, 而 RF 的中心是</p>
+<span>$$c_0 = -P_0 + u_L \cdot S_0 + \frac{r_0 - 1}{2} \tag{9}$$</span><!-- Has MathJax -->
+
+<h3 id="注意-兩邊的「RF」定義不一樣"><a href="#注意-兩邊的「RF」定義不一樣" class="headerlink" title="注意: 兩邊的「RF」定義不一樣"></a>注意: 兩邊的「RF」定義不一樣</h3><p>這是最容易搞混的地方, 值得特別標出來.<br>正向那套問的是:</p>
+<blockquote>
+<p>要跑出 <span>$f_l$</span><!-- Has MathJax --> 的一幀, 需要多少 <span>$f_{\mathbf{0}}$</span><!-- Has MathJax --> 的幀? <strong>輸入端固定在 <span>$f_0$</span><!-- Has MathJax -->, 變動的是輸出端</strong></p>
+</blockquote>
+<p>Distill 文章的 <span>$r_l$</span><!-- Has MathJax --> 問的則是:</p>
+<blockquote>
+<p>要跑出 <span>$f_{\mathbf{L}}$</span><!-- Has MathJax --> 的一幀, 需要多少 <span>$f_l$</span><!-- Has MathJax --> 的幀? <strong>輸出端固定在 <span>$f_L$</span><!-- Has MathJax -->, 變動的是輸入端</strong></p>
+</blockquote>
+<p>所以同樣寫成「第 <span>$l$</span><!-- Has MathJax --> 層的 RF」, 兩者是<strong>不同的東西</strong>. <span>$r_3$</span><!-- Has MathJax --> 跟 <span>$\mathrm{rf}_3$</span><!-- Has MathJax --> 沒有任何理由要相等, 實際上也不相等. 兩者只在端點重合:<br><span>$$r_0 \;=\; \mathrm{rf}_L$$</span><!-- Has MathJax --> 都是「整個網路的輸出一幀, 要看幾幀輸入」. 接下來要證的等價性, 指的就是這件事.<br>還有一個記號上的小坑: Distill 的 <span>$S_l$</span><!-- Has MathJax --> 是<strong>從第 <span>$l$</span><!-- Has MathJax --> 層算到輸出</strong>的 stride 乘積, 而正向規則裡的 <span>$S$</span><!-- Has MathJax --> 是<strong>從網路輸入算到目前這層</strong>的乘積. 兩者在端點也對得上 (<span>$S_0 = \prod_{i=1}^{L} s_i$</span><!-- Has MathJax --> 就是走完全部層之後的 <span>$S$</span><!-- Has MathJax -->), 但中途的值同樣不能直接對照.</p>
+<h3 id="同一條鏈的反向遞迴"><a href="#同一條鏈的反向遞迴" class="headerlink" title="同一條鏈的反向遞迴"></a>同一條鏈的反向遞迴</h3><p>把前面〈走一個例子〉那條 5 層鏈拿來反向跑一次:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">r, S, P = <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span></div><div class="line">print(f<span class="string">"r_&#123;len(LAYERS)&#125;=&#123;r:3d&#125;  S=&#123;S&#125;  P=&#123;P&#125;"</span>)</div><div class="line"><span class="keyword">for</span> i, (k, s, p) <span class="keyword">in</span> reversed(list(enumerate(LAYERS, <span class="number">1</span>))):</div><div class="line">    r, S, P = s * r + (k - s), s * S, s * P + p</div><div class="line">    print(f<span class="string">"r_&#123;i-1&#125;=&#123;r:3d&#125;  S=&#123;S&#125;  P=&#123;P&#125;"</span>)</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">r_5=  1  S=1  P=0</div><div class="line">r_4=  3  S=1  P=1</div><div class="line">r_3=  5  S=1  P=2</div><div class="line">r_2= 11  S=2  P=5</div><div class="line">r_1= 13  S=2  P=6</div><div class="line">r_0= 15  S=2  P=7</div></pre></td></tr></table></figure>
+<p><span>$r_0 = 15$</span><!-- Has MathJax -->、<span>$S_0 = 2$</span><!-- Has MathJax -->、<span>$P_0 = 7$</span><!-- Has MathJax -->. 對照正向的最後一列: <span>$\mathrm{rf} = 15$</span><!-- Has MathJax -->、<span>$S = 2$</span><!-- Has MathJax -->、<span>$-a = 7$</span><!-- Has MathJax -->, 完全相同.<br>同時也看到了中途的值確實對不上: 正向的 <span>$\mathrm{rf}_3 = 7$</span><!-- Has MathJax -->, 反向的 <span>$r_3 = 5$</span><!-- Has MathJax -->. 兩個都對, 只是在回答不同的問題.</p>
+<hr>
+<h2 id="等價性"><a href="#等價性" class="headerlink" title="等價性"></a>等價性</h2><h3 id="大小"><a href="#大小" class="headerlink" title="大小"></a>大小</h3><p>先解反向遞迴 Eq.(1). 宣稱<br><span>$$r_l = \sum_{m=l+1}^{L}(k_m - 1) \prod_{i=l+1}^{m-1} s_i \;+\; 1$$</span><!-- Has MathJax --><br><span>$l = L$</span><!-- Has MathJax --> 時右邊是空和加 1, 等於 <span>$r_L = 1$</span><!-- Has MathJax -->, 成立. 假設對 <span>$l$</span><!-- Has MathJax --> 成立, 代進 Eq.(1):<br><span>$$\begin{aligned} r_{l-1} &amp;= s_l \left[ \sum_{m=l+1}^{L}(k_m - 1)\prod_{i=l+1}^{m-1} s_i + 1 \right] + k_l - s_l \\ &amp;= \sum_{m=l+1}^{L}(k_m - 1)\prod_{i=l}^{m-1} s_i \;+\; (k_l - 1) + 1 \\ &amp;= \sum_{m=l}^{L}(k_m - 1)\prod_{i=l}^{m-1} s_i \;+\; 1 \end{aligned}$$</span><!-- Has MathJax --> 最後一步是把 <span>$k_l - 1$</span><!-- Has MathJax --> 寫成 <span>$(k_l - 1)\prod_{i=l}^{l-1} s_i$</span><!-- Has MathJax --> (空乘積為 1) 併回和式. 這正是宣稱把 <span>$l$</span><!-- Has MathJax --> 換成 <span>$l-1$</span><!-- Has MathJax --> 的樣子, 所以歸納成立. 取 <span>$l = 0$</span><!-- Has MathJax --> 就得到 Eq.(2).<br>接著是關鍵的一步, 把封閉式的<strong>最後一項拆出來</strong>:<br><span>$$r_0 \;=\; \underbrace{\left[ \sum_{l=1}^{L-1}(k_l - 1)\prod_{i=1}^{l-1} s_i + 1 \right]}_{\text{把第 } L \text{ 層拿掉之後的封閉式}} \;+\; (k_L - 1)\prod_{i=1}^{L-1} s_i$$</span><!-- Has MathJax --> 中括號裡那一坨, 恰好就是「把最後一層拿掉的那個網路」套用 Eq.(2) 的結果, 也就是正向的 <span>$\mathrm{rf}_{L-1}$</span><!-- Has MathJax -->. 所以<br><span>$$\mathrm{rf}_L = \mathrm{rf}_{L-1} + (k_L - 1)\prod_{i=1}^{L-1} s_i$$</span><!-- Has MathJax --> 而正向規則給的是 <span>$\mathrm{rf}&apos; = \mathrm{rf} + (k-1) \cdot S$</span><!-- Has MathJax -->, 其中正向走到第 <span>$L$</span><!-- Has MathJax --> 層時, 累積的 <span>$S$</span><!-- Has MathJax --> 正好是 <span>$\prod_{i=1}^{L-1} s_i$</span><!-- Has MathJax -->. 兩式一模一樣.<br>換句話說: <strong>正向遞迴就是反向遞迴的封閉解按層拆開來看.</strong> 反向那條 Eq.(1) 每一步都在做「乘 <span>$s_l$</span><!-- Has MathJax --> 再加 <span>$k_l - s_l$</span><!-- Has MathJax -->」, 看不出每一層各自貢獻多少; 解開之後才看得出來, 第 <span>$l$</span><!-- Has MathJax --> 層的貢獻是乾淨的 <span>$(k_l - 1)\prod_{i&lt;l} s_i$</span><!-- Has MathJax -->, 而且跟後面的層無關, 這就是正向能夠一層一層往下累加的原因.</p>
+<h3 id="位置"><a href="#位置" class="headerlink" title="位置"></a>位置</h3><p>大小對上了, 但正向的 <span>$[S, a, b]$</span><!-- Has MathJax --> 帶的資訊更多, 它還給了位置. 這部分同樣對得上.<br>正向走到第 <span>$l$</span><!-- Has MathJax --> 層時, 手上的 <span>$S$</span><!-- Has MathJax --> 是 <span>$\prod_{i=1}^{l-1} s_i$</span><!-- Has MathJax -->, 所以走完整條鏈之後:</p>
+<ul>
+<li><span>$S$</span><!-- Has MathJax --> 每層乘上 <span>$s_l$</span><!-- Has MathJax -->, 最後是 <span>$\prod_{i=1}^{L} s_i = S_0$</span><!-- Has MathJax --></li>
+<li><span>$-a$</span><!-- Has MathJax --> 每層加上 <span>$p_l \prod_{i&lt;l} s_i$</span><!-- Has MathJax -->, 最後是 <span>$\sum_{l=1}^{L} p_l \prod_{i=1}^{l-1} s_i = P_0$</span><!-- Has MathJax --></li>
+<li><span>$b$</span><!-- Has MathJax --> 每層加上 <span>$(k_l - 1 - p_l)\prod_{i&lt;l} s_i$</span><!-- Has MathJax -->, 最後是 <span>$-\sum_{l=1}^{L}(1 + p_l - k_l)\prod_{i=1}^{l-1} s_i$</span><!-- Has MathJax -->, 也就是 <span>$v_L = 0$</span><!-- Has MathJax --> 時的 <span>$v_0$</span><!-- Has MathJax --></li>
+</ul>
+<p>第二條特別值得看一眼. Eq.(8) 的 <span>$P_{l-1} = s_l P_l + p_l$</span><!-- Has MathJax --> 從輸出端往前收, 展開是<br><span>$$P_0 = p_1 + s_1\big(p_2 + s_2(p_3 + \cdots)\big) = \sum_{l=1}^{L} p_l \prod_{i=1}^{l-1} s_i$$</span><!-- Has MathJax --> 跟正向由左往右直接累加的是<strong>同一個和</strong>, 只是結合順序相反, 就像用 Horner 法算多項式跟直接展開算, 結果一樣.</p>
+<h3 id="對照表"><a href="#對照表" class="headerlink" title="對照表"></a>對照表</h3><table>
+<thead>
+<tr>
+<th>正向 <span>$[S, a, b]$</span><!-- Has MathJax --></th>
+<th>Distill</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span>$S$</span><!-- Has MathJax --></td>
+<td>effective stride <span>$S_0$</span><!-- Has MathJax --> (Eq. 7)</td>
+</tr>
+<tr>
+<td><span>$-a$</span><!-- Has MathJax --></td>
+<td>effective padding <span>$P_0$</span><!-- Has MathJax --> (Eq. 8)</td>
+</tr>
+<tr>
+<td><span>$\mathrm{rf} = b - a + 1$</span><!-- Has MathJax --></td>
+<td><span>$r_0$</span><!-- Has MathJax --> (Eq. 2)</td>
+</tr>
+<tr>
+<td><span>$j \cdot S + a$</span><!-- Has MathJax -->、<span>$j \cdot S + b$</span><!-- Has MathJax --></td>
+<td><span>$u_L = v_L = j$</span><!-- Has MathJax --> 時的 <span>$u_0$</span><!-- Has MathJax -->、<span>$v_0$</span><!-- Has MathJax --> (Eq. 5–6)</td>
+</tr>
+<tr>
+<td><span>$(a + b)/2$</span><!-- Has MathJax --></td>
+<td><span>$j = 0$</span><!-- Has MathJax --> 時的中心 <span>$c_0$</span><!-- Has MathJax --> (Eq. 9)</td>
+</tr>
+<tr>
+<td><span>$\mathrm{lookahead} = \max(b, 0)$</span><!-- Has MathJax --></td>
+<td>沒有對應</td>
+</tr>
+</tbody>
+</table>
+<p>最後一列是唯一一個 Distill 文章裡沒有的量, 而原因也不難理解: 影像的 RF 分析在意的是<strong>大小</strong>與<strong>對齊</strong>, 沒有時間軸, 自然沒有「要等多久」這回事. 串流才需要把視窗的右端單獨拿出來看.</p>
+<hr>
+<h2 id="用-autograd-驗證"><a href="#用-autograd-驗證" class="headerlink" title="用 autograd 驗證"></a>用 autograd 驗證</h2><p>公式對不對, 其實可以直接問 autograd: 對每個輸出幀求它對輸入的梯度, 梯度非零的輸入幀, 就是它真正依賴的幀.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> torch, torch.nn <span class="keyword">as</span> nn</div><div class="line"></div><div class="line">LAYERS = [(<span class="number">3</span>, <span class="number">1</span>, <span class="number">1</span>), (<span class="number">3</span>, <span class="number">1</span>, <span class="number">1</span>), (<span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>), (<span class="number">3</span>, <span class="number">1</span>, <span class="number">1</span>), (<span class="number">3</span>, <span class="number">1</span>, <span class="number">1</span>)]   <span class="comment"># (k, s, p)</span></div><div class="line">S, a, b = <span class="number">2</span>, <span class="number">-7</span>, <span class="number">7</span>                                                 <span class="comment"># 正向規則算出來的結果</span></div><div class="line"></div><div class="line">torch.manual_seed(<span class="number">0</span>)</div><div class="line">m = nn.Sequential(*[nn.Conv1d(<span class="number">1</span> <span class="keyword">if</span> i == <span class="number">0</span> <span class="keyword">else</span> <span class="number">4</span>, <span class="number">4</span>, k, stride=s, padding=p)</div><div class="line">                    <span class="keyword">for</span> i, (k, s, p) <span class="keyword">in</span> enumerate(LAYERS)]).eval()</div><div class="line">x = torch.randn(<span class="number">1</span>, <span class="number">1</span>, <span class="number">64</span>, requires_grad=<span class="keyword">True</span>)</div><div class="line">y = m(x)</div><div class="line"></div><div class="line"><span class="keyword">for</span> j <span class="keyword">in</span> (<span class="number">0</span>, <span class="number">1</span>, <span class="number">8</span>, <span class="number">15</span>):</div><div class="line">    g, = torch.autograd.grad(y[..., j].sum(), x, retain_graph=<span class="keyword">True</span>)</div><div class="line">    idx = torch.nonzero(g.abs().sum(<span class="number">1</span>).flatten()).flatten()</div><div class="line">    print(f<span class="string">"j=&#123;j:2d&#125;: autograd [&#123;idx.min().item():3d&#125;, &#123;idx.max().item():3d&#125;]"</span></div><div class="line">          f<span class="string">"   公式 [&#123;j*S+a:4d&#125;, &#123;j*S+b:4d&#125;]"</span>)</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">j= 0: autograd [  0,   7]   公式 [  -7,    7]</div><div class="line">j= 1: autograd [  0,   9]   公式 [  -5,    9]</div><div class="line">j= 8: autograd [  9,  23]   公式 [   9,   23]</div><div class="line">j=15: autograd [ 23,  37]   公式 [  23,   37]</div></pre></td></tr></table></figure>
+<p>在序列<strong>內部</strong> (<span>$j = 8, 15$</span><!-- Has MathJax -->) 兩者完全相同, 公式是 tight 的, 不多不少. 在<strong>邊界</strong>上公式會伸出去 (<span>$j = 0$</span><!-- Has MathJax --> 的左端 <span>$-7$</span><!-- Has MathJax -->、<span>$j = 1$</span><!-- Has MathJax --> 的左端 <span>$-5$</span><!-- Has MathJax -->), 那些位置在 offline 推論時是補出來的 0, 不是真的輸入幀. 這正是 effective padding 這個名字的意思.</p>
+<hr>
+<h2 id="小結-以及還沒講的部分"><a href="#小結-以及還沒講的部分" class="headerlink" title="小結, 以及還沒講的部分"></a>小結, 以及還沒講的部分</h2><p>有了每個 node 的 <span>$[S, a, b]$</span><!-- Has MathJax -->, 我們能馬上感受到兩件事:</p>
+<ul>
+<li><span>$\mathrm{rf} = b - a + 1$</span><!-- Has MathJax --> → 這個 node 被多少輸入幀所影響</li>
+<li><span>$\mathrm{lookahead} = \max(b, 0)$</span><!-- Has MathJax --> → 這個 node 貢獻多少 latency</li>
+</ul>
+<p>而且<strong>任何 op 只要能定義出 <span>$(k, s, p)$</span><!-- Has MathJax --> 的概念, 就能算它的 RF</strong>, 跟它在做什麼運算無關. 這也是為什麼這套東西可以寫成一個對 graph 做分析的 pass, 而不是針對每種 layer 各寫一套.<br>這篇只處理了 single path. 真實的模型有 residual add、有 U-Net 的 skip connection, 兩條 <span>$[S, a, b]$</span><!-- Has MathJax --> 不同的路徑在 <code>add</code> 相遇時會發生什麼事? Distill 文章給的對齊條件是, 對所有的路徑配對 <span>$(i, j)$</span><!-- Has MathJax --> 與所有的 <span>$l$</span><!-- Has MathJax -->:<br><span>$$S_l^{(i)} = S_l^{(j)}, \qquad -P_l^{(i)} + \frac{r_l^{(i)} - 1}{2} \;=\; -P_l^{(j)} + \frac{r_l^{(j)} - 1}{2}$$</span><!-- Has MathJax --> 翻成 <span>$[S, a, b]$</span><!-- Has MathJax --> 的語言會漂亮很多. 第二條的左右兩邊分別就是 <span>$a + \frac{b-a}{2} = \frac{a+b}{2}$</span><!-- Has MathJax -->, 所以整個條件是:<br><span>$$S^{(i)} = S^{(j)}, \qquad \frac{a^{(i)} + b^{(i)}}{2} = \frac{a^{(j)} + b^{(j)}}{2}$$</span><!-- Has MathJax --> <strong>相同的 <span>$S$</span><!-- Has MathJax -->、相同的中心.</strong> 講白話就是: 兩條路徑的取樣率要一樣, 而且每個輸出位置看的視窗要對準同一個中心點. <span>$S$</span><!-- Has MathJax --> 不同表示兩邊的時間軸根本沒對齊; 中心不同則表示視窗一邊偏過去了, 相加之後每個輸出幀的依賴範圍會變得不一致, 這時候就得靠插入 delay 之類的手段把它們橋回來. 這部分留待之後再寫.</p>
+<hr>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><ul>
+<li>Araujo, Norris &amp; Sim, <a href="https://distill.pub/2019/computing-receptive-fields/" target="_blank" rel="external">Computing Receptive Fields of Convolutional Neural Networks</a>, Distill, 2019</li>
+<li>Luo et al., <a href="https://arxiv.org/abs/1701.04128" target="_blank" rel="external">Understanding the Effective Receptive Field in Deep Convolutional Neural Networks</a>, NIPS 2016</li>
+<li>作者釋出的參考實作: <a href="https://github.com/google-research/receptive_field" target="_blank" rel="external">google-research/receptive_field</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>Post author：</strong>
+      Chih-Sheng Chen
+    </li>
+    <li class="post-copyright-link">
+      <strong>Post link：</strong>
+      <a href="https://bobondemon.github.io/2026/09/20/Receptive-Field-怎麼算-從-streaming-的需求談起/" title="Receptive Field 怎麼算? 從 streaming 的需求談起">https://bobondemon.github.io/2026/09/20/Receptive-Field-怎麼算-從-streaming-的需求談起/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>Copyright Notice： </strong>
+      All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+    </li>
+  </ul>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Receptive-Field/" rel="tag"># Receptive Field</a>
+          
+            <a href="/tags/Streaming/" rel="tag"># Streaming</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2026/08/16/Schur-互補和-Cholesky-分解/" rel="next" title="Schur 互補和 Cholesky 分解">
+                <i class="fa fa-chevron-left"></i> Schur 互補和 Cholesky 分解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Chih-Sheng Chen" />
+          <p class="site-author-name" itemprop="name">Chih-Sheng Chen</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">124</span>
+                <span class="site-state-item-name">文章</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分類</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">264</span>
+                <span class="site-state-item-name">標籤</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#為什麼串流需要-RF"><span class="nav-number">1.</span> <span class="nav-text">為什麼串流需要 RF</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#先建立直覺"><span class="nav-number">2.</span> <span class="nav-text">先建立直覺</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三個數字-S-a-b"><span class="nav-number">3.</span> <span class="nav-text">三個數字: [S, a, b]</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#每個-op-都有自己的-S-a-b"><span class="nav-number">3.1.</span> <span class="nav-text">每個 op 都有自己的 [S, a, b]</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#正向規則"><span class="nav-number">4.</span> <span class="nav-text">正向規則</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#為什麼要正向走"><span class="nav-number">4.1.</span> <span class="nav-text">為什麼要正向走</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#走一個例子"><span class="nav-number">4.2.</span> <span class="nav-text">走一個例子</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#反向的視角-Distill-文章的公式"><span class="nav-number">5.</span> <span class="nav-text">反向的視角: Distill 文章的公式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#記號與遞迴"><span class="nav-number">5.1.</span> <span class="nav-text">記號與遞迴</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注意-兩邊的「RF」定義不一樣"><span class="nav-number">5.2.</span> <span class="nav-text">注意: 兩邊的「RF」定義不一樣</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#同一條鏈的反向遞迴"><span class="nav-number">5.3.</span> <span class="nav-text">同一條鏈的反向遞迴</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#等價性"><span class="nav-number">6.</span> <span class="nav-text">等價性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#大小"><span class="nav-number">6.1.</span> <span class="nav-text">大小</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#位置"><span class="nav-number">6.2.</span> <span class="nav-text">位置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#對照表"><span class="nav-number">6.3.</span> <span class="nav-text">對照表</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#用-autograd-驗證"><span class="nav-number">7.</span> <span class="nav-text">用 autograd 驗證</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#小結-以及還沒講的部分"><span class="nav-number">8.</span> <span class="nav-text">小結, 以及還沒講的部分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#參考資料"><span class="nav-number">9.</span> <span class="nav-text">參考資料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chih-Sheng Chen</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+<span id="busuanzi_container_site_pv">
+  本站總瀏覽 <span id="busuanzi_value_site_pv"></span> 次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站訪客 <span id="busuanzi_value_site_uv"></span> 人
+</span>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
